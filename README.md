@@ -6,8 +6,8 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 | Arquivo | O que é |
 |---|---|
 | `Escala_de_Setores_V215.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V158.html` | **Versão atual** da Escala de Encarregados |
-| V204–V214 / V150–V157 | versões anteriores, guardadas para comparação |
+| `Escala_2x1_encarregados_V159.html` | **Versão atual** da Escala de Encarregados |
+| V204–V214 / V150–V158 | versões anteriores, guardadas para comparação |
 
 O histórico de mudanças de cada versão fica no comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo.
 
