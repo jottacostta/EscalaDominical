@@ -1,0 +1,5 @@
+node_modules/
+testes/node_modules/
+# dados reais de funcionários nunca entram no repositório
+*.xlsx
+Historico_*.json

@@ -1,0 +1,12 @@
+{
+  "name": "escala-dominical-testes",
+  "private": true,
+  "description": "Testes automáticos da Escala de Setores e da Escala 2×1 de Encarregados (dados fictícios).",
+  "scripts": {
+    "test": "node rodar.js",
+    "test:completo": "node rodar.js --completo"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
