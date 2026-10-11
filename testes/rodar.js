@@ -132,7 +132,8 @@ async function testarEncarregados(browser){
   ok(await p.evaluate(() => equipe.length) === nEnc, `equipe fictícia carregada (${nEnc} pessoas)`);
   for(let m = MESES[0]; m <= MESES[1]; m++){
     await mudarMes(p, m, ANO); await p.waitForTimeout(900);
-    if(m === MESES[0]){ await p.click('.step[data-step="2"]'); await p.waitForTimeout(400); await p.click('#btnAutoGrupos'); await p.waitForTimeout(900); }
+    // até a V161 havia o passo “Grupos” (sem efeito na escala); da V162 em diante ele não aparece mais
+    if(m === MESES[0] && await p.isVisible('.step[data-step="2"]')){ await p.click('.step[data-step="2"]'); await p.waitForTimeout(400); await p.click('#btnAutoGrupos'); await p.waitForTimeout(900); }
     await p.click('.step[data-step="5"]'); await p.waitForTimeout(400);
     const antes = await p.evaluate(() => JSON.stringify(trabalhoDomingo || {}));
     await p.evaluate(() => document.getElementById('btnGerar').click());
