@@ -1,0 +1,37 @@
+name: Testes automáticos das escalas
+
+on:
+  push:
+    branches:
+      - "chatgpt/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Playwright + Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar dependências
+        working-directory: testes
+        run: npm install
+      - name: Instalar Chromium
+        run: npx --prefix testes playwright install --with-deps chromium
+      - name: Suíte rápida
+        working-directory: testes
+        run: npm test
+      - name: Suíte completa de 12 meses
+        working-directory: testes
+        run: npm run test:completo
