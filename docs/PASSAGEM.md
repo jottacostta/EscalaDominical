@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V229.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V230.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V229 (resultado da investigação de `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`). Depois do merge: nenhum.
+- **PRs abertos:** PR [ChatGPT] Setores V230 — filtro da escala manual (branch `chatgpt/setores-filtro-escala-manual`); aguarda checks e revisão antes de merge.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V230**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V231**, Encarregados **V166**.
 
 ---
 
@@ -95,6 +95,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-11 — Setores V230 — filtro da escala manual — ChatGPT
+- **O que mudou e por quê:** a lista de seleção manual/mista passa a exibir somente operacionais ativos. Lideranças reconhecidas por `ehLiderancaDomingo`, afastados (AF) e emprestados (EP) são ocultados; operacionais ativos com folga fixa no domingo continuam visíveis. O filtro atua apenas na renderização da lista, sem remover funcionários do cadastro nem alterar o motor.
+- **Onde no código:** `Escala_de_Setores_V230.html`, na montagem de `cards` em `renderSelecaoDomingosGeracao()`; cópia publicada em `setores/index.html`.
+- **Como foi testado:** acrescentado teste de regressão em `testes/rodar.js` com dados fictícios; aguardando execução da suíte e do GitHub Actions no PR antes de considerar pronto para merge.
+- **Para continuar:** confirmar o check “Testes” verde e revisar a renderização no navegador. Não mesclar sem autorização explícita do dono. Assinado: ChatGPT
 
 Modelo de entrada:
 ```
