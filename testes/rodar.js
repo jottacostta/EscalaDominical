@@ -200,16 +200,21 @@ async function testarSetores(browser){
       const destino = equipeDoSetor('Padaria');
       const o = origem.find(x => String(x.matricula) === mat);
       const d = destino.find(x => String(x.matricula) === mat);
+      const txt = equipeTextoDosDados([{aptidaoId:f.aptidaoId,matricula:mat,nome:f.nome,cargo:f.cargo,horario:f.horario,setor:f.setor,setorEmprestimo:f.setorEmprestimo,subsetor:'',turno:'ABERTURA',folga:2,pendente:false,situacao:'EP',naoAptoDomingo:false}]);
+      const linhaTxt = txt.split(/\\r?\\n/).find(l=>l.startsWith(mat+';')) || '';
+      const projeto = window.v147MontarProjeto();
       const result = {origemEP:!!o && o.situacao === 'EP', origemBloqueada:!origem.filter(x=>String(x.matricula)===mat&&String(x.situacao||'A')!=='EP').length,
         origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem-1,
         destinoDisponivel:!!d && d.situacao === 'A' && d.aptoDomingo === true,
         destinoContaAumentada:destino.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesDestino+1,
-        matriculaUnica:todasEquipes.filter(x=>String(x.matricula)===mat).length===1};
+        matriculaUnica:todasEquipes.filter(x=>String(x.matricula)===mat).length===1,
+        equipeTxtPersiste:txt.includes('AptidaoDomingo;SetorEmprestimo')&&linhaTxt.endsWith(';Padaria'),
+        historicoPersiste:projeto?.equipe?.todas?.find(x=>String(x.matricula)===mat)?.setorEmprestimo==='Padaria'};
       todasEquipes.splice(0,todasEquipes.length,...backup);
       return result;
     });
-    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica,
-      'V231: empréstimo bloqueia origem, libera destino, ajusta contagens e mantém matrícula única ('+JSON.stringify(r)+')');
+    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica && r.equipeTxtPersiste && r.historicoPersiste,
+      'V231: empréstimo bloqueia origem, libera destino, ajusta contagens, mantém matrícula única e persiste destino no TXT/histórico ('+JSON.stringify(r)+')');
   }
 
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
