@@ -7,10 +7,12 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V164</title>
+<title>Escala 2×1 — Encarregados V165</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V165 — MENU ⋮ NO COMPUTADOR: em telas mais baixas o menu passava da altura da tela e as últimas opções ficavam
+       escondidas; agora ele cabe na tela e rola por dentro.
 V164 — FOLGA FIXA BLOQUEIA O FERIADO (igual à Escala de Setores): quem tem a folga fixa no dia da semana do feriado
        (ou a folga da semana/DSR caindo nele) não pode ser marcado para trabalhar nesse feriado. A pessoa aparece com o
        aviso “🔒 FOLGA FIXA OBRIGATÓRIA” e o “Trabalha” fica bloqueado; “Todos trabalham”, a busca e “Copiar o feriado
@@ -1639,6 +1641,11 @@ table th{letter-spacing:.02em}
 .v163-grupo{margin:12px 0 2px;font-size:12.5px;font-weight:800;color:var(--brand,#0047BA)}
 .v163-acoes{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.v163-acoes .btn{flex:1;min-width:130px}
 </style>
+<style id="v165-menu">
+/* menu ⋮: nunca passa da altura da tela; rola por dentro quando tem muitas opções */
+.menu-sheet{max-height:calc(100vh - var(--header-h,60px) - var(--safe-top,0px) - 18px)!important;max-height:calc(100dvh - var(--header-h,60px) - var(--safe-top,0px) - 18px)!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#B7C4DA transparent}
+.menu-sheet::-webkit-scrollbar{width:8px}.menu-sheet::-webkit-scrollbar-thumb{background:#B7C4DA;border-radius:8px}
+</style>
 </head>
 <body class="em-inicio">
 
@@ -1693,7 +1700,7 @@ table th{letter-spacing:.02em}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V164 · folga fixa no feriado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V165 · menu com rolagem</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
