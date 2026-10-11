@@ -89,6 +89,11 @@ npm run test:completo    # o ano inteiro — rode quando mexer no motor da escal
 
 Se a mudança cria uma regra nova, **acrescente a conferência dela** em `testes/rodar.js`.
 
+Os mesmos testes rodam **sozinhos no GitHub** (`.github/workflows/testes.yml`) em todo Pull Request, em todo push no `main` e nos branches `chatgpt/…` (suíte rápida e a do ano inteiro). Não crie outro workflow de testes: use esse.
+Se o seu ambiente não consegue instalar o Chromium, abra o PR e confira o resultado na aba **Checks** do PR
+(“Testes”): o PR só está pronto quando esse teste fica verde ✅. Diga no PR onde os testes rodaram.
+Cada conferência tem que poder **falhar** de verdade (nunca compare um valor com ele mesmo).
+
 ## 7. Privacidade (obrigatório)
 
 - **Nunca** coloque no repositório a planilha do RH (`*.xlsx`), históricos (`Historico_*.json`) ou qualquer arquivo com nomes/matrículas de funcionários reais.
