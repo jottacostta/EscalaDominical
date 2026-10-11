@@ -7,10 +7,26 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V220</title>
+<title>Escala de Setores — V222</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V222 — (1) QUEM ESTÁ TRABALHANDO É APTO AO DOMINGO, A NÃO SER QUE A FOLGA NO DOMINGO SEJA ESCOLHIDA À MÃO: o “Domingo”
+       voltou como opção de folga fixa no Editar equipe e no quadro “📅 Folga fixa da equipe” da escala à mão. Escolhida à
+       mão, a folga no domingo fica guardada (aparelho, quadro e histórico do mês) e a pessoa não entra no domingo. A folga
+       no domingo que vem do ERP (“segunda a sábado”) continua virando “a definir”. Jovens aprendizes seguem a regra deles.
+       (2) FILTROS NA ESCALA À MÃO/MISTA: “Ordenar: A–Z | Z–A | Admissão (mais antigos) | Admissão (mais novos)” e “Turno:
+       Todos | Abertura | Fechamento”. Cada pessoa mostra uma etiqueta 🌅 Abertura ou 🌙 Fechamento. O app lembra a escolha.
+       (3) MENU ⋮ NO COMPUTADOR: em telas mais baixas o menu passava da altura da tela e as últimas opções ficavam
+       escondidas; agora ele cabe na tela e rola por dentro.
+V221 — QUEM NÃO ESTÁ AFASTADO É APTO AO DOMINGO: a folga fixa no domingo deixou de existir para quem trabalha (ela
+       tirava a pessoa do domingo). Quem estava com folga no domingo — inclusive as 99 pessoas que o ERP marca como
+       “segunda a sábado” — passa a ser apto ao domingo, com a folga fixa “a definir”. Exceção mantida: jovens aprendizes.
+       A caixa “Não apto a trabalhar domingo” saiu do Editar equipe. A FOLGA FIXA pode ser definida em dois lugares:
+       Editar equipe (agora com a opção “— a definir —”) ou na escala à mão/mista (novo quadro “📅 Folga fixa da equipe”).
+       Definida em qualquer um deles, fica guardada no aparelho, no quadro da loja e no histórico do mês, e uma nova
+       importação do ERP NÃO a troca mais. Corrigido: salvar o Editar equipe transformava toda folga “a definir” em terça,
+       e uma nova importação do ERP fazia o mesmo.
 V220 — “FUNCIONÁRIOS POR TEMPO DE SERVIÇO” NO HISTÓRICO: o arquivo do mês guarda a seção pronta, como registro daquele
        mês — cada pessoa com matrícula, cargo, data de admissão e o tempo de casa calculado no dia em que o histórico foi
        guardado, agrupada por anos de casa, para o SETOR e para a LOJA inteira (com média, mais antigo e mais novo).
@@ -1930,6 +1946,35 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 #afModal .v218-fn{cursor:pointer}
 #afModal .v218-fn:hover,#afModal .v218-fn:focus-visible{border-color:var(--blue-700,#0047BA);outline:none}
 </style>
+<style id="v221-folgas">
+.v221-folgas{margin:10px 0 12px;border:1.5px solid var(--border-strong,#CFD8E6);border-radius:14px;background:var(--surface,#fff)}
+.v221-folgas>summary{cursor:pointer;padding:11px 14px;font-weight:800;font-size:14px;color:var(--ink);list-style:none;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.v221-folgas>summary::-webkit-details-marker{display:none}
+.v221-folgas>summary::after{content:'▾';margin-left:auto;color:var(--muted)}
+.v221-folgas[open]>summary::after{content:'▴'}
+.v221-folgas .pend{font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;background:#FFF4CC;color:#7A5A00}
+.v221-folgas .ok{font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;background:#E7F7EE;color:#15803D}
+.v221-corpo{padding:0 14px 12px}
+.v221-corpo p{margin:0 0 8px;font-size:12.5px;color:var(--muted)}
+.v221-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px}
+.v221-it{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:7px 10px;border:1px solid var(--border);border-radius:10px;font-size:13px}
+.v221-it.p{background:#FFFBEA;border-color:#F3D36B}
+.v221-it b{font-size:12.5px;display:block}.v221-it small{color:var(--muted);font-size:11px}
+.v221-it select{padding:6px 8px;border:1.5px solid var(--border-strong,#CFD8E6);border-radius:9px;font:inherit;font-size:13px;flex:0 0 auto}
+</style>
+<style id="v222-filtros">
+.v222-ctrl{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;margin:10px 0 2px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.v222-ctrl label{display:flex;align-items:center;gap:6px}
+.v222-ctrl select{padding:7px 10px;border:1.5px solid var(--border-strong,#CFD8E6);border-radius:10px;font:inherit;font-size:13px;background:#fff}
+.v222-t{display:inline-block;margin:3px 0 0;font-size:11px;font-weight:800;border-radius:999px;padding:1px 8px;line-height:1.5}
+.v222-t.ab{background:#FFF4CC;color:#7A5A00}
+.v222-t.fe{background:#E5ECFB;color:#1E3A8A}
+.v222-t.sem{background:var(--surface-3,#EDF1F7);color:var(--muted)}
+.v222-oculto{display:none!important}
+/* menu ⋮: nunca passa da altura da tela; rola por dentro quando tem muitas opções */
+.menu-sheet{max-height:calc(100vh - var(--header-h,60px) - var(--safe-top,0px) - 18px)!important;max-height:calc(100dvh - var(--header-h,60px) - var(--safe-top,0px) - 18px)!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#B7C4DA transparent}
+.menu-sheet::-webkit-scrollbar{width:8px}.menu-sheet::-webkit-scrollbar-thumb{background:#B7C4DA;border-radius:8px}
+</style>
 </head>
 <body>
 <script>
@@ -2025,7 +2070,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V220 · tempo de serviço no histórico</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V222 · folga no domingo à mão e filtros</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2696,7 +2741,8 @@ function editorSetor(valor){
   if(atual && !existe) h=`<option value="${htmlEsc(atual)}" selected>${htmlEsc(atual)}</option>`+h;
   return h;
 }
-function editorFolga(valor){const n=normalizarFolgaFixa(valor,2);return diasFolga.map(d=>`<option value="${d[1]}" ${n===d[1]?'selected':''}>${d[0]}</option>`).join('');}
+function editorFolga(valor,pendente){const n=normalizarFolgaFixa(valor,2);   /* V221: “a definir” e sem domingo (domingo só para jovem aprendiz já marcado) */
+  return `<option value="" ${pendente?'selected':''}>— a definir —</option>`+diasFolga.map(d=>`<option value="${d[1]}" ${!pendente&&n===d[1]?'selected':''}>${d[0]}</option>`).join('');}
 function editorTurno(valor){const atual=String(valor||'').trim().toUpperCase();return `<option value="" ${!atual?'selected':''}>Selecione</option><option value="ABERTURA" ${atual==='ABERTURA'?'selected':''}>Abertura</option><option value="FECHAMENTO" ${atual==='FECHAMENTO'?'selected':''}>Fechamento</option>`;}
 function editorSubsetor(valor){const opcoes=['Limpeza','Perfumaria','Saudáveis'];return '<option value="">Selecione</option>'+opcoes.map(x=>`<option value="${htmlEsc(x)}" ${norm(valor)===norm(x)?'selected':''}>${htmlEsc(x)}</option>`).join('');}
 function atualizarSubsetorEditor(row){
@@ -2720,8 +2766,9 @@ function dadosAtuaisEditorFolgas(){
     nome:row.querySelector('.ed-nome')?.value.trim().toUpperCase()||`Funcionário ${i+1}`,
     setor:row.querySelector('.ed-setor')?.value.trim()||'',
     turno:String(row.querySelector('.ed-turno')?.value||'').trim().toUpperCase(),
-    folga:Number(row.querySelector('.ed-folga')?.value),
-    naoApto:row.querySelector('.ed-apto-dom')?.checked===true,
+    folga:(v=>v===''||v==null?2:Number(v))(row.querySelector('.ed-folga')?.value),   // V221: “a definir” conta como dia de semana
+    pendente:row.querySelector('.ed-folga')?.value==='',
+    naoApto:false,
     situacao:String(row.querySelector('.ed-situacao')?.value||'A').trim().toUpperCase()
   })).filter(x=>x.nome || x.setor);
 }
@@ -3250,7 +3297,7 @@ function abrirEditorEquipe(){
 function renderEditorRows(rows){
   const area=$('equipeEditorRows');
   if(!rows){
-  rows=equipe.map(f=>({aptidaoId:f.aptidaoId||'',matricula:f.matricula||'',nome:f.nome||'',cargo:f.cargo||'',horario:f.horario||'',setor:f.setor||$('setorSelecionado')?.value||'',subsetor:f.subsetor||'',turno:f.turno||'',folga:normalizarFolgaFixa(f.folgaFixa,2),situacao:f.situacao||'A',statusErp:f.statusErp||'',situacaoDetalhe:f.situacaoDetalhe||'',admissao:f.admissao||'',aptoDomingo:f.aptoDomingo!==false}));
+  rows=equipe.map(f=>({aptidaoId:f.aptidaoId||'',matricula:f.matricula||'',nome:f.nome||'',cargo:f.cargo||'',horario:f.horario||'',setor:f.setor||$('setorSelecionado')?.value||'',subsetor:f.subsetor||'',turno:f.turno||'',folga:normalizarFolgaFixa(f.folgaFixa,2),pendente:!!f.folgaPendente,situacao:f.situacao||'A',statusErp:f.statusErp||'',situacaoDetalhe:f.situacaoDetalhe||'',admissao:f.admissao||'',aptoDomingo:f.aptoDomingo!==false}));
     if(!rows.length) rows=[{matricula:'',nome:'',cargo:'',horario:'',setor:$('setorSelecionado')?.value||'Mercearia',subsetor:'',turno:'',folga:2,situacao:'A',statusErp:'',situacaoDetalhe:'',admissao:'',aptoDomingo:true}];
   }
   let h='';
@@ -3262,12 +3309,12 @@ function renderEditorRows(rows){
     <select class="ed-turno">${editorTurno(r.turno||'')}</select>
     <select class="ed-setor">${editorSetor(r.setor||$('setorSelecionado')?.value||'')}</select>
     <div class="ed-subsetor-wrap" style="display:${norm(r.setor||$('setorSelecionado')?.value||'')==='mercearia'?'block':'none'}"><select class="ed-subsetor" ${norm(r.setor||$('setorSelecionado')?.value||'')==='mercearia'?'':'disabled'}>${editorSubsetor(r.subsetor||'')}</select></div>
-    <select class="ed-folga">${editorFolga(r.folga)}</select>
+    <select class="ed-folga" title="Folga fixa da semana">${editorFolga(r.folga,r.pendente)}</select>
     <select class="ed-situacao" title="Situação operacional do quadro"><option value="A" ${String(r.situacao||'A').toUpperCase()==='A'?'selected':''}>A — Ativo</option><option value="AF" ${String(r.situacao||'A').toUpperCase()==='AF'?'selected':''}>AF — Afastado</option><option value="EP" ${String(r.situacao||'A').toUpperCase()==='EP'?'selected':''}>EP — Emprestado</option></select>
     <input class="ed-status-erp" value="${htmlEsc(r.statusErp||'')}" placeholder="Status original do ERP" readonly>
     <input class="ed-situacao-detalhe" value="${htmlEsc(r.situacaoDetalhe||'')}" placeholder="Situação detalhada do ERP" readonly>
     <input class="ed-admissao" value="${htmlEsc(r.admissao||'')}" placeholder="Data de admissão" readonly>
-    <label class="ed-apto"><input type="checkbox" class="ed-apto-dom" ${r.aptoDomingo===false?'checked':''}> Não Apto a trabalhar domingo</label>
+    <input type="checkbox" class="ed-apto-dom" hidden>
     <button type="button" class="remove" data-remove="${i}" title="Excluir">🗑️</button>
   </div>`).join('');
   area.innerHTML=h||'<div class="editor-empty">Nenhum funcionário cadastrado.</div>';
@@ -3295,7 +3342,8 @@ function coletarEquipeEditor(){
     const setorSelecionado=row.querySelector('.ed-setor')?.value.trim()||'';
     const turno=String(row.querySelector('.ed-turno')?.value||'').trim().toUpperCase();
     const situacao=String(row.querySelector('.ed-situacao')?.value||'A').trim().toUpperCase();
-    const folga=normalizarFolgaFixa(row.querySelector('.ed-folga')?.value,2);
+    const folgaTxt=row.querySelector('.ed-folga')?.value, pendente=folgaTxt===''||folgaTxt==null;   // V221
+    const folga=pendente?2:normalizarFolgaFixa(folgaTxt,2);
     if(!matricula&&!nome&&!cargo)return;
     if(!matricula)erros.push('Linha '+(i+1)+': informe a matrícula.');
     else if(!nome)erros.push('Linha '+(i+1)+': informe o nome.');
@@ -3303,9 +3351,9 @@ function coletarEquipeEditor(){
     else if(!setorSelecionado)erros.push('Linha '+(i+1)+': selecione o setor.');
     else if(!turno)erros.push('Linha '+(i+1)+': selecione o turno (Abertura ou Fechamento).');
     else {
-      const naoAptoDomingo=row.querySelector('.ed-apto-dom')?.checked===true;
+      const naoAptoDomingo=false;   // V221: quem não está afastado é apto ao domingo
       const subsetor=(norm(setorSelecionado)==='mercearia') ? String(row.querySelector('.ed-subsetor')?.value||'').toUpperCase() : '';
-    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,subsetor,turno,folga,situacao,naoAptoDomingo});
+    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,subsetor,turno,folga,pendente,situacao,naoAptoDomingo});
     }
   });
   // Uma matrícula não pode representar dois funcionários no cadastro.
@@ -3384,7 +3432,7 @@ function salvarEquipeEditor(){
       return idsNaTela.has(String(f.aptidaoId||'')) || matsNaTela.has(String(f.matricula||'').trim());   // desta área: só fica quem ainda está na lista
     });
     const removidos=antes-todasEquipes.length;
-    todasEquipes.forEach(f=>{ f.folgaFixa=normalizarFolgaFixa(f.folgaFixa,2); f.tipo=tipo(f.cargo); if(f.folgaPendente&&dados.some(d=>String(d.matricula)===String(f.matricula))) f.folgaPendente=false; });
+    todasEquipes.forEach(f=>{ f.folgaFixa=normalizarFolgaFixa(f.folgaFixa,2); f.tipo=tipo(f.cargo); { const d=dados.find(x=>String(x.matricula)===String(f.matricula)); if(d){ f.folgaPendente=!!d.pendente; if(!d.pendente) f.folgaDefinida=true; window.v222DomManual?.marcar(f,!d.pendente&&Number(d.folga)===0); } } });   // V222: domingo escolhido à mão fica guardado   // V221: “a definir” continua a definir
     equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,area));
     sugestaoFolgasEditorAplicada=false;
     atualizarTituloEscala(); renderEquipe(); montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
@@ -8736,6 +8784,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     try{ const qi=window.v219QuadroInfo?.(); const quadro=Array.isArray(todasEquipes)?todasEquipes:[];   // V219: quadro da loja inteira (tempo de serviço, situação, folgas…)
       if(quadro.length) p.loja={quadro:clone(quadro),importadoEm:Number(qi?.importadoEm||qi?.t||0)||null,emissao:qi?.emissao||'',arquivoERP:qi?.arquivo||'',pessoas:quadro.length};
       const cf=_lerTodasCfgFuncao()[norm(val('setorSelecionado')||'')]; if(cf) p.config.coberturaFuncaoSetor=clone(cf); }catch(e){}
+    try{ p.config.folgaDomingoManual=window.v222DomManual?.lista()||[]; }catch(e){}   // V222
     try{ p.funcionariosPorTempoDeServico=window.v220TempoServico?.(equipe,Array.isArray(todasEquipes)?todasEquipes:[],val('setorSelecionado')||'')||null; }catch(e){}   // V220
     p.planejamento={grupos:clone(grupos),selecaoManualDomingo:clone(selecaoManualDomingo),horariosManuaisDomingo:clone(horariosManuaisDomingo),horariosManuaisFeriado:clone(horariosManuaisFeriado),antecipacoesFolgaManual:clone(antecipacoesFolgaManual),datasBalanco:clone(datasBalanco)};
     p.resultado={periodosSemFolgaFeriado:clone(periodosSemFolgaFeriado),previsoesDomingo:clone(previsoesDomingo),trabalhoDomingo:clone(trabalhoDomingo),trabalhoFeriado:clone(trabalhoFeriado),descansosDomingo:clone(descansosDomingo),alvosPorDomingo:clone(alvosPorDomingo),estadoFinalMes:clone(estadoFinalMes),ultimaEscala:clone(ultimaEscala),folgasCompensatorias:clone(folgasCompensatorias),sugestoesFolgasFeriado:clone(sugestoesFolgasFeriado)};
@@ -9226,7 +9275,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       ${Object.keys(fora).length?`<p class="erp-sub" style="margin-top:8px">Fora das áreas (não importados): ${Object.entries(fora).map(([k,v])=>esc(k)+' ('+v+')').join(', ')}.</p>`:''}
       <h4>Opções</h4>
       <label class="erp-op"><input type="checkbox" id="erpOpSaidas" ${cmp.saidas.length?'checked':''}><span>Tirar do app quem <b>não aparece mais</b> na planilha (${cmp.saidas.length}).</span></label>
-      <label class="erp-op"><input type="checkbox" id="erpOpSegSab" checked><span>Quem trabalha “de segunda a sábado” (${infer} pessoa(s)) fica com <b>folga fixa no domingo</b>, se ainda não tiver um dia de folga definido.</span></label>
+      <input type="checkbox" id="erpOpSegSab" hidden>
       ${aprend?`<label class="erp-op"><input type="checkbox" id="erpOpAprendiz" checked><span><b>Bloquear o domingo</b> dos ${aprend} jovem(ns) aprendiz(es) de ADM Geral (trabalham só de segunda a sexta).</span></label>`:''}
       <label class="erp-op"><input type="checkbox" id="erpOpAfastados" checked><span>Deixar <b>afastados e quem está de férias</b> fora da escala de domingo.</span></label>
       <details><summary>✏️ Alterados (${cmp.alterados.length})</summary>${lista(cmp.alterados,x=>`<b>${esc(x.p.nome)}</b>: ${esc(x.mud.join('; '))}`)}</details>
@@ -9252,9 +9301,10 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     // 1) quem já estava no app e continua no relatório; 2) novos; 3) quem saiu mas você quis manter
     an.pessoas.forEach(p=>{
       const f=porMat.get(p.mat); let folga=null;
-      if(f&&f.folgaFixa!=null) folga=Number(f.folgaFixa);
-      if(p.folgaOrigem==='erp') folga=p.folga;
-      else if(folga==null&&op.segSab&&p.folgaOrigem==='inferida'){ folga=p.folga; nSegSab++; }
+      if(f&&f.folgaFixa!=null&&!f.folgaPendente) folga=Number(f.folgaFixa);   // V221: folga já definida (à mão ou antes) é mantida
+      if(p.folgaOrigem==='erp'&&folga==null) folga=p.folga;
+      else if(folga==null&&op.segSab&&p.folgaOrigem==='inferida'&&p.folga!==0){ folga=p.folga; nSegSab++; }
+      if(folga===0&&!p.bloqueioDomingo&&!window.v222DomManual?.temMat(p.mat)) folga=null;   // V221/V222: domingo do ERP vira “a definir”; o escolhido à mão fica
       if(folga==null&&op.aprendizes&&p.bloqueioDomingo) folga=0;            // aprendiz: fim de semana em casa (não fica “a definir”)
       if(folga==null) pendentes.add(p.mat);
       let sit=p.situacao; if(!op.afastados&&sit==='AF') sit='A';
@@ -11737,7 +11787,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       atual.forEach(f=>{ const o=porP.get(chaveP(f)); if(!o) return;
         if(!f.admissao&&o.admissao){ f.admissao=o.admissao; n++; }
         if(!f.situacaoDetalhe&&o.situacaoDetalhe&&String(f.situacao||'A').toUpperCase()!=='A'){ f.situacaoDetalhe=o.situacaoDetalhe; n++; }
-        if(!f.statusErp&&o.statusErp){ f.statusErp=o.statusErp; } });
+        if(!f.statusErp&&o.statusErp){ f.statusErp=o.statusErp; }
+        if(f.folgaPendente&&o.folgaPendente===false&&o.folgaFixa!=null&&Number(o.folgaFixa)!==0){ f.folgaFixa=Number(o.folgaFixa); f.folgaPendente=false; n++; } });   // V221
       return n?'completou':'';
     }
     todasEquipes=clone(L.quadro);
@@ -11795,6 +11846,142 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       setor:{nome:setor,...bloco(Array.isArray(eqSetor)?eqSetor:[],ref,false)},
       loja:Array.isArray(quadro)&&quadro.length?bloco(quadro,ref,true):null};
   };
+})();
+</script>
+<script>
+/* ═════ V221 — quem não está afastado é apto ao domingo; folga fixa definida no Editar equipe ou na escala à mão ═════ */
+(function(){
+  const $id=id=>document.getElementById(id);
+  const es=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ativo=f=>String(f?.situacao||'A').trim().toUpperCase()==='A';
+  const aprendiz=f=>{ try{ return !!window.v157Regras?.bloqueioDomingo?.(f); }catch(e){ return false; } };
+  const DIAS=[['Segunda',1],['Terça',2],['Quarta',3],['Quinta',4],['Sexta',5],['Sábado',6],['Domingo (não trabalha domingo)',0]];   // V222
+  /* regra: ativo e não aprendiz → apto ao domingo; folga fixa no domingo vira “a definir” */
+  function normalizar(){
+    let apt=0, fol=0; const vistos=new Set();
+    [Array.isArray(todasEquipes)?todasEquipes:[],Array.isArray(equipe)?equipe:[]].forEach(L=>L.forEach(f=>{ if(!f||vistos.has(f)) return; vistos.add(f);
+      if(!ativo(f)) return;
+      if(aprendiz(f)){ if(!estaNaoAptoDomingo(f)){ naoAptosDomingo.add(chaveFuncionario(f)); f.aptoDomingo=false; } return; }
+      if(estaNaoAptoDomingo(f)||f.aptoDomingo===false){ naoAptosDomingo.delete(chaveFuncionario(f)); f.aptoDomingo=true; apt++; }
+      if(Number(f.folgaFixa)===0&&!window.v222DomManual?.tem(f)){ f.folgaFixa=2; f.folgaPendente=true; delete f.folgaDefinida; fol++; }   // V222: domingo à mão fica
+    }));
+    return {apt,fol};
+  }
+  let avisou=false;
+  function passar(){
+    let r; try{ r=normalizar(); }catch(e){ return; }
+    if(!r.apt&&!r.fol) return;
+    try{ renderEquipe?.(); }catch(e){} try{ window.renderHomeSetores?.(); }catch(e){} try{ window.v45Persist?.(); }catch(e){}
+    if(!avisou){ avisou=true; window.showToast?.(`✅ Quem não está afastado agora é apto ao domingo${r.fol?`: ${r.fol} pessoa(s) com folga no domingo ficaram com a folga fixa “a definir”. Defina em Editar equipe ou na escala à mão`:''}.`,'ok',true); }
+  }
+  window.v221Normalizar=passar;
+  /* quadro “📅 Folga fixa da equipe” na escala à mão / mista */
+  function pessoas(){ return (Array.isArray(equipe)?equipe:[]).map((f,i)=>({f,i})).filter(x=>ativo(x.f)&&!aprendiz(x.f)); }
+  function definir(i,valor){
+    const f=equipe[i]; if(!f) return;
+    const irmaos=[f,...(Array.isArray(todasEquipes)?todasEquipes.filter(x=>x!==f&&String(x.matricula||'')&&String(x.matricula)===String(f.matricula)):[])];
+    irmaos.forEach(x=>{ if(valor===''){ x.folgaPendente=true; delete x.folgaDefinida; } else { x.folgaFixa=Number(valor); x.folgaPendente=false; x.folgaDefinida=true; } });
+    window.v222DomManual?.marcar(f,valor!==''&&Number(valor)===0);   // V222
+    try{ renderEquipe?.(); }catch(e){} try{ renderSelecaoDomingosGeracao?.(); }catch(e){} try{ window.renderHomeSetores?.(); }catch(e){} try{ window.v45Persist?.(); }catch(e){}
+    const nome=String(f.nome||'').split(' ')[0];
+    window.showToast?.(valor===''?`${nome}: folga fixa a definir.`:Number(valor)===0?`✅ ${nome}: folga fixa no domingo (guardada) — não entra nos domingos.`:`✅ ${nome}: folga fixa na ${DIAS.find(d=>d[1]===Number(valor))[0].toLowerCase()} (guardada).`,'ok');
+  }
+  function desenhar(box){
+    const L=pessoas(); const pend=L.filter(x=>x.f.folgaPendente);
+    const ord=[...pend,...L.filter(x=>!x.f.folgaPendente)];
+    const sum=box.querySelector('summary'), corpo=box.querySelector('.v221-corpo');
+    sum.innerHTML=`📅 Folga fixa da equipe ${pend.length?`<span class="pend">${pend.length} a definir</span>`:`<span class="ok">todas definidas</span>`}`;
+    corpo.innerHTML=`<p>A folga fixa é o dia de descanso da semana. Defina aqui ou em Equipe → Editar equipe: fica guardada no aparelho e no histórico do mês. Quem está trabalhando entra nos domingos; só não entra quem tiver a folga no <b>domingo</b> escolhida aqui. Quem está “a definir” aparece primeiro.</p>`
+      +`<div class="v221-lista">${ord.map(({f,i})=>`<label class="v221-it ${f.folgaPendente?'p':''}"><span><b>${es(f.nome)}</b><small>${f.matricula?'Mat. '+es(f.matricula)+' • ':''}${es(f.cargo||'')}</small></span><select data-v221="${i}"><option value="" ${f.folgaPendente?'selected':''}>— a definir —</option>${DIAS.map(([n,d])=>`<option value="${d}" ${!f.folgaPendente&&Number(f.folgaFixa)===d?'selected':''}>${n}</option>`).join('')}</select></label>`).join('')}</div>`;
+    corpo.querySelectorAll('select[data-v221]').forEach(s=>s.addEventListener('change',()=>definir(+s.dataset.v221,s.value)));
+    if(pend.length&&!box.dataset.mexeu) box.open=true;
+  }
+  let assin='';
+  function varrer(){
+    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{
+      const area=$id(id); if(!area) return;
+      let box=area.parentElement?.querySelector(':scope > .v221-folgas');
+      if(!box){ box=document.createElement('details'); box.className='v221-folgas'; box.innerHTML='<summary></summary><div class="v221-corpo"></div>'; box.addEventListener('toggle',()=>{ box.dataset.mexeu='1'; }); const ref=area.parentElement.querySelector(':scope > .v215-ver')||area; ref.before(box); box.dataset.sig=''; }
+      const sig=JSON.stringify(pessoas().map(x=>[x.f.matricula,x.f.folgaFixa,!!x.f.folgaPendente]));
+      if(box.dataset.sig!==sig && !box.contains(document.activeElement)){ box.dataset.sig=sig; desenhar(box); }
+    });
+  }
+  function iniciar(){ passar(); varrer(); setInterval(()=>{ passar(); varrer(); },2000); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,1200),{once:true}); else setTimeout(iniciar,1200);
+})();
+</script>
+<script>
+/* ═════ V222 — folga no domingo escolhida à mão (registro guardado) e filtros/ordem na escala à mão ═════ */
+(function(){
+  /* registro de quem tem a folga no domingo escolhida à mão (por matrícula; sem matrícula, pelo nome) */
+  const CHM='escalaSetores.v222FolgaDomManual';
+  const chave=f=>String(f?.matricula||'').trim().replace(/^0+/,'')||('N:'+String(f?.nome||'').trim().toUpperCase());
+  let reg=new Set(); try{ reg=new Set(JSON.parse(localStorage.getItem(CHM)||'[]')); }catch(e){}
+  const gravar=()=>{ try{ localStorage.setItem(CHM,JSON.stringify([...reg])); }catch(e){} };
+  window.v222DomManual={
+    tem:f=>reg.has(chave(f)),
+    temMat:m=>reg.has(String(m||'').trim().replace(/^0+/,'')),
+    marcar:(f,on)=>{ const k=chave(f); if(!k) return; const tinha=reg.has(k); if(on) reg.add(k); else reg.delete(k); if(tinha!==!!on) gravar(); },
+    lista:()=>[...reg],
+    juntar:arr=>{ let n=0; (Array.isArray(arr)?arr:[]).forEach(k=>{ if(k&&!reg.has(k)){ reg.add(String(k)); n++; } }); if(n) gravar(); return n; }
+  };
+  /* ao abrir um histórico: junta a lista do arquivo antes de tudo */
+  function instalar(){
+    const orig=window.escolherAberturaArquivo; if(typeof orig!=='function'||orig.__v222) return;
+    const novo=function(p){ try{ window.v222DomManual.juntar(p?.config?.folgaDomingoManual); }catch(e){} return orig.apply(this,arguments); };
+    novo.__v222=true; Object.keys(orig).forEach(k=>{ try{ novo[k]=orig[k]; }catch(e){} }); window.escolherAberturaArquivo=novo;
+  }
+
+  /* ---- ordem e turno na escala à mão / mista ---- */
+  const $id=id=>document.getElementById(id);
+  const CH='escalaSetores.v222Filtro';
+  let cfg={ordem:'az',turno:'todos'}; try{ cfg={...cfg,...(JSON.parse(localStorage.getItem(CH)||'{}')||{})}; }catch(e){}
+  const turnoDe=f=>{ const t=String(f?.turno||'').toUpperCase(); return t.startsWith('ABERT')?'ab':t.startsWith('FECH')?'fe':''; };
+  const semAc=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const admIso=s=>{ s=String(s||''); let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; m=s.match(/^\d{4}-\d{2}-\d{2}/); return m?m[0]:''; };
+  let aplicando=false, agendado=0;
+  function aplicar(){
+    agendado=0;
+    const areas=['selecaoDomingosManual','selecaoDomingosMista'].map($id).filter(Boolean); if(!areas.length) return;
+    aplicando=true;
+    try{
+      const eq=Array.isArray(equipe)?equipe:[];
+      const idx=eq.map((f,i)=>i);
+      const nome=i=>semAc(eq[i]?.nome).toUpperCase();
+      const adm=i=>admIso(eq[i]?.admissao)||'9999-99-99';
+      const cmp={az:(a,b)=>nome(a).localeCompare(nome(b),'pt-BR'),za:(a,b)=>nome(b).localeCompare(nome(a),'pt-BR'),
+        antigos:(a,b)=>adm(a).localeCompare(adm(b))||nome(a).localeCompare(nome(b),'pt-BR'),
+        novos:(a,b)=>{ const A=admIso(eq[a]?.admissao)||'0000', B=admIso(eq[b]?.admissao)||'0000'; return B.localeCompare(A)||nome(a).localeCompare(nome(b),'pt-BR'); }}[cfg.ordem]||null;
+      const pos=new Map(); (cmp?[...idx].sort(cmp):idx).forEach((i,k)=>pos.set(i,k));
+      areas.forEach(area=>area.querySelectorAll('.dom-card').forEach(card=>card.querySelectorAll('input[type=checkbox][data-func]').forEach(ch=>{
+        const i=Number(ch.dataset.func), row=ch.closest('.dom-func'), f=eq[i]; if(!row||!f) return;
+        const o=String(pos.get(i)??i); if(row.style.order!==o) row.style.order=o;
+        const t=turnoDe(f); row.classList.toggle('v222-oculto',cfg.turno!=='todos'&&t!==cfg.turno);
+        const main=row.querySelector('.dom-func-main'); if(!main) return;
+        let tag=main.querySelector(':scope > .v222-t'); const cls='v222-t '+(t||'sem'), txt=t==='ab'?'🌅 Abertura':t==='fe'?'🌙 Fechamento':'Sem turno';
+        if(!tag){ tag=document.createElement('span'); main.querySelector(':scope > b')?.after(tag); }
+        if(tag.className!==cls) tag.className=cls; if(tag.textContent!==txt) tag.textContent=txt;
+      })));
+      document.querySelectorAll('.v222-ctrl select[data-v222]').forEach(s=>{ if(s.value!==cfg[s.dataset.v222]) s.value=cfg[s.dataset.v222]; });
+    }catch(e){ console.warn('[V222]',e); }
+    finally{ obs.takeRecords(); aplicando=false; }
+  }
+  const agendar=()=>{ if(aplicando||agendado) return; agendado=setTimeout(aplicar,50); };
+  const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
+  function barra(id){
+    const area=$id(id); if(!area||area.parentElement.querySelector(':scope > .v222-ctrl')) return;
+    const div=document.createElement('div'); div.className='v222-ctrl';
+    div.innerHTML=`<label>Ordenar <select data-v222="ordem"><option value="az">Nome: A → Z</option><option value="za">Nome: Z → A</option><option value="antigos">Admissão: mais antigos primeiro</option><option value="novos">Admissão: mais novos primeiro</option></select></label>`
+      +`<label>Turno <select data-v222="turno"><option value="todos">Todos</option><option value="ab">🌅 Só abertura</option><option value="fe">🌙 Só fechamento</option></select></label>`;
+    div.addEventListener('change',e=>{ const s=e.target.closest('select[data-v222]'); if(!s) return; cfg[s.dataset.v222]=s.value; try{ localStorage.setItem(CH,JSON.stringify(cfg)); }catch(err){} aplicar(); });
+    (area.parentElement.querySelector(':scope > .v215-ver')||area).before(div);
+  }
+  function iniciar(){
+    instalar();
+    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ barra(id); const el=$id(id); if(el) obs.observe(el,{childList:true,subtree:true}); });
+    aplicar();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,200),{once:true}); else setTimeout(iniciar,200);
 })();
 </script>
 </body>
