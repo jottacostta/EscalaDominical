@@ -18,6 +18,7 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (ChatGPT/Codex e Claude) |
+| [`docs/PASSAGEM.md`](docs/PASSAGEM.md) | **passagem de bastão** entre Claude e ChatGPT: estado atual, mapa do código, armadilhas, diário e pendências |
 | [`docs/CHATGPT_COPILOTO.md`](docs/CHATGPT_COPILOTO.md) | passo a passo para ligar o ChatGPT ao GitHub e trabalhar em dupla com o Claude |
 
 O histórico de mudanças de cada versão também fica no comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo.

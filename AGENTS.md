@@ -18,7 +18,7 @@ Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo
 ## 2. Antes de começar qualquer mudança
 
 1. Puxe o `main` mais recente (`git fetch origin main`) e trabalhe a partir dele.
-2. Veja o que mudou desde a última vez: `git log --oneline -15 origin/main` e o topo do `CHANGELOG.md`.
+2. Veja o que mudou desde a última vez: `git log --oneline -15 origin/main`, o topo do `CHANGELOG.md` e o **`docs/PASSAGEM.md`** (seção 10).
 3. Veja se há Pull Requests abertos de outro assistente (o Claude usa branches que começam com `ccr-`).
    Se houver PR aberto mexendo no mesmo app, **espere ele entrar no main** ou combine com o dono do projeto.
 4. Descubra qual é a **versão atual** de cada app pelo nome do arquivo na raiz (ex.: `Escala_de_Setores_V222.html`).
@@ -104,7 +104,7 @@ Cada conferência tem que poder **falhar** de verdade (nunca compare um valor co
 
 - **Nunca** faça push direto no `main`. Crie um branch: `chatgpt/<assunto-curto>` (ex.: `chatgpt/filtro-por-cargo`).
 - Um assunto por PR. Título no formato: `[ChatGPT] Setores V223: <o que muda>` (ou `[Claude] …` — veja a seção 9).
-- Descrição do PR em português, com duas partes: **O que muda** e **Testes** (o que foi testado e o resultado do `npm test`).
+- Descrição do PR em português, com três partes: **O que muda**, **Testes** (o que foi testado e o resultado do `npm test`) e **Para quem continuar** (seção 10).
 - Quem decide o merge é o dono do projeto. Depois do merge, o GitHub Pages atualiza o site sozinho em 1–2 minutos.
 
 ## 9. Assinatura (obrigatório) — para cada um saber o que o outro fez
@@ -123,3 +123,19 @@ Cada assistente **assina tudo o que faz** com o próprio nome: **Claude** ou **C
 - Antes de começar, leia as assinaturas no `git log` e no `CHANGELOG.md` para saber **quem fez o quê**.
 - **Nunca** assine pelo outro nem apague a assinatura do outro. Se aproveitar uma ideia do outro, diga isso
   (ex.: “ideia do ChatGPT”).
+
+## 10. Passagem de bastão (obrigatório) — deixe tudo explicado para o outro continuar
+
+O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compartilhado entre Claude e ChatGPT.
+
+- **Antes de começar:** leia o `docs/PASSAGEM.md` inteiro: estado atual, mapa técnico (onde fica cada coisa no código),
+  armadilhas que já aconteceram, diário e pendências.
+- **Em toda mudança** (app, teste ou documentação), no mesmo PR:
+  1. atualize a seção **1. Estado atual** (versões, PRs/branches abertos, próximo número de versão);
+  2. acrescente uma entrada **no topo** da seção **5. Diário**, no modelo de lá: o que mudou e por quê, onde no código
+     (bloco `Vnnn`, funções, chaves do `localStorage`, campos do histórico), como foi testado e o que falta para continuar.
+     Assine (`— Claude` ou `— ChatGPT`);
+  3. atualize as **pendências** (seção 6), e as **armadilhas** (seção 4) se algo quebrou e você descobriu por quê;
+  4. se criou função/gancho novo (`window.vNNN…`) ou variável global nova, acrescente no **mapa técnico** (seções 2–3).
+- A descrição do PR termina com a parte **“Para quem continuar”**: o que ficou pronto, o que falta e os cuidados.
+- O teste automático confere se o `docs/PASSAGEM.md` cita a versão atual de cada app.

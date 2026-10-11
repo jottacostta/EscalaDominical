@@ -9,4 +9,6 @@ Lembretes para o Claude:
 - Rode `testes/rodar.js` antes e depois da mudança.
 - **Assine sempre como Claude** (seção 9 do AGENTS.md): título do PR `[Claude] …`, `Assinado: Claude` no commit e no PR,
   `— *Claude*` no CHANGELOG e `Vnnn [Claude] —` no HISTÓRICO DE VERSÕES. O ChatGPT assina `ChatGPT`.
+- **Deixe tudo explicado para o ChatGPT continuar** (seção 10 do AGENTS.md): leia e atualize `docs/PASSAGEM.md` em toda
+  mudança (estado atual, diário, mapa técnico, armadilhas, pendências) e termine o PR com “Para quem continuar”.
 - O guia de como o ChatGPT foi ligado ao GitHub está em [`docs/CHATGPT_COPILOTO.md`](docs/CHATGPT_COPILOTO.md).

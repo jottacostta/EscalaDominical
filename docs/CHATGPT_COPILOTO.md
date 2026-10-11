@@ -47,19 +47,22 @@ e conecte de novo. Repositórios novos podem levar uns 5 minutos para aparecer.
 Comece **toda** tarefa com este texto (copie e cole) e depois descreva o que você quer:
 
 ```
-Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md inteiro e siga todas as regras dele:
+Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md e o docs/PASSAGEM.md inteiros e siga todas as regras:
 - parta do main mais recente e confira se há PR aberto do Claude (branches ccr-*) mexendo no mesmo app;
 - crie uma VERSÃO NOVA do app (próximo número), com a linha no HISTÓRICO DE VERSÕES, mova a versão anterior
   para versoes_anteriores/, copie a nova para setores/index.html ou encarregados/index.html e atualize
   CHANGELOG.md e README.md;
 - mude o mínimo (bloco <style>/<script> novo antes de </head>/</body>), sem reformatar o arquivo;
 - tudo que o usuário define tem que ficar guardado no aparelho e no histórico do mês;
-- rode "cd testes && npm test" e só abra o PR se terminar com "Tudo certo";
+- rode "cd testes && npm test" (tem que terminar com "Tudo certo"); se o seu ambiente não conseguir rodar,
+  abra o PR mesmo assim e confira o teste "Testes" na aba Checks do PR: só está pronto quando ficar verde;
 - nunca coloque planilha do RH, históricos ou nomes de funcionários no repositório;
-- branch chatgpt/<assunto>, PR em português com "O que muda" e "Testes";
+- branch chatgpt/<assunto>, PR em português com "O que muda", "Testes" e "Para quem continuar";
 - ASSINE TUDO como ChatGPT (seção 9 do AGENTS.md): título do PR "[ChatGPT] …", linha "Assinado: ChatGPT"
   no commit e no PR, "— *ChatGPT*" no CHANGELOG e "Vnnn [ChatGPT] —" no HISTÓRICO DE VERSÕES.
-  O Claude assina "Claude": leia as assinaturas para saber quem fez o quê.
+  O Claude assina "Claude": leia as assinaturas para saber quem fez o quê;
+- atualize o docs/PASSAGEM.md (estado atual + entrada no Diário: o que mudou, onde no código, como testou, o que falta)
+  e termine o PR com a parte "Para quem continuar", para o Claude dar continuidade.
 
 O que eu quero agora: <descreva aqui a mudança>
 ```
