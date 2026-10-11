@@ -205,6 +205,11 @@ async function testarSetores(browser){
       const projeto = window.v147MontarProjeto();
       const result = {origemEP:!!o && o.situacao === 'EP', origemBloqueada:!origem.filter(x=>String(x.matricula)===mat&&String(x.situacao||'A')!=='EP').length,
         origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem-1,
+        destinoSetorPadaria:!!d && d.setor === 'Padaria',
+        destinoIdentificaOrigem:!!d && d.setorOrigemEmprestimo === 'Açougue' && d.emprestadoDe === 'Açougue',
+        destinoMarcadoEmprestado:!!d && d.emprestado === true && d.situacaoCadastro === 'EP',
+        destinoAtivoParaEscala:!!d && d.situacao === 'A',
+        destinoAptoDomingo:!!d && d.aptoDomingo === true,
         destinoDisponivel:!!d && d.situacao === 'A' && d.aptoDomingo === true,
         destinoContaAumentada:destino.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesDestino+1,
         matriculaUnica:todasEquipes.filter(x=>String(x.matricula)===mat).length===1,
@@ -213,8 +218,8 @@ async function testarSetores(browser){
       todasEquipes.splice(0,todasEquipes.length,...backup);
       return result;
     });
-    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica && r.equipeTxtPersiste && r.historicoPersiste,
-      'V231: empréstimo bloqueia origem, libera destino, ajusta contagens, mantém matrícula única e persiste destino no TXT/histórico ('+JSON.stringify(r)+')');
+    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoSetorPadaria && r.destinoIdentificaOrigem && r.destinoMarcadoEmprestado && r.destinoAtivoParaEscala && r.destinoAptoDomingo && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica && r.equipeTxtPersiste && r.historicoPersiste,
+      'V231: Açougue → Padaria; destino ativo e apto, identifica origem, contagens corretas, matrícula única e persistência TXT/histórico ('+JSON.stringify(r)+')');
   }
 
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
