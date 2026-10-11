@@ -103,7 +103,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Onde no código:** `Escala_de_Setores_V232.html`: `<title>`, `div.menu-version` e primeira linha do comentário `HISTÓRICO DE VERSÕES`; `setores/index.html` é cópia exata da V232.
 - **Prevenção:** `testes/rodar.js` verifica separadamente título, rodapé e primeira entrada do histórico contra o número do nome do arquivo. `AGENTS.md` torna essa conferência obrigatória antes de abrir PR.
 - **Documentação:** README, CHANGELOG e passagem de bastão atualizados com a nova versão e a armadilha descoberta.
-- **Como foi testado:** conferência estática dos metadados; GitHub Actions, execução #92, suíte rápida e suíte completa passaram. A nova execução será conferida após esta atualização da passagem.
+- **Como foi testado:** GitHub Actions, execução #92, suíte rápida e completa passaram. O teste de empréstimo foi reforçado para simular Açougue → Padaria e validar explicitamente setor de destino, origem identificada, sinalização de empréstimo, status ativo e aptidão para a escala/domingo, além de contagens e persistência. Os checks serão executados novamente após esta ampliação.
 - **Para continuar:** conferir os checks gerados por esta atualização da passagem e aguardar autorização explícita antes do merge. Assinado: ChatGPT
 
 ### 2026-10-11 — Setores V231 — funcionário emprestado entre setores — ChatGPT
