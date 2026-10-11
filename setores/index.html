@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V227</title>
+<title>Escala de Setores — V228</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V228 — AUDITORIA MANUAL COM VÍNCULO AO DOMINGO: os avisos de folga fixa a definir agora indicam a data do domingo correspondente, para abrir o cartão certo e atualizar o selo desse domingo. O bloqueio da escala à mão identifica a violação pelo nome completo seguido de dois-pontos, evitando confundir nomes parecidos.
 V227 — AUDITORIA AO VIVO NA ESCALA À MÃO/MISTA: a mesma conferência que o app faz ao tocar em “Gerar” agora roda a
        cada pessoa marcada. Um painel “🛡️ Auditoria ao vivo” acima dos domingos separa 🔴 REGRA QUEBRADA (3 domingos
        seguidos, mais de 6 dias seguidos de trabalho, folga fixa no domingo, cobertura do setor, liderança…) de 🟡 FALTA
@@ -2158,7 +2159,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V227 · auditoria ao vivo na escala à mão</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V228 · auditoria vinculada ao domingo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12225,8 +12226,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     try{ window.preencherHorarioLiderancaManual=function(){}; lista=auditarSelecaoAntesDaGeracao(m)||[]; }
     catch(e){ console.warn('[V227]',e); return null; }
     finally{ window.preencherHorarioLiderancaManual=orig; }
-    try{ const pend=equipe.filter((f,i)=>f.folgaPendente&&Object.values(selecaoManualDomingo||{}).some(a=>(a||[]).map(Number).includes(i)));
-      pend.forEach(f=>lista.push(`${f.nome}: folga fixa a definir (escolha no cartão do domingo).`)); }catch(e){}
+    try{ const pend=[]; const ano=+$id('ano').value, mes=+$id('mes').value;
+      Object.entries(selecaoManualDomingo||{}).forEach(([d,arr])=>{
+        const data=`${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}/${ano}`;
+        [...new Set((arr||[]).map(Number))].forEach(i=>{ const f=equipe[i]; if(f?.folgaPendente) pend.push(`${data}: ${f.nome}: folga fixa a definir (escolha no cartão do domingo).`); });
+      });
+      lista.push(...pend);
+    }catch(e){}
     const r=[], y=[]; [...new Set(lista)].forEach(t=>(PEND.test(t)?y:r).push(t));
     return {r,y};
   }
@@ -12267,7 +12273,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!ch.checked){ agendar(80); return; }
     const antes=new Set(ultimo.r||[]); const res=auditar(); if(!res){ agendar(); return; }
     const f=equipe[Number(ch.dataset.func)]; const nome=String(f?.nome||'');
-    const novas=res.r.filter(t=>!antes.has(t)&&nome&&t.includes(nome));
+    const novas=res.r.filter(t=>!antes.has(t)&&nome&&t.includes(`${nome}:`));
     if(novas.length){
       { const d=String(ch.dataset.dom), i=Number(ch.dataset.func);   // desfaz direto na escala (o cartão pode ter sido redesenhado)
         selecaoManualDomingo[d]=(selecaoManualDomingo[d]||[]).map(Number).filter(x=>x!==i);
