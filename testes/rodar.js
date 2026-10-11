@@ -290,6 +290,19 @@ async function testarEncarregados(browser){
     const idx = path.join(RAIZ, pasta, 'index.html');
     if(fs.existsSync(idx)) ok(fs.readFileSync(idx, 'utf8') === fs.readFileSync(app, 'utf8'), `${pasta}/index.html é a cópia de ${path.basename(app)}`);
   }
+  // Conferência obrigatória de metadados: nome do arquivo, <title>, rodapé e histórico devem usar a mesma versão.
+  {
+    const m = path.basename(APP_SETORES).match(/V(\d+)\.html$/);
+    const versao = m && m[1];
+    const html = fs.readFileSync(APP_SETORES, 'utf8');
+    ok(!!versao && html.includes('<title>Escala de Setores — V' + versao + '</title>'),
+      'título HTML corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
+    ok(!!versao && new RegExp('Versão V' + versao + ' · ').test(html),
+      'versão visível no rodapé corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
+    const hist = html.match(/<!-- HISTÓRICO DE VERSÕES[^\n]*\n([^\n]+)/);
+    ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT)\\] — ').test(hist[1]),
+      'primeira entrada do histórico corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
+  }
   // a passagem de bastão (docs/PASSAGEM.md) tem que estar em dia com as versões atuais — AGENTS.md, seção 10
   { const pas = path.join(RAIZ, 'docs', 'PASSAGEM.md'), txt = fs.existsSync(pas) ? fs.readFileSync(pas, 'utf8') : '';
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
