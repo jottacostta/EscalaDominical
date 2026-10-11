@@ -22,7 +22,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
-- **Correção V232 em andamento:** branch `chatgpt/setores-v232-versao-visivel`; corrige o título/rodapé e acrescenta testes para evitar divergência de versão. Não mesclar sem autorização explícita.
+- **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
 - **Próximo número de versão:** Setores **V233**, Encarregados **V166**.
 
@@ -103,8 +103,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Onde no código:** `Escala_de_Setores_V232.html`: `<title>`, `div.menu-version` e primeira linha do comentário `HISTÓRICO DE VERSÕES`; `setores/index.html` é cópia exata da V232.
 - **Prevenção:** `testes/rodar.js` verifica separadamente título, rodapé e primeira entrada do histórico contra o número do nome do arquivo. `AGENTS.md` torna essa conferência obrigatória antes de abrir PR.
 - **Documentação:** README, CHANGELOG e passagem de bastão atualizados com a nova versão e a armadilha descoberta.
-- **Como foi testado:** validação estática das substituições; suíte automática será confirmada nos checks da PR.
-- **Para continuar:** aguardar os checks da PR V232 e autorização explícita antes do merge. Assinado: ChatGPT
+- **Como foi testado:** conferência estática dos metadados; GitHub Actions, execução #92, suíte rápida e suíte completa passaram. A nova execução será conferida após esta atualização da passagem.
+- **Para continuar:** conferir os checks gerados por esta atualização da passagem e aguardar autorização explícita antes do merge. Assinado: ChatGPT
 
 ### 2026-10-11 — Setores V231 — funcionário emprestado entre setores — ChatGPT
 - **Regra implementada:** EP continua como cadastro único no setor de origem; aparece lá como registro visual de empréstimo, fica fora da contagem disponível e não participa da escala de origem. O setor de destino recebe uma visão operacional derivada do mesmo cadastro, apta para a escala e incluída na contagem do destino. A matrícula não é duplicada em `todasEquipes`.
