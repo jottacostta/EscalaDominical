@@ -205,6 +205,11 @@ async function testarSetores(browser){
       const projeto = window.v147MontarProjeto();
       const result = {origemEP:!!o && o.situacao === 'EP', origemBloqueada:!origem.filter(x=>String(x.matricula)===mat&&String(x.situacao||'A')!=='EP').length,
         origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem-1,
+        destinoSetorPadaria:!!d && d.setor === 'Padaria',
+        destinoIdentificaOrigem:!!d && d.setorOrigemEmprestimo === 'Açougue' && d.emprestadoDe === 'Açougue',
+        destinoMarcadoEmprestado:!!d && d.emprestado === true && d.situacaoCadastro === 'EP',
+        destinoAtivoParaEscala:!!d && d.situacao === 'A',
+        destinoAptoDomingo:!!d && d.aptoDomingo === true,
         destinoDisponivel:!!d && d.situacao === 'A' && d.aptoDomingo === true,
         destinoContaAumentada:destino.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesDestino+1,
         matriculaUnica:todasEquipes.filter(x=>String(x.matricula)===mat).length===1,
@@ -213,8 +218,8 @@ async function testarSetores(browser){
       todasEquipes.splice(0,todasEquipes.length,...backup);
       return result;
     });
-    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica && r.equipeTxtPersiste && r.historicoPersiste,
-      'V231: empréstimo bloqueia origem, libera destino, ajusta contagens, mantém matrícula única e persiste destino no TXT/histórico ('+JSON.stringify(r)+')');
+    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoSetorPadaria && r.destinoIdentificaOrigem && r.destinoMarcadoEmprestado && r.destinoAtivoParaEscala && r.destinoAptoDomingo && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica && r.equipeTxtPersiste && r.historicoPersiste,
+      'V231: Açougue → Padaria; destino ativo e apto, identifica origem, contagens corretas, matrícula única e persistência TXT/histórico ('+JSON.stringify(r)+')');
   }
 
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
@@ -289,6 +294,19 @@ async function testarEncarregados(browser){
   for(const [pasta, app] of [['setores', APP_SETORES], ['encarregados', APP_ENC]]){
     const idx = path.join(RAIZ, pasta, 'index.html');
     if(fs.existsSync(idx)) ok(fs.readFileSync(idx, 'utf8') === fs.readFileSync(app, 'utf8'), `${pasta}/index.html é a cópia de ${path.basename(app)}`);
+  }
+  // Conferência obrigatória de metadados: nome do arquivo, <title>, rodapé e histórico devem usar a mesma versão.
+  {
+    const m = path.basename(APP_SETORES).match(/V(\d+)\.html$/);
+    const versao = m && m[1];
+    const html = fs.readFileSync(APP_SETORES, 'utf8');
+    ok(!!versao && html.includes('<title>Escala de Setores — V' + versao + '</title>'),
+      'título HTML corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
+    ok(!!versao && new RegExp('Versão V' + versao + ' · ').test(html),
+      'versão visível no rodapé corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
+    const hist = html.match(/<!-- HISTÓRICO DE VERSÕES[^\n]*\n([^\n]+)/);
+    ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT)\\] — ').test(hist[1]),
+      'primeira entrada do histórico corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
   }
   // a passagem de bastão (docs/PASSAGEM.md) tem que estar em dia com as versões atuais — AGENTS.md, seção 10
   { const pas = path.join(RAIZ, 'docs', 'PASSAGEM.md'), txt = fs.existsSync(pas) ? fs.readFileSync(pas, 'utf8') : '';

@@ -41,6 +41,7 @@ Para cada mudança num app (ex.: Setores V222 → V223):
    (ou `encarregados/index.html`). Os dois arquivos têm que ficar **idênticos** — o teste automático confere.
 5. Atualize o `CHANGELOG.md` (entrada nova no topo da seção do app) e a tabela do `README.md` (nome do arquivo atual e faixa das versões anteriores).
 6. Se dois assistentes criarem o mesmo número de versão ao mesmo tempo, quem entrar no `main` depois **renumera** a sua (ex.: V223 → V224).
+7. **Antes de abrir a PR, confira por teste automatizado** que o número do arquivo coincide com o `<title>`, com a versão visível no rodapé e com a primeira entrada do `HISTÓRICO DE VERSÕES`. Confira também que `setores/index.html` / `encarregados/index.html` é idêntico ao arquivo atual. Não basta o nome do arquivo ou o histórico estarem certos isoladamente.
 
 ## 4. Como mexer no código
 

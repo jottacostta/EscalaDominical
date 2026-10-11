@@ -17,13 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V231.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V232.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PR #27 aberta:** [ChatGPT] Setores V231 — empréstimo entre setores (branch `chatgpt/setores-v231-funcionario-emprestado`); execução #78 passou suíte rápida e completa. Não mesclar sem autorização explícita.
+- **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
+- **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V232**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V233**, Encarregados **V166**.
 
 ---
 
@@ -87,6 +88,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **"A definir"** não pode virar terça ao salvar o Editar equipe nem ao reimportar o ERP.
 - **Script Python que gera a versão:** dentro de string com aspas simples, use `""` no JS, não `''`.
 - **Link do site mostra versão antiga:** é o cache do navegador (Ctrl+F5).
+- **Versão HTML divergente do nome do arquivo:** a V231 foi publicada com nome V231 e histórico V231, mas o `<title>` e o rodapé ainda diziam V230. Isso passou porque os testes verificavam a cópia publicada e a passagem de bastão, mas não os metadados visíveis do app. Agora `testes/rodar.js` confere separadamente nome, `<title>`, rodapé e primeira entrada do histórico; não considerar versão concluída sem essas quatro verificações e a igualdade com `setores/index.html`.
 - **Conferência de teste que nunca falha:** nunca compare um valor com ele mesmo (ex.: `x.length === x.length`).
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
 - **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
@@ -95,6 +97,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
+- **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
+- **Onde no código:** `Escala_de_Setores_V232.html`: `<title>`, `div.menu-version` e primeira linha do comentário `HISTÓRICO DE VERSÕES`; `setores/index.html` é cópia exata da V232.
+- **Prevenção:** `testes/rodar.js` verifica separadamente título, rodapé e primeira entrada do histórico contra o número do nome do arquivo. `AGENTS.md` torna essa conferência obrigatória antes de abrir PR.
+- **Documentação:** README, CHANGELOG e passagem de bastão atualizados com a nova versão e a armadilha descoberta.
+- **Como foi testado:** GitHub Actions, execução #92, suíte rápida e completa passaram. O teste de empréstimo foi reforçado para simular Açougue → Padaria e validar explicitamente setor de destino, origem identificada, sinalização de empréstimo, status ativo e aptidão para a escala/domingo, além de contagens e persistência. Os checks serão executados novamente após esta ampliação.
+- **Para continuar:** conferir os checks gerados por esta atualização da passagem e aguardar autorização explícita antes do merge. Assinado: ChatGPT
 
 ### 2026-10-11 — Setores V231 — funcionário emprestado entre setores — ChatGPT
 - **Regra implementada:** EP continua como cadastro único no setor de origem; aparece lá como registro visual de empréstimo, fica fora da contagem disponível e não participa da escala de origem. O setor de destino recebe uma visão operacional derivada do mesmo cadastro, apta para a escala e incluída na contagem do destino. A matrícula não é duplicada em `todasEquipes`.
