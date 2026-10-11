@@ -99,8 +99,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ### 2026-10-11 — Setores V230 — filtro da escala manual — ChatGPT
 - **O que mudou e por quê:** a lista de seleção manual/mista passa a exibir somente operacionais ativos. Lideranças reconhecidas por `ehLiderancaDomingo`, afastados (AF) e emprestados (EP) são ocultados; operacionais ativos com folga fixa no domingo continuam visíveis. O filtro atua apenas na renderização da lista, sem remover funcionários do cadastro nem alterar o motor.
 - **Onde no código:** `Escala_de_Setores_V230.html`, na montagem de `cards` em `renderSelecaoDomingosGeracao()`; cópia publicada em `setores/index.html`.
-- **Como foi testado:** acrescentado teste de regressão em `testes/rodar.js` com dados fictícios; aguardando execução da suíte e do GitHub Actions no PR antes de considerar pronto para merge.
-- **Para continuar:** confirmar o check “Testes” verde e revisar a renderização no navegador. Não mesclar sem autorização explícita do dono. Assinado: ChatGPT
+- **Como foi testado:** teste de regressão V230 passou com dados fictícios. `npm test` e `npm run test:completo` passaram no GitHub Actions (execução 40, check “Testes” verde). A captura da lista manual foi guardada no artefato `capturas-setores-v230`.
+- **Para continuar:** revisar a captura da lista manual e confirmar que a alteração não afeta a geração automática, o domingo de balanço, o histórico nem a persistência. A PR aguarda autorização explícita do dono para merge. Assinado: ChatGPT
 
 Modelo de entrada:
 ```
