@@ -103,6 +103,23 @@ Cada conferência tem que poder **falhar** de verdade (nunca compare um valor co
 ## 8. Git e Pull Request
 
 - **Nunca** faça push direto no `main`. Crie um branch: `chatgpt/<assunto-curto>` (ex.: `chatgpt/filtro-por-cargo`).
-- Um assunto por PR. Título no formato: `Setores V223: <o que muda>`.
+- Um assunto por PR. Título no formato: `[ChatGPT] Setores V223: <o que muda>` (ou `[Claude] …` — veja a seção 9).
 - Descrição do PR em português, com duas partes: **O que muda** e **Testes** (o que foi testado e o resultado do `npm test`).
 - Quem decide o merge é o dono do projeto. Depois do merge, o GitHub Pages atualiza o site sozinho em 1–2 minutos.
+
+## 9. Assinatura (obrigatório) — para cada um saber o que o outro fez
+
+Cada assistente **assina tudo o que faz** com o próprio nome: **Claude** ou **ChatGPT**.
+
+| Onde | Como assinar (exemplo do Claude; o ChatGPT troca por “ChatGPT”) |
+|---|---|
+| Título do PR | começa com `[Claude]` — ex.: `[Claude] Setores V229: …` |
+| Fim da descrição do PR | linha `Assinado: Claude` |
+| Mensagem de commit | última linha `Assinado: Claude` |
+| `CHANGELOG.md` | a entrada da versão termina com `— *Claude*` |
+| `HISTÓRICO DE VERSÕES` no app | a linha da versão começa com `V229 [Claude] — …` |
+| Comentário no GitHub | termina com `— Claude` |
+
+- Antes de começar, leia as assinaturas no `git log` e no `CHANGELOG.md` para saber **quem fez o quê**.
+- **Nunca** assine pelo outro nem apague a assinatura do outro. Se aproveitar uma ideia do outro, diga isso
+  (ex.: “ideia do ChatGPT”).

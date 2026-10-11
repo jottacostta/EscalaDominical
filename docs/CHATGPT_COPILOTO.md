@@ -56,7 +56,10 @@ Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md inteir
 - tudo que o usuário define tem que ficar guardado no aparelho e no histórico do mês;
 - rode "cd testes && npm test" e só abra o PR se terminar com "Tudo certo";
 - nunca coloque planilha do RH, históricos ou nomes de funcionários no repositório;
-- branch chatgpt/<assunto>, PR em português com "O que muda" e "Testes".
+- branch chatgpt/<assunto>, PR em português com "O que muda" e "Testes";
+- ASSINE TUDO como ChatGPT (seção 9 do AGENTS.md): título do PR "[ChatGPT] …", linha "Assinado: ChatGPT"
+  no commit e no PR, "— *ChatGPT*" no CHANGELOG e "Vnnn [ChatGPT] —" no HISTÓRICO DE VERSÕES.
+  O Claude assina "Claude": leia as assinaturas para saber quem fez o quê.
 
 O que eu quero agora: <descreva aqui a mudança>
 ```
