@@ -2781,7 +2781,7 @@ $('setorSelecionado').onchange=()=>{
   grupos=[];
   renderEquipe(); montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
   atualizarModoCobertura(); atualizarModoGeracao();
-  $('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
+  $('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
   $('validacao').textContent='';$('domingosCard').style.display='none';$('tabelaCard').style.display='none';
   if($('modoCobertura')?.value==='grupos'){ $('qtdGrupos').value=3; montarListaManual(); renderGrupos(); }
   const dist=$('distEquipe');
@@ -2801,7 +2801,7 @@ function renderEquipe(){
     $('equipeResumo').textContent=ch.checked?'Funcionário marcado como INAPTO para domingo.':'Apto para domingo: sim.';
   });
   $('equipeResumo').className='alert ok';
-  $('equipeResumo').textContent='✅ Equipe carregada: '+equipe.length+' funcionário(s). Confira a lista abaixo e toque em Próximo.';
+  $('equipeResumo').textContent='✅ Equipe carregada: '+equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis. Emprestados aparecem identificados na origem.';
 }
 
 const setoresEscala=['Açougue','ADM Geral','Cozinha','CPD','Depósito','FLV','Frente de Loja','Guanabara Card','Laticínios','Limpeza','Manutenção','Mercearia','Padaria','Patrimônio','Perfumaria','Saudáveis','Salgado','Tesouraria'];
@@ -3550,7 +3550,7 @@ function salvarEquipeEditor(){
     equipe=equipeDoSetor(area);
     sugestaoFolgasEditorAplicada=false;
     atualizarTituloEscala(); renderEquipe(); montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
-    $('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
+    $('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
     $('equipeResumo').className='alert ok'; $('equipeResumo').textContent='✅ Equipe atualizada: '+equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis neste setor'+(removidos?' ('+removidos+' removido(s))':'')+'.';
     $('equipeEditorStatus').className='alert ok'; $('equipeEditorStatus').textContent='Alterações salvas. Se quiser uma cópia em arquivo, toque em “Baixar Equipe.txt”.';
     $('equipeEditor').style.display='block';
@@ -3740,7 +3740,7 @@ function aplicarHistoricoArquivo(lido){
       if(historico.previsaoProximo&&historico.previsaoProximo.data){ const pv=historico.previsaoProximo; previsoesDomingo[`${norm(pv.setor||historico.setor||'')}|${pv.data}`]=pv; }
       if(historico.trabalhoFeriado) trabalhoFeriado=historico.trabalhoFeriado;
       if(historico.folgasCompensatorias) folgasCompensatorias=migrarFolgasCompensatorias(historico,+$('mes').value,+$('ano').value);
-      if(historico.setor && $('setorSelecionado')){ $('setorSelecionado').value=historico.setor; equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,historico.setor)); }
+      if(historico.setor && $('setorSelecionado')){ $('setorSelecionado').value=historico.setor; equipe=equipeDoSetor(historico.setor); }
       atualizarTituloEscala();
       if(historico.modoCobertura && $('modoCobertura')){ $('modoCobertura').value=historico.modoCobertura; atualizarModoCobertura(); }
       if(historico.modoGeracao && $('modoGeracao')){ $('modoGeracao').value=historico.modoGeracao; atualizarModoGeracao(); }
@@ -9111,7 +9111,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           if(el('tabelaCard')) el('tabelaCard').style.display='none';
           if(el('painelMes')){ el('painelMes').innerHTML=''; el('painelMes').style.display='none'; }
           if(el('validacao')){ el('validacao').className='alert info'; el('validacao').textContent='Tudo preenchido? Toque em 🚀 Gerar escala para calcular.'; }
-          if(el('statusBadge')) el('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
+          if(el('statusBadge')) el('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
           document.getElementById('v45SummaryCard')?.remove();
         }catch(e){}
       }
@@ -9649,7 +9649,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!meta.reg156){ lista.forEach(f=>{ const novo=redirecionarSetorPorCargo(f.setor,String(f.cargo||'').toUpperCase()); if(novo!==f.setor){ f.setor=novo; n++; } }); meta.reg156=true; mudou=true; }
     if(!meta.reg157){ lista.forEach(f=>{ if(bloqueioDomingoPorRegra(f)&&f.aptoDomingo!==false&&!estaNaoAptoDomingo(f)){ marcarNaoAptoDomingo(f); nb++; } }); meta.reg157=true; mudou=true; }
     if(n){
-      equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,$$('setorSelecionado')?.value||''));
+      equipe=equipeDoSetor($$('setorSelecionado')?.value||'');
       try{ renderEquipe(); renderHomeSetores?.(); }catch(e){}
       window.showToast?.(`↪ ${n} pessoa(s) de ADM Geral com cargo CAIXA GERAL foram para a Tesouraria.`,'ok',true);
     }
