@@ -8,7 +8,7 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 - Escala de Setores: https://jottacostta.github.io/EscalaDominical/setores/
 - Escala de Encarregados: https://jottacostta.github.io/EscalaDominical/encarregados/
 
-A cada versão nova, troque o nome do arquivo em `setores/index.html` ou `encarregados/index.html` (3 lugares).
+`setores/index.html` e `encarregados/index.html` são **cópias da versão atual** de cada app (não redirecionam), para o endereço nunca mudar. A cada versão nova, copie o arquivo novo por cima do `index.html` da pasta (o teste automático avisa se esquecer). Endereços antigos com número de versão caem no `404.html`, que leva ao endereço fixo.
 
 | Arquivo | O que é |
 |---|---|
