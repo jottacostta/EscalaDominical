@@ -12384,11 +12384,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   coletarEquipeEditor=function(){garantirCamposEmprestimo();return coletarOriginal();};
   const montarOriginal=window.v147MontarProjeto;
   if(typeof montarOriginal==='function'){
-    window.v147MontarProjeto=function(){const p=montarOriginal();if(p&&p.equipe){p.equipe.todas=clone(todasEquipes);p.equipe.atual=clone(equipe);}return p;};
+    window.v147MontarProjeto=function(){const p=montarOriginal();if(p&&p.equipe){p.equipe.todas=JSON.parse(JSON.stringify(todasEquipes));p.equipe.atual=JSON.parse(JSON.stringify(equipe));}return p;};
   }
   const restaurarOriginal=window.v147RestaurarProjeto;
   if(typeof restaurarOriginal==='function'){
-    window.v147RestaurarProjeto=function(p){restaurarOriginal(p);if(p&&p.equipe&&Array.isArray(p.equipe.todas)){todasEquipes=clone(p.equipe.todas);equipe=equipeDoSetor(p.config?.setor||$('setorSelecionado')?.value||'');renderEquipe();$('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';window.v45Persist?.();}};
+    window.v147RestaurarProjeto=function(p){restaurarOriginal(p);if(p&&p.equipe&&Array.isArray(p.equipe.todas)){todasEquipes=JSON.parse(JSON.stringify(p.equipe.todas));equipe=equipeDoSetor(p.config?.setor||$('setorSelecionado')?.value||'');renderEquipe();$('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';window.v45Persist?.();}};
   }
   window.v231Emprestimo={equipeDoSetor,garantirCamposEmprestimo};
   // Garante que as opções de destino apareçam também ao adicionar uma linha manualmente.
