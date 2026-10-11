@@ -118,23 +118,23 @@ async function testarSetores(browser){
     fs.unlinkSync(arqHist);
   }
 
-  // V230: a lista manual oculta liderança, AF e EP, mas mantém operacional ativo com folga fixa no domingo.
+  // V230: a lista manual oculta liderança, AF e EP, mas mantém ativo com folga fixa no domingo.
   {
-    const vis = await p.evaluate(() => {
+    const resultado = await p.evaluate(() => {
       const backup = equipe.map(f => ({...f}));
-      if(equipe.length < 4) return {erro:'equipe fictícia insuficiente'};
+      if(backup.length < 4) return {vis:{erro:'equipe fictícia insuficiente'},backup};
+      equipe.splice(0,equipe.length,...backup.slice(0,4));
       equipe[0].nome='OPERACIONAL ATIVO TESTE'; equipe[0].cargo='OPERADOR DE LOJA'; equipe[0].situacao='A'; equipe[0].folgaFixa=0;
       equipe[1].nome='AFASTADO TESTE'; equipe[1].cargo='OPERADOR DE LOJA'; equipe[1].situacao='AF'; equipe[1].folgaFixa=2;
       equipe[2].nome='EMPRESTADO TESTE'; equipe[2].cargo='OPERADOR DE LOJA'; equipe[2].situacao='EP'; equipe[2].folgaFixa=2;
       equipe[3].nome='LIDERANCA TESTE'; equipe[3].cargo='ENCARREGADO'; equipe[3].situacao='A'; equipe[3].folgaFixa=2;
       window.v206IrParaManual(); const modo=$('modoGeracao'); modo.value='manual'; modo.dispatchEvent(new Event('change',{bubbles:true})); renderSelecaoDomingosGeracao();
       const txt = document.querySelector('#selecaoDomingosManual')?.innerText || '';
-      const r = {ativo:txt.includes('OPERACIONAL ATIVO TESTE'), af:txt.includes('AFASTADO TESTE'), ep:txt.includes('EMPRESTADO TESTE'), lider:txt.includes('LIDERANCA TESTE')};
-      equipe.splice(0,equipe.length,...backup); renderSelecaoDomingosGeracao();
-      return r;
+      return {vis:{ativo:txt.includes('OPERACIONAL ATIVO TESTE'), af:txt.includes('AFASTADO TESTE'), ep:txt.includes('EMPRESTADO TESTE'), lider:txt.includes('LIDERANCA TESTE')},backup};
     });
-    ok(vis.ativo && !vis.af && !vis.ep && !vis.lider,
-      `V230: lista manual mantém ativo com folga dominical e oculta AF/EP/liderança (${JSON.stringify(vis)})`);
+    ok(resultado.vis.ativo && !resultado.vis.af && !resultado.vis.ep && !resultado.vis.lider,
+      `V230: lista manual mantém ativo com folga dominical e oculta AF/EP/liderança (${JSON.stringify(resultado.vis)})`);
+    await p.evaluate(backup => { equipe.splice(0,equipe.length,...backup); renderSelecaoDomingosGeracao(); }, resultado.backup);
   }
 
   // escala à mão: aviso de 3 domingos seguidos (V217)
