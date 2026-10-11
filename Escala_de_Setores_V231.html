@@ -2735,7 +2735,7 @@ function parseEquipe(txt){
    matricula=String(matricula||'').trim();
    nome=String(nome||'').trim().toUpperCase();
    cargo=String(cargo||'').trim().toUpperCase();
-   const setorArquivoBruto=String(setorDoArquivo||set||setor(cargo)||'').trim();
+   const setorArquivoBruto=String(set||setorDoArquivo||setor(cargo)||'').trim();
    const setorCanonico=(typeof setoresEscala!=='undefined' ? (setoresEscala.find(x=>norm(x)===norm(setorArquivoBruto))||setorArquivoBruto) : setorArquivoBruto);
    const subsetorCanonico=norm(setorCanonico)==='mercearia' ? String(sub||'').trim().toUpperCase() : '';
    const situacaoCanonica = situacao || 'A';
@@ -2826,7 +2826,7 @@ function pertenceAoGrupo(f,grupoId){ const g=grupoDoSetor(grupoId); const n=norm
 function equipeDoSetor(grupoId){
   const grupo=grupoDoSetor(grupoId); if(!grupo||!Array.isArray(todasEquipes))return [];
   const origem=todasEquipes.filter(f=>pertenceAoGrupo(f,grupo.id)).map(f=>String(f.situacao||'A').toUpperCase()==='EP'&&f.setorEmprestimo?{...f,emprestadoPara:f.setorEmprestimo}:f);
-  const emprestados=todasEquipes.filter(f=>String(f.situacao||'A').toUpperCase()==='EP'&&f.setorEmprestimo&&grupoDoSetor(f.setorEmprestimo)?.id===grupo.id&&!pertenceAoGrupo(f,grupo.id)).map(f=>({...f,setor:grupo.id,setorOrigemEmprestimo:f.setor,situacaoCadastro:'EP',situacao:'A',emprestadoDe:f.setor,emprestadoPara:grupo.id,emprestado:true}));
+  const emprestados=todasEquipes.filter(f=>String(f.situacao||'A').toUpperCase()==='EP'&&f.setorEmprestimo&&grupoDoSetor(f.setorEmprestimo)?.id===grupo.id&&!pertenceAoGrupo(f,grupo.id)).map(f=>({...f,setor:grupo.id,setorOrigemEmprestimo:f.setor,situacaoCadastro:'EP',situacao:'A',emprestadoDe:f.setor,emprestadoPara:grupo.id,emprestado:true,aptoDomingo:true}));
   return [...origem,...emprestados];
 }
 const diasFolga=[['Domingo',0],['Segunda',1],['Terça',2],['Quarta',3],['Quinta',4],['Sexta',5],['Sábado',6]];
