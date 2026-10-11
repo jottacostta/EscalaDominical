@@ -16,7 +16,8 @@ V228 — AUDITORIA AO VIVO LIGADA AO DOMINGO CERTO: na V227, só os avisos que c
        “folga fixa a definir” — não apareciam no selo de nenhum domingo, e a ligação usava só o dia (sem conferir
        mês e ano). Agora: o aviso de 6×1 mostra o período (ex.: “de 02/10/2027 a 08/10/2027”) e vai para o(s)
        domingo(s) dentro dele; aviso sem data vai para os domingos em que a pessoa está marcada; e a data só vale
-       se for do mês da escala. Regras iguais.
+       se for do mês da escala. “Folga fixa a definir” vira um aviso por domingo, com a data. O bloqueio na hora de
+       marcar não confunde mais nomes parecidos (ex.: “Ana Silva” e “Ana Silva Souza”). Regras iguais.
 V227 — AUDITORIA AO VIVO NA ESCALA À MÃO/MISTA: a mesma conferência que o app faz ao tocar em “Gerar” agora roda a
        cada pessoa marcada. Um painel “🛡️ Auditoria ao vivo” acima dos domingos separa 🔴 REGRA QUEBRADA (3 domingos
        seguidos, mais de 6 dias seguidos de trabalho, folga fixa no domingo, cobertura do setor, liderança…) de 🟡 FALTA
@@ -12231,8 +12232,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     try{ window.preencherHorarioLiderancaManual=function(){}; lista=auditarSelecaoAntesDaGeracao(m)||[]; }
     catch(e){ console.warn('[V227]',e); return null; }
     finally{ window.preencherHorarioLiderancaManual=orig; }
-    try{ const pend=equipe.filter((f,i)=>f.folgaPendente&&Object.values(selecaoManualDomingo||{}).some(a=>(a||[]).map(Number).includes(i)));
-      pend.forEach(f=>lista.push(`${f.nome}: folga fixa a definir (escolha no cartão do domingo).`)); }catch(e){}
+    try{ const ano=+$id('ano').value, mes=+$id('mes').value;   // V228: um aviso por domingo, com a data (ideia do ChatGPT)
+      Object.entries(selecaoManualDomingo||{}).forEach(([d,arr])=>{ const data=`${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}/${ano}`;
+        [...new Set((arr||[]).map(Number))].forEach(i=>{ const f=equipe[i]; if(f?.folgaPendente) lista.push(`${data}: ${f.nome}: folga fixa a definir (escolha no cartão do domingo).`); }); }); }catch(e){}
     const r=[], y=[]; [...new Set(lista)].forEach(t=>(PEND.test(t)?y:r).push(t));
     return {r,y};
   }
@@ -12284,7 +12286,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!ch.checked){ agendar(80); return; }
     const antes=new Set(ultimo.r||[]); const res=auditar(); if(!res){ agendar(); return; }
     const f=equipe[Number(ch.dataset.func)]; const nome=String(f?.nome||'');
-    const novas=res.r.filter(t=>!antes.has(t)&&nome&&t.includes(nome));
+    const cita=t=>t.includes(nome)&&!equipe.some(g=>g?.nome&&g.nome!==nome&&g.nome.includes(nome)&&t.includes(g.nome));   // V228: “Ana Silva” não pega aviso da “Ana Silva Souza”
+    const novas=res.r.filter(t=>!antes.has(t)&&nome&&cita(t));
     if(novas.length){
       { const d=String(ch.dataset.dom), i=Number(ch.dataset.func);   // desfaz direto na escala (o cartão pode ter sido redesenhado)
         selecaoManualDomingo[d]=(selecaoManualDomingo[d]||[]).map(Number).filter(x=>x!==i);
