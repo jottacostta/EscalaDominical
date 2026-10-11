@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V222</title>
+<title>Escala de Setores — V223</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V223 — ESCALA À MÃO: (1) ao marcar uma pessoa num domingo, aparecem na hora as duas folgas desse domingo — a
+       FOLGA ANTECIPADA (antes do domingo) e a FOLGA POSTERIOR (depois), com dia e data; na escala à mão dá para antecipar
+       a posterior ali mesmo. Quem está com a folga fixa “a definir” vê o aviso para definir. (2) OS FILTROS FICAM EM CADA
+       CARD DE DOMINGO: cada domingo tem o seu “Ordenar (A–Z, Z–A, admissão)” e “Turno (todos, abertura, fechamento)”.
 V222 — (1) QUEM ESTÁ TRABALHANDO É APTO AO DOMINGO, A NÃO SER QUE A FOLGA NO DOMINGO SEJA ESCOLHIDA À MÃO: o “Domingo”
        voltou como opção de folga fixa no Editar equipe e no quadro “📅 Folga fixa da equipe” da escala à mão. Escolhida à
        mão, a folga no domingo fica guardada (aparelho, quadro e histórico do mês) e a pessoa não entra no domingo. A folga
@@ -1975,6 +1979,17 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 .menu-sheet{max-height:calc(100vh - var(--header-h,60px) - var(--safe-top,0px) - 18px)!important;max-height:calc(100dvh - var(--header-h,60px) - var(--safe-top,0px) - 18px)!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#B7C4DA transparent}
 .menu-sheet::-webkit-scrollbar{width:8px}.menu-sheet::-webkit-scrollbar-thumb{background:#B7C4DA;border-radius:8px}
 </style>
+<style id="v223-folgas-dom">
+.v223-card{margin:8px 12px 2px;font-size:12.5px}
+.v223-card select{padding:5px 8px;font-size:12.5px}
+.dom-hour:has(.func-folga-pos){display:none!important}   /* a folga posterior agora fica no bloco abaixo */
+.v223-fol{margin-top:6px;display:grid;gap:4px;font-size:12px;line-height:1.35}
+.v223-fol .l{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.v223-fol .r{font-weight:800;color:var(--ink-2)}
+.v223-fol .dt{font-weight:800;color:#0047BA}
+.v223-fol select{padding:4px 6px;border:1.5px solid var(--border-strong,#CFD8E6);border-radius:8px;font:inherit;font-size:12px;max-width:100%}
+.v223-fol .av{color:#7A5A00;background:#FFF4CC;border-radius:8px;padding:3px 8px;font-weight:700}
+</style>
 </head>
 <body>
 <script>
@@ -2070,7 +2085,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V222 · folga no domingo à mão e filtros</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V223 · folgas ao marcar e filtros por domingo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -11932,56 +11947,124 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     novo.__v222=true; Object.keys(orig).forEach(k=>{ try{ novo[k]=orig[k]; }catch(e){} }); window.escolherAberturaArquivo=novo;
   }
 
-  /* ---- ordem e turno na escala à mão / mista ---- */
+  /* ---- ordem e turno na escala à mão / mista ---- (V223: um filtro em cada card de domingo) */
   const $id=id=>document.getElementById(id);
-  const CH='escalaSetores.v222Filtro';
+  const CH='escalaSetores.v222Filtro', CHC='escalaSetores.v223FiltroCards';
   let cfg={ordem:'az',turno:'todos'}; try{ cfg={...cfg,...(JSON.parse(localStorage.getItem(CH)||'{}')||{})}; }catch(e){}
+  let porCard={}; try{ porCard=JSON.parse(localStorage.getItem(CHC)||'{}')||{}; }catch(e){}
+  const chaveCard=d=>`${$id('setorSelecionado')?.value||''}|${$id('ano')?.value}-${$id('mes')?.value}-${d}`;
+  const cfgDe=d=>({...cfg,...(porCard[chaveCard(d)]||{})});
   const turnoDe=f=>{ const t=String(f?.turno||'').toUpperCase(); return t.startsWith('ABERT')?'ab':t.startsWith('FECH')?'fe':''; };
   const semAc=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
   const admIso=s=>{ s=String(s||''); let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; m=s.match(/^\d{4}-\d{2}-\d{2}/); return m?m[0]:''; };
   let aplicando=false, agendado=0;
+  function controle(card,d){
+    let div=card.querySelector(':scope .v222-ctrl'); if(div) return div;
+    const lista=card.querySelector('.dom-funcs'); if(!lista) return null;
+    div=document.createElement('div'); div.className='v222-ctrl v223-card'; div.dataset.dom=d;
+    div.innerHTML=`<label>Ordenar <select data-v222="ordem"><option value="az">Nome: A → Z</option><option value="za">Nome: Z → A</option><option value="antigos">Admissão: mais antigos</option><option value="novos">Admissão: mais novos</option></select></label>`
+      +`<label>Turno <select data-v222="turno"><option value="todos">Todos</option><option value="ab">🌅 Só abertura</option><option value="fe">🌙 Só fechamento</option></select></label>`;
+    div.addEventListener('change',e=>{ const s=e.target.closest('select[data-v222]'); if(!s) return; const k=chaveCard(d);
+      porCard[k]={...(porCard[k]||{}),[s.dataset.v222]:s.value};   // cada domingo tem o seu filtro
+      try{ const ks=Object.keys(porCard); ks.slice(0,Math.max(0,ks.length-200)).forEach(x=>delete porCard[x]); localStorage.setItem(CHC,JSON.stringify(porCard)); }catch(err){}
+      aplicar(); });
+    lista.before(div); return div;
+  }
   function aplicar(){
     agendado=0;
     const areas=['selecaoDomingosManual','selecaoDomingosMista'].map($id).filter(Boolean); if(!areas.length) return;
     aplicando=true;
     try{
       const eq=Array.isArray(equipe)?equipe:[];
-      const idx=eq.map((f,i)=>i);
       const nome=i=>semAc(eq[i]?.nome).toUpperCase();
       const adm=i=>admIso(eq[i]?.admissao)||'9999-99-99';
-      const cmp={az:(a,b)=>nome(a).localeCompare(nome(b),'pt-BR'),za:(a,b)=>nome(b).localeCompare(nome(a),'pt-BR'),
+      const cmps={az:(a,b)=>nome(a).localeCompare(nome(b),'pt-BR'),za:(a,b)=>nome(b).localeCompare(nome(a),'pt-BR'),
         antigos:(a,b)=>adm(a).localeCompare(adm(b))||nome(a).localeCompare(nome(b),'pt-BR'),
-        novos:(a,b)=>{ const A=admIso(eq[a]?.admissao)||'0000', B=admIso(eq[b]?.admissao)||'0000'; return B.localeCompare(A)||nome(a).localeCompare(nome(b),'pt-BR'); }}[cfg.ordem]||null;
-      const pos=new Map(); (cmp?[...idx].sort(cmp):idx).forEach((i,k)=>pos.set(i,k));
-      areas.forEach(area=>area.querySelectorAll('.dom-card').forEach(card=>card.querySelectorAll('input[type=checkbox][data-func]').forEach(ch=>{
-        const i=Number(ch.dataset.func), row=ch.closest('.dom-func'), f=eq[i]; if(!row||!f) return;
-        const o=String(pos.get(i)??i); if(row.style.order!==o) row.style.order=o;
-        const t=turnoDe(f); row.classList.toggle('v222-oculto',cfg.turno!=='todos'&&t!==cfg.turno);
-        const main=row.querySelector('.dom-func-main'); if(!main) return;
-        let tag=main.querySelector(':scope > .v222-t'); const cls='v222-t '+(t||'sem'), txt=t==='ab'?'🌅 Abertura':t==='fe'?'🌙 Fechamento':'Sem turno';
-        if(!tag){ tag=document.createElement('span'); main.querySelector(':scope > b')?.after(tag); }
-        if(tag.className!==cls) tag.className=cls; if(tag.textContent!==txt) tag.textContent=txt;
-      })));
-      document.querySelectorAll('.v222-ctrl select[data-v222]').forEach(s=>{ if(s.value!==cfg[s.dataset.v222]) s.value=cfg[s.dataset.v222]; });
-    }catch(e){ console.warn('[V222]',e); }
+        novos:(a,b)=>{ const A=admIso(eq[a]?.admissao)||'0000', B=admIso(eq[b]?.admissao)||'0000'; return B.localeCompare(A)||nome(a).localeCompare(nome(b),'pt-BR'); }};
+      const cache={};
+      const posDe=ordem=>{ if(cache[ordem]) return cache[ordem]; const m=new Map(); const idx=eq.map((f,i)=>i); (cmps[ordem]?[...idx].sort(cmps[ordem]):idx).forEach((i,k)=>m.set(i,k)); return cache[ordem]=m; };
+      areas.forEach(area=>area.querySelectorAll('.dom-card').forEach(card=>{
+        const d=card.dataset.geracaoDom; const c=cfgDe(d), pos=posDe(c.ordem);
+        const ctl=controle(card,d); if(ctl) ctl.querySelectorAll('select[data-v222]').forEach(s=>{ if(s.value!==c[s.dataset.v222]) s.value=c[s.dataset.v222]; });
+        card.querySelectorAll('input[type=checkbox][data-func]').forEach(ch=>{
+          const i=Number(ch.dataset.func), row=ch.closest('.dom-func'), f=eq[i]; if(!row||!f) return;
+          const o=String(pos.get(i)??i); if(row.style.order!==o) row.style.order=o;
+          const t=turnoDe(f); row.classList.toggle('v222-oculto',c.turno!=='todos'&&t!==c.turno);
+          const main=row.querySelector('.dom-func-main'); if(!main) return;
+          let tag=main.querySelector(':scope > .v222-t'); const cls='v222-t '+(t||'sem'), txt=t==='ab'?'🌅 Abertura':t==='fe'?'🌙 Fechamento':'Sem turno';
+          if(!tag){ tag=document.createElement('span'); main.querySelector(':scope > b')?.after(tag); }
+          if(tag.className!==cls) tag.className=cls; if(tag.textContent!==txt) tag.textContent=txt;
+        });
+      }));
+    }catch(e){ console.warn('[V222/V223]',e); }
     finally{ obs.takeRecords(); aplicando=false; }
   }
   const agendar=()=>{ if(aplicando||agendado) return; agendado=setTimeout(aplicar,50); };
   const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
-  function barra(id){
-    const area=$id(id); if(!area||area.parentElement.querySelector(':scope > .v222-ctrl')) return;
-    const div=document.createElement('div'); div.className='v222-ctrl';
-    div.innerHTML=`<label>Ordenar <select data-v222="ordem"><option value="az">Nome: A → Z</option><option value="za">Nome: Z → A</option><option value="antigos">Admissão: mais antigos primeiro</option><option value="novos">Admissão: mais novos primeiro</option></select></label>`
-      +`<label>Turno <select data-v222="turno"><option value="todos">Todos</option><option value="ab">🌅 Só abertura</option><option value="fe">🌙 Só fechamento</option></select></label>`;
-    div.addEventListener('change',e=>{ const s=e.target.closest('select[data-v222]'); if(!s) return; cfg[s.dataset.v222]=s.value; try{ localStorage.setItem(CH,JSON.stringify(cfg)); }catch(err){} aplicar(); });
-    (area.parentElement.querySelector(':scope > .v215-ver')||area).before(div);
-  }
+  function barra(){}   // V223: não há mais a barra única acima dos domingos
   function iniciar(){
     instalar();
     ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ barra(id); const el=$id(id); if(el) obs.observe(el,{childList:true,subtree:true}); });
     aplicar();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,200),{once:true}); else setTimeout(iniciar,200);
+})();
+</script>
+<script>
+/* ═════ V223 — ao marcar alguém num domingo (escala à mão / mista), mostra a folga antecipada e a posterior ═════ */
+(function(){
+  const $id=id=>document.getElementById(id);
+  const fmt=dt=>dt.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')+' '+String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+  let aplicando=false, agendado=0;
+  function bloco(row,d,i,manual){
+    const f=equipe[i]; if(!f) return '';
+    if(f.folgaPendente) return `<div class="l"><span class="av">⚠️ Folga fixa a definir — defina no quadro “📅 Folga fixa da equipe” (acima) para ver as folgas deste domingo.</span></div>`;
+    let ds=[]; try{ ds=descansosDoCandidato(i,d)||[]; }catch(e){}
+    if(ds.length<2) return `<div class="l"><span class="av">Sem dia permitido para a folga desta semana — confira os dias de DSR em ⚙️ Configurações.</span></div>`;
+    const [ant,pos]=ds, k=chaveAntecipacaoManual(d,i), antec=(antecipacoesFolgaManual||{})[k]||'';
+    let posHtml;
+    if(manual){ let opts=''; try{ opts=opcoesAntecipacaoPosterior(i,d); }catch(e){}
+      opts=opts.replace('<option value="">Folga posterior no dia fixo</option>',`<option value="">${fmt(pos)} (dia da folga)</option>`);
+      posHtml=`<select data-v223-pos="${d}" data-func="${i}">${opts}</select>`; }
+    else posHtml=`<span class="dt">${antec?fmt(new Date(antec+'T12:00:00'))+' (antecipada)':fmt(pos)}</span>`;
+    return `<div class="l"><span class="r">🛌 Folga antecipada:</span><span class="dt">${fmt(ant)}</span><small>(antes do domingo)</small></div>`
+      +`<div class="l"><span class="r">🛌 Folga posterior:</span>${posHtml}<small>(depois do domingo)</small></div>`;
+  }
+  function aplicar(){
+    agendado=0; aplicando=true;
+    try{
+      const modo=$id('modoGeracao')?.value||'motor';
+      const bal=(()=>{ try{ return balancoDoMes(+$id('ano').value,+$id('mes').value); }catch(e){ return null; } })();
+      ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const area=$id(id); if(!area) return;
+        const manual=id==='selecaoDomingosManual'&&modo==='manual';
+        area.querySelectorAll('.dom-card[data-geracao-dom]').forEach(card=>{
+          const d=Number(card.dataset.geracaoDom); const ehBal=bal&&d===Number(bal);
+          card.querySelectorAll('input[type=checkbox][data-func]').forEach(ch=>{
+            const row=ch.closest('.dom-func'), main=row?.querySelector('.dom-func-main'); if(!main) return;
+            let box=main.querySelector(':scope > .v223-fol');
+            if(!ch.checked||ehBal){ box?.remove(); return; }
+            const i=Number(ch.dataset.func), f=equipe[i];
+            const sig=[d,i,f?.folgaFixa,!!f?.folgaPendente,(antecipacoesFolgaManual||{})[chaveAntecipacaoManual(d,i)]||'',manual].join('|');
+            if(box&&box.dataset.sig===sig) return;
+            if(!box){ box=document.createElement('div'); box.className='v223-fol'; const ref=main.querySelector(':scope > .v217-tag'); ref?ref.before(box):main.appendChild(box); }
+            box.dataset.sig=sig; box.innerHTML=bloco(row,d,i,manual);
+            box.querySelector('select[data-v223-pos]')?.addEventListener('change',e=>{ e.stopPropagation(); try{ aplicarAntecipacaoManual(d,i,e.target.value); }catch(err){} });
+          });
+        });
+      });
+    }catch(e){ console.warn('[V223]',e); }
+    finally{ obs.takeRecords(); aplicando=false; }
+  }
+  const agendar=()=>{ if(aplicando||agendado) return; agendado=setTimeout(aplicar,40); };
+  const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
+  document.addEventListener('click',e=>{ if(e.target.closest?.('.v223-fol')&&!e.target.closest('select')) e.preventDefault(); },true);   // tocar no texto das folgas não desmarca a pessoa
+  function iniciar(){
+    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const el=$id(id); if(el) obs.observe(el,{childList:true,subtree:true}); });
+    document.addEventListener('change',e=>{ if(e.target.closest?.('#selecaoDomingosManual,#selecaoDomingosMista,.v221-folgas')) setTimeout(agendar,30); });
+    setInterval(agendar,2500);
+    aplicar();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,250),{once:true}); else setTimeout(iniciar,250);
 })();
 </script>
 </body>

@@ -12,11 +12,13 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V222.html` | **Versão atual** da Escala de Setores |
+| `Escala_de_Setores_V223.html` | **Versão atual** da Escala de Setores |
 | `Escala_2x1_encarregados_V165.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V221 e V150–V164), guardadas para comparação |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V222 e V150–V164), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`) |
+| [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (ChatGPT/Codex e Claude) |
+| [`docs/CHATGPT_COPILOTO.md`](docs/CHATGPT_COPILOTO.md) | passo a passo para ligar o ChatGPT ao GitHub e trabalhar em dupla com o Claude |
 
 O histórico de mudanças de cada versão também fica no comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo.
 
