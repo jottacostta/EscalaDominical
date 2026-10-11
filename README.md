@@ -12,14 +12,14 @@ A cada versão nova, troque o nome do arquivo em `setores/index.html` ou `encarr
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V219.html` | **Versão atual** da Escala de Setores |
+| `Escala_de_Setores_V220.html` | **Versão atual** da Escala de Setores |
 | `Escala_2x1_encarregados_V164.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V218 e V150–V163), guardadas para comparação |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V219 e V150–V163), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`) |
 
 O histórico de mudanças de cada versão também fica no comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo.
 
-O histórico de cada mês é guardado em `Historico_<Setor>_<mês>_<ano>.json` (ex.: `Historico_Frente_de_Loja_11_2026.json`). No mês seguinte, abra esse arquivo em ⋮ → Abrir histórico guardado. Na Escala de Setores o arquivo leva também o quadro da loja inteira (com tempo de serviço e situação): aberto num aparelho novo, tudo volta. Na Escala de Setores, ⋮ → Relatório do ano (por pessoa) junta esses arquivos e mostra quantos domingos e feriados cada pessoa trabalhou.
+O histórico de cada mês é guardado em `Historico_<Setor>_<mês>_<ano>.json` (ex.: `Historico_Frente_de_Loja_11_2026.json`). No mês seguinte, abra esse arquivo em ⋮ → Abrir histórico guardado. Na Escala de Setores o arquivo leva também o quadro da loja inteira (com tempo de serviço e situação) e a seção “Funcionários por tempo de serviço” daquele mês (setor e loja): aberto num aparelho novo, tudo volta. Na Escala de Setores, ⋮ → Relatório do ano (por pessoa) junta esses arquivos e mostra quantos domingos e feriados cada pessoa trabalhou.
 
 **Privacidade:** a planilha do RH e os históricos têm dados de funcionários. Não coloque esses arquivos no repositório (o `.gitignore` já bloqueia `*.xlsx` e `Historico_*.json`).
