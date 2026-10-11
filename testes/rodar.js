@@ -201,7 +201,7 @@ async function testarSetores(browser){
       const o = origem.find(x => String(x.matricula) === mat);
       const d = destino.find(x => String(x.matricula) === mat);
       const txt = equipeTextoDosDados([{aptidaoId:f.aptidaoId,matricula:mat,nome:f.nome,cargo:f.cargo,horario:f.horario,setor:f.setor,setorEmprestimo:f.setorEmprestimo,subsetor:'',turno:'ABERTURA',folga:2,pendente:false,situacao:'EP',naoAptoDomingo:false}]);
-      const linhaTxt = txt.split(/\\r?\\n/).find(l=>l.startsWith(mat+';')) || '';
+      const linhaTxt = txt.split(/\r?\n/).find(l=>l.startsWith(mat+';')) || '';
       const projeto = window.v147MontarProjeto();
       const result = {origemEP:!!o && o.situacao === 'EP', origemBloqueada:!origem.filter(x=>String(x.matricula)===mat&&String(x.situacao||'A')!=='EP').length,
         origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem-1,
