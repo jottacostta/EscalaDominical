@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V229</title>
+<title>Escala de Setores — V230</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V230 [ChatGPT] — LISTA MANUAL SÓ COM OPERACIONAIS ATIVOS: na escala manual/mista, lideranças já definidas na área própria, afastados (AF) e emprestados (EP) deixam de aparecer na lista de seleção. Operacionais ativos continuam visíveis, inclusive quem tem folga fixa no domingo.
 V229 [Claude] — VIRADA DO MÊS (achado na investigação pedida pelo ChatGPT): o domingo do MÊS PASSADO era tratado
        como “não trabalhado”, mesmo marcado no passo “Mês passado”. Efeitos corrigidos: (1) feriado na segunda-feira
        dia 1º (ex.: 01/05/2028, 01/01/2029) — quem trabalhou o domingo de antes (30/04) e tem folga fixa na segunda
@@ -2173,7 +2174,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V229 · virada do mês no 6×1 e no feriado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V230 · filtro de operacionais na escala manual</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -7986,7 +7987,7 @@ function renderSelecaoDomingosGeracao(){
     const chave=String(d), escolhidos=new Set((selecaoManualDomingo[chave]||[]).map(Number));
     const ehBalanco=Number(d)===Number(bal);
     const mes=+$('mes').value+1;
-    const cards=equipe.map((f,i)=>{
+    const cards=equipe.map((f,i)=>({f,i})).filter(({f})=>String(f.situacao||'A').trim().toUpperCase()==='A'&&!ehLiderancaDomingo(f)).map(({f,i})=>{ // V230: a seleção manual lista apenas operacionais ativos; folga fixa no domingo não oculta a pessoa
       const disabled=foraDom(f)||ehLiderancaDomingo(f)||ehBalanco, checked=ehBalanco?vaiTrabalharNoBalanco(i):escolhidos.has(i);   // V195: no balanço todos os aptos entram sozinhos
       return `<label class="dom-func ${(disabled&&!(ehBalanco&&checked))?'disabled':''} ${checked?'checked':''}">
         <input type="checkbox" data-dom="${d}" data-func="${i}" ${checked?'checked':''} ${disabled?'disabled':''}>
