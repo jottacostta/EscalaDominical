@@ -102,7 +102,17 @@ Modelo de entrada:
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
 
-### 2026-10-11 — Documentação — passagem de bastão — Claude
+### 2026-10-11 — Documentação — propostas de teste de estresse (Setores) — ChatGPT (PR #22), registrado pelo Claude
+- **O que mudou e por quê:** o ChatGPT criou `docs/PROPOSTAS_ESTRESSE_SETORES.md`, uma lista de testes que valeria acrescentar, em ordem de prioridade:
+  - regras: 6×1 atravessando o mês, domingos seguidos e balanço, feriados e prazo de 20 dias;
+  - limites: equipe inviável, nomes parecidos, auditoria ao vivo;
+  - histórico: salvar, restaurar e reimportar;
+  - conferências negativas e "testes de mutação".
+  Só documento: nenhum teste novo ainda e o app não mudou. O PR saiu sem entrada aqui porque este arquivo ainda não estava no `main`; o Claude registrou depois do merge.
+- **Como foi testado:** check "Testes" ✅ no PR.
+- **Para continuar:** veja a pendência "Transformar as propostas em testes" (seção 6).
+
+### 2026-10-11 — Documentação — passagem de bastão — Claude (PR #21)
 - **O que mudou e por quê:** o dono pediu que toda mudança fique explicada para o outro assistente continuar. Foram criados este arquivo e a regra 10 do `AGENTS.md`. O `testes/rodar.js` agora confere se este arquivo cita a versão atual de cada app.
 - **Para continuar:** em toda mudança, siga "Como atualizar" no topo deste arquivo.
 - O texto que o dono cola no ChatGPT está na Parte 2 do `docs/CHATGPT_COPILOTO.md`. Se o ambiente não rodar os testes, vale o check "Testes" do PR.
@@ -163,4 +173,8 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
 - **GitHub Actions:** aparece o aviso "Node.js 20 is deprecated". Funciona, mas um dia vale trocar `node-version: 20` por `22` no workflow.
+- **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
+  - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
+  - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
+  - Só crie versão nova do app se um teste achar um defeito.
 - **Branch `chatgpt/teste-integracao`:** desatualizado (veja a seção 1).
