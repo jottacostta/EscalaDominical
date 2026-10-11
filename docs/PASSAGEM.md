@@ -17,14 +17,15 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V232.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V233.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
-- **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
+- **PR #28:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão; mesclada em 11/10/2026 no commit `654057a5fcd909c92dd48f7876e790c7052b1f67`. A execução #100 aprovou as suítes rápida e completa e o teste explícito Açougue → Padaria.
+- **PR #29 aberta:** [ChatGPT] Setores V233 — sugestões seguras na escala manual (branch `chatgpt/sugestoes-escala-manual`); conferir os checks da PR antes de qualquer merge. Não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V233**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
 
 ---
 
@@ -97,6 +98,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-11 — Setores V233 — sugestões seguras na escala manual — ChatGPT
+- **O que mudou e por quê:** cada card de domingo no modo Manual ganhou a área “Sugestões de funcionários”. A lista prioriza funcionários com menor carga recente de domingos, permite desmarcar nomes e oferece “Aceitar sugestões” ou “Rejeitar sugestões”. A rejeição não modifica a escala.
+- **Validação:** somente operacionais ativos, aptos, sem folga fixa dominical, sem liderança definida e sem pendência de folga fixa entram como candidatos. A geração simula cada candidato contra `auditarSelecaoAntesDaGeracao('manual')`; o aceite revalida cada inclusão sequencialmente, respeita as vagas, define horário dominical válido próximo ao habitual, não duplica pessoas, atualiza a auditoria e preserva escolhas já feitas. O domingo de balanço e o modo por grupos não recebem sugestões individuais.
+- **Onde no código:** `Escala_de_Setores_V233.html`, estilo `v233-sugestoes-escala-manual`, script `v233-sugestoes-escala-manual-js` e gancho `window.v233Sugestoes`; `setores/index.html` é cópia exata da V233. As sugestões não criam chave nova no `localStorage) nem campo novo no histórico: só a seleção aceita usa a persistência existente.
+- **Testes:** `testes/rodar.js) ganhou cenário fictício que gera sugestões, rejeita sem alterar a escala e aceita uma sugestão sem duplicidade nem nova regra vermelha. Os checks da suíte rápida e completa devem ser confirmados na PR #29 antes do merge.
+- **Documentação:** README, CHANGELOG e esta passagem atualizados; V232 arquivada em `versoes_anteriores/`.
+- **Para continuar:** conferir o resultado do GitHub Actions e, se necessário, ajustar a implementação ou os testes. Não fazer merge sem autorização explícita do dono. Assinado: ChatGPT
 
 ### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
 - **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
