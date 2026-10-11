@@ -1,0 +1,27 @@
+# Roda os testes automáticos (testes/rodar.js, dados fictícios) em todo Pull Request e em todo push no main.
+# Serve para os dois assistentes (Claude e ChatGPT/Codex): o resultado aparece no PR, verificável por qualquer um.
+name: Testes
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar o Playwright e o Chromium
+        working-directory: testes
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Rodar os testes
+        working-directory: testes
+        run: npm test

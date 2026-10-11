@@ -73,7 +73,8 @@ Dicas para pedir:
 1. Abra o PR que o Codex criou (no GitHub, aba **Pull requests**).
 2. Confira na descrição:
    - o **número da versão** novo (ex.: Setores V223) e o que mudou;
-   - que o **`npm test` terminou com “Tudo certo”**;
+   - que o **`npm test` terminou com “Tudo certo”** — ou, mais fácil, que o teste **“Testes”** na aba **Checks** do PR
+     está verde ✅ (ele roda sozinho no GitHub em todo PR, mesmo quando o Codex não consegue rodar);
    - que **não** há arquivo `.xlsx` ou `Historico_*.json` na lista de arquivos alterados.
 3. Para testar antes do merge: na aba **Files changed**, abra o arquivo `Escala_..._Vnnn.html` → **⋯ → View file → Raw/Download**
    e abra no navegador. (Depois do merge, use o link fixo de sempre.)

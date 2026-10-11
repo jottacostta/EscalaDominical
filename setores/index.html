@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V227</title>
+<title>Escala de Setores — V228</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V228 — AUDITORIA AO VIVO LIGADA AO DOMINGO CERTO: na V227, só os avisos que começavam com a data ficavam presos a
+       um domingo (selo do cartão e toque no item). Os avisos sem data — “sequência de 7 dias trabalhados” (6×1) e
+       “folga fixa a definir” — não apareciam no selo de nenhum domingo, e a ligação usava só o dia (sem conferir
+       mês e ano). Agora: o aviso de 6×1 mostra o período (ex.: “de 02/10/2027 a 08/10/2027”) e vai para o(s)
+       domingo(s) dentro dele; aviso sem data vai para os domingos em que a pessoa está marcada; e a data só vale
+       se for do mês da escala. Regras iguais.
 V227 — AUDITORIA AO VIVO NA ESCALA À MÃO/MISTA: a mesma conferência que o app faz ao tocar em “Gerar” agora roda a
        cada pessoa marcada. Um painel “🛡️ Auditoria ao vivo” acima dos domingos separa 🔴 REGRA QUEBRADA (3 domingos
        seguidos, mais de 6 dias seguidos de trabalho, folga fixa no domingo, cobertura do setor, liderança…) de 🟡 FALTA
@@ -2158,7 +2164,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V227 · auditoria ao vivo na escala à mão</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V228 · auditoria ligada ao domingo certo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -6637,7 +6643,7 @@ function auditarProtecao6x1Simulada(sel,mapa){
   const inicio=new Date(ano,mes,1);inicio.setDate(inicio.getDate()-7);
   const fim=new Date(ano,mes+1,0);fim.setDate(fim.getDate()+7);
   equipe.forEach((f,i)=>{
-    let seq=0;
+    let seq=0,ini=null;
     for(let dt=new Date(inicio);dt<=fim;dt.setDate(dt.getDate()+1)){
       let trabalha;
       if(dt.getDay()===0){
@@ -6646,7 +6652,7 @@ function auditarProtecao6x1Simulada(sel,mapa){
       }else if((mapa[chaveData(dt)]||[]).some(x=>x.i===i)) trabalha=false;
       else if(dt.getMonth()===mes && dt.getFullYear()===ano && feriados(ano,mes)[dt.getDate()]) trabalha=(trabalhoFeriado[dt.getDate()]||[]).includes(i);
       else trabalha=!folgaFixaAtivaNaData(i,dt);
-      if(trabalha){seq++;if(seq>=7){erros.push(`${f.nome}: sequência de 7 dias trabalhados; escala incompatível com a proteção 6×1.`);break;}}
+      if(trabalha){if(!seq)ini=new Date(dt);seq++;if(seq>=7){erros.push(`${f.nome}: sequência de 7 dias trabalhados de ${ini.toLocaleDateString('pt-BR')} a ${dt.toLocaleDateString('pt-BR')}; escala incompatível com a proteção 6×1.`);break;}}   // V228: período, para ligar ao domingo
       else seq=0;
     }
   });
@@ -12230,7 +12236,18 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const r=[], y=[]; [...new Set(lista)].forEach(t=>(PEND.test(t)?y:r).push(t));
     return {r,y};
   }
-  const dataDe=t=>{ const m=String(t).match(/^(\d{2})\/(\d{2})/); return m?Number(m[1]):null; };
+  /* V228: domingos do mês a que o aviso se refere — data no início (do mês da escala), período (6×1) ou, sem data, os domingos da pessoa */
+  function domsDe(t){
+    t=String(t); const mes=+$id('mes').value, ano=+$id('ano').value; let m;
+    const doMes=()=>domingosDoMes(ano,mes);
+    if((m=t.match(/^(\d{2})\/(\d{2})\/(\d{4})/))) return (+m[2]-1===mes&&+m[3]===ano)?[+m[1]]:[];
+    if((m=t.match(/(\d{2})\/(\d{2})\/(\d{4}) a (\d{2})\/(\d{2})\/(\d{4})/))){
+      const a=new Date(+m[3],+m[2]-1,+m[1]), b=new Date(+m[6],+m[5]-1,+m[4],23);
+      return doMes().filter(d=>{ const x=new Date(ano,mes,d,12); return x>=a&&x<=b; }); }
+    const i=(equipe||[]).findIndex(f=>f?.nome&&t.startsWith(f.nome+':')); if(i<0) return [];
+    return doMes().filter(d=>(selecaoManualDomingo?.[d]||[]).map(Number).includes(i));
+  }
+  window.v228DomsDe=domsDe;
   let ultimo={r:[],y:[]}, sigUlt='';
   function desenhar(res){
     ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{
@@ -12243,7 +12260,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const nr=res.r.length, ny=res.y.length;
       box.className='v227-aud '+(nr?'vermelho':ny?'amarelo':'ok');
       box.querySelector('summary').innerHTML=`🛡️ Auditoria ao vivo ${nr?`<span class="p r">🔴 ${nr} regra${nr>1?'s':''} quebrada${nr>1?'s':''}</span>`:''}${ny?`<span class="p y">🟡 ${ny} para completar</span>`:''}${!nr&&!ny?'<span class="p g">✅ tudo dentro das regras</span>':''}`;
-      const li=(t,c)=>{ const d=dataDe(t); return `<li class="${c}" ${d?`data-dom="${d}"`:''}>${es(t)}</li>`; };
+      const li=(t,c)=>{ const d=domsDe(t)[0]; return `<li class="${c}" ${d?`data-dom="${d}"`:''}>${es(t)}</li>`; };
       box.querySelector('.v227-corpo').innerHTML=(nr?`<h5>🔴 Regras quebradas — corrija antes de gerar</h5><ul>${res.r.map(t=>li(t,'r')).join('')}</ul>`:'')
         +(ny?`<h5>🟡 Falta completar</h5><ul>${res.y.slice(0,80).map(t=>li(t,'y')).join('')}${ny>80?`<li class="y">… e mais ${ny-80}</li>`:''}</ul>`:'')
         +(!nr&&!ny?'<p style="margin:4px 0;font-size:12.5px;color:var(--muted)">Nenhum problema na escala montada até agora.</p>':'');
@@ -12251,7 +12268,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       /* selo em cada domingo */
       area.querySelectorAll('.dom-card[data-geracao-dom]').forEach(card=>{
         const d=Number(card.dataset.geracaoDom), head=card.querySelector(':scope > .dom-head'); if(!head) return;
-        const qr=res.r.filter(t=>dataDe(t)===d).length, qy=res.y.filter(t=>dataDe(t)===d).length;
+        const qr=res.r.filter(t=>domsDe(t).includes(d)).length, qy=res.y.filter(t=>domsDe(t).includes(d)).length;   // V228
         let st=head.querySelector(':scope > .v227-st'); if(!st){ st=document.createElement('span'); head.appendChild(st); st.addEventListener('click',()=>{ box.open=true; box.scrollIntoView({block:'nearest'}); }); }
         const cls='v227-st '+(qr?'r':qy?'y':'g'), txt=qr?`🔴 ${qr} regra${qr>1?'s':''}`:qy?`🟡 ${qy} a completar`:'✅ ok';
         if(st.className!==cls) st.className=cls; if(st.textContent!==txt) st.textContent=txt;
