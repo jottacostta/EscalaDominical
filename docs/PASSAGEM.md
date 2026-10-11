@@ -21,7 +21,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PR #27 aberta:** [ChatGPT] Setores V231 — empréstimo entre setores (branch `chatgpt/setores-v231-funcionario-emprestado`); checks em execução na última consulta. Não mesclar sem autorização explícita.
+- **PR #27 aberta:** [ChatGPT] Setores V231 — empréstimo entre setores (branch `chatgpt/setores-v231-funcionario-emprestado`); execução #78 passou suíte rápida e completa. Não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
 - **Próximo número de versão:** Setores **V232**, Encarregados **V166**.
 
