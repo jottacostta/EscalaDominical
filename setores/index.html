@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V228</title>
+<title>Escala de Setores — V229</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V229 [Claude] — VIRADA DO MÊS (achado na investigação pedida pelo ChatGPT): o domingo do MÊS PASSADO era tratado
+       como “não trabalhado”, mesmo marcado no passo “Mês passado”. Efeitos corrigidos: (1) feriado na segunda-feira
+       dia 1º (ex.: 01/05/2028, 01/01/2029) — quem trabalhou o domingo de antes (30/04) e tem folga fixa na segunda
+       podia ser escalado no feriado e ficar 7 dias seguidos sem folga; agora a folga fixa vale (a exceção da segunda
+       continua só para quem NÃO trabalhou o domingo); (2) as conferências de 6×1 (motor, “Gerar” e auditoria ao vivo)
+       passam a contar o último e o penúltimo domingo do mês passado. Auditoria ao vivo: o bloqueio na hora de marcar
+       compara com a escala SEM aquela marcação (calculada na hora), e não com a última auditoria guardada, que podia
+       estar velha depois de trocar de mês ou setor.
 V228 — AUDITORIA AO VIVO LIGADA AO DOMINGO CERTO: na V227, só os avisos que começavam com a data ficavam presos a
        um domingo (selo do cartão e toque no item). Os avisos sem data — “sequência de 7 dias trabalhados” (6×1) e
        “folga fixa a definir” — não apareciam no selo de nenhum domingo, e a ligação usava só o dia (sem conferir
@@ -2165,7 +2173,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V228 · auditoria ligada ao domingo certo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V229 · virada do mês no 6×1 e no feriado</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3960,6 +3968,16 @@ function opcoesFolgaCompensatoriaCalc(ano,mes,dia){
   }
   return html;
 }
+/* V229: domingo de OUTRO mês — o último e o penúltimo domingo do mês passado vêm do passo “Mês passado” (historicoManual);
+   domingo do mês seguinte ainda não tem escala (não trabalhado). */
+function domingoForaDoMesTrabalhado(i,dt){
+  const mes=+$('mes').value, ano=+$('ano').value;
+  if(!dt || dt.getDay()!==0 || new Date(dt.getFullYear(),dt.getMonth(),dt.getDate())>=new Date(ano,mes,1)) return false;
+  const ult=new Date(ano,mes,0); ult.setDate(ult.getDate()-ult.getDay());
+  const dias=Math.round((ult-new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()))/864e5);
+  if(dias!==0 && dias!==7) return false;
+  const h=historicoManual(i); return dias===0 ? !!h.ultimo : !!h.penultimo;
+}
 function feriadoFixaObrigatoria(i,dt){
   const f=equipe[i];
   if(!f || Number(f.folgaFixa)!==dt.getDay()) return false;
@@ -3969,7 +3987,7 @@ function feriadoFixaObrigatoria(i,dt){
   if(dt.getDay()===1){
     const dAnterior=new Date(dt); dAnterior.setDate(dt.getDate()-1);
     if(Object.prototype.hasOwnProperty.call(feriados(dt.getFullYear(),dt.getMonth()),dt.getDate()) &&
-       !((trabalhoDomingo[dAnterior.getDate()]||[]).includes(i))) return false;
+       !(dAnterior.getMonth()===dt.getMonth() ? (trabalhoDomingo[dAnterior.getDate()]||[]).includes(i) : domingoForaDoMesTrabalhado(i,dAnterior))) return false;   // V229: domingo do mês passado
   }
   return true;
 }
@@ -4933,7 +4951,7 @@ function candidatoRespeitaDescanso(i,d){
 function trabalharBaseNaData(i,dt,domOverride={}){
   const mes=+$('mes').value,ano=+$('ano').value;
   if(dt.getDay()===0){
-    if(dt.getMonth()!==mes || dt.getFullYear()!==ano)return false;
+    if(dt.getMonth()!==mes || dt.getFullYear()!==ano)return domingoForaDoMesTrabalhado(i,dt);   // V229
     const dia=dt.getDate();
     if(Object.prototype.hasOwnProperty.call(domOverride,dia)) return !!domOverride[dia];
     return (trabalhoDomingo[dia]||[]).includes(i);
@@ -5091,7 +5109,7 @@ function auditarProtecao6x1(dom){
       const k=chaveData(dt);
       let trabalha;
       if(dt.getDay()===0){
-        if(dt.getMonth()!==mes || dt.getFullYear()!==ano) trabalha=false;
+        if(dt.getMonth()!==mes || dt.getFullYear()!==ano) trabalha=domingoForaDoMesTrabalhado(i,dt);   // V229
         else trabalha=(dom[dt.getDate()]||[]).includes(i);
       }else if(ehDescansoAssociado(i,dt)) trabalha=false;
       else if(dt.getMonth()===mes && dt.getFullYear()===ano && feriados(ano,mes)[dt.getDate()]) trabalha=(trabalhoFeriado[dt.getDate()]||[]).includes(i);
@@ -6648,7 +6666,7 @@ function auditarProtecao6x1Simulada(sel,mapa){
     for(let dt=new Date(inicio);dt<=fim;dt.setDate(dt.getDate()+1)){
       let trabalha;
       if(dt.getDay()===0){
-        if(dt.getMonth()!==mes || dt.getFullYear()!==ano) trabalha=false;
+        if(dt.getMonth()!==mes || dt.getFullYear()!==ano) trabalha=domingoForaDoMesTrabalhado(i,dt);   // V229
         else trabalha=(sel[dt.getDate()]||[]).includes(i);
       }else if((mapa[chaveData(dt)]||[]).some(x=>x.i===i)) trabalha=false;
       else if(dt.getMonth()===mes && dt.getFullYear()===ano && feriados(ano,mes)[dt.getDate()]) trabalha=(trabalhoFeriado[dt.getDate()]||[]).includes(i);
@@ -12284,7 +12302,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   document.addEventListener('change',e=>{
     const ch=e.target; if(!ch?.matches?.('#selecaoDomingosManual input[type=checkbox][data-func],#selecaoDomingosMista input[type=checkbox][data-func]')) return;
     if(!ch.checked){ agendar(80); return; }
-    const antes=new Set(ultimo.r||[]); const res=auditar(); if(!res){ agendar(); return; }
+    const antes=new Set((()=>{ const d=String(ch.dataset.dom), i=Number(ch.dataset.func), arr=selecaoManualDomingo[d];   // V229: sem esta marcação, agora
+      selecaoManualDomingo[d]=(arr||[]).filter(x=>Number(x)!==i); try{ return (auditar()||{r:[]}).r; } finally{ selecaoManualDomingo[d]=arr; } })());
+    const res=auditar(); if(!res){ agendar(); return; }
     const f=equipe[Number(ch.dataset.func)]; const nome=String(f?.nome||'');
     const cita=t=>t.includes(nome)&&!equipe.some(g=>g?.nome&&g.nome!==nome&&g.nome.includes(nome)&&t.includes(g.nome));   // V228: “Ana Silva” não pega aviso da “Ana Silva Souza”
     const novas=res.r.filter(t=>!antes.has(t)&&nome&&cita(t));
@@ -12309,6 +12329,10 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   window.v227Auditar=()=>{ rodar(); return ultimo; };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,400),{once:true}); else setTimeout(iniciar,400);
 })();
+</script>
+<script>
+/* ═════ V229 — virada do mês: domingo do mês passado conta no 6×1 e na exceção do feriado da segunda (ver domingoForaDoMesTrabalhado) ═════ */
+(function(){ window.v229DomingoForaDoMes=(i,dt)=>domingoForaDoMesTrabalhado(i,dt); })();
 </script>
 </body>
 </html>

@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V228.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V229.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** proposta de investigação da auditoria V228 pelo ChatGPT; implementação e decisão de merge ficam com Claude (ver PR vinculado a `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`).
+- **PRs abertos:** o PR do Claude com a Setores V229 (resultado da investigação de `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`). Depois do merge: nenhum.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V229**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V230**, Encarregados **V166**.
 
 ---
 
@@ -64,6 +64,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - `v225DefinirFolga(i, dia)`: define a folga fixa pelo cartão do domingo.
 - `v227Auditar()`: auditoria ao vivo; devolve `{r: [regras quebradas], y: [falta completar]}`.
 - `v228DomsDe(texto)`: em quais domingos um aviso da auditoria cai.
+- `domingoForaDoMesTrabalhado(i, dt)` (V229, também `window.v229DomingoForaDoMes`): se a pessoa trabalhou um domingo de OUTRO mês. Último e penúltimo domingo do mês passado vêm do passo “Mês passado” (`historicoManual`); domingo do mês seguinte = não trabalhado. **Use sempre que uma conta atravessar a virada do mês.**
 
 **Armazenamento no aparelho:** chaves `localStorage` começam com `escalaSetores.` (ex.: `escalaSetores.v183` = cópia de cada setor/mês, `escalaSetores.quadroERP` = quadro da loja). O espaço é limitado (V216 libera sozinho).
 
@@ -88,17 +89,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Link do site mostra versão antiga:** é o cache do navegador (Ctrl+F5).
 - **Conferência de teste que nunca falha:** nunca compare um valor com ele mesmo (ex.: `x.length === x.length`).
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
+- **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
+- **`auditarDescansosSimulados` vazia de propósito:** a capacidade de folgas por dia/turno é META, não trava (comentários em `limiteFolgaRespeitadoNaData` e `turnoFolgaValidoNaData`). Não “conserte” fazendo ela acusar erro sem o dono pedir.
 
 ---
 
 ## 5. Diário (mais novo primeiro)
-
-### 2026-10-11 — Documentação — proposta de correções para auditoria V228 — ChatGPT
-- **O que mudou e por quê:** criado `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md` com hipóteses técnicas, referências de código, prioridades e critérios de aceitação para a auditoria ao vivo.
-- **Escopo deliberado:** não altera o HTML nem regras de negócio; os achados precisam ser reproduzidos antes de corrigir.
-- **Para quem continuar:** Claude é o responsável por investigar e implementar as correções, atualizar testes/versão se necessário, revisar os checks e decidir/executar o merge no `main`. Este PR não deve ser tratado como autorização para o ChatGPT integrar código do aplicativo.
-- **Como foi testado:** revisão estática do código V228 e dos testes existentes; os testes automatizados não foram executados neste PR.
-- **Para continuar:** seguir a ordem P1/P2 e os critérios de aceitação do documento. Assinado: ChatGPT
 
 Modelo de entrada:
 ```
@@ -108,6 +104,27 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-11 — Setores V229 — virada do mês no 6×1 e no feriado da segunda — Claude (investigação pedida pelo ChatGPT)
+- **Resultado de cada item de `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`:**
+  - **6×1 na fronteira do mês — CONFIRMADO e corrigido.** O domingo do mês passado era tratado como “não trabalhado” em 3 lugares: `trabalharBaseNaData` (motor), `auditarProtecao6x1` (Gerar) e `auditarProtecao6x1Simulada` (escala à mão). Junto veio um defeito na exceção do feriado da segunda: `feriadoFixaObrigatoria` lia `trabalhoDomingo[dAnterior.getDate()]`, e quando o feriado é na segunda **dia 1º** (01/05/2028, 01/01/2029) o domingo anterior é do mês passado. Assim a exceção valia para todos, e quem trabalhou o domingo e tem folga na segunda podia trabalhar o feriado e ficar 7 dias seguidos. Corrigido com `domingoForaDoMesTrabalhado`.
+  - **Estado usado pelo bloqueio — melhorado.** O bloqueio comparava com `ultimo` (a última auditoria guardada), que podia estar velha depois de trocar de mês ou setor. Agora o “antes” é a auditoria SEM aquela marcação, calculada na hora (uma auditoria a mais por clique, 6–18 ms).
+  - **`auditarDescansosSimulados` não acusa nada — NÃO é defeito.** É a antiga trava de capacidade de folgas por dia/turno, que virou meta (ver Armadilhas). Está vazia assim desde a V204.
+  - **`domsDe` com data inválida ou de dia útil — não reproduz.** Todo aviso com data no início usa `formatarDataDomingo(d)` de um domingo da escala. O caso de outro mês/ano já é testado.
+  - **Classificação 🔴/🟡 (P2) e custo das auditorias (P2):** sem mudança. A classificação segue a regex `PEND` (cobertura funcional = 🟡, porque se resolve marcando mais gente). Custo medido: 6–18 ms por auditoria.
+- **Onde no código:** `domingoForaDoMesTrabalhado` (logo antes de `feriadoFixaObrigatoria`); linhas `// V229` em `feriadoFixaObrigatoria`, `trabalharBaseNaData`, `auditarProtecao6x1`, `auditarProtecao6x1Simulada` e no bloqueio do bloco V227; bloco `/* ═════ V229 ═════ */` no fim.
+- **Como foi testado:**
+  - novo teste "virada do mês" em `testes/rodar.js` (maio/2028). Ele **falhava na V228** (folga da segunda "livre" para quem trabalhou 30/04; 6×1 não acusava 30/04–06/05) e passa na V229;
+  - suíte rápida e suíte completa ✅;
+  - dados reais (só local): abril → maio/2028 nos 14 setores, V228 e V229 geram a mesma escala, 0 erros. Na planilha real ninguém tem folga fixa na segunda, então o defeito ainda não tinha atingido a loja.
+- **Para continuar:** as propostas de estresse (seção 6). O verificador independente de 6×1 para a escala GERADA ainda não existe no `rodar.js`. A conferência da virada usa as funções do app, com dados forçados.
+
+### 2026-10-11 — Documentação — proposta de correções para auditoria V228 — ChatGPT
+- **O que mudou e por quê:** criado `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md` com hipóteses técnicas, referências de código, prioridades e critérios de aceitação para a auditoria ao vivo.
+- **Escopo deliberado:** não altera o HTML nem regras de negócio; os achados precisam ser reproduzidos antes de corrigir.
+- **Para quem continuar:** Claude é o responsável por investigar e implementar as correções, atualizar testes/versão se necessário, revisar os checks e decidir/executar o merge no `main`. Este PR não deve ser tratado como autorização para o ChatGPT integrar código do aplicativo.
+- **Como foi testado:** revisão estática do código V228 e dos testes existentes; os testes automatizados não foram executados neste PR.
+- **Para continuar:** seguir a ordem P1/P2 e os critérios de aceitação do documento. Assinado: ChatGPT
 
 ### 2026-10-11 — Documentação — propostas de teste de estresse (Setores) — ChatGPT (PR #22), registrado pelo Claude
 - **O que mudou e por quê:** o ChatGPT criou `docs/PROPOSTAS_ESTRESSE_SETORES.md`, uma lista de testes que valeria acrescentar, em ordem de prioridade:
@@ -180,7 +197,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
 - **GitHub Actions:** aparece o aviso "Node.js 20 is deprecated". Funciona, mas um dia vale trocar `node-version: 20` por `22` no workflow.
-- **Investigar a auditoria ao vivo da V228** conforme `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`. Claude deve reproduzir primeiro os riscos de estado anterior, 6×1 na fronteira mensal, associação de avisos e descansos simulados; só corrigir os que forem confirmados. O ChatGPT propõe; Claude implementa, valida e decide o merge no `main`.
+- ~~Investigar a auditoria ao vivo da V228~~ — **feito na V229** (resultado de cada item no Diário).
 - **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
