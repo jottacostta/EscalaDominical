@@ -189,6 +189,11 @@ async function testarEncarregados(browser){
 
 (async () => {
   const t0 = Date.now();
+  // os endereços fixos do site (setores/ e encarregados/) precisam ser a cópia da versão atual
+  for(const [pasta, app] of [['setores', APP_SETORES], ['encarregados', APP_ENC]]){
+    const idx = path.join(RAIZ, pasta, 'index.html');
+    if(fs.existsSync(idx)) ok(fs.readFileSync(idx, 'utf8') === fs.readFileSync(app, 'utf8'), `${pasta}/index.html é a cópia de ${path.basename(app)}`);
+  }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   try{ await testarSetores(browser); await testarEncarregados(browser); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
