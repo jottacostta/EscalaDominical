@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V226</title>
+<title>Escala de Setores — V227</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V227 — AUDITORIA AO VIVO NA ESCALA À MÃO/MISTA: a mesma conferência que o app faz ao tocar em “Gerar” agora roda a
+       cada pessoa marcada. Um painel “🛡️ Auditoria ao vivo” acima dos domingos separa 🔴 REGRA QUEBRADA (3 domingos
+       seguidos, mais de 6 dias seguidos de trabalho, folga fixa no domingo, cobertura do setor, liderança…) de 🟡 FALTA
+       COMPLETAR (quantidade do domingo, horário, folga fixa a definir); tocar num item leva ao domingo. Cada domingo mostra
+       o selo ✅ / 🟡 / 🔴. E o app NÃO DEIXA marcar quem quebraria uma regra: a marcação é desfeita na hora, com o motivo.
 V226 — ESCALA À MÃO SEPARADA POR FUNÇÃO: em cada domingo, as pessoas aparecem em grupos por função (Encarregado,
        Subencarregado, Operador(a) de caixa, Fiscal, Repositor(a)…), cada grupo com o título e quantos estão marcados
        (ex.: “Operador(a) de caixa — 12 de 120”). Dentro do grupo vale a ordem escolhida (A–Z, Z–A, admissão). Cada
@@ -2038,6 +2043,26 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 .v226-fn:first-child{margin-top:2px}
 .v223-card{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}
 </style>
+<style id="v227-auditoria">
+.v227-aud{margin:10px 0 12px;border:1.5px solid var(--border-strong,#CFD8E6);border-radius:14px;background:var(--surface,#fff);position:sticky;top:calc(var(--header-h,60px) + 6px);z-index:20;box-shadow:0 8px 20px -14px rgba(0,42,110,.45)}
+.v227-aud>summary{cursor:pointer;list-style:none;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800;font-size:14px}
+.v227-aud>summary::-webkit-details-marker{display:none}
+.v227-aud>summary::after{content:'▾';margin-left:auto;color:var(--muted)}
+.v227-aud[open]>summary::after{content:'▴'}
+.v227-aud .p{font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px}
+.v227-aud .p.r{background:#FDECEC;color:#9B1714}.v227-aud .p.y{background:#FFF4CC;color:#7A5A00}.v227-aud .p.g{background:#E7F7EE;color:#15803D}
+.v227-aud.ok{border-color:#A7E3C0}.v227-aud.amarelo{border-color:#F3D36B}.v227-aud.vermelho{border-color:#F5A3A3}
+.v227-corpo{padding:0 14px 12px;max-height:40vh;overflow:auto}
+.v227-corpo h5{margin:8px 0 4px;font-size:12.5px}
+.v227-corpo ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.v227-corpo li{font-size:12.5px;line-height:1.35;padding:6px 9px;border-radius:9px;cursor:pointer}
+.v227-corpo li.r{background:#FDECEC;color:#7F1D1D}.v227-corpo li.y{background:#FFF8DB;color:#5C4400}
+.v227-corpo li:hover{outline:2px solid #0047BA}
+.v227-st{font-size:11.5px;font-weight:800;border-radius:999px;padding:2px 9px;cursor:pointer}
+.v227-st.g{background:#E7F7EE;color:#15803D}.v227-st.y{background:#FFF4CC;color:#7A5A00}.v227-st.r{background:#FDECEC;color:#9B1714}
+@keyframes v227Pisca{0%,100%{box-shadow:0 0 0 0 rgba(229,35,32,0)}40%{box-shadow:0 0 0 4px rgba(229,35,32,.55)}}
+.v227-pisca{animation:v227Pisca 1s ease 2}
+</style>
 </head>
 <body>
 <script>
@@ -2133,7 +2158,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V226 · escala à mão por função</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V227 · auditoria ao vivo na escala à mão</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12184,6 +12209,85 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     setInterval(agendar,3000); aplicar();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,300),{once:true}); else setTimeout(iniciar,300);
+})();
+</script>
+<script>
+/* ═════ V227 — auditoria ao vivo na escala à mão / mista (mesmas regras do “Gerar”) e bloqueio de marcação que quebra regra ═════ */
+(function(){
+  const $id=id=>document.getElementById(id);
+  const es=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const PEND=/selecione \d|sem horário|sem folga associada|sem folga antecipada|sem folga posterior|folga fixa a definir|cobertura funcional insuficiente/i;   // falta completar (resolve marcando/escolhendo); o resto é regra quebrada
+  function modo(){ return $id('modoGeracao')?.value||'motor'; }
+  /* roda a auditoria do “Gerar” sem mexer em nada (o preenchimento automático do horário da liderança fica desligado) */
+  function auditar(){
+    const m=modo(); if(m!=='manual'&&m!=='mista') return null;
+    const orig=window.preencherHorarioLiderancaManual; let lista=[];
+    try{ window.preencherHorarioLiderancaManual=function(){}; lista=auditarSelecaoAntesDaGeracao(m)||[]; }
+    catch(e){ console.warn('[V227]',e); return null; }
+    finally{ window.preencherHorarioLiderancaManual=orig; }
+    try{ const pend=equipe.filter((f,i)=>f.folgaPendente&&Object.values(selecaoManualDomingo||{}).some(a=>(a||[]).map(Number).includes(i)));
+      pend.forEach(f=>lista.push(`${f.nome}: folga fixa a definir (escolha no cartão do domingo).`)); }catch(e){}
+    const r=[], y=[]; [...new Set(lista)].forEach(t=>(PEND.test(t)?y:r).push(t));
+    return {r,y};
+  }
+  const dataDe=t=>{ const m=String(t).match(/^(\d{2})\/(\d{2})/); return m?Number(m[1]):null; };
+  let ultimo={r:[],y:[]}, sigUlt='';
+  function desenhar(res){
+    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{
+      const area=$id(id); if(!area) return;
+      let box=area.parentElement?.querySelector(':scope > .v227-aud');
+      if(!res){ box?.remove(); return; }
+      if(!box){ box=document.createElement('details'); box.className='v227-aud'; box.innerHTML='<summary></summary><div class="v227-corpo"></div>';
+        const ref=area.parentElement.querySelector(':scope > .v215-ver')||area; ref.before(box);
+        box.addEventListener('click',e=>{ const li=e.target.closest('li[data-dom]'); if(!li) return; const card=area.querySelector(`.dom-card[data-geracao-dom="${li.dataset.dom}"]`); if(card){ card.scrollIntoView({block:'start',behavior:'smooth'}); card.classList.remove('v227-pisca'); void card.offsetWidth; card.classList.add('v227-pisca'); } }); }
+      const nr=res.r.length, ny=res.y.length;
+      box.className='v227-aud '+(nr?'vermelho':ny?'amarelo':'ok');
+      box.querySelector('summary').innerHTML=`🛡️ Auditoria ao vivo ${nr?`<span class="p r">🔴 ${nr} regra${nr>1?'s':''} quebrada${nr>1?'s':''}</span>`:''}${ny?`<span class="p y">🟡 ${ny} para completar</span>`:''}${!nr&&!ny?'<span class="p g">✅ tudo dentro das regras</span>':''}`;
+      const li=(t,c)=>{ const d=dataDe(t); return `<li class="${c}" ${d?`data-dom="${d}"`:''}>${es(t)}</li>`; };
+      box.querySelector('.v227-corpo').innerHTML=(nr?`<h5>🔴 Regras quebradas — corrija antes de gerar</h5><ul>${res.r.map(t=>li(t,'r')).join('')}</ul>`:'')
+        +(ny?`<h5>🟡 Falta completar</h5><ul>${res.y.slice(0,80).map(t=>li(t,'y')).join('')}${ny>80?`<li class="y">… e mais ${ny-80}</li>`:''}</ul>`:'')
+        +(!nr&&!ny?'<p style="margin:4px 0;font-size:12.5px;color:var(--muted)">Nenhum problema na escala montada até agora.</p>':'');
+      if(nr&&!box.dataset.mexeu) box.open=true;
+      /* selo em cada domingo */
+      area.querySelectorAll('.dom-card[data-geracao-dom]').forEach(card=>{
+        const d=Number(card.dataset.geracaoDom), head=card.querySelector(':scope > .dom-head'); if(!head) return;
+        const qr=res.r.filter(t=>dataDe(t)===d).length, qy=res.y.filter(t=>dataDe(t)===d).length;
+        let st=head.querySelector(':scope > .v227-st'); if(!st){ st=document.createElement('span'); head.appendChild(st); st.addEventListener('click',()=>{ box.open=true; box.scrollIntoView({block:'nearest'}); }); }
+        const cls='v227-st '+(qr?'r':qy?'y':'g'), txt=qr?`🔴 ${qr} regra${qr>1?'s':''}`:qy?`🟡 ${qy} a completar`:'✅ ok';
+        if(st.className!==cls) st.className=cls; if(st.textContent!==txt) st.textContent=txt;
+      });
+    });
+  }
+  let agendado=0;
+  function rodar(){ agendado=0; const res=auditar(); if(res){ ultimo=res; } desenhar(res); }
+  const agendar=(ms=250)=>{ clearTimeout(agendado); agendado=setTimeout(rodar,ms); };
+  /* bloqueio: marcar alguém que quebraria uma regra é desfeito na hora */
+  document.addEventListener('change',e=>{
+    const ch=e.target; if(!ch?.matches?.('#selecaoDomingosManual input[type=checkbox][data-func],#selecaoDomingosMista input[type=checkbox][data-func]')) return;
+    if(!ch.checked){ agendar(80); return; }
+    const antes=new Set(ultimo.r||[]); const res=auditar(); if(!res){ agendar(); return; }
+    const f=equipe[Number(ch.dataset.func)]; const nome=String(f?.nome||'');
+    const novas=res.r.filter(t=>!antes.has(t)&&nome&&t.includes(nome));
+    if(novas.length){
+      { const d=String(ch.dataset.dom), i=Number(ch.dataset.func);   // desfaz direto na escala (o cartão pode ter sido redesenhado)
+        selecaoManualDomingo[d]=(selecaoManualDomingo[d]||[]).map(Number).filter(x=>x!==i);
+        if(horariosManuaisDomingo?.[d]) delete horariosManuaisDomingo[d][String(i)];
+        try{ renderSelecaoDomingosGeracao(); }catch(err){} try{ window.v45Persist?.(); }catch(err){} }
+      window.showToast?.(`🛡️ Não dá para marcar ${nome.split(' ')[0]}: ${novas[0].replace(/^\d{2}\/\d{2}\/\d{4}:\s*/,'')}`,'danger',true);
+      agendar(60); return;
+    }
+    ultimo=res; desenhar(res);
+  });
+  ['change','input'].forEach(ev=>document.addEventListener(ev,e=>{ if(e.target.closest?.('#selecaoDomingosManual,#selecaoDomingosMista,#liderancaDomingoArea,#modoGeracao,#modoCobertura,#historicoLista')) agendar(); }));
+  document.addEventListener('click',e=>{ if(e.target.closest?.('#selecaoDomingosManual,#selecaoDomingosMista,#liderancaDomingoArea,.v207-fundo')) agendar(400); });
+  function iniciar(){
+    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const el=$id(id); if(el) new MutationObserver(m=>{ if(m.some(x=>[...x.addedNodes].some(n=>n.nodeType===1&&n.classList?.contains('dom-list')))) agendar(150); }).observe(el,{childList:true}); });
+    document.querySelectorAll('.v227-aud').forEach(b=>b.addEventListener('toggle',()=>{ b.dataset.mexeu='1'; }));
+    setInterval(()=>{ if(document.visibilityState==='visible') agendar(0); },5000);
+    agendar(600);
+  }
+  window.v227Auditar=()=>{ rodar(); return ultimo; };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,400),{once:true}); else setTimeout(iniciar,400);
 })();
 </script>
 </body>
