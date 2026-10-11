@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V224</title>
+<title>Escala de Setores — V225</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V225 — FOLGA FIXA DIRETO NO CARTÃO DO DOMINGO: na escala à mão/mista, ao marcar uma pessoa, o cartão dela mostra
+       “📅 Folga fixa” com a caixa para escolher o dia (segunda a sábado, ou domingo = não trabalha domingo). Escolhida ali,
+       a folga vale para todos os domingos, fica guardada (aparelho, quadro e histórico) e o cartão já mostra a folga
+       antecipada e a posterior. O quadro separado “📅 Folga fixa da equipe” saiu. Escolher domingo tira a pessoa dos
+       domingos em que estava marcada (com aviso). O Editar equipe continua podendo definir a folga.
 V224 — QUADRO “📅 FOLGA FIXA DA EQUIPE” ALINHADO: no computador, a caixa “— a definir —” herdava uma largura fixa e saía
        para fora do cartão, espremendo o nome. Agora cada cartão mostra o nome e a matrícula em cima e a caixa embaixo,
        na largura do cartão, todos do mesmo tamanho e alinhados (lista longa rola por dentro). Os filtros e as folgas de cada domingo também ficam
@@ -2017,6 +2022,12 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 .dom-func.v224-lider{opacity:1!important;cursor:default}
 .dom-func.v224-lider.v224-sim{background:#F0FBF4;border-color:#A7E3C0}
 </style>
+<style id="v225-folga-cartao">
+.v225-fixa select{flex:1 1 150px}
+.v225-fixa.pend{background:#FFF8DB;border:1px solid #F3D36B;border-radius:10px;padding:6px 8px}
+.v225-fixa.pend .r{color:#7A5A00}
+.v221-folgas{display:none!important}
+</style>
 </head>
 <body>
 <script>
@@ -2112,7 +2123,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V224 · quadro de folgas alinhado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V225 · folga fixa no cartão do domingo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -11917,6 +11928,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!avisou){ avisou=true; window.showToast?.(`✅ Quem não está afastado agora é apto ao domingo${r.fol?`: ${r.fol} pessoa(s) com folga no domingo ficaram com a folga fixa “a definir”. Defina em Editar equipe ou na escala à mão`:''}.`,'ok',true); }
   }
   window.v221Normalizar=passar;
+  window.v225DefinirFolga=(i,v)=>definir(i,v);   // V225: usado no cartão do domingo
   /* quadro “📅 Folga fixa da equipe” na escala à mão / mista */
   function pessoas(){ return (Array.isArray(equipe)?equipe:[]).map((f,i)=>({f,i})).filter(x=>ativo(x.f)&&!aprendiz(x.f)); }
   function definir(i,valor){
@@ -11924,6 +11936,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const irmaos=[f,...(Array.isArray(todasEquipes)?todasEquipes.filter(x=>x!==f&&String(x.matricula||'')&&String(x.matricula)===String(f.matricula)):[])];
     irmaos.forEach(x=>{ if(valor===''){ x.folgaPendente=true; delete x.folgaDefinida; } else { x.folgaFixa=Number(valor); x.folgaPendente=false; x.folgaDefinida=true; } });
     window.v222DomManual?.marcar(f,valor!==''&&Number(valor)===0);   // V222
+    if(valor!==''&&Number(valor)===0){ let n=0; Object.keys(selecaoManualDomingo||{}).forEach(d=>{ const a=(selecaoManualDomingo[d]||[]).map(Number); if(a.includes(i)){ selecaoManualDomingo[d]=a.filter(x=>x!==i); n++; } }); if(n) setTimeout(()=>window.showToast?.(`${String(f.nome||'').split(' ')[0]} saiu de ${n} domingo(s): folga fixa no domingo.`,'warn',true),400); }   // V225
     try{ renderEquipe?.(); }catch(e){} try{ renderSelecaoDomingosGeracao?.(); }catch(e){} try{ window.renderHomeSetores?.(); }catch(e){} try{ window.v45Persist?.(); }catch(e){}
     const nome=String(f.nome||'').split(' ')[0];
     window.showToast?.(valor===''?`${nome}: folga fixa a definir.`:Number(valor)===0?`✅ ${nome}: folga fixa no domingo (guardada) — não entra nos domingos.`:`✅ ${nome}: folga fixa na ${DIAS.find(d=>d[1]===Number(valor))[0].toLowerCase()} (guardada).`,'ok');
@@ -11948,7 +11961,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       if(box.dataset.sig!==sig && !box.contains(document.activeElement)){ box.dataset.sig=sig; desenhar(box); }
     });
   }
-  function iniciar(){ passar(); varrer(); setInterval(()=>{ passar(); varrer(); },2000); }
+  function iniciar(){ passar(); document.querySelectorAll('.v221-folgas').forEach(x=>x.remove()); setInterval(passar,2000); }   // V225: o quadro separado saiu; a folga é definida no cartão do domingo
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,1200),{once:true}); else setTimeout(iniciar,1200);
 })();
 </script>
@@ -12045,7 +12058,10 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   let aplicando=false, agendado=0;
   function bloco(row,d,i,manual){
     const f=equipe[i]; if(!f) return '';
-    if(f.folgaPendente) return `<div class="l"><span class="av">⚠️ Folga fixa a definir — defina no quadro “📅 Folga fixa da equipe” (acima) para ver as folgas deste domingo.</span></div>`;
+    const DIAS=[['',' — a definir —'],['1','Segunda'],['2','Terça'],['3','Quarta'],['4','Quinta'],['5','Sexta'],['6','Sábado'],['0','Domingo (não trabalha domingo)']];   // V225
+    const atual=f.folgaPendente?'':String(Number(f.folgaFixa));
+    const selFolga=`<div class="l v225-fixa ${f.folgaPendente?'pend':''}"><span class="r">📅 Folga fixa:</span><select data-v225-fixa="${i}">${DIAS.map(([v,n])=>`<option value="${v}" ${v===atual?'selected':''}>${n}</option>`).join('')}</select>${f.folgaPendente?'<small>escolha o dia para ver as folgas deste domingo</small>':'<small>(vale para todos os domingos)</small>'}</div>`;
+    if(f.folgaPendente) return selFolga;
     let ds=[]; try{ ds=descansosDoCandidato(i,d)||[]; }catch(e){}
     if(ds.length<2) return `<div class="l"><span class="av">Sem dia permitido para a folga desta semana — confira os dias de DSR em ⚙️ Configurações.</span></div>`;
     const [ant,pos]=ds, k=chaveAntecipacaoManual(d,i), antec=(antecipacoesFolgaManual||{})[k]||'';
@@ -12054,7 +12070,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       opts=opts.replace('<option value="">Folga posterior no dia fixo</option>',`<option value="">${fmt(pos)} (dia da folga)</option>`);
       posHtml=`<select data-v223-pos="${d}" data-func="${i}">${opts}</select>`; }
     else posHtml=`<span class="dt">${antec?fmt(new Date(antec+'T12:00:00'))+' (antecipada)':fmt(pos)}</span>`;
-    return `<div class="l"><span class="r">🛌 Folga antecipada:</span><span class="dt">${fmt(ant)}</span><small>(antes do domingo)</small></div>`
+    return selFolga+`<div class="l"><span class="r">🛌 Folga antecipada:</span><span class="dt">${fmt(ant)}</span><small>(antes do domingo)</small></div>`
       +`<div class="l"><span class="r">🛌 Folga posterior:</span>${posHtml}<small>(depois do domingo)</small></div>`;
   }
   function aplicar(){
@@ -12076,6 +12092,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
             if(!box){ box=document.createElement('div'); box.className='v223-fol'; const ref=main.querySelector(':scope > .v217-tag'); ref?ref.before(box):main.appendChild(box); }
             box.dataset.sig=sig; box.innerHTML=bloco(row,d,i,manual);
             box.querySelector('select[data-v223-pos]')?.addEventListener('change',e=>{ e.stopPropagation(); try{ aplicarAntecipacaoManual(d,i,e.target.value); }catch(err){} });
+            box.querySelector('select[data-v225-fixa]')?.addEventListener('change',e=>{ e.stopPropagation(); try{ window.v225DefinirFolga?.(i,e.target.value); }catch(err){} });   // V225
           });
         });
       });

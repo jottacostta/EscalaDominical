@@ -62,7 +62,7 @@ Para cada mudança num app (ex.: Setores V222 → V223):
 
 **Escala de Setores**
 - Ninguém trabalha **3 domingos seguidos** (conta os 2 últimos domingos do mês passado; o domingo de balanço é exceção — no balanço trabalham todos os aptos).
-- **Quem está trabalhando (não afastado) é apto ao domingo.** Só não entra no domingo quem tiver a **folga fixa no domingo escolhida à mão** (Editar equipe ou quadro “📅 Folga fixa da equipe” na escala à mão). A folga no domingo que vem do ERP vira “a definir”. **Jovem aprendiz** não trabalha domingo nem feriado.
+- **Quem está trabalhando (não afastado) é apto ao domingo.** Só não entra no domingo quem tiver a **folga fixa no domingo escolhida à mão** (no Editar equipe ou no cartão da pessoa no domingo, na escala à mão — campo “📅 Folga fixa”). A folga no domingo que vem do ERP vira “a definir”. **Jovem aprendiz** não trabalha domingo nem feriado.
 - A folga fixa definida pelo usuário **nunca** é trocada por uma nova importação do ERP. “A definir” continua “a definir”.
 - **Domingo é domingo, mesmo sendo feriado**: segue a escala do domingo, e quem trabalha ganha também a folga compensatória do feriado.
 - Folga fixa no dia do feriado **impede** trabalhar nesse feriado (exceção: feriado na segunda logo após um domingo que a pessoa não trabalhou).
