@@ -105,6 +105,7 @@ Modelo de entrada:
 ### 2026-10-11 — Documentação — passagem de bastão — Claude
 - **O que mudou e por quê:** o dono pediu que toda mudança fique explicada para o outro assistente continuar. Foram criados este arquivo e a regra 10 do `AGENTS.md`. O `testes/rodar.js` agora confere se este arquivo cita a versão atual de cada app.
 - **Para continuar:** em toda mudança, siga "Como atualizar" no topo deste arquivo.
+- O texto que o dono cola no ChatGPT está na Parte 2 do `docs/CHATGPT_COPILOTO.md`. Se o ambiente não rodar os testes, vale o check "Testes" do PR.
 
 ### 2026-10-11 — Documentação — regra de assinatura — Claude (PR #20)
 - **O que mudou e por quê:** seção 9 do `AGENTS.md`: cada um assina tudo como Claude ou ChatGPT:
