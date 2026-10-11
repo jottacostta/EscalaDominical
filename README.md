@@ -3,6 +3,13 @@ Projeto escala de setores — Supermercados Guanabara.
 
 Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem internet).
 
+**Endereços fixos (GitHub Pages)** — cada gestão usa só o seu link, que sempre abre a versão mais nova:
+
+- Escala de Setores: https://jottacostta.github.io/EscalaDominical/setores/
+- Escala de Encarregados: https://jottacostta.github.io/EscalaDominical/encarregados/
+
+A cada versão nova, troque o nome do arquivo em `setores/index.html` ou `encarregados/index.html` (3 lugares).
+
 | Arquivo | O que é |
 |---|---|
 | `Escala_de_Setores_V217.html` | **Versão atual** da Escala de Setores |
