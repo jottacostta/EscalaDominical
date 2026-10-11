@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V225</title>
+<title>Escala de Setores — V226</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V226 — ESCALA À MÃO SEPARADA POR FUNÇÃO: em cada domingo, as pessoas aparecem em grupos por função (Encarregado,
+       Subencarregado, Operador(a) de caixa, Fiscal, Repositor(a)…), cada grupo com o título e quantos estão marcados
+       (ex.: “Operador(a) de caixa — 12 de 120”). Dentro do grupo vale a ordem escolhida (A–Z, Z–A, admissão). Cada
+       domingo ganhou também o filtro “Função” para mostrar só uma função. Quem não pode trabalhar mostra o motivo
+       (“AFASTADO(A) — SUSPENSÃO DE CONTRATO”, “FOLGA FIXA NO DOMINGO”) em vez de só “NÃO APTO”.
 V225 — FOLGA FIXA DIRETO NO CARTÃO DO DOMINGO: na escala à mão/mista, ao marcar uma pessoa, o cartão dela mostra
        “📅 Folga fixa” com a caixa para escolher o dia (segunda a sábado, ou domingo = não trabalha domingo). Escolhida ali,
        a folga vale para todos os domingos, fica guardada (aparelho, quadro e histórico) e o cartão já mostra a folga
@@ -2028,6 +2033,11 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 .v225-fixa.pend .r{color:#7A5A00}
 .v221-folgas{display:none!important}
 </style>
+<style id="v226-por-funcao">
+.v226-fn{grid-column:1/-1;margin:10px 2px 2px;padding:6px 10px;border-radius:10px;background:var(--brand-lt,#EAF1FD);color:var(--brand,#0047BA);font-size:12.5px;font-weight:800;letter-spacing:.01em;border-left:4px solid var(--brand,#0047BA)}
+.v226-fn:first-child{margin-top:2px}
+.v223-card{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}
+</style>
 </head>
 <body>
 <script>
@@ -2123,7 +2133,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V225 · folga fixa no cartão do domingo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V226 · escala à mão por função</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -7932,7 +7942,7 @@ function renderSelecaoDomingosGeracao(){
         <input type="checkbox" data-dom="${d}" data-func="${i}" ${checked?'checked':''} ${disabled?'disabled':''}>
         <span class="dom-func-main">
           <b>${htmlEsc(f.nome)}</b>
-          <small>${htmlEsc(f.cargo)} • ${htmlEsc(f.setor)}${f.subsetor?` • ${htmlEsc(f.subsetor)}`:''}${foraDom(f)?' • NÃO APTO':(ehLiderancaDomingo(f)?' • LIDERANÇA DEFINIDA ACIMA':'')} • ${htmlEsc(String(f.turno||'SEM TURNO').toUpperCase())}</small>
+          <small>${htmlEsc(f.cargo)} • ${htmlEsc(f.setor)}${f.subsetor?` • ${htmlEsc(f.subsetor)}`:''}${foraDom(f)?' • '+(String(f.situacao||'A').toUpperCase()!=='A'?'AFASTADO(A)'+(f.situacaoDetalhe?' — '+htmlEsc(String(f.situacaoDetalhe).toUpperCase()):''):Number(f.folgaFixa)===0?'FOLGA FIXA NO DOMINGO':'NÃO APTO'):(ehLiderancaDomingo(f)?' • LIDERANÇA DEFINIDA ACIMA':'')} • ${htmlEsc(String(f.turno||'SEM TURNO').toUpperCase())}</small>
           ${(modo==='manual' || ehBalanco) && checked ? `<div class="dom-hour"><span>⏰</span><select class="func-dom-hour" data-dom-hour-func="${d}" data-func="${i}">${opcoesHorarioManual(horarioManualSelecionado(d,i),d)}</select></div>${ehBalanco?'':`<div class="dom-hour"><span>🛌</span><small style="font-weight:700">Folga posterior:</small><select class="func-folga-pos" data-dom-folga="${d}" data-func="${i}">${opcoesAntecipacaoPosterior(i,d)}</select></div>`}` : ''}
         </span>
       </label>`;
@@ -11990,7 +12000,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   /* ---- ordem e turno na escala à mão / mista ---- (V223: um filtro em cada card de domingo) */
   const $id=id=>document.getElementById(id);
   const CH='escalaSetores.v222Filtro', CHC='escalaSetores.v223FiltroCards';
-  let cfg={ordem:'az',turno:'todos'}; try{ cfg={...cfg,...(JSON.parse(localStorage.getItem(CH)||'{}')||{})}; }catch(e){}
+  let cfg={ordem:'az',turno:'todos',funcao:'todas'}; try{ cfg={...cfg,...(JSON.parse(localStorage.getItem(CH)||'{}')||{})}; }catch(e){}
   let porCard={}; try{ porCard=JSON.parse(localStorage.getItem(CHC)||'{}')||{}; }catch(e){}
   const chaveCard=d=>`${$id('setorSelecionado')?.value||''}|${$id('ano')?.value}-${$id('mes')?.value}-${d}`;
   const cfgDe=d=>({...cfg,...(porCard[chaveCard(d)]||{})});
@@ -12003,7 +12013,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const lista=card.querySelector('.dom-funcs'); if(!lista) return null;
     div=document.createElement('div'); div.className='v222-ctrl v223-card'; div.dataset.dom=d;
     div.innerHTML=`<label>Ordenar <select data-v222="ordem"><option value="az">Nome: A → Z</option><option value="za">Nome: Z → A</option><option value="antigos">Admissão: mais antigos</option><option value="novos">Admissão: mais novos</option></select></label>`
-      +`<label>Turno <select data-v222="turno"><option value="todos">Todos</option><option value="ab">🌅 Só abertura</option><option value="fe">🌙 Só fechamento</option></select></label>`;
+      +`<label>Turno <select data-v222="turno"><option value="todos">Todos</option><option value="ab">🌅 Só abertura</option><option value="fe">🌙 Só fechamento</option></select></label>`
+      +`<label>Função <select data-v222="funcao"><option value="todas">Todas</option></select></label>`;   // V226
     div.addEventListener('change',e=>{ const s=e.target.closest('select[data-v222]'); if(!s) return; const k=chaveCard(d);
       porCard[k]={...(porCard[k]||{}),[s.dataset.v222]:s.value};   // cada domingo tem o seu filtro
       try{ const ks=Object.keys(porCard); ks.slice(0,Math.max(0,ks.length-200)).forEach(x=>delete porCard[x]); localStorage.setItem(CHC,JSON.stringify(porCard)); }catch(err){}
@@ -12023,18 +12034,42 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         novos:(a,b)=>{ const A=admIso(eq[a]?.admissao)||'0000', B=admIso(eq[b]?.admissao)||'0000'; return B.localeCompare(A)||nome(a).localeCompare(nome(b),'pt-BR'); }};
       const cache={};
       const posDe=ordem=>{ if(cache[ordem]) return cache[ordem]; const m=new Map(); const idx=eq.map((f,i)=>i); (cmps[ordem]?[...idx].sort(cmps[ordem]):idx).forEach((i,k)=>m.set(i,k)); return cache[ordem]=m; };
+      /* V226: separa por função — grupos na ordem dos que têm mais gente; dentro do grupo, a ordem escolhida */
+      const fnDe=f=>{ try{ return window.v199Graf?.funcaoDoCargo?.(f.cargo)||String(f.cargo||'Sem cargo'); }catch(e){ return String(f.cargo||'Sem cargo'); } };
+      const fnCache=new Map(); const fnIdx=i=>{ if(!fnCache.has(i)) fnCache.set(i,eq[i]?fnDe(eq[i]):''); return fnCache.get(i); };
+      const tot=new Map(); eq.forEach((f,i)=>{ const k=fnIdx(i); tot.set(k,(tot.get(k)||0)+1); });
+      const ordemFn=[...tot.keys()].sort((a,b)=>(/^Encarregado$/.test(b)?1:0)-(/^Encarregado$/.test(a)?1:0)||(/^Subencarregado$/.test(b)?1:0)-(/^Subencarregado$/.test(a)?1:0)||tot.get(b)-tot.get(a)||a.localeCompare(b,'pt-BR'));
+      const gIdx=new Map(ordemFn.map((k,n)=>[k,n]));
       areas.forEach(area=>area.querySelectorAll('.dom-card').forEach(card=>{
         const d=card.dataset.geracaoDom; const c=cfgDe(d), pos=posDe(c.ordem);
-        const ctl=controle(card,d); if(ctl) ctl.querySelectorAll('select[data-v222]').forEach(s=>{ if(s.value!==c[s.dataset.v222]) s.value=c[s.dataset.v222]; });
+        const ctl=controle(card,d);
+        if(ctl){ const sf=ctl.querySelector('select[data-v222="funcao"]'); const html='<option value="todas">Todas</option>'+ordemFn.map(k=>`<option value="${k.replace(/"/g,'&quot;')}">${k.replace(/</g,'&lt;')} (${tot.get(k)})</option>`).join('');
+          if(sf&&sf.dataset.h!==html){ sf.dataset.h=html; sf.innerHTML=html; }
+          if(c.funcao!=='todas'&&!tot.has(c.funcao)) c.funcao='todas';
+          ctl.querySelectorAll('select[data-v222]').forEach(s=>{ if(s.value!==c[s.dataset.v222]) s.value=c[s.dataset.v222]; }); }
+        const lista=card.querySelector('.dom-funcs'); const cont=new Map();   // por função: [visíveis, marcados, total]
+        const soEsc=!!card.closest('.v215-so');
         card.querySelectorAll('input[type=checkbox][data-func]').forEach(ch=>{
           const i=Number(ch.dataset.func), row=ch.closest('.dom-func'), f=eq[i]; if(!row||!f) return;
-          const o=String(pos.get(i)??i); if(row.style.order!==o) row.style.order=o;
-          const t=turnoDe(f); row.classList.toggle('v222-oculto',c.turno!=='todos'&&t!==c.turno);
+          const fn=fnIdx(i), g=gIdx.get(fn)??999;
+          const o=String(g*10000+1+(pos.get(i)??i)); if(row.style.order!==o) row.style.order=o;
+          const t=turnoDe(f); const oculto=(c.turno!=='todos'&&t!==c.turno)||(c.funcao!=='todas'&&fn!==c.funcao); row.classList.toggle('v222-oculto',oculto);
+          const x=cont.get(fn)||[0,0,0]; x[2]++; if(ch.checked) x[1]++; if(!oculto&&(!soEsc||ch.checked)) x[0]++; cont.set(fn,x);
           const main=row.querySelector('.dom-func-main'); if(!main) return;
           let tag=main.querySelector(':scope > .v222-t'); const cls='v222-t '+(t||'sem'), txt=t==='ab'?'🌅 Abertura':t==='fe'?'🌙 Fechamento':'Sem turno';
           if(!tag){ tag=document.createElement('span'); main.querySelector(':scope > b')?.after(tag); }
           if(tag.className!==cls) tag.className=cls; if(tag.textContent!==txt) tag.textContent=txt;
         });
+        if(lista){   // V226: título de cada função
+          const vistos=new Set();
+          cont.forEach(([vis,marc,total],fn)=>{ vistos.add(fn);
+            let hd=[...lista.querySelectorAll(':scope > .v226-fn')].find(x=>x.dataset.fn===fn);
+            if(!hd){ hd=document.createElement('div'); hd.className='v226-fn'; hd.dataset.fn=fn; lista.appendChild(hd); }
+            const o=String((gIdx.get(fn)??999)*10000); if(hd.style.order!==o) hd.style.order=o;
+            const txt=`${fn} — ${marc} de ${total} marcados`; if(hd.textContent!==txt) hd.textContent=txt;
+            hd.classList.toggle('v222-oculto',!vis); });
+          lista.querySelectorAll(':scope > .v226-fn').forEach(x=>{ if(!vistos.has(x.dataset.fn)) x.remove(); });
+        }
       }));
     }catch(e){ console.warn('[V222/V223]',e); }
     finally{ obs.takeRecords(); aplicando=false; }
