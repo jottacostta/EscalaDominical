@@ -12273,7 +12273,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!ch.checked){ agendar(80); return; }
     const antes=new Set(ultimo.r||[]); const res=auditar(); if(!res){ agendar(); return; }
     const f=equipe[Number(ch.dataset.func)]; const nome=String(f?.nome||'');
-    const novas=res.r.filter(t=>!antes.has(t)&&nome&&t.includes(`${nome}:`));
+    const nomeEsc=nome.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\const novas=res.r.filter(t=>!antes.has(t)&&nome&&t.includes(`${nome}:`));');
+    const reNome=nome?new RegExp(`(^|[\\\\s:])${nomeEsc}(?=[:\\\\s]|$)`):null;
+    const novas=res.r.filter(t=>!antes.has(t)&&reNome&&reNome.test(t));
     if(novas.length){
       { const d=String(ch.dataset.dom), i=Number(ch.dataset.func);   // desfaz direto na escala (o cartão pode ter sido redesenhado)
         selecaoManualDomingo[d]=(selecaoManualDomingo[d]||[]).map(Number).filter(x=>x!==i);
