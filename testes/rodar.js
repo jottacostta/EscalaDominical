@@ -222,6 +222,90 @@ async function testarSetores(browser){
       'V231: Açougue → Padaria; destino ativo e apto, identifica origem, contagens corretas, matrícula única e persistência TXT/histórico ('+JSON.stringify(r)+')');
   }
 
+
+  // V233: sugestões na escala manual — validar candidatos, rejeitar sem alterar e aceitar com auditoria.
+  {
+    const backup = await p.evaluate(() => ({
+      equipe: equipe.map(f => ({...f})),
+      selecao: JSON.parse(JSON.stringify(selecaoManualDomingo || {})),
+      horarios: JSON.parse(JSON.stringify(horariosManuaisDomingo || {})),
+      modo: $('modoGeracao').value,
+      cobertura: $('modoCobertura').value,
+      naoAptos: typeof naoAptosDomingo !== 'undefined' && naoAptosDomingo instanceof Set ? [...naoAptosDomingo] : null
+    }));
+    try {
+      const cenario = await p.evaluate(() => {
+        if(equipe.length < 4) return {ok:false, motivo:'equipe fictícia insuficiente'};
+        equipe.splice(0, equipe.length, ...equipe.slice(0, 4));
+        equipe.forEach((f, i) => {
+          f.nome = 'CANDIDATO V233 ' + String.fromCharCode(65 + i);
+          f.cargo = 'OPERADOR DE LOJA'; f.cargoOriginal = 'OPERADOR DE LOJA'; f.tipo = 'operacional';
+          f.situacao = 'A'; f.situacaoDetalhe = ''; f.aptoDomingo = true; f.emprestado = false;
+          f.folgaFixa = i + 1; f.folgaPendente = false; f.horario = '07:40-16:00';
+        });
+        if(typeof naoAptosDomingo !== 'undefined' && naoAptosDomingo instanceof Set) naoAptosDomingo.clear();
+        $('modoGeracao').value = 'manual'; $('modoCobertura').value = '50';
+        selecaoManualDomingo = {}; horariosManuaisDomingo = {};
+        const bal = balancoDoMes(+$('ano').value, +$('mes').value);
+        const d = domingosDoMes(+$('ano').value, +$('mes').value).find(x => Number(x) !== Number(bal));
+        if(!d) return {ok:false, motivo:'não há domingo comum para testar'};
+        const h = horarioDomingoOficialMaisProximo(horarioHabitualInicio(0), faixaHorarioDomingo(equipe[0].horario), listaHorariosDomingoParaData(d));
+        if(!h || !h[0]) return {ok:false, motivo:'não há horário dominical'};
+        selecaoManualDomingo[String(d)] = [0];
+        horariosManuaisDomingo[String(d)] = {'0':h[0]};
+        renderSelecaoDomingosGeracao();
+        return {ok:true, d, alvo:alvoCoberturaAtual(), inicial:(selecaoManualDomingo[String(d)]||[]).length};
+      });
+      if(!cenario.ok) {
+        ok(false, 'V233: cenário de sugestões preparado (' + (cenario.motivo || 'falha') + ')');
+      } else {
+        await p.waitForTimeout(250);
+        const card = '#selecaoDomingosManual .dom-card[data-geracao-dom="' + cenario.d + '"]';
+        const botaoExiste = await p.locator(card + ' [data-v233-gerar]').count();
+        if(!botaoExiste) {
+          ok(false, 'V233: card manual apresenta botão de sugestões');
+        } else {
+          await p.locator(card + ' [data-v233-gerar]').click();
+          let qtd = await p.locator(card + ' [data-v233-pick]').count();
+          const sugestoesExistem = qtd > 0;
+          await p.locator(card + ' [data-v233-rejeitar]').click();
+          const rejeitarPreserva = await p.evaluate(d => (selecaoManualDomingo[String(d)] || []).map(Number).join(',') === '0', cenario.d);
+          await p.locator(card + ' [data-v233-gerar]').click();
+          qtd = await p.locator(card + ' [data-v233-pick]').count();
+          if(qtd) {
+            const candidato = Number(await p.locator(card + ' [data-v233-pick]').first().getAttribute('data-v233-pick'));
+            await p.locator(card + ' [data-v233-pick]').evaluateAll(els => els.forEach((el, i) => { el.checked = i === 0; }));
+            await p.locator(card + ' [data-v233-aceitar]').click();
+            await p.waitForTimeout(300);
+            const r = await p.evaluate(([d, i]) => {
+              const sel = (selecaoManualDomingo[String(d)] || []).map(Number);
+              const nome = equipe[i]?.nome || '';
+              const aud = window.v227Auditar?.();
+              return {sel, candidatoIncluido:sel.includes(i), semDuplicacao:new Set(sel).size===sel.length,
+                auditoriaSemRegraDoCandidato:!(aud?.r || []).some(x => nome && x.includes(nome)), nome};
+            }, [cenario.d, candidato]);
+            ok(sugestoesExistem && rejeitarPreserva && r.candidatoIncluido && r.sel.length === 2 && r.semDuplicacao && r.auditoriaSemRegraDoCandidato,
+              'V233: sugestões manuais elegíveis, rejeição preserva escala e aceite revalida sem duplicar funcionário (' +
+              JSON.stringify({sugestoesExistem,rejeitarPreserva,selecionados:r.sel.length,candidatoIncluido:r.candidatoIncluido,semDuplicacao:r.semDuplicacao,auditoriaSemRegraDoCandidato:r.auditoriaSemRegraDoCandidato}) + ')');
+          } else {
+            ok(false, 'V233: o card oferece candidatos elegíveis para aceitar (' + JSON.stringify({sugestoesExistem,rejeitarPreserva,qtd}) + ')');
+          }
+        }
+      }
+    } finally {
+      await p.evaluate(backup => {
+        equipe.splice(0, equipe.length, ...backup.equipe);
+        selecaoManualDomingo = backup.selecao; horariosManuaisDomingo = backup.horarios;
+        $('modoGeracao').value = backup.modo; $('modoCobertura').value = backup.cobertura; modoGeracao = backup.modo;
+        if(backup.naoAptos && typeof naoAptosDomingo !== 'undefined' && naoAptosDomingo instanceof Set) {
+          naoAptosDomingo.clear(); backup.naoAptos.forEach(x => naoAptosDomingo.add(x));
+        }
+        renderSelecaoDomingosGeracao(); window.v45Persist?.();
+      }, backup);
+      await p.waitForTimeout(200);
+    }
+  }
+
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
