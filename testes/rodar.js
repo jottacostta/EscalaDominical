@@ -201,7 +201,7 @@ async function testarSetores(browser){
       const o = origem.find(x => String(x.matricula) === mat);
       const d = destino.find(x => String(x.matricula) === mat);
       const result = {origemEP:!!o && o.situacao === 'EP', origemBloqueada:!origem.filter(x=>String(x.matricula)===mat&&String(x.situacao||'A')!=='EP').length,
-        origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem,
+        origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem-1,
         destinoDisponivel:!!d && d.situacao === 'A' && d.aptoDomingo === true,
         destinoContaAumentada:destino.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesDestino+1,
         matriculaUnica:todasEquipes.filter(x=>String(x.matricula)===mat).length===1};
