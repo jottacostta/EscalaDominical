@@ -7,11 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V232</title>
+<title>Escala de Setores — V233</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
-V232 [ChatGPT] — VERSÃO VISÍVEL E TESTADA: alinha o título HTML e a versão do rodapé ao nome do arquivo; acrescenta teste automático para conferir título, rodapé e primeira entrada do histórico de versões.
+V233 [ChatGPT] — SUGESTÕES NA ESCALA MANUAL: cada card de domingo pode sugerir operacionais elegíveis, ordenados pela carga recente; o gestor escolhe o que aceitar. Cada inclusão é revalidada pela auditoria existente, sem apagar marcações manuais.
 V231 [ChatGPT] — EMPRÉSTIMO ENTRE SETORES: o funcionário EP permanece cadastrado no setor de origem como registro visível e bloqueado; o destino do empréstimo fica explícito no editor. A escala de destino recebe uma visão operacional do mesmo cadastro, sem duplicar matrícula, e a contagem disponível diminui na origem e aumenta no destino. Destino persistido no Equipe.txt e no histórico JSON.
 V230 [ChatGPT] — LISTA MANUAL SÓ COM OPERACIONAIS ATIVOS: na escala manual/mista, lideranças já definidas na área própria, afastados (AF) e emprestados (EP) deixam de aparecer na lista de seleção. Operacionais ativos continuam visíveis, inclusive quem tem folga fixa no domingo.
 V229 [Claude] — VIRADA DO MÊS (achado na investigação pedida pelo ChatGPT): o domingo do MÊS PASSADO era tratado
@@ -2081,6 +2081,22 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 @keyframes v227Pisca{0%,100%{box-shadow:0 0 0 0 rgba(229,35,32,0)}40%{box-shadow:0 0 0 4px rgba(229,35,32,.55)}}
 .v227-pisca{animation:v227Pisca 1s ease 2}
 </style>
+<style id="v233-sugestoes-escala-manual">
+.v233-sugestoes{margin:10px 0 12px;padding:12px;border:1px solid #b9c9e8;border-radius:12px;background:rgba(0,71,186,.035)}
+.v233-sugestoes h4{margin:0 0 8px;font-size:14px;color:var(--text,#172033)}
+.v233-sugestoes .v233-explica{font-size:12px;color:var(--muted,#667085);margin:0 0 10px;line-height:1.45}
+.v233-sugestoes .v233-botoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.v233-sugestoes button{min-height:36px}
+.v233-sugestoes .v233-gerar{background:#0047BA;color:#fff;border:1px solid #0047BA}
+.v233-sugestoes .v233-aceitar{background:#167647;color:#fff;border:1px solid #167647}
+.v233-sugestoes .v233-rejeitar{background:transparent;color:var(--text,#172033);border:1px solid var(--border,#cbd5e1)}
+.v233-sugestoes .v233-lista{display:grid;gap:7px;margin-top:10px}
+.v233-sugestoes .v233-candidato{display:flex;align-items:flex-start;gap:9px;padding:9px;border:1px solid var(--border,#d8dee9);border-radius:9px;background:var(--card,#fff);font-size:13px}
+.v233-sugestoes .v233-candidato input{margin-top:2px;flex:0 0 auto}
+.v233-sugestoes .v233-candidato small{display:block;margin-top:3px;color:var(--muted,#667085);font-size:11px}
+.v233-sugestoes .v233-status{font-size:12px;margin-top:8px;line-height:1.45}
+@media(max-width:600px){.v233-sugestoes{padding:10px}.v233-sugestoes .v233-botoes button{flex:1 1 100%}}
+</style>
 </head>
 <body>
 <script>
@@ -2176,7 +2192,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V232 · versão visível alinhada e conferida automaticamente</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V233 · sugestões manuais com validação e auditoria</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12395,6 +12411,158 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   // Garante que as opções de destino apareçam também ao adicionar uma linha manualmente.
   const add=document.getElementById('btnAdicionarFuncionario');
   if(add&&!add.dataset.loanBound){add.addEventListener('click',()=>setTimeout(garantirCamposEmprestimo,0));add.dataset.loanBound='1';}
+})();
+</script>
+<script id="v233-sugestoes-escala-manual-js">
+/* ═════ V233 — sugestões na escala manual com revalidação pela auditoria existente ═════ */
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const chave=d=>String(Number(d));
+  function manual(){return $('modoGeracao')?.value==='manual';}
+  function balance(d){return Number(d)===Number(balancoDoMes(+$('ano').value,+$('mes').value));}
+  function alvos(d){return Math.max(0,Number(alvoCoberturaAtual())-new Set((selecaoManualDomingo[chave(d)]||[]).map(Number)).size);}
+  function horaPadrao(d,i){
+    const lista=listaHorariosDomingoParaData(Number(d))||[];
+    if(!lista.length)return '';
+    const h=horarioDomingoOficialMaisProximo(horarioHabitualInicio(i),faixaHorarioDomingo(equipe[i]?.horario||''),lista);
+    return Array.isArray(h)&&h.length?h[0]:'';
+  }
+  function errosAuditoria(d){
+    const fn=window.preencherHorarioLiderancaManual;
+    try{
+      window.preencherHorarioLiderancaManual=function(){};
+      const prefixo=formatarDataDomingo(Number(d))+': selecione ';
+      return (auditarSelecaoAntesDaGeracao('manual')||[]).filter(x=>!String(x).startsWith(prefixo));
+    }finally{if(fn)window.preencherHorarioLiderancaManual=fn;}
+  }
+  function testarInclusao(d,i){
+    const f=equipe[i],k=chave(d),id=String(i);
+    if(!f)return {ok:false,motivo:'Funcionário não encontrado.'};
+    if(String(f.situacao||'A').trim().toUpperCase()!=='A'||foraDom(f)||ehLiderancaDomingo(f)||f.aptoDomingo===false||f.folgaPendente)
+      return {ok:false,motivo:'Funcionário não está elegível para este domingo.'};
+    if((selecaoManualDomingo[k]||[]).map(Number).includes(Number(i)))return {ok:false,motivo:'Funcionário já está selecionado.'};
+    const hora=horaPadrao(d,i);
+    if(!hora)return {ok:false,motivo:'Não há horário dominical válido configurado.'};
+    const temSelecao=Object.prototype.hasOwnProperty.call(selecaoManualDomingo,k);
+    const selecaoAnterior=temSelecao?[...selecaoManualDomingo[k]]:null;
+    const temHoras=Object.prototype.hasOwnProperty.call(horariosManuaisDomingo||{},k);
+    const horasAnteriores=temHoras?{...horariosManuaisDomingo[k]}:null;
+    const antes=errosAuditoria(d);
+    try{
+      selecaoManualDomingo[k]=[...(selecaoManualDomingo[k]||[]).map(Number),Number(i)];
+      garantirHorariosManuais();
+      if(!horariosManuaisDomingo[k])horariosManuaisDomingo[k]={};
+      horariosManuaisDomingo[k][id]=hora;
+      const depois=errosAuditoria(d);
+      const novas=depois.filter(x=>!antes.includes(x));
+      return novas.length?{ok:false,motivo:novas[0],hora}:{ok:true,hora};
+    }catch(e){return {ok:false,motivo:'Não foi possível validar este funcionário.'};}
+    finally{
+      if(temSelecao)selecaoManualDomingo[k]=selecaoAnterior;else delete selecaoManualDomingo[k];
+      if(temHoras)horariosManuaisDomingo[k]=horasAnteriores;
+      else if(horariosManuaisDomingo)delete horariosManuaisDomingo[k];
+    }
+  }
+  function carga(i){
+    let n=0;
+    Object.values(selecaoManualDomingo||{}).forEach(a=>{if((a||[]).map(Number).includes(Number(i)))n++;});
+    const h=historicoManual(i)||{};
+    return n+(h.ultimo?1:0)+(h.penultimo?1:0);
+  }
+  function montarPainel(card,d){
+    if(card.querySelector('.v233-sugestoes'))return;
+    const actions=card.querySelector('.dom-actions');if(!actions)return;
+    const panel=document.createElement('section');panel.className='v233-sugestoes';panel.dataset.v233Panel=String(d);
+    const bal=balance(d),cobertura=$('modoCobertura')?.value||'50';
+    if(bal){
+      panel.innerHTML='<h4>💡 Sugestões de escala</h4><p class="v233-explica">No domingo de balanço, o sistema já escala automaticamente todos os funcionários aptos. Não é necessário sugerir nomes.</p>';
+    }else if(cobertura==='grupos'){
+      panel.innerHTML='<h4>💡 Sugestões de escala</h4><p class="v233-explica">As sugestões individuais não estão disponíveis no modo por grupos, para preservar os grupos definidos pelo gestor.</p>';
+    }else{
+      panel.innerHTML='<h4>💡 Sugestões de funcionários</h4><p class="v233-explica">O sistema considera aptidão, regras da escala e carga recente de domingos. Você decide quais sugestões aceitar.</p><div class="v233-botoes"><button type="button" class="mini-btn v233-gerar" data-v233-gerar="'+d+'">Sugerir funcionários</button></div><div class="v233-conteudo" data-v233-conteudo="'+d+'" hidden></div>';
+    }
+    actions.insertAdjacentElement('beforebegin',panel);
+  }
+  function decorar(){
+    if(!manual())return;
+    document.querySelectorAll('#selecaoDomingosManual .dom-card').forEach(card=>{
+      const d=Number(card.dataset.geracaoDom);if(Number.isFinite(d))montarPainel(card,d);
+    });
+  }
+  function gerar(d){
+    if(!manual())return;
+    if(balance(d))return;
+    if(($('modoCobertura')?.value||'50')==='grupos')return;
+    const k=chave(d),necessarias=alvos(d),card=document.querySelector('#selecaoDomingosManual .dom-card[data-geracao-dom="'+d+'"]');
+    const conteudo=card?.querySelector('[data-v233-conteudo="'+d+'"]');
+    if(!card||!conteudo)return;
+    if(necessarias<=0){conteudo.hidden=false;conteudo.innerHTML='<p class="v233-status">Este domingo já atingiu a quantidade prevista de funcionários.</p>';return;}
+    const originalSel=Object.prototype.hasOwnProperty.call(selecaoManualDomingo,k)?[...selecaoManualDomingo[k]]:null;
+    const originalHoras=Object.prototype.hasOwnProperty.call(horariosManuaisDomingo||{},k)?{...horariosManuaisDomingo[k]}:null;
+    const candidatos=equipe.map((f,i)=>({f,i,peso:carga(i)}))
+      .filter(x=>String(x.f?.situacao||'A').trim().toUpperCase()==='A'&&!foraDom(x.f)&&!ehLiderancaDomingo(x.f)&&x.f.aptoDomingo!==false&&!x.f.folgaPendente&&!(selecaoManualDomingo[k]||[]).map(Number).includes(x.i))
+      .sort((a,b)=>a.peso-b.peso||String(a.f.nome||'').localeCompare(String(b.f.nome||''),'pt-BR'));
+    const sugestoes=[];
+    try{
+      for(const c of candidatos){
+        if(sugestoes.length>=necessarias)break;
+        const teste=testarInclusao(d,c.i);
+        if(!teste.ok)continue;
+        sugestoes.push({i:c.i,hora:teste.hora,peso:c.peso});
+        selecaoManualDomingo[k]=[...(selecaoManualDomingo[k]||[]).map(Number),c.i];
+        garantirHorariosManuais();if(!horariosManuaisDomingo[k])horariosManuaisDomingo[k]={};horariosManuaisDomingo[k][String(c.i)]=teste.hora;
+      }
+    }finally{
+      if(originalSel)selecaoManualDomingo[k]=originalSel;else delete selecaoManualDomingo[k];
+      if(originalHoras)horariosManuaisDomingo[k]=originalHoras;else if(horariosManuaisDomingo)delete horariosManuaisDomingo[k];
+    }
+    conteudo.hidden=false;
+    if(!sugestoes.length){
+      conteudo.innerHTML='<p class="v233-status">Não encontrei candidatos que passem na validação. Confira a aptidão, a folga fixa e as regras deste domingo.</p>';
+      return;
+    }
+    conteudo.innerHTML='<p class="v233-status">'+sugestoes.length+' sugestão(ões) para '+necessarias+' vaga(s). As opções já vêm marcadas; desmarque quem não quiser incluir.</p><div class="v233-lista">'+sugestoes.map(x=>'<label class="v233-candidato"><input type="checkbox" data-v233-pick="'+x.i+'" checked><span><b>'+esc(equipe[x.i]?.nome||'Funcionário')+'</b><small>'+esc(equipe[x.i]?.cargo||'')+' • '+esc(equipe[x.i]?.turno||'SEM TURNO')+' — menor carga recente de domingos</small></span></label>').join('')+'</div><div class="v233-botoes"><button type="button" class="mini-btn v233-aceitar" data-v233-aceitar="'+d+'">Aceitar sugestões</button><button type="button" class="mini-btn v233-rejeitar" data-v233-rejeitar="'+d+'">Rejeitar sugestões</button></div>';
+  }
+  function aceitar(d,card){
+    const k=chave(d),conteudo=card?.querySelector('[data-v233-conteudo="'+d+'"]');
+    const marcados=[...(conteudo?.querySelectorAll('input[data-v233-pick]:checked')||[])].map(x=>Number(x.dataset.v233Pick));
+    if(!marcados.length){window.showToast?.('Marque pelo menos uma sugestão para aceitar.','info');return;}
+    let aceitos=0;const recusados=[];
+    for(const i of marcados){
+      if(alvos(d)<=0){recusados.push('limite de vagas atingido');break;}
+      const teste=testarInclusao(d,i);
+      if(!teste.ok){recusados.push((equipe[i]?.nome||'Funcionário')+': '+teste.motivo);continue;}
+      if(!(selecaoManualDomingo[k]||[]).map(Number).includes(i)){
+        selecaoManualDomingo[k]=[...(selecaoManualDomingo[k]||[]).map(Number),i];
+        garantirHorariosManuais();if(!horariosManuaisDomingo[k])horariosManuaisDomingo[k]={};horariosManuaisDomingo[k][String(i)]=teste.hora;aceitos++;
+      }
+    }
+    if(aceitos){
+      renderSelecaoDomingosGeracao();
+      window.v45Persist?.();
+      window.v227Auditar?.();
+      window.showToast?.(aceitos+' funcionário(s) adicionado(s) à escala. Auditoria atualizada.'+(recusados.length?' '+recusados.length+' sugestão(ões) não foram incluídas.':''),'ok',true);
+    }else if(recusados.length)window.showToast?.('Nenhuma sugestão foi incluída: '+recusados[0],'warn',true);
+    else window.showToast?.('Nenhuma sugestão foi incluída.','info');
+  }
+  document.addEventListener('click',e=>{
+    const gerarBtn=e.target.closest?.('[data-v233-gerar]');
+    if(gerarBtn){gerar(Number(gerarBtn.dataset.v233Gerar));return;}
+    const aceitarBtn=e.target.closest?.('[data-v233-aceitar]');
+    if(aceitarBtn){const d=Number(aceitarBtn.dataset.v233Aceitar);aceitar(d,aceitarBtn.closest('.dom-card'));return;}
+    const rejeitarBtn=e.target.closest?.('[data-v233-rejeitar]');
+    if(rejeitarBtn){const d=Number(rejeitarBtn.dataset.v233Rejeitar),card=rejeitarBtn.closest('.dom-card'),c=card?.querySelector('[data-v233-conteudo="'+d+'"]');if(c){c.hidden=true;c.innerHTML='';}return;}
+  });
+  document.addEventListener('change',e=>{
+    if(!e.target.matches?.('#selecaoDomingosManual input[type="checkbox"][data-func]'))return;
+    const card=e.target.closest('.dom-card'),c=card?.querySelector('.v233-conteudo');
+    if(c){c.hidden=true;c.innerHTML='';}
+  });
+  const renderOriginal=renderSelecaoDomingosGeracao;
+  renderSelecaoDomingosGeracao=function(){renderOriginal();decorar();};
+  window.v233Sugestoes={gerar,aceitar,testarInclusao};
 })();
 </script>
 </body>
