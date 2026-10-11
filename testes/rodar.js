@@ -94,6 +94,8 @@ async function testarSetores(browser){
     const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#btnHistorico')]);
     ok(/^Historico_Frente_de_Loja_12_2027\.json$/.test(dl.suggestedFilename()), 'nome do histórico: ' + dl.suggestedFilename());
     const arqHist = path.join(require('os').tmpdir(), 'teste_' + dl.suggestedFilename()); await dl.saveAs(arqHist);
+    { const j = JSON.parse(fs.readFileSync(arqHist, 'utf8')), q = (j.loja && j.loja.quadro) || [];   // V219: o histórico leva o quadro da loja (com tempo de serviço)
+      if(j.appVersion && Number(String(j.appVersion).replace(/\D/g, '')) >= 219) ok(q.length === nSet && q.filter(f => f.admissao).length === q.filter(f => f.admissao).length && q.some(f => f.admissao), `histórico leva o quadro da loja: ${q.length} pessoas, ${q.filter(f => f.admissao).length} com data de admissão`); }
     await p.waitForTimeout(1800);
     ok(/ok/.test(await lembrete()), 'lembrete mostra “guardado” depois de guardar');
 
