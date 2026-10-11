@@ -21,7 +21,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** nenhum.
+- **PRs abertos:** proposta de investigação da auditoria V228 pelo ChatGPT; implementação e decisão de merge ficam com Claude (ver PR vinculado a `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`).
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
 - **Próximo número de versão:** Setores **V229**, Encarregados **V166**.
 
@@ -92,6 +92,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-11 — Documentação — proposta de correções para auditoria V228 — ChatGPT
+- **O que mudou e por quê:** criado `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md` com hipóteses técnicas, referências de código, prioridades e critérios de aceitação para a auditoria ao vivo.
+- **Escopo deliberado:** não altera o HTML nem regras de negócio; os achados precisam ser reproduzidos antes de corrigir.
+- **Para quem continuar:** Claude é o responsável por investigar e implementar as correções, atualizar testes/versão se necessário, revisar os checks e decidir/executar o merge no `main`. Este PR não deve ser tratado como autorização para o ChatGPT integrar código do aplicativo.
+- **Como foi testado:** revisão estática do código V228 e dos testes existentes; os testes automatizados não foram executados neste PR.
+- **Para continuar:** seguir a ordem P1/P2 e os critérios de aceitação do documento. Assinado: ChatGPT
 
 Modelo de entrada:
 ```
@@ -173,6 +180,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
 - **GitHub Actions:** aparece o aviso "Node.js 20 is deprecated". Funciona, mas um dia vale trocar `node-version: 20` por `22` no workflow.
+- **Investigar a auditoria ao vivo da V228** conforme `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`. Claude deve reproduzir primeiro os riscos de estado anterior, 6×1 na fronteira mensal, associação de avisos e descansos simulados; só corrigir os que forem confirmados. O ChatGPT propõe; Claude implementa, valida e decide o merge no `main`.
 - **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
