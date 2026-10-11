@@ -11,6 +11,7 @@
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V231 [ChatGPT] — EMPRÉSTIMO ENTRE SETORES: o funcionário EP permanece cadastrado no setor de origem como registro visível e bloqueado; o destino do empréstimo fica explícito no editor. A escala de destino recebe uma visão operacional do mesmo cadastro, sem duplicar matrícula, e a contagem disponível diminui na origem e aumenta no destino. Destino persistido no Equipe.txt e no histórico JSON.
 V230 [ChatGPT] — LISTA MANUAL SÓ COM OPERACIONAIS ATIVOS: na escala manual/mista, lideranças já definidas na área própria, afastados (AF) e emprestados (EP) deixam de aparecer na lista de seleção. Operacionais ativos continuam visíveis, inclusive quem tem folga fixa no domingo.
 V229 [Claude] — VIRADA DO MÊS (achado na investigação pedida pelo ChatGPT): o domingo do MÊS PASSADO era tratado
        como “não trabalhado”, mesmo marcado no passo “Mês passado”. Efeitos corrigidos: (1) feriado na segunda-feira
@@ -2718,9 +2719,9 @@ function parseEquipe(txt){
    const p=parseEquipeLinha(l);
    if((norm(p[0])==='matricula') && norm(p[1])==='nome') return;
    if(/^matricula\s*[,;]\s*nome\s*[,;]\s*(horario\s*[,;]\s*)?cargo/i.test(l)) return;
-   let matricula='',nome='',horario='',cargo='',set='',sub='',turn='',fol='',situacao='A',statusErp='',situacaoDetalhe='',admissao='',aptoDomingo=true;
+   let matricula='',nome='',horario='',cargo='',set='',sub='',turn='',fol='',situacao='A',statusErp='',situacaoDetalhe='',admissao='',aptoDomingo=true,setorEmprestimo='';
    if(p.length>=12){
-     matricula=p[0]; nome=p[1]; horario=String(p[2]||'').trim(); cargo=p[3]; turn=String(p[4]||'').trim().toUpperCase(); set=p[5]; sub=p[6]; fol=norm(p[7]); situacao=String(p[8]||'A').trim().toUpperCase(); statusErp=String(p[9]||'').trim(); situacaoDetalhe=String(p[10]||'').trim(); admissao=String(p[11]||'').trim(); if(p.length>=13 && String(p[12]).trim()!=='') aptoDomingo=!['0','false','não','nao','inapto'].includes(norm(p[12]));
+     matricula=p[0]; nome=p[1]; horario=String(p[2]||'').trim(); cargo=p[3]; turn=String(p[4]||'').trim().toUpperCase(); set=p[5]; sub=p[6]; fol=norm(p[7]); situacao=String(p[8]||'A').trim().toUpperCase(); statusErp=String(p[9]||'').trim(); situacaoDetalhe=String(p[10]||'').trim(); admissao=String(p[11]||'').trim(); if(p.length>=13 && String(p[12]).trim()!=='') aptoDomingo=!['0','false','não','nao','inapto'].includes(norm(p[12])); if(p.length>=14) setorEmprestimo=String(p[13]||'').trim();
    } else if(p.length>=9){
      matricula=p[0]; nome=p[1]; horario=String(p[2]||'').trim(); cargo=p[3]; turn=String(p[4]||'').trim().toUpperCase(); set=p[5]; sub=p[6]; fol=norm(p[7]); situacao=String(p[8]||'A').trim().toUpperCase();
    }
@@ -2734,7 +2735,7 @@ function parseEquipe(txt){
    matricula=String(matricula||'').trim();
    nome=String(nome||'').trim().toUpperCase();
    cargo=String(cargo||'').trim().toUpperCase();
-   const setorArquivoBruto=String(setorDoArquivo||set||setor(cargo)||'').trim();
+   const setorArquivoBruto=String(set||setorDoArquivo||setor(cargo)||'').trim();
    const setorCanonico=(typeof setoresEscala!=='undefined' ? (setoresEscala.find(x=>norm(x)===norm(setorArquivoBruto))||setorArquivoBruto) : setorArquivoBruto);
    const subsetorCanonico=norm(setorCanonico)==='mercearia' ? String(sub||'').trim().toUpperCase() : '';
    const situacaoCanonica = situacao || 'A';
@@ -2744,7 +2745,7 @@ function parseEquipe(txt){
    const aptoFinal = aptoPorSituacao && aptoDomingo!==false;
    const aptidaoNovoId=`func-${todasEquipes.length}`;
    if(aptoPorSituacao && aptoDomingo===false) naoAptosDomingo.add(aptidaoNovoId);   // V184: “não apto a domingo” explícito (campo 13) entra na lista que o motor consulta
-   todasEquipes.push({matricula,nome,horario,cargo,setor:setorCanonico||'Outros',subsetor:subsetorCanonico,turno:turnoCalculado||turn,folgaFixa:normalizarFolgaFixa(fol,2),situacao:situacaoCanonica,statusErp,situacaoDetalhe,admissao,aptoDomingo:aptoFinal,aptidaoId:aptidaoNovoId,tipo:tipo(cargo)});
+   todasEquipes.push({matricula,nome,horario,cargo,setor:setorCanonico||'Outros',setorEmprestimo,subsetor:subsetorCanonico,turno:turnoCalculado||turn,folgaFixa:normalizarFolgaFixa(fol,2),situacao:situacaoCanonica,statusErp,situacaoDetalhe,admissao,aptoDomingo:aptoFinal,aptidaoId:aptidaoNovoId,tipo:tipo(cargo)});
  });
  equipe.forEach(f=>{f.folgaFixa=normalizarFolgaFixa(f.folgaFixa,2);});
  todasEquipes.forEach(f=>{f.folgaFixa=normalizarFolgaFixa(f.folgaFixa,2);});
@@ -2752,7 +2753,7 @@ function parseEquipe(txt){
  atualizarTituloEscala();
  renderEquipe();
  montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
- $('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
+ $('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
 }
 
 function aplicarFiltroSetor(){
@@ -2767,7 +2768,7 @@ function aplicarFiltroSetor(){
 
 $('setorSelecionado').onchange=()=>{
   atualizarTituloEscala(); _setorCfgFuncao=null;
-  equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,$('setorSelecionado').value));
+  equipe=equipeDoSetor($('setorSelecionado').value);
   trabalhoDomingo={};trabalhoFeriado={};descansosDomingo={};folgasCompensatorias={};sugestoesFolgasFeriado={};ultimaEscala=null;estadoFinalMes={};
   // V179: qualquer resultado calculado pertence ao setor anterior e deve ser invalidado.
   const painelMesAtual=$('painelMes');
@@ -2780,7 +2781,7 @@ $('setorSelecionado').onchange=()=>{
   grupos=[];
   renderEquipe(); montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
   atualizarModoCobertura(); atualizarModoGeracao();
-  $('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
+  $('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
   $('validacao').textContent='';$('domingosCard').style.display='none';$('tabelaCard').style.display='none';
   if($('modoCobertura')?.value==='grupos'){ $('qtdGrupos').value=3; montarListaManual(); renderGrupos(); }
   const dist=$('distEquipe');
@@ -2788,7 +2789,7 @@ $('setorSelecionado').onchange=()=>{
 };
 
 function renderEquipe(){
-  $('equipeLista').innerHTML=equipe.map(f=>{ const naoApto=estaNaoAptoDomingo(f); return `<div class="person"><div class="person-info"><b>${htmlEsc(String(f.nome||'').toUpperCase())}</b><small>${htmlEsc(String(f.cargo||'').toUpperCase())} • ${htmlEsc(String(f.setor||'').toUpperCase())}${f.subsetor?' • '+htmlEsc(String(f.subsetor).toUpperCase()):''} • ${htmlEsc(String(f.turno||'SEM TURNO').toUpperCase())}${f.horario?' • '+htmlEsc(String(f.horario).trim()):''} • FOLGA ${nomeDiaFolga(f.folgaFixa)} • SIT. ${htmlEsc(String(f.situacao||'A').toUpperCase())}</small></div><label class="apto-toggle"><input type="checkbox" class="chk-apto-dom" data-aptidao-id="${htmlEsc(chaveFuncionario(f))}" ${naoApto?'checked':''}> NÃO APTO</label></div>`; }).join('');
+  $('equipeLista').innerHTML=equipe.map(f=>{ const naoApto=estaNaoAptoDomingo(f); return `<div class="person ${String(f.situacao||'A').toUpperCase()==='EP'?'emprestado-origem':''}"><div class="person-info"><b>${htmlEsc(String(f.nome||'').toUpperCase())}</b><small>${htmlEsc(String(f.cargo||'').toUpperCase())} • ${htmlEsc(String(f.setor||'').toUpperCase())}${f.subsetor?' • '+htmlEsc(String(f.subsetor).toUpperCase()):''} • ${htmlEsc(String(f.turno||'SEM TURNO').toUpperCase())}${f.horario?' • '+htmlEsc(String(f.horario).trim()):''} • FOLGA ${nomeDiaFolga(f.folgaFixa)} • SIT. ${htmlEsc(String(f.situacao||'A').toUpperCase())}${f.emprestadoDe?' • EMPRESTADO DE '+htmlEsc(String(f.emprestadoDe).toUpperCase()):''}${f.emprestadoPara?' • EMPRESTADO PARA '+htmlEsc(String(f.emprestadoPara).toUpperCase()):''}</small></div><label class="apto-toggle"><input type="checkbox" class="chk-apto-dom" data-aptidao-id="${htmlEsc(chaveFuncionario(f))}" ${naoApto?'checked':''}> NÃO APTO</label></div>`; }).join('');
   $('equipeLista').querySelectorAll('.chk-apto-dom').forEach(ch=>ch.onchange=()=>{
     aptitudeTouched=true;
     const aptidaoId=String(ch.dataset.aptidaoId||'');
@@ -2800,7 +2801,7 @@ function renderEquipe(){
     $('equipeResumo').textContent=ch.checked?'Funcionário marcado como INAPTO para domingo.':'Apto para domingo: sim.';
   });
   $('equipeResumo').className='alert ok';
-  $('equipeResumo').textContent='✅ Equipe carregada: '+equipe.length+' funcionário(s). Confira a lista abaixo e toque em Próximo.';
+  $('equipeResumo').textContent='✅ Equipe carregada: '+equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis. Emprestados aparecem identificados na origem.';
 }
 
 const setoresEscala=['Açougue','ADM Geral','Cozinha','CPD','Depósito','FLV','Frente de Loja','Guanabara Card','Laticínios','Limpeza','Manutenção','Mercearia','Padaria','Patrimônio','Perfumaria','Saudáveis','Salgado','Tesouraria'];
@@ -2822,6 +2823,12 @@ const GRUPOS_SETOR=[
   {id:'Cozinha',nome:'Cozinha',ic:'🍳',inclui:['Cozinha']}];
 function grupoDoSetor(nome){ const n=norm(nome||''); return GRUPOS_SETOR.find(g=>norm(g.id)===n || g.inclui.some(x=>norm(x)===n))||null; }
 function pertenceAoGrupo(f,grupoId){ const g=grupoDoSetor(grupoId); const n=norm(f?.setor||''); return g ? g.inclui.some(x=>norm(x)===n) : n===norm(grupoId||''); }
+function equipeDoSetor(grupoId){
+  const grupo=grupoDoSetor(grupoId); if(!grupo||!Array.isArray(todasEquipes))return [];
+  const origem=todasEquipes.filter(f=>pertenceAoGrupo(f,grupo.id)).map(f=>String(f.situacao||'A').toUpperCase()==='EP'&&f.setorEmprestimo?{...f,emprestadoPara:f.setorEmprestimo}:f);
+  const emprestados=todasEquipes.filter(f=>String(f.situacao||'A').toUpperCase()==='EP'&&f.setorEmprestimo&&grupoDoSetor(f.setorEmprestimo)?.id===grupo.id&&!pertenceAoGrupo(f,grupo.id)).map(f=>({...f,setor:grupo.id,setorOrigemEmprestimo:f.setor,situacaoCadastro:'EP',situacao:'A',emprestadoDe:f.setor,emprestadoPara:grupo.id,emprestado:true,aptoDomingo:true}));
+  return [...origem,...emprestados];
+}
 const diasFolga=[['Domingo',0],['Segunda',1],['Terça',2],['Quarta',3],['Quinta',4],['Sexta',5],['Sábado',6]];
 // V113: normalização robusta da folga fixa. Domingo = 0 é válido e nunca pode
 // cair em valor padrão por causa de operadores como "||".
@@ -3446,6 +3453,7 @@ function coletarEquipeEditor(){
     const setorSelecionado=row.querySelector('.ed-setor')?.value.trim()||'';
     const turno=String(row.querySelector('.ed-turno')?.value||'').trim().toUpperCase();
     const situacao=String(row.querySelector('.ed-situacao')?.value||'A').trim().toUpperCase();
+    const setorEmprestimo=String(row.querySelector('.ed-setor-emprestimo')?.value||'').trim();
     const folgaTxt=row.querySelector('.ed-folga')?.value, pendente=folgaTxt===''||folgaTxt==null;   // V221
     const folga=pendente?2:normalizarFolgaFixa(folgaTxt,2);
     if(!matricula&&!nome&&!cargo)return;
@@ -3453,11 +3461,13 @@ function coletarEquipeEditor(){
     else if(!nome)erros.push('Linha '+(i+1)+': informe o nome.');
     else if(!cargo)erros.push('Linha '+(i+1)+': informe o cargo.');
     else if(!setorSelecionado)erros.push('Linha '+(i+1)+': selecione o setor.');
+    else if(situacao==='EP'&&!setorEmprestimo)erros.push('Linha '+(i+1)+': informe o setor de destino do empréstimo.');
+    else if(situacao==='EP'&&norm(setorEmprestimo)===norm(grupoDoSetor(setorSelecionado)?.id||setorSelecionado))erros.push('Linha '+(i+1)+': o setor de destino deve ser diferente do setor de origem.');
     else if(!turno)erros.push('Linha '+(i+1)+': selecione o turno (Abertura ou Fechamento).');
     else {
       const naoAptoDomingo=false;   // V221: quem não está afastado é apto ao domingo
       const subsetor=(norm(setorSelecionado)==='mercearia') ? String(row.querySelector('.ed-subsetor')?.value||'').toUpperCase() : '';
-    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,subsetor,turno,folga,pendente,situacao,naoAptoDomingo});
+    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,setorEmprestimo:situacao==='EP'?setorEmprestimo:'',subsetor,turno,folga,pendente,situacao,naoAptoDomingo});
     }
   });
   // Uma matrícula não pode representar dois funcionários no cadastro.
@@ -3479,10 +3489,10 @@ function equipeTextoDosDados(dados){
   const situacaoSaida=v=>{ const s=String(v||'A').trim().toUpperCase(); return ['A','AF','EP'].includes(s)?s:'A'; };
   const porId=new Map((Array.isArray(todasEquipes)?todasEquipes:[]).map(f=>[String(f.aptidaoId||''),f]));
   return `SETOR=${setorArquivo.toUpperCase()}\n`+
-    `Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo\n`+
+    `Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo;SetorEmprestimo\n`+
     dados.map(x=>{ const f=porId.get(String(x.aptidaoId||'')) || (todasEquipes||[]).find(y=>String(y.matricula)===String(x.matricula));
       const horario=String(x.horario||f?.horario||'').trim(); const mh=horario.match(/^(\d{1,2}):\d{2}/); const turno=mh?(+mh[1]<12?'Abertura':'Fechamento'):turnoSaida(x.turno);
-      return [String(x.matricula||'').trim(),String(x.nome||'').trim().toUpperCase(),horario,String(x.cargo||'').trim().toUpperCase(),turno,String(x.setor||setorArquivo||'').trim(),String(x.subsetor||f?.subsetor||'').trim(),nomeDiaFolga(x.folga),situacaoSaida(x.situacao),String(f?.statusErp||'').trim(),String(f?.situacaoDetalhe||'').trim(),String(f?.admissao||'').trim(),f?.aptoDomingo===false?'0':'1'].join(';'); }).join('\n');
+      return [String(x.matricula||'').trim(),String(x.nome||'').trim().toUpperCase(),horario,String(x.cargo||'').trim().toUpperCase(),turno,String(x.setor||setorArquivo||'').trim(),String(x.subsetor||f?.subsetor||'').trim(),nomeDiaFolga(x.folga),situacaoSaida(x.situacao),String(f?.statusErp||'').trim(),String(f?.situacaoDetalhe||'').trim(),String(f?.admissao||'').trim(),f?.aptoDomingo===false?'0':'1',String(x.setorEmprestimo||f?.setorEmprestimo||'').trim()].join(';'); }).join('\n');
 }
 
 function nomeArquivoEquipe(setorNome){
@@ -3521,10 +3531,10 @@ function salvarEquipeEditor(){
     const existente=d.aptidaoId
       ? todasEquipes.find(f=>String(f.aptidaoId)===String(d.aptidaoId))
       : todasEquipes.find(f=>String(f.matricula)===String(d.matricula));
-    if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';
+    if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.setorEmprestimo=d.setorEmprestimo||'';existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';
       const chave=chaveFuncionario(existente); if(d.naoAptoDomingo) naoAptosDomingo.add(chave); else naoAptosDomingo.delete(chave);
       existente.aptoDomingo=!d.naoAptoDomingo;}
-    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:'',aptidaoId,tipo:tipo(d.cargo)}); }
+    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:'',aptidaoId,tipo:tipo(d.cargo)}); }
   });
   // V154: no navegador, só a ÁREA editada muda. Antes, parseEquipe() recriava o quadro inteiro só com as pessoas desta área (os outros setores sumiam).
   if(!(window.Android && typeof Android.salvarEquipe==='function')){
@@ -3537,11 +3547,11 @@ function salvarEquipeEditor(){
     });
     const removidos=antes-todasEquipes.length;
     todasEquipes.forEach(f=>{ f.folgaFixa=normalizarFolgaFixa(f.folgaFixa,2); f.tipo=tipo(f.cargo); { const d=dados.find(x=>String(x.matricula)===String(f.matricula)); if(d){ f.folgaPendente=!!d.pendente; if(!d.pendente) f.folgaDefinida=true; window.v222DomManual?.marcar(f,!d.pendente&&Number(d.folga)===0); } } });   // V222: domingo escolhido à mão fica guardado   // V221: “a definir” continua a definir
-    equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,area));
+    equipe=equipeDoSetor(area);
     sugestaoFolgasEditorAplicada=false;
     atualizarTituloEscala(); renderEquipe(); montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
-    $('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
-    $('equipeResumo').className='alert ok'; $('equipeResumo').textContent='✅ Equipe atualizada: '+equipe.length+' funcionário(s) neste setor'+(removidos?' ('+removidos+' removido(s))':'')+'.';
+    $('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
+    $('equipeResumo').className='alert ok'; $('equipeResumo').textContent='✅ Equipe atualizada: '+equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis neste setor'+(removidos?' ('+removidos+' removido(s))':'')+'.';
     $('equipeEditorStatus').className='alert ok'; $('equipeEditorStatus').textContent='Alterações salvas. Se quiser uma cópia em arquivo, toque em “Baixar Equipe.txt”.';
     $('equipeEditor').style.display='block';
     window.v45Persist?.();
@@ -3549,7 +3559,7 @@ function salvarEquipeEditor(){
   }
   const ok=salvarEquipePersistente(equipeTextoDosDados(dados));
   if(ok){
-    equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,$('setorSelecionado')?.value||''));
+    equipe=equipeDoSetor($('setorSelecionado')?.value||'');
     renderEquipe();
     $('equipeEditor').style.display='block';
   }
@@ -3730,7 +3740,7 @@ function aplicarHistoricoArquivo(lido){
       if(historico.previsaoProximo&&historico.previsaoProximo.data){ const pv=historico.previsaoProximo; previsoesDomingo[`${norm(pv.setor||historico.setor||'')}|${pv.data}`]=pv; }
       if(historico.trabalhoFeriado) trabalhoFeriado=historico.trabalhoFeriado;
       if(historico.folgasCompensatorias) folgasCompensatorias=migrarFolgasCompensatorias(historico,+$('mes').value,+$('ano').value);
-      if(historico.setor && $('setorSelecionado')){ $('setorSelecionado').value=historico.setor; equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,historico.setor)); }
+      if(historico.setor && $('setorSelecionado')){ $('setorSelecionado').value=historico.setor; equipe=equipeDoSetor(historico.setor); }
       atualizarTituloEscala();
       if(historico.modoCobertura && $('modoCobertura')){ $('modoCobertura').value=historico.modoCobertura; atualizarModoCobertura(); }
       if(historico.modoGeracao && $('modoGeracao')){ $('modoGeracao').value=historico.modoGeracao; atualizarModoGeracao(); }
@@ -8894,7 +8904,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const p=projetoBase(); p.system='SETORES';
     p.config={mes:val('mes'),ano:val('ano'),setor:val('setorSelecionado'),modoCobertura:val('modoCobertura'),modoGeracao:val('modoGeracao'),tituloXlsx:val('tituloXlsxEmpresa'),diasDsrPermitidos:clone(diasDsrPermitidos),perfilHorarioDomingo:clone(perfilHorarioDomingo),liderancaManualDomingo:clone(liderancaManualDomingo),horariosOficiaisDomingo:clone(HORARIOS_OFICIAIS_DOMINGO),horariosOficiaisFeriado:clone(HORARIOS_OFICIAIS_FERIADO)};
     try{ p.config.liderModo=modoLideranca(); p.config.liderMeta=qtdLiderVarias(); }catch(e){}   // V209: o modo da liderança vai no arquivo
-    p.equipe={todas:clone(equipe),atual:clone(equipe),naoAptosDomingo:[...naoAptosDomingo],soSetor:true};   // V203: só as pessoas do setor
+    p.equipe={todas:clone(todasEquipes),atual:clone(equipe),naoAptosDomingo:[...naoAptosDomingo],soSetor:true};   // V203: só as pessoas do setor
     try{ const qi=window.v219QuadroInfo?.(); const quadro=Array.isArray(todasEquipes)?todasEquipes:[];   // V219: quadro da loja inteira (tempo de serviço, situação, folgas…)
       if(quadro.length) p.loja={quadro:clone(quadro),importadoEm:Number(qi?.importadoEm||qi?.t||0)||null,emissao:qi?.emissao||'',arquivoERP:qi?.arquivo||'',pessoas:quadro.length};
       const cf=_lerTodasCfgFuncao()[norm(val('setorSelecionado')||'')]; if(cf) p.config.coberturaFuncaoSetor=clone(cf); }catch(e){}
@@ -9101,7 +9111,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           if(el('tabelaCard')) el('tabelaCard').style.display='none';
           if(el('painelMes')){ el('painelMes').innerHTML=''; el('painelMes').style.display='none'; }
           if(el('validacao')){ el('validacao').className='alert info'; el('validacao').textContent='Tudo preenchido? Toque em 🚀 Gerar escala para calcular.'; }
-          if(el('statusBadge')) el('statusBadge').textContent=equipe.length+' funcionário(s) no setor';
+          if(el('statusBadge')) el('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
           document.getElementById('v45SummaryCard')?.remove();
         }catch(e){}
       }
@@ -9639,7 +9649,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!meta.reg156){ lista.forEach(f=>{ const novo=redirecionarSetorPorCargo(f.setor,String(f.cargo||'').toUpperCase()); if(novo!==f.setor){ f.setor=novo; n++; } }); meta.reg156=true; mudou=true; }
     if(!meta.reg157){ lista.forEach(f=>{ if(bloqueioDomingoPorRegra(f)&&f.aptoDomingo!==false&&!estaNaoAptoDomingo(f)){ marcarNaoAptoDomingo(f); nb++; } }); meta.reg157=true; mudou=true; }
     if(n){
-      equipe=todasEquipes.filter(f=>pertenceAoGrupo(f,$$('setorSelecionado')?.value||''));
+      equipe=equipeDoSetor($$('setorSelecionado')?.value||'');
       try{ renderEquipe(); renderHomeSetores?.(); }catch(e){}
       window.showToast?.(`↪ ${n} pessoa(s) de ADM Geral com cargo CAIXA GERAL foram para a Tesouraria.`,'ok',true);
     }
@@ -12334,6 +12344,57 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 <script>
 /* ═════ V229 — virada do mês: domingo do mês passado conta no 6×1 e na exceção do feriado da segunda (ver domingoForaDoMesTrabalhado) ═════ */
 (function(){ window.v229DomingoForaDoMes=(i,dt)=>domingoForaDoMesTrabalhado(i,dt); })();
+</script>
+
+<style id="v231-emprestimo-setores">
+.person.emprestado-origem{opacity:.68;border-left:4px solid #d97706;background:rgba(217,119,6,.06)}
+.ed-emprestimo-wrap{grid-column:1/-1}
+.ed-emprestimo-wrap select{width:100%}
+</style>
+<script id="v231-emprestimo-setores-js">
+(function(){
+  function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function garantirCamposEmprestimo(){
+    const opcoes='<option value="">Selecione o setor de destino</option>'+GRUPOS_SETOR.map(g=>'<option value="'+esc(g.id)+'">'+esc(g.nome)+'</option>').join('');
+    document.querySelectorAll('#equipeEditorRows .editor-row').forEach((row,i)=>{
+      const situacao=row.querySelector('.ed-situacao'); if(!situacao)return;
+      let sel=row.querySelector('.ed-setor-emprestimo');
+      if(!sel){
+        const wrap=document.createElement('label');wrap.className='ed-emprestimo-wrap';wrap.innerHTML='<span style="display:block;font-size:11.5px;font-weight:700;margin-bottom:5px">Setor de destino do empréstimo (obrigatório para EP)</span><select class="ed-setor-emprestimo">'+opcoes+'</select>';
+        const label=situacao.closest('label');
+        if(label&&label.parentElement)label.insertAdjacentElement('afterend',wrap);else row.appendChild(wrap);
+        sel=wrap.querySelector('select');
+      }
+      const dest=row.dataset.loanDestination||'';
+      if(dest&&[...sel.options].some(o=>o.value===dest))sel.value=dest;
+      const wrap=sel.closest('.ed-emprestimo-wrap');
+      const atualizar=()=>{const ep=String(situacao.value||'A').toUpperCase()==='EP';wrap.style.display=ep?'block':'none';sel.required=ep;if(!ep)sel.value='';};
+      if(!situacao.dataset.loanBound){situacao.addEventListener('change',atualizar);situacao.dataset.loanBound='1';}
+      atualizar();
+    });
+  }
+  const renderOriginal=renderEditorRows;
+  renderEditorRows=function(rows){
+    const dados=rows||equipe.map(f=>({...f,setor:f.setorOrigemEmprestimo||f.setor,situacao:f.situacaoCadastro||f.situacao,setorEmprestimo:f.setorEmprestimo||''}));
+    renderOriginal(dados);
+    document.querySelectorAll('#equipeEditorRows .editor-row').forEach((row,i)=>{row.dataset.loanDestination=String(dados[i]?.setorEmprestimo||'');});
+    setTimeout(garantirCamposEmprestimo,40);
+  };
+  const coletarOriginal=coletarEquipeEditor;
+  coletarEquipeEditor=function(){garantirCamposEmprestimo();return coletarOriginal();};
+  const montarOriginal=window.v147MontarProjeto;
+  if(typeof montarOriginal==='function'){
+    window.v147MontarProjeto=function(){const p=montarOriginal();if(p&&p.equipe){p.equipe.todas=JSON.parse(JSON.stringify(todasEquipes));p.equipe.atual=JSON.parse(JSON.stringify(equipe));}return p;};
+  }
+  const restaurarOriginal=window.v147RestaurarProjeto;
+  if(typeof restaurarOriginal==='function'){
+    window.v147RestaurarProjeto=function(p){restaurarOriginal(p);if(p&&p.equipe&&Array.isArray(p.equipe.todas)){todasEquipes=JSON.parse(JSON.stringify(p.equipe.todas));equipe=equipeDoSetor(p.config?.setor||$('setorSelecionado')?.value||'');renderEquipe();$('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';window.v45Persist?.();}};
+  }
+  window.v231Emprestimo={equipeDoSetor,garantirCamposEmprestimo};
+  // Garante que as opções de destino apareçam também ao adicionar uma linha manualmente.
+  const add=document.getElementById('btnAdicionarFuncionario');
+  if(add&&!add.dataset.loanBound){add.addEventListener('click',()=>setTimeout(garantirCamposEmprestimo,0));add.dataset.loanBound='1';}
+})();
 </script>
 </body>
 </html>

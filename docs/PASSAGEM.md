@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V230.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V231.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** PR [ChatGPT] Setores V230 — filtro da escala manual (branch `chatgpt/setores-filtro-escala-manual`); aguarda checks e revisão antes de merge.
+- **PR #27 aberta:** [ChatGPT] Setores V231 — empréstimo entre setores (branch `chatgpt/setores-v231-funcionario-emprestado`); execução #78 passou suíte rápida e completa. Não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V231**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V232**, Encarregados **V166**.
 
 ---
 
@@ -96,11 +96,18 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-11 — Setores V231 — funcionário emprestado entre setores — ChatGPT
+- **Regra implementada:** EP continua como cadastro único no setor de origem; aparece lá como registro visual de empréstimo, fica fora da contagem disponível e não participa da escala de origem. O setor de destino recebe uma visão operacional derivada do mesmo cadastro, apta para a escala e incluída na contagem do destino. A matrícula não é duplicada em `todasEquipes`.
+- **Editor e persistência:** ao selecionar EP, o editor exige o setor de destino e impede escolher o próprio setor de origem. O campo `SetorEmprestimo` é mantido no `Equipe.txt` e no quadro geral do histórico JSON. A V230 foi movida para `versoes_anteriores/Escala_de_Setores_V230.html`; `setores/index.html` aponta para a V231.
+- **Onde no código:** `Escala_de_Setores_V231.html`, camada `v231-emprestimo-setores-js`, `equipeDoSetor()`, editor de equipe, parser/exportador do Equipe.txt e montagem/restauração do histórico.
+- **Testes:** foi acrescentado teste de regressão para origem/destino, contagem e matrícula única. A validação automatizada do GitHub Actions ainda deve ser conferida no PR antes do merge.
+- **Para continuar:** revisar o fluxo no celular e navegador, confirmar que a escala manual e automática aceitam o emprestado apenas no destino, validar importação/exportação de Equipe.txt e histórico após reload. **Não fazer merge sem autorização explícita do dono.** Assinado: ChatGPT
+
 ### 2026-10-11 — Setores V230 — filtro da escala manual — ChatGPT
 - **O que mudou e por quê:** a lista de seleção manual/mista passa a exibir somente operacionais ativos. Lideranças reconhecidas por `ehLiderancaDomingo`, afastados (AF) e emprestados (EP) são ocultados; operacionais ativos com folga fixa no domingo continuam visíveis. O filtro atua apenas na renderização da lista, sem remover funcionários do cadastro nem alterar o motor.
 - **Onde no código:** `Escala_de_Setores_V230.html`, na montagem de `cards` em `renderSelecaoDomingosGeracao()`; cópia publicada em `setores/index.html`.
 - **Como foi testado:** teste de regressão V230 passou com dados fictícios. `npm test` e `npm run test:completo` passaram no GitHub Actions (execução 45, check “Testes” verde). A captura da lista manual foi guardada no artefato `capturas-setores-v230`.
-- **Para continuar:** revisar a captura da lista manual e confirmar que a alteração não afeta a geração automática, o domingo de balanço, o histórico nem a persistência. A PR aguarda autorização explícita do dono para merge. Assinado: ChatGPT
+- **Para continuar:** revisar a captura da lista manual e confirmar que a alteração não afeta a geração automática, o domingo de balanço, o histórico nem a persistência. A PR foi mesclada no `main` pela PR #26; o histórico acima descreve o estado daquela entrega antes do merge. Assinado: ChatGPT
 
 Modelo de entrada:
 ```
