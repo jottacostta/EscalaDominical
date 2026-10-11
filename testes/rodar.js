@@ -184,6 +184,34 @@ async function testarSetores(browser){
     await p.evaluate(backup => { equipe.splice(0,equipe.length,...backup); renderSelecaoDomingosGeracao(); }, resultado.backup);
   }
 
+
+  // V231: funcionário EP permanece único na origem, mas conta e escala no destino.
+  {
+    const r = await p.evaluate(() => {
+      const backup = todasEquipes.map(f => ({...f}));
+      const mat = 'TEST-EP-V231';
+      const ativo = {matricula:mat,nome:'EMPRESTADO V231',cargo:'OPERADOR DE LOJA',horario:'07:40-16:00',setor:'Açougue',setorEmprestimo:'',situacao:'A',aptoDomingo:true,aptidaoId:'test-ep-v231',folgaFixa:2};
+      todasEquipes.push(ativo);
+      const antesOrigem = equipeDoSetor('Açougue').filter(f => String(f.situacao||'A').toUpperCase() !== 'EP').length;
+      const antesDestino = equipeDoSetor('Padaria').filter(f => String(f.situacao||'A').toUpperCase() !== 'EP').length;
+      const f = todasEquipes.find(x => String(x.matricula) === mat);
+      f.situacao = 'EP'; f.setorEmprestimo = 'Padaria'; f.aptoDomingo = false;
+      const origem = equipeDoSetor('Açougue');
+      const destino = equipeDoSetor('Padaria');
+      const o = origem.find(x => String(x.matricula) === mat);
+      const d = destino.find(x => String(x.matricula) === mat);
+      const result = {origemEP:!!o && o.situacao === 'EP', origemBloqueada:!origem.filter(x=>String(x.matricula)===mat&&String(x.situacao||'A')!=='EP').length,
+        origemContaReduzida:origem.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesOrigem,
+        destinoDisponivel:!!d && d.situacao === 'A' && d.aptoDomingo === true,
+        destinoContaAumentada:destino.filter(x=>String(x.situacao||'A').toUpperCase()!=='EP').length===antesDestino+1,
+        matriculaUnica:todasEquipes.filter(x=>String(x.matricula)===mat).length===1};
+      todasEquipes.splice(0,todasEquipes.length,...backup);
+      return result;
+    });
+    ok(r.origemEP && r.origemBloqueada && r.origemContaReduzida && r.destinoDisponivel && r.destinoContaAumentada && r.matriculaUnica,
+      'V231: empréstimo bloqueia origem, libera destino, ajusta contagens e mantém matrícula única ('+JSON.stringify(r)+')');
+  }
+
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
