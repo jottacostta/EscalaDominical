@@ -13,8 +13,8 @@ A cada versão nova, troque o nome do arquivo em `setores/index.html` ou `encarr
 | Arquivo | O que é |
 |---|---|
 | `Escala_de_Setores_V217.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V161.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V216 e V150–V160), guardadas para comparação |
+| `Escala_2x1_encarregados_V162.html` | **Versão atual** da Escala de Encarregados |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V216 e V150–V161), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`) |
 
