@@ -143,6 +143,8 @@ async function testarSetores(browser){
           ok(verifAceite.unicos&&verifAceite.elegiveis, 'V233: aceite mantém matrículas sem duplicidade e só deixa operacionais elegíveis selecionados');
           const aud234 = await p.evaluate(() => { const r = window.v227Auditar?.(); return r ? r.r.length : -1; });
           ok(aud234 === 0, `V234: depois de aceitar as sugestões a auditoria ao vivo não tem regra quebrada (${aud234})`);
+          const semHora = await p.evaluate(() => Object.entries(selecaoManualDomingo||{}).reduce((n,[d,a]) => n + (a||[]).filter(i => !horarioManualValido(Number(d), Number(i))).length, 0));
+          ok(semHora === 0, `V235: quem entra pela sugestão já vem com horário de domingo válido (${semHora} sem horário)`);   // sem horário o “Gerar” bloqueia
         }
       }
       await p.evaluate(() => { selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(250);
