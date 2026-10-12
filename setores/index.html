@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V243</title>
+<title>Escala de Setores — V244</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V244 [Claude] — ALERTA DE FOLGAS POR HORÁRIO MAIS ENXUTO (pedido do dono, revisão da V243 do ChatGPT): na V243 uma Frente
+       de Loja de 50 pessoas recebia 61 avisos (o cartão ocupava umas 12 telas). Agora (1) a “folga no feriado” não entra
+       na conta; (2) só avisa quando MAIS DA METADE das pessoas daquele horário está de folga no dia (inclui o caso de
+       ninguém daquele horário trabalhar), dizendo quantas ficam trabalhando; (3) o cartão vem depois dos números do mês,
+       com um resumo curto (“3 dias para conferir”) e os detalhes fechados.
 V243 [ChatGPT] — ALERTA DE FOLGAS NO MESMO HORÁRIO: o resumo do mês avisa quando duas ou mais pessoas ativas com o mesmo horário folgam na mesma data, de segunda a sábado. Mostra data, setor, horário, quantidade, nomes e tipo de folga. É só um aviso: não troca folgas, não altera a escala e não bloqueia a geração. Domingos ficam fora desta conferência porque têm escala própria.
 V242 [Claude] — SEM EQUIPE.TXT NA TELA (pedido do dono): o “Guardar histórico do mês” já leva a equipe inteira, então o
        Equipe.txt virou repetição. Saíram a caixa “Equipe.txt / 📂 Escolher” e o botão “Baixar Equipe.txt”. A equipe entra
@@ -2186,7 +2191,9 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 </style>
 <style id="v243-folgas-horario-css">
 /* ═════ V243 — aviso informativo de folgas no mesmo horário ═════ */
-.v243-folgas-card{border:1px solid #E9B949;background:#FFFBEB;border-radius:12px;padding:12px;margin-bottom:12px}
+.v243-folgas-card{border:1px solid #E9B949;background:#FFFBEB}
+.v244-det summary{cursor:pointer;font-weight:800;font-size:14px;color:#854D0E;padding:6px 0;min-height:32px}
+.v244-det .v243-folgas-lista{margin-top:6px}
 .v243-folgas-card .v243-folgas-titulo{font-size:15px;font-weight:800;margin:0 0 6px;color:#854D0E}
 .v243-folgas-card .v243-folgas-intro{font-size:13px;color:#713F12;margin:0 0 8px;line-height:1.45}
 .v243-folgas-lista{display:grid;gap:7px}
@@ -2289,7 +2296,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V243 · alerta de folgas por horário</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V244 · alerta de folgas por horário enxuto</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12879,7 +12886,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(window.v243FolgasHorario) return;
   const renderOriginal=window.renderPainelMes;
   if(typeof renderOriginal!=='function') return;
-  const nomesStatus={ffix:'folga fixa',dsr:'folga do domingo (DSR)',comp:'folga compensatória',ffol:'folga no feriado'};
+  const nomesStatus={ffix:'folga fixa',dsr:'folga do domingo (DSR)',comp:'folga compensatória'};   // V244: a folga no feriado não entra (no feriado quase todos folgam)
   const diaISO=dt=>dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   const diaBR=dt=>dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'});
   function auditar(ano,mes,bal){
@@ -12889,19 +12896,22 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const dt=new Date(ano,mes,d);
       // Domingo tem uma escala própria; esta conferência trata folgas de segunda a sábado.
       if(dt.getDay()===0) continue;
-      const grupos=new Map();
+      const grupos=new Map(), total=new Map();   // V244: total = quantas pessoas ativas têm aquele horário
       equipe.forEach((f,i)=>{
         if(!f || ['AF','EP'].includes(String(f.situacao||'A').trim().toUpperCase())) return;
         const horario=String(f.horario||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('pt-BR');
         if(!horario) return;
+        total.set(horario,(total.get(horario)||0)+1);
         let status;
         try{ status=statusDiaSet(i,dt,mes,ano,bal); }catch(e){ return; }
         if(!Object.prototype.hasOwnProperty.call(nomesStatus,status)) return;
         if(!grupos.has(horario)) grupos.set(horario,{horarioOriginal:String(f.horario||'').trim(),pessoas:[]});
         grupos.get(horario).pessoas.push({nome:String(f.nome||'Funcionário sem nome'),status:nomesStatus[status]});
       });
-      grupos.forEach(g=>{
-        if(g.pessoas.length>=2) resultado.push({data:diaISO(dt),dia:d,diaNome:diaBR(dt),horario:g.horarioOriginal,quantidade:g.pessoas.length,pessoas:g.pessoas});
+      grupos.forEach((g,hk)=>{
+        const n=total.get(hk)||0, k=g.pessoas.length;
+        // V244: só avisa quando falta gente de verdade: mais da metade daquele horário de folga (inclui ninguém trabalhando)
+        if(k>=2 && k*2>n) resultado.push({data:diaISO(dt),dia:d,diaNome:diaBR(dt),horario:g.horarioOriginal,quantidade:k,total:n,ficam:n-k,pessoas:g.pessoas});
       });
     }
     return resultado;
@@ -12912,21 +12922,23 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     el.querySelector('.v243-folgas-card')?.remove();
     const alertas=auditar(ano,mes,bal);
     const setor=String(document.getElementById('setorSelecionado')?.value||'Setor atual');
-    const card=document.createElement('section');
-    card.className='v243-folgas-card';
-    card.setAttribute('aria-live','polite');
-    card.setAttribute('role','status');
+    const card=document.createElement('div');
+    card.className='pm-card v243-folgas-card';
     if(!alertas.length){
-      card.innerHTML='<h3 class="v243-folgas-titulo">🟢 Folgas por horário</h3><p class="v243-folgas-intro">Nenhuma data de segunda a sábado tem duas ou mais pessoas ativas do mesmo horário de folga.</p>';
+      card.innerHTML='<div class="pm-h"><h3>🟢 Folgas por horário</h3><span class="pm-sub">tudo certo</span></div><p class="pm-sub" style="margin:0">Em nenhum dia de segunda a sábado mais da metade de um mesmo horário está de folga.</p>';
     }else{
-      card.innerHTML='<h3 class="v243-folgas-titulo">⚠️ Atenção: folgas no mesmo horário</h3><p class="v243-folgas-intro">Encontramos '+alertas.length+' ocorrência(s) em <b>'+htmlEsc(setor)+'</b>. Confira se a equipe continua bem coberta. Este aviso não muda a escala.</p><div class="v243-folgas-lista"></div>';
+      const dias=new Set(alertas.map(a=>a.data)).size;
+      card.innerHTML='<div class="pm-h"><h3>🟡 Folgas por horário</h3><span class="pm-sub">só um aviso</span></div>'
+        +'<p class="v243-folgas-intro"><b>'+dias+' dia'+(dias===1?'':'s')+' para conferir</b> em '+htmlEsc(setor)+': mais da metade das pessoas do mesmo horário está de folga. Este aviso não muda a escala.</p>'
+        +'<details class="v244-det"><summary>Ver os dias</summary><div class="v243-folgas-lista"></div></details>';
       const lista=card.querySelector('.v243-folgas-lista');
       alertas.forEach(a=>{
         const b=document.createElement('button');
         b.type='button'; b.className='v243-folgas-item';
         b.dataset.v243Dia=String(a.dia); b.dataset.v243Data=a.data; b.dataset.v243Horario=a.horario;
         const pessoas=a.pessoas.map(p=>htmlEsc(p.nome)+' ('+htmlEsc(p.status)+')').join(', ');
-        b.innerHTML='<b>📅 '+htmlEsc(a.diaNome)+' — '+htmlEsc(a.horario)+' — '+a.quantidade+' pessoas</b><small>'+pessoas+'</small><small>Toque para abrir os detalhes desse dia no calendário.</small>';
+        const ficam=a.ficam===0?'ninguém desse horário trabalha':(a.ficam===1?'só 1 pessoa desse horário trabalha':'só '+a.ficam+' pessoas desse horário trabalham');
+        b.innerHTML='<b>📅 '+htmlEsc(a.diaNome)+' — '+htmlEsc(a.horario)+' — '+a.quantidade+' de '+a.total+' pessoas de folga</b><small>'+ficam+'.</small><small>'+pessoas+'</small><small>Toque para ver esse dia no calendário.</small>';
         b.addEventListener('click',()=>{
           painelDiaSel=a.dia;
           window.renderPainelMes(mes,ano,bal);
@@ -12935,7 +12947,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         lista.appendChild(b);
       });
     }
-    el.insertBefore(card,el.firstChild);
+    const primeiro=el.querySelector('.pm-card');   // V244: depois dos números do mês
+    if(primeiro) primeiro.after(card); else el.insertBefore(card,el.firstChild);
   }
   window.renderPainelMes=function(mes,ano,bal){
     const r=renderOriginal.apply(this,arguments);

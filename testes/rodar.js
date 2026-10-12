@@ -638,6 +638,31 @@ async function testarFolgasMesmoHorario(browser, app){
   await p.context().close();
 }
 
+/* V244 — o alerta só aparece quando mais da metade do horário folga; feriado fora; cartão enxuto depois dos números */
+async function testarFolgasHorarioEnxuto(browser, app){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 244) return;
+  console.log('\n▶ Setores — alerta de folgas por horário enxuto (V244)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800);
+  await p.evaluate(() => { v45GotoStep(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(3500);
+  const r = await p.evaluate(() => { const c = document.querySelector('#painelMes .v243-folgas-card'), cards = [...document.querySelectorAll('#painelMes .pm-card')];
+    return { tem: !!c, pos: cards.indexOf(c), itens: document.querySelectorAll('#painelMes .v243-folgas-item').length, alt: c ? c.getBoundingClientRect().height : 0, fer: (window.v243FolgasHorario.auditar(ultimaEscala.ano, ultimaEscala.mes, ultimaEscala.bal) || []).some(a => a.pessoas.some(x => /feriado/.test(x.status))) }; });
+  ok(r.tem && r.pos === 1, 'o cartão “Folgas por horário” vem logo depois dos números do mês');
+  ok(!r.fer, 'a folga no feriado não entra na conta');
+  ok(r.alt < 400, `com a escala normal da Frente de Loja o cartão fica curto (${r.itens} aviso(s), ${Math.round(r.alt)} px)`);
+  const m = await p.evaluate(() => {
+    const base = equipe.slice(0, 5).map((f, i) => ({ ...f, nome: 'T' + i, horario: '08:00 AS 16:20', folgaFixa: i < 2 ? 5 : 3, situacao: 'A' }));
+    equipe = base; todasEquipes = base.map(f => ({ ...f })); trabalhoDomingo = {}; trabalhoFeriado = {}; folgasCompensatorias = {}; descansosDomingo = {};
+    const a1 = v243FolgasHorario.auditar(2027, 9, balancoDoMes(2027, 9)).filter(a => a.data === '2027-10-01').length;   // 2 de 5 na sexta: não avisa
+    equipe[2].folgaFixa = 5; const a2 = v243FolgasHorario.auditar(2027, 9, balancoDoMes(2027, 9)).find(a => a.data === '2027-10-01');   // 3 de 5: avisa
+    return { a1, a2: a2 && { q: a2.quantidade, t: a2.total, ficam: a2.ficam } };
+  });
+  ok(m.a1 === 0 && m.a2 && m.a2.q === 3 && m.a2.t === 5 && m.a2.ficam === 2, `2 de 5 de folga não avisa; 3 de 5 avisa e diz que ficam 2 (${JSON.stringify(m)})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+}
+
 async function testarSemTxt(browser, app, nome, dados){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 242 : 173)) return;
@@ -681,7 +706,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
