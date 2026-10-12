@@ -22,7 +22,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
-- **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
+- **PR #28:** [ChatGPT] Setores V232 — alinhamento da versão visível; mesclada em 11/10/2026 no commit `654057a5fcd909c92dd48f7876e790c7052b1f67`.
+- **PR #30 aberta:** [ChatGPT] Setores V233 — sugestões validadas na escala manual (branch `chatgpt/setores-v233-sugestoes-manual`). Aguardando as suítes rápida e completa e revisão visual; não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
 - **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
 
