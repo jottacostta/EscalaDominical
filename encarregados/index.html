@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V171</title>
+<title>Escala 2×1 — Encarregados V172</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V172 [Claude] — DATA DE ADMISSÃO NO EDITAR EQUIPE (pedido do dono, igual à Escala de Setores V239): o Editar equipe não
+       tinha o campo. Agora cada pessoa tem “Data de admissão (dd/mm/aaaa)”: as barras entram sozinhas, o app confere se
+       a data existe e não é no futuro, guarda na equipe e no Equipe.txt e usa no “tempo de serviço”. Se a planilha do RH
+       trouxer a data, ela continua valendo na próxima atualização.
 V171 [Claude] — PASSOS IGUAIS AOS DO SETORES (pedido do dono): 1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar.
        O “Mês” saiu da barra de passos e virou “📅 Mês e opções” (como o ⚙️ Configurações do Setores): o app continua
        escolhendo sozinho o mês seguinte; para trocar o mês ou mexer nas opções (balanço, feriados extras, dias de folga,
@@ -1784,6 +1788,21 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
 .v171-mes .btn.sm{padding:6px 10px;font-size:13px;margin-left:auto}
 @media print{.v171-mes{display:none!important}}
 </style>
+<script>
+/* V172 — DATA DE ADMISSÃO NO EDITAR EQUIPE, NO FORMATO dd/mm/aaaa. Por dentro o app continua guardando aaaa-mm-dd (como vem do ERP). */
+function admissaoBR(v){ const t=String(v||'').trim(); let m=t.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[3]+'/'+m[2]+'/'+m[1];
+  m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3]; return t; }
+/* '' = vazio; null = data inválida; senão 'aaaa-mm-dd' */
+function admissaoISO(v){ const t=String(v||'').trim(); if(!t) return ''; let d,mo,a,m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){ d=+m[1]; mo=+m[2]; a=+m[3]; } else if((m=t.match(/^(\d{4})-(\d{2})-(\d{2})$/))){ a=+m[1]; mo=+m[2]; d=+m[3]; } else return null;
+  const dt=new Date(a,mo-1,d); if(dt.getFullYear()!==a||dt.getMonth()!==mo-1||dt.getDate()!==d||a<1940||dt>new Date()) return null;
+  return a+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+/* enquanto digita: só números, e as barras entram sozinhas (01022015 → 01/02/2015) */
+document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.classList||!x.classList.contains('ed-admissao')) return;
+  const dig=x.value.replace(/\D/g,'').slice(0,8); let s=dig; if(dig.length>4) s=dig.slice(0,2)+'/'+dig.slice(2,4)+'/'+dig.slice(4); else if(dig.length>2) s=dig.slice(0,2)+'/'+dig.slice(2);
+  if(s!==x.value) x.value=s; x.classList.toggle('adm-erro', s.length===10 && admissaoISO(s)===null); },true);
+</script>
+<style id="v172-admissao">.ed-admissao.adm-erro{border-color:#D92D20!important;box-shadow:0 0 0 3px rgba(217,45,32,.15)!important}</style>
 </head>
 <body class="em-inicio">
 
@@ -1838,7 +1857,7 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V171 · passos iguais aos do Setores</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V172 · data de admissão no Editar equipe (dd/mm/aaaa)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2350,7 +2369,7 @@ function abrirEditorEquipe(semRolar){
 function renderEditorRows(rows){
   const area=$('equipeEditorRows');
   if(!rows){
-    rows=equipe.map(f=>({matricula:f.matricula||'',nome:f.nome||'',cargo:f.cargo||'',folga:Number(f.folgaFixa)}));
+    rows=equipe.map(f=>({matricula:f.matricula||'',nome:f.nome||'',cargo:f.cargo||'',folga:Number(f.folgaFixa),admissao:f.admissao||''}));   // V172
     if(!rows.length) rows=[{matricula:'',nome:'',cargo:'',folga:2}];
   }
   let h='';
@@ -2359,6 +2378,7 @@ function renderEditorRows(rows){
     <input class="ed-nome" value="${esc(r.nome||'')}" placeholder="Nome">
     <input class="ed-cargo" value="${esc(r.cargo||'')}" placeholder="Cargo">
     <select class="ed-folga">${editorFolga(r.folga)}</select>
+    <input class="ed-admissao" value="${esc(admissaoBR(r.admissao))}" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10">
     <button type="button" class="emp-remove" data-remove="${i}" title="Excluir">🗑️</button>
   </div>`).join('');
   area.innerHTML=h||'<div class="editor-empty">Nenhum funcionário cadastrado.</div>';
@@ -2380,7 +2400,8 @@ function coletarEquipeEditor(){
     if(!matricula)erros.push('Linha '+(i+1)+': informe a matrícula.');
     else if(!nome)erros.push('Linha '+(i+1)+': informe o nome.');
     else if(!cargo)erros.push('Linha '+(i+1)+': informe o cargo.');
-    else { const atual=equipe.find(f=>String(f.matricula||'')===String(matricula)); dados.push({matricula,nome,cargo,folga,admissao:atual?.admissao||'',horario:atual?.horario||'',turno:atual?.turno||'',setor:atual?.setor||setor(cargo),situacao:atual?.situacao||'A',statusErp:atual?.statusErp||'',situacaoDetalhe:atual?.situacaoDetalhe||'',aptoDomingo:atual?.aptoDomingo!==false}); }
+    else if(admissaoISO(row.querySelector('.ed-admissao')?.value)===null)erros.push('Linha '+(i+1)+' ('+nome+'): a data de admissão não é válida. Use dia/mês/ano, ex.: 01/02/2015.');   // V172
+    else { const atual=equipe.find(f=>String(f.matricula||'')===String(matricula)); const _adm=row.querySelector('.ed-admissao'); dados.push({matricula,nome,cargo,folga,admissao:_adm?(admissaoISO(_adm.value)||''):(atual?.admissao||''),horario:atual?.horario||'',turno:atual?.turno||'',setor:atual?.setor||setor(cargo),situacao:atual?.situacao||'A',statusErp:atual?.statusErp||'',situacaoDetalhe:atual?.situacaoDetalhe||'',aptoDomingo:atual?.aptoDomingo!==false}); }
   });
   return {dados,erros};
 }
@@ -6080,6 +6101,7 @@ $('btnWhats').onclick=async (ev)=>{
       const folgaHTML=folgaSel?.innerHTML||'';
       const folgaVal=folgaSel?.value;
       const folgaTxt=folgaSel?folgaSel.options[folgaSel.selectedIndex]?.text:'';
+      const admissao=row.querySelector('.ed-admissao')?.value||'';   // V172
       const novo=!nome&&!matricula&&!cargo;
       row.classList.add('emp-card'); row.innerHTML='';
       const summary=document.createElement('div');
@@ -6093,6 +6115,7 @@ $('btnWhats').onclick=async (ev)=>{
         <label class="full">${lbl('Nome')}<input class="ed-nome" placeholder="Nome completo" value="${htmlE(nome)}"></label>
         <label class="full">${lbl('Cargo')}<input class="ed-cargo" placeholder="Ex.: Encarregado Açougue" value="${htmlE(cargo)}"></label>
         <label class="full">${lbl('Folga fixa')}<select class="ed-folga">${folgaHTML}</select></label>
+        <label class="full">${lbl('Data de admissão (dd/mm/aaaa)')}<input class="ed-admissao" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" value="${htmlE(admissaoBR(admissao))}"></label>
         <button type="button" class="emp-remove full">🗑️ Excluir funcionário</button>`;
       row.appendChild(fields);
       if(folgaVal!==undefined)fields.querySelector('.ed-folga').value=folgaVal;

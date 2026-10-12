@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V238.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V171.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V239.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V172.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #37 do Claude com a Setores V238 + Encarregados V171 (os dois apps com os passos Equipe → Mês passado → Domingos → Feriados → Gerar). Depois do merge: nenhum.
+- **PRs abertos:** o PR #37 do Claude com a Setores V238/V239 + Encarregados V171/V172 (passos Equipe → Mês passado → Domingos → Feriados → Gerar nos dois apps; data de admissão editável em dd/mm/aaaa). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V239**, Encarregados **V172**.
+- **Próximo número de versão:** Setores **V240**, Encarregados **V173**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V238): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -99,6 +99,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Desfazer uma marcação na escala à mão:** não clique de novo no checkbox, porque o cartão pode ter sido redesenhado. Mexa direto em `selecaoManualDomingo` / `horariosManuaisDomingo` e chame `renderSelecaoDomingosGeracao()`.
 - **Índices do histórico ("snapshot")** se referem ao setor daquele snapshot, não ao setor aberto.
 - **Data de admissão** vem em dois formatos (`AAAA-MM-DD` do ERP e `dd/mm/aaaa` do Equipe.txt). Normalize, senão aparece "NaN anos".
+- **Data de admissão no Editar equipe (V239/V172):** a tela mostra `dd/mm/aaaa` (`admissaoBR`), mas o dado guardado é sempre `AAAA-MM-DD` (`admissaoISO`: `''` = vazio, `null` = data inválida). Não grave o texto da tela direto.
+- **“Equipe da última sessão” do Setores (`escalaSetores.v64.state`):** o snapshot guarda a equipe em `equipe:[…]` e, ao abrir, remonta um Equipe.txt e chama `parseEquipe`. Campo novo da pessoa tem que entrar nos DOIS lugares (snapshot e linhas de 14 colunas da restauração) — até a V238 ele guardava só 9 colunas e a data de admissão sumia ao recarregar.
 - **Abrir o histórico num aparelho novo:** troque primeiro o setor da tela para o setor do arquivo, senão o app prepara o mês seguinte.
 - **"A definir"** não pode virar terça ao salvar o Editar equipe nem ao reimportar o ERP.
 - **Script Python que gera a versão:** dentro de string com aspas simples, use `""` no JS, não `''`.
@@ -123,6 +125,12 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V239 + Encarregados V172 — data de admissão editável (dd/mm/aaaa) — Claude
+- **O que mudou e por quê:** o dono não conseguia pôr a data de admissão no Editar equipe e pediu o formato dd/mm/aaaa nos dois apps. No Setores o campo era só leitura e mostrava `AAAA-MM-DD`; nos Encarregados o campo nem existia.
+- **Onde no código:** funções globais `admissaoBR` / `admissaoISO` e a máscara do campo `.ed-admissao` (bloco no `</head>`, igual nos dois apps; estilo `.adm-erro`). Setores: `renderEditorRows` e o cartão da V45, `coletarEquipeEditor` (valida e leva `admissao`), o salvar (`existente.admissao`, pessoa nova) e `equipeTextoDosDados`. Encarregados: `renderEditorRows`, `upgradeEmployeeEditor`, `coletarEquipeEditor`. **Defeito antigo corrigido no Setores:** o snapshot `escalaSetores.v64.state` guardava a equipe sem admissão/ERP e a restauração montava só 9 colunas — agora guarda e remonta as 14 colunas.
+- **Como foi testado:** `testarAdmissao` no `testes/rodar.js` (Setores ≥ V239, Encarregados ≥ V172): o campo aceita digitação, `05031998` vira `05/03/1998` e fica `1998-03-05`, reabrir mostra `05/03/1998`, `31/02/2015` é recusada e a data continua depois de recarregar a página. Suítes rápida e completa ✅.
+- **Para continuar:** os manuais (Claude Docs) citam a data de admissão na seção Equipe.
 
 ### 2026-10-12 — Encarregados V171 — passos iguais aos do Setores — Claude
 - **O que mudou e por quê:** o dono pediu os mesmos passos nos dois apps: Equipe → Mês passado → Domingos → Feriados → Gerar. O “Mês” dos Encarregados saiu da barra e virou **📅 Mês e opções** (o app já escolhe o mês seguinte sozinho; o resto é opcional), igual ao ⚙️ Configurações do Setores.

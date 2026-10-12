@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V238</title>
+<title>Escala de Setores — V239</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V239 [Claude] — DATA DE ADMISSÃO NO EDITAR EQUIPE (pedido do dono): o campo estava travado (só leitura), mostrava a data
+       como 1989-11-01 e a data editada não era salva. Agora dá para digitar a data no formato dd/mm/aaaa (as barras
+       entram sozinhas), o app confere se a data existe e não é no futuro, guarda no quadro e no Equipe.txt. Se a planilha
+       do RH trouxer a data, ela continua valendo na próxima importação. Corrigido também (defeito antigo): ao fechar e
+       abrir o app, a “equipe da última sessão” voltava SEM a data de admissão e sem os dados do ERP.
 V238 [Claude] — MÊS PASSADO ANTES DOS DOMINGOS (pedido do dono, igual à Escala de Encarregados): os passos agora são
        1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar. Quem trabalhou nos 2 últimos domingos do mês passado
        decide quem pode trabalhar no 1º domingo (3 domingos seguidos), por isso ele vem antes de montar os domingos. Avisos,
@@ -560,7 +565,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .emp-card.open .emp-fields{display:grid}
 .emp-fields .full{grid-column:1/-1}
 .emp-fields input,.emp-fields select{width:100%;padding:10px 11px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);font-size:13.5px}
-.emp-fields .ed-status-erp,.emp-fields .ed-situacao-detalhe,.emp-fields .ed-admissao{background:var(--surface-2);color:var(--ink-2);font-weight:600;border-style:dashed}
+.emp-fields .ed-status-erp,.emp-fields .ed-situacao-detalhe{background:var(--surface-2);color:var(--ink-2);font-weight:600;border-style:dashed}
 .emp-fields .check-row{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);font-size:12.5px;font-weight:600;cursor:pointer}
 .emp-fields .check-row input{width:18px;height:18px;accent-color:var(--danger)}
 .emp-remove{background:transparent;color:var(--danger);border:1.5px solid var(--danger-lt);padding:10px 12px;font-size:12.5px;font-weight:700;border-radius:9px;justify-self:start}
@@ -2143,6 +2148,21 @@ html[data-runtime="desktop"] .top-header .brand-logo{height:52px}
 html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
 @media print{.gb-ic{width:1em;height:1em}}
 </style>
+<script>
+/* V239 — DATA DE ADMISSÃO NO EDITAR EQUIPE, NO FORMATO dd/mm/aaaa. Por dentro o app continua guardando aaaa-mm-dd (como vem do ERP). */
+function admissaoBR(v){ const t=String(v||'').trim(); let m=t.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[3]+'/'+m[2]+'/'+m[1];
+  m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3]; return t; }
+/* '' = vazio; null = data inválida; senão 'aaaa-mm-dd' */
+function admissaoISO(v){ const t=String(v||'').trim(); if(!t) return ''; let d,mo,a,m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){ d=+m[1]; mo=+m[2]; a=+m[3]; } else if((m=t.match(/^(\d{4})-(\d{2})-(\d{2})$/))){ a=+m[1]; mo=+m[2]; d=+m[3]; } else return null;
+  const dt=new Date(a,mo-1,d); if(dt.getFullYear()!==a||dt.getMonth()!==mo-1||dt.getDate()!==d||a<1940||dt>new Date()) return null;
+  return a+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+/* enquanto digita: só números, e as barras entram sozinhas (01022015 → 01/02/2015) */
+document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.classList||!x.classList.contains('ed-admissao')) return;
+  const dig=x.value.replace(/\D/g,'').slice(0,8); let s=dig; if(dig.length>4) s=dig.slice(0,2)+'/'+dig.slice(2,4)+'/'+dig.slice(4); else if(dig.length>2) s=dig.slice(0,2)+'/'+dig.slice(2);
+  if(s!==x.value) x.value=s; x.classList.toggle('adm-erro', s.length===10 && admissaoISO(s)===null); },true);
+</script>
+<style id="v239-admissao">.ed-admissao.adm-erro{border-color:#D92D20!important;box-shadow:0 0 0 3px rgba(217,45,32,.15)!important}</style>
 </head>
 <body>
 <script>
@@ -2238,7 +2258,7 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V238 · mês passado antes dos domingos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V239 · data de admissão editável (dd/mm/aaaa)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3488,7 +3508,7 @@ function renderEditorRows(rows){
     <select class="ed-situacao" title="Situação operacional do quadro"><option value="A" ${String(r.situacao||'A').toUpperCase()==='A'?'selected':''}>A — Ativo</option><option value="AF" ${String(r.situacao||'A').toUpperCase()==='AF'?'selected':''}>AF — Afastado</option><option value="EP" ${String(r.situacao||'A').toUpperCase()==='EP'?'selected':''}>EP — Emprestado</option></select>
     <input class="ed-status-erp" value="${htmlEsc(r.statusErp||'')}" placeholder="Status original do ERP" readonly>
     <input class="ed-situacao-detalhe" value="${htmlEsc(r.situacaoDetalhe||'')}" placeholder="Situação detalhada do ERP" readonly>
-    <input class="ed-admissao" value="${htmlEsc(r.admissao||'')}" placeholder="Data de admissão" readonly>
+    <input class="ed-admissao" value="${htmlEsc(admissaoBR(r.admissao))}" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10">
     <input type="checkbox" class="ed-apto-dom" hidden>
     <button type="button" class="remove" data-remove="${i}" title="Excluir">🗑️</button>
   </div>`).join('');
@@ -3528,10 +3548,11 @@ function coletarEquipeEditor(){
     else if(situacao==='EP'&&!setorEmprestimo)erros.push('Linha '+(i+1)+': informe o setor de destino do empréstimo.');
     else if(situacao==='EP'&&norm(setorEmprestimo)===norm(grupoDoSetor(setorSelecionado)?.id||setorSelecionado))erros.push('Linha '+(i+1)+': o setor de destino deve ser diferente do setor de origem.');
     else if(!turno)erros.push('Linha '+(i+1)+': selecione o turno (Abertura ou Fechamento).');
+    else if(admissaoISO(row.querySelector('.ed-admissao')?.value)===null)erros.push('Linha '+(i+1)+' ('+nome+'): a data de admissão não é válida. Use dia/mês/ano, ex.: 01/02/2015.');   // V239
     else {
       const naoAptoDomingo=false;   // V221: quem não está afastado é apto ao domingo
       const subsetor=(norm(setorSelecionado)==='mercearia') ? String(row.querySelector('.ed-subsetor')?.value||'').toUpperCase() : '';
-    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,setorEmprestimo:situacao==='EP'?setorEmprestimo:'',subsetor,turno,folga,pendente,situacao,naoAptoDomingo});
+    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,setorEmprestimo:situacao==='EP'?setorEmprestimo:'',subsetor,turno,folga,pendente,situacao,naoAptoDomingo,admissao:admissaoISO(row.querySelector('.ed-admissao')?.value)||''});   // V239: admissao
     }
   });
   // Uma matrícula não pode representar dois funcionários no cadastro.
@@ -3556,7 +3577,7 @@ function equipeTextoDosDados(dados){
     `Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo;SetorEmprestimo\n`+
     dados.map(x=>{ const f=porId.get(String(x.aptidaoId||'')) || (todasEquipes||[]).find(y=>String(y.matricula)===String(x.matricula));
       const horario=String(x.horario||f?.horario||'').trim(); const mh=horario.match(/^(\d{1,2}):\d{2}/); const turno=mh?(+mh[1]<12?'Abertura':'Fechamento'):turnoSaida(x.turno);
-      return [String(x.matricula||'').trim(),String(x.nome||'').trim().toUpperCase(),horario,String(x.cargo||'').trim().toUpperCase(),turno,String(x.setor||setorArquivo||'').trim(),String(x.subsetor||f?.subsetor||'').trim(),nomeDiaFolga(x.folga),situacaoSaida(x.situacao),String(f?.statusErp||'').trim(),String(f?.situacaoDetalhe||'').trim(),String(f?.admissao||'').trim(),f?.aptoDomingo===false?'0':'1',String(x.setorEmprestimo||f?.setorEmprestimo||'').trim()].join(';'); }).join('\n');
+      return [String(x.matricula||'').trim(),String(x.nome||'').trim().toUpperCase(),horario,String(x.cargo||'').trim().toUpperCase(),turno,String(x.setor||setorArquivo||'').trim(),String(x.subsetor||f?.subsetor||'').trim(),nomeDiaFolga(x.folga),situacaoSaida(x.situacao),String(f?.statusErp||'').trim(),String(f?.situacaoDetalhe||'').trim(),String((x.admissao!==undefined?x.admissao:f?.admissao)||'').trim(),f?.aptoDomingo===false?'0':'1',String(x.setorEmprestimo||f?.setorEmprestimo||'').trim()].join(';'); }).join('\n');
 }
 
 function nomeArquivoEquipe(setorNome){
@@ -3595,10 +3616,10 @@ function salvarEquipeEditor(){
     const existente=d.aptidaoId
       ? todasEquipes.find(f=>String(f.aptidaoId)===String(d.aptidaoId))
       : todasEquipes.find(f=>String(f.matricula)===String(d.matricula));
-    if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.setorEmprestimo=d.setorEmprestimo||'';existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';
+    if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.setorEmprestimo=d.setorEmprestimo||'';existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';if(d.admissao!==undefined)existente.admissao=d.admissao;   /* V239 */
       const chave=chaveFuncionario(existente); if(d.naoAptoDomingo) naoAptosDomingo.add(chave); else naoAptosDomingo.delete(chave);
       existente.aptoDomingo=!d.naoAptoDomingo;}
-    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:'',aptidaoId,tipo:tipo(d.cargo)}); }
+    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:d.admissao||'',aptidaoId,tipo:tipo(d.cargo)}); }
   });
   // V154: no navegador, só a ÁREA editada muda. Antes, parseEquipe() recriava o quadro inteiro só com as pessoas desta área (os outros setores sumiam).
   if(!(window.Android && typeof Android.salvarEquipe==='function')){
@@ -8500,8 +8521,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           <input class="ed-situacao-detalhe" value="${htmlEscape(situacaoDetalhe)}" placeholder="Não informado pelo ERP" readonly>
         </label>
         <label>
-          <span style="display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px">Data de admissão</span>
-          <input class="ed-admissao" value="${htmlEscape(admissao)}" placeholder="Não informada pelo ERP" readonly>
+          <span style="display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px">Data de admissão (dd/mm/aaaa)</span>
+          <input class="ed-admissao" value="${htmlEscape(admissaoBR(admissao))}" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10">
         </label>
         <label class="check-row full">
           <input type="checkbox" class="ed-apto-dom" ${aptoChecked?'checked':''}>
@@ -8835,7 +8856,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           equipe: (window.todasEquipes||[]).map(f => ({
             matricula:f.matricula, nome:f.nome, cargo:f.cargo,
             setor:f.setor, subsetor:f.subsetor||'',
-            turno:f.turno||'', folgaFixa:Number(f.folgaFixa), horario:f.horario||'', situacao:f.situacao||'A'
+            turno:f.turno||'', folgaFixa:Number(f.folgaFixa), horario:f.horario||'', situacao:f.situacao||'A',
+            statusErp:f.statusErp||'', situacaoDetalhe:f.situacaoDetalhe||'', admissao:f.admissao||'', aptoDomingo:f.aptoDomingo!==false, setorEmprestimo:f.setorEmprestimo||''   // V239
           }))
         };
         const txt=JSON.stringify(snap);
@@ -8888,9 +8910,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         if(!(window.Android && typeof Android.lerEquipe==='function') && !(window.todasEquipes||[]).length && Array.isArray(snap.equipe) && snap.equipe.length){
           const dn=['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
           const limpa=v=>String(v??'').replace(/[;\r\n]/g,' ').trim();
-          const linhas=snap.equipe.map(f=>[f.matricula,f.nome,f.horario,f.cargo,f.turno,f.setor,f.subsetor,dn[Number(f.folgaFixa)]||'TER',f.situacao||'A'].map(limpa).join(';'));
+          const linhas=snap.equipe.map(f=>[f.matricula,f.nome,f.horario,f.cargo,f.turno,f.setor,f.subsetor,dn[Number(f.folgaFixa)]||'TER',f.situacao||'A',f.statusErp,f.situacaoDetalhe,f.admissao,f.aptoDomingo===false?'0':'',f.setorEmprestimo].map(limpa).join(';'));   // V239: 14 colunas (admissão e ERP)
           const setorSel=$('setorSelecionado')?.value;
-          if(parseEquipe('Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação\n'+linhas.join('\n'))!==false){
+          if(parseEquipe('Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo;SetorEmprestimo\n'+linhas.join('\n'))!==false){
             if(setorSel && $('setorSelecionado')) $('setorSelecionado').value=setorSel;
             if($('equipeEditor')) $('equipeEditor').style.display='none';
             showToast('Equipe da última sessão restaurada ('+snap.equipe.length+' funcionários).','info');
