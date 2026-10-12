@@ -285,6 +285,35 @@ async function testarSetores(browser){
 }
 
 /* ───────────────────────── Escala de Encarregados ───────────────────────── */
+/* verificador independente das regras dos Encarregados (domingos, feriados e folgas de feriado) */
+async function verificarEnc(p){
+  return p.evaluate(() => {
+    const ano = +$('ano').value, mes = +$('mes').value, doms = domingosDoMes(ano, mes), bal = balancoDoMes(ano, mes), fer = feriados(ano, mes), viol = [], P = prazoFolgaFeriado();
+    const lat = i => /latic/.test(norm(equipe[i]?.setor || ''));
+    doms.forEach(d => { const s = (trabalhoDomingo[d] || []).map(Number);
+      s.forEach(i => { if(!equipe[i]) viol.push(`${d}: índice inválido`); else if(inativo(equipe[i]) || foraDom(equipe[i])) viol.push(`${d}: ${equipe[i].nome} não pode trabalhar`); });
+      if(d !== bal){
+        if(s.length !== 3) viol.push(`${d}: ${s.length} pessoas (deveria ser 3)`);
+        if(s.filter(lat).length > 1) viol.push(`${d}: mais de 1 do Laticínio`);
+        if(!s.some(i => equipe[i].tipo === 'enc')) viol.push(`${d}: sem Encarregado`);
+        if(!s.some(i => equipe[i].tipo === 'sub')) viol.push(`${d}: sem Subencarregado`);
+        const sets = s.map(i => norm(equipe[i].setor)); if(new Set(sets).size !== sets.length) viol.push(`${d}: 2 do mesmo setor`); } });
+    equipe.forEach((f, i) => { const h = historicoManual(i); const seq = [!!h.penultimo, !!h.ultimo, ...doms.map(d => (trabalhoDomingo[d] || []).map(Number).includes(i))]; const b = doms.indexOf(bal) + 2;
+      for(let k = 2; k < seq.length; k++) if(seq[k] && seq[k - 1] && seq[k - 2] && ![k, k - 1, k - 2].includes(b)) viol.push(`${f.nome}: 3 domingos seguidos`); });
+    const porDia = {}; let semData = 0;
+    Object.keys(fer).map(Number).forEach(d => { const dtF = new Date(ano, mes, d); const trab = dtF.getDay() === 0 ? (trabalhoDomingo[d] || []) : (trabalhoFeriado[d] || []);
+      if(dtF.getDay() !== 0 && typeof bloqueioFolgaFeriado === 'function') trab.forEach(i => { const mot = bloqueioFolgaFeriado(i, dtF); if(mot) viol.push(`${equipe[i].nome}: trabalha no feriado ${d} com ${mot}`); });   // V164
+      trab.forEach(i => { const k = `${d}_${i}`, v = (folgasCompensatorias || {})[k]; if(!v){ semData++; return; }
+        const dt = new Date(v + 'T00:00:00'), dias = Math.round((dt - dtF) / 86400000);
+        if(dias < 1 || dias > P) viol.push(`folga ${k} fora do prazo (${dias} dias)`);
+        if(dt.getDay() === 0) viol.push(`folga ${k} num domingo`);
+        (porDia[v] = porDia[v] || []).push(i); }); });
+    Object.entries(porDia).forEach(([v, l]) => { const dt = new Date(v + 'T12:00:00'), tot = contarFolgasNaData(dt, '');
+      if(tot > 2) viol.push(`${v}: ${tot} de folga (máx. 2)`); if(dt.getDay() === 6 && tot > 1) viol.push(`${v}: ${tot} de folga no sábado (máx. 1)`);
+      const sets = l.map(i => norm(equipe[i].setor)); if(new Set(sets).size !== sets.length) viol.push(`${v}: 2 folgas do mesmo setor`); });
+    return { mes: mes + 1, dom: doms.map(d => (trabalhoDomingo[d] || []).length).join('/'), status: document.getElementById('statusBadge')?.textContent, semData, viol };
+  });
+}
 async function testarEncarregados(browser){
   console.log(`\n▶ Escala 2×1 de Encarregados — ${path.basename(APP_ENC)}`);
   const { p, erros } = await novaPagina(browser);
@@ -307,32 +336,7 @@ async function testarEncarregados(browser){
       Object.keys(fer).map(Number).forEach((d, k) => { if(new Date(ano, mes, d).getDay() === 0) return; trabalhoFeriado[d] = at.slice((k * 3) % Math.max(1, at.length)).concat(at).slice(0, Math.round(at.length * 0.4)); });
       montarEscalaFeriados(); gerarSugestoesFolgasFeriado(); aceitarTodasSugestoesFeriado(); });
     await p.waitForTimeout(800);
-    const r = await p.evaluate(() => {
-      const ano = +$('ano').value, mes = +$('mes').value, doms = domingosDoMes(ano, mes), bal = balancoDoMes(ano, mes), fer = feriados(ano, mes), viol = [], P = prazoFolgaFeriado();
-      const lat = i => /latic/.test(norm(equipe[i]?.setor || ''));
-      doms.forEach(d => { const s = (trabalhoDomingo[d] || []).map(Number);
-        s.forEach(i => { if(!equipe[i]) viol.push(`${d}: índice inválido`); else if(inativo(equipe[i]) || foraDom(equipe[i])) viol.push(`${d}: ${equipe[i].nome} não pode trabalhar`); });
-        if(d !== bal){
-          if(s.length !== 3) viol.push(`${d}: ${s.length} pessoas (deveria ser 3)`);
-          if(s.filter(lat).length > 1) viol.push(`${d}: mais de 1 do Laticínio`);
-          if(!s.some(i => equipe[i].tipo === 'enc')) viol.push(`${d}: sem Encarregado`);
-          if(!s.some(i => equipe[i].tipo === 'sub')) viol.push(`${d}: sem Subencarregado`);
-          const sets = s.map(i => norm(equipe[i].setor)); if(new Set(sets).size !== sets.length) viol.push(`${d}: 2 do mesmo setor`); } });
-      equipe.forEach((f, i) => { const h = historicoManual(i); const seq = [!!h.penultimo, !!h.ultimo, ...doms.map(d => (trabalhoDomingo[d] || []).map(Number).includes(i))]; const b = doms.indexOf(bal) + 2;
-        for(let k = 2; k < seq.length; k++) if(seq[k] && seq[k - 1] && seq[k - 2] && ![k, k - 1, k - 2].includes(b)) viol.push(`${f.nome}: 3 domingos seguidos`); });
-      const porDia = {}; let semData = 0;
-      Object.keys(fer).map(Number).forEach(d => { const dtF = new Date(ano, mes, d); const trab = dtF.getDay() === 0 ? (trabalhoDomingo[d] || []) : (trabalhoFeriado[d] || []);
-        if(dtF.getDay() !== 0 && typeof bloqueioFolgaFeriado === 'function') trab.forEach(i => { const mot = bloqueioFolgaFeriado(i, dtF); if(mot) viol.push(`${equipe[i].nome}: trabalha no feriado ${d} com ${mot}`); });   // V164
-        trab.forEach(i => { const k = `${d}_${i}`, v = (folgasCompensatorias || {})[k]; if(!v){ semData++; return; }
-          const dt = new Date(v + 'T00:00:00'), dias = Math.round((dt - dtF) / 86400000);
-          if(dias < 1 || dias > P) viol.push(`folga ${k} fora do prazo (${dias} dias)`);
-          if(dt.getDay() === 0) viol.push(`folga ${k} num domingo`);
-          (porDia[v] = porDia[v] || []).push(i); }); });
-      Object.entries(porDia).forEach(([v, l]) => { const dt = new Date(v + 'T12:00:00'), tot = contarFolgasNaData(dt, '');
-        if(tot > 2) viol.push(`${v}: ${tot} de folga (máx. 2)`); if(dt.getDay() === 6 && tot > 1) viol.push(`${v}: ${tot} de folga no sábado (máx. 1)`);
-        const sets = l.map(i => norm(equipe[i].setor)); if(new Set(sets).size !== sets.length) viol.push(`${v}: 2 folgas do mesmo setor`); });
-      return { mes: mes + 1, dom: doms.map(d => (trabalhoDomingo[d] || []).length).join('/'), status: document.getElementById('statusBadge')?.textContent, semData, viol };
-    });
+    const r = await verificarEnc(p);
     ok(!r.viol.length, `${String(r.mes).padStart(2, '0')}/${ANO}: domingos ${r.dom} | folgas de feriado sem data: ${r.semData} | ${r.status}${r.viol.length ? ' → ' + r.viol.slice(0, 3).join('; ') : ''}`);
   }
   if(await p.evaluate(() => !!window.v161MarcarGuardado)){
@@ -352,6 +356,88 @@ async function testarEncarregados(browser){
     ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
   }
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
+}
+
+/* V167 — escala à mão dos Encarregados: 3 meses seguidos montados à mão (um com domingo de balanço), Misto, bloqueios e memória */
+async function testarEncManual(browser){
+  console.log('\n▶ Encarregados — escala à mão (✋ À mão / 🤝 Misto)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + APP_ENC); await p.waitForTimeout(800);
+  await p.evaluate(() => { localStorage.setItem('enc.prazoFolgaFeriado', '20'); }); await p.reload(); await p.waitForTimeout(1200);
+  await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1500);
+  const gerarE = async () => { const antes = await p.evaluate(() => JSON.stringify(trabalhoDomingo || {}) + document.getElementById('validacao').innerText);
+    await p.evaluate(() => document.getElementById('btnGerar').click());
+    for(let w = 0; w < 120; w++){ await p.waitForTimeout(150); if(await p.evaluate(a => JSON.stringify(trabalhoDomingo || {}) + document.getElementById('validacao').innerText !== a, antes)) break; }
+    await p.waitForTimeout(300); return p.evaluate(() => document.getElementById('validacao').innerText); };
+  // mês com balanço no penúltimo domingo (novembro)
+  await p.evaluate(a => { datasBalanco.push({ d: 21, m: 10, a }); }, ANO);
+  for(const m of [9, 10, 11]){
+    await mudarMes(p, m, ANO); await p.waitForTimeout(900);
+    await p.evaluate(() => window.v80GotoStep(5, false)); await p.waitForTimeout(400);
+    if(m === 9){
+      await p.click('[data-modo="manual"]'); await p.waitForTimeout(300);
+      ok(await p.$$eval('.v167-card', c => c.length) === await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).length), 'escala à mão: um cartão por domingo');
+      const txt = await gerarE();
+      ok(/Ainda não dá para gerar/.test(txt) && await p.evaluate(() => !Object.values(trabalhoDomingo || {}).some(a => a && a.length)), 'à mão com domingo vazio: o Gerar não gera e diz o que falta');
+      // marca 1 pela caixinha e tenta outra pessoa do MESMO setor (tem que ser recusada)
+      const d0 = await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value)[0]);
+      const par = await p.evaluate(() => { const i = equipe.findIndex(f => f.tipo === 'enc' && !foraDom(f) && !/latic/.test(norm(f.setor))); const j = equipe.findIndex((f, k) => k !== i && norm(f.setor) === norm(equipe[i].setor) && !foraDom(f)); return [i, j]; });
+      await p.check(`#v167c${d0} input[data-p="${par[0]}"]`); await p.waitForTimeout(250);
+      const dis = await p.$eval(`#v167c${d0} input[data-p="${par[1]}"]`, x => x.disabled);
+      const mo = await p.evaluate(([j, d]) => v167.motivo(j, d, v167.sel()), [par[1], d0]);
+      ok(dis && /mesmo setor/i.test(mo) && !(await p.evaluate(d => v167.sel()[d], d0)).includes(par[1]), `pessoa do mesmo setor fica cinza e não entra (“${mo}”)`);
+      ok(await p.evaluate(([i, d]) => !v167.marcar(i, d, true) && !v167.sel()[d].includes(i), [par[1], d0]), 'marcar direto alguém do mesmo setor também é recusado');
+      // busca por matrícula
+      const mat = await p.evaluate(() => { const s = v167.sel(), d = domingosDoMes(+$('ano').value, +$('mes').value)[0]; const k = equipe.findIndex((f, i) => !v167.motivo(i, d, s) && !s[d].includes(i)); return [k, equipe[k].matricula]; });
+      await p.fill(`[data-busca="${d0}"]`, String(mat[1])); await p.waitForTimeout(200); await p.press(`[data-busca="${d0}"]`, 'Enter'); await p.waitForTimeout(300);
+      ok((await p.evaluate(d => v167.sel()[d], d0)).includes(mat[0]), 'busca pela matrícula + Enter marca a pessoa');
+    }
+    if(m === 10){   // 📌 o 1º domingo mostra quem foi previsto no mês passado (as folgas antes dele já foram avisadas)
+      const d1 = await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value)[0]);
+      const prev = await p.evaluate(d => { const l = indicesDaPrevisao(previsaoDoDomingo(+$('ano').value, +$('mes').value, d)); return l ? l.slice().sort() : null; }, d1);
+      const btn = await p.$(`[data-acao="previsao"][data-d="${d1}"]`); if(btn){ await btn.click(); await p.waitForTimeout(250); }
+      ok(prev && btn && JSON.stringify(await p.evaluate(d => v167.sel()[d].slice().sort(), d1)) === JSON.stringify(prev), '📌 1º domingo: “Usar estas pessoas” coloca quem foi previsto no mês passado');
+    }
+    // completa cada domingo com 💡 Sugestão do app → ✅ Colocar no domingo
+    const doms = await p.evaluate(() => { const a = +$('ano').value, m = +$('mes').value, b = balancoDoMes(a, m); return domingosDoMes(a, m).filter(d => d !== b); });
+    let semSug = 0;
+    for(const d of doms){
+      if(await p.evaluate(d => v167.sel()[d].length, d) >= 3) continue;
+      await p.click(`[data-acao="sugerir"][data-d="${d}"]`); await p.waitForTimeout(150);
+      const b = await p.$(`[data-acao="aceitar"][data-d="${d}"]`); if(!b){ semSug++; continue; }
+      await b.click(); await p.waitForTimeout(150);
+    }
+    const au = await p.evaluate(() => v167.auditar());
+    ok(!semSug && !au.r.length && !au.y.length, `${String(m + 1).padStart(2, '0')}/${ANO}: todos os domingos preenchidos pela 💡 sugestão, conferência ✅${semSug ? ' — sem sugestão em ' + semSug : ''}${au.r.length + au.y.length ? ' → ' + [...au.r, ...au.y].slice(0, 2).map(x => x.t).join('; ') : ''}`);
+    const txt = await gerarE();
+    const igual = await p.evaluate(() => { const s = v167.sel(), b = balancoDoMes(+$('ano').value, +$('mes').value); return Object.keys(s).every(d => +d === b || JSON.stringify([...s[d]].sort()) === JSON.stringify([...(trabalhoDomingo[d] || [])].map(Number).sort())); });
+    const r = await verificarEnc(p);
+    ok(/pronta/.test(txt) && igual && !r.viol.length, `${String(r.mes).padStart(2, '0')}/${ANO} à mão: gerada igual ao que foi marcado | domingos ${r.dom}${r.viol.length ? ' → ' + r.viol.slice(0, 3).join('; ') : ''}`);
+  }
+  // ↻ copiar o domingo anterior não copia quem cairia no 3º domingo seguido
+  { const res = await p.evaluate(() => { const a = +$('ano').value, m = +$('mes').value, b = balancoDoMes(a, m), ds = domingosDoMes(a, m).filter(d => d !== b);
+      v167.copiarAnterior(ds[2]); const s = v167.sel(); const au = v167.auditar();
+      return { r: au.r.length, tres: equipe.some((f, i) => [0, 1, 2].every(k => s[ds[k]].includes(i))) }; });
+    ok(!res.r && !res.tres, '↻ Copiar o domingo anterior não cria 3 domingos seguidos'); }
+  // folga fixa no domingo pelo cartão tira a pessoa dos domingos marcados
+  { const r = await p.evaluate(() => { const s = v167.sel(); const d = Object.keys(s).find(k => s[k].length); const i = s[d][0]; const ant = equipe[i].folgaFixa;
+      const sel = document.querySelector(`#v167c${d} select[data-ff="${i}"]`); sel.value = '0'; sel.dispatchEvent(new Event('change', { bubbles: true }));
+      const fora = !Object.values(v167.sel()).some(a => a.includes(i)); equipe[i].folgaFixa = ant; return fora; });
+    ok(r, 'folga fixa “Domingo” escolhida no cartão tira a pessoa dos domingos'); }
+  // 🤝 Misto: marca 1 pessoa no 1º domingo de janeiro e o app completa o resto
+  await mudarMes(p, 0, ANO + 1); await p.waitForTimeout(900);
+  await p.click('[data-modo="misto"]'); await p.waitForTimeout(300);
+  const fixo = await p.evaluate(() => { const d = domingosDoMes(+$('ano').value, +$('mes').value)[0], s = v167.sel(); const i = equipe.findIndex((f, k) => f.tipo === 'sub' && !v167.motivo(k, d, s)); v167.marcar(i, d, true); v167.render(); return [d, i]; });
+  const txtM = await gerarE(); const rM = await verificarEnc(p);
+  ok(/pronta/.test(txtM) && await p.evaluate(([d, i]) => (trabalhoDomingo[d] || []).map(Number).includes(i), fixo) && !rM.viol.length, `🤝 Misto: quem foi marcado entra e o app completa o resto | domingos ${rM.dom}${rM.viol.length ? ' → ' + rM.viol.slice(0, 3).join('; ') : ''}`);
+  // memória: depois de recarregar a página, o modo e as marcações voltam; o histórico do mês leva a escala à mão
+  const antesR = await p.evaluate(() => JSON.stringify(v167.sel()));
+  await p.reload(); await p.waitForTimeout(2000);
+  ok(await p.evaluate(a => v167.estado().modo === 'misto' && JSON.stringify(v167.sel()) === a, antesR), 'depois de recarregar, o modo e as pessoas marcadas continuam');
+  ok(await p.evaluate(() => { const x = window.v167Exportar(); return x.modo === 'misto' && Object.keys(x.dias || {}).length > 0; }), 'o histórico do mês leva a escala à mão (campo escalaMao)');
+  await p.evaluate(() => v167.definirModo('auto'));
+  ok(!erros.length, 'escala à mão: sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
 (async () => {
@@ -379,7 +465,7 @@ async function testarEncarregados(browser){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
