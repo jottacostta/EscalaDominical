@@ -120,7 +120,36 @@ async function testarSetores(browser){
 
   // escala à mão: aviso de 3 domingos seguidos (V217)
   if(await p.evaluate(() => !!window.v217AvisosManual)){
-    await p.evaluate(() => { window.v206IrParaManual(); selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(900);
+    await p.evaluate(() => { window.v206IrParaManual(); selecaoManualDomingo = {}; const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(900);
+    // V233: cartões da escala manual oferecem sugestões e rejeitá-las não mexe na escala.
+    const btnSug = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-gerar]').first();
+    const temPainelSug = await btnSug.count();
+    ok(temPainelSug > 0, 'V233: painel de sugestões aparece nos cartões da escala manual');
+    if(temPainelSug){
+      await btnSug.click(); await p.waitForTimeout(350);
+      const temListaSug = await p.locator('#selecaoDomingosManual .v233-sugestoes input[data-v233-candidato]').count();
+      const semCandidatos = await p.locator('#selecaoDomingosManual .v233-sugestoes .v233-vazio').count();
+      ok(temListaSug > 0 || semCandidatos > 0, 'V233: gerar sugestões apresenta candidatos ou informa que não há elegíveis');
+      if(temListaSug > 0){
+        const btnAceitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-aceitar]').first();
+        ok(await btnAceitar.count() > 0, 'V233: lista de candidatos oferece aceite explícito');
+        if(await btnAceitar.count()){
+          await btnAceitar.click(); await p.waitForTimeout(500);
+          const verifAceite = await p.evaluate(() => {
+            const selecionados=Object.entries(selecaoManualDomingo||{}).flatMap(([d,a])=>(a||[]).map(Number).map(i=>({d,i})));
+            return {unicos:selecionados.length===new Set(selecionados.map(x=>x.d+':'+x.i)).size,
+              elegiveis:selecionados.every(({i})=>equipe[i]&&String(equipe[i].situacao||'A').toUpperCase()==='A'&&!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i]))};
+          });
+          ok(verifAceite.unicos&&verifAceite.elegiveis, 'V233: aceite mantém matrículas sem duplicidade e só deixa operacionais elegíveis selecionados');
+        }
+      }
+      await p.evaluate(() => { selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(250);
+      const btnRejeitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-gerar]').first();
+      if(await btnRejeitar.count()){ await btnRejeitar.click(); await p.waitForTimeout(150); const rej=p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-rejeitar]').first(); if(await rej.count())await rej.click(); }
+      ok(await p.evaluate(() => Object.values(selecaoManualDomingo||{}).every(a=>!a||!a.length)), 'V233: dispensar sugestões preserva a escala sem inclusões');
+    }
+    await p.evaluate(() => { const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); });
+    await p.waitForTimeout(400);
     const i = await p.evaluate(() => equipe.findIndex((f, i) => !foraDom(f) && !ehLiderancaDomingo(f) && !historicoManual(i).ultimo && !historicoManual(i).penultimo));
     const doms = await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).filter(d => d !== balancoDoMes(+$('ano').value, +$('mes').value)));
     for(const d of doms.slice(0, 3)){ await p.evaluate(([d, i]) => document.querySelector(`#selecaoDomingosManual input[data-dom="${d}"][data-func="${i}"]`).click(), [d, i]); await p.waitForTimeout(200); }

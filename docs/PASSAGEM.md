@@ -17,14 +17,15 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V232.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V233.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
-- **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
+- **PR #28:** [ChatGPT] Setores V232 — alinhamento da versão visível; mesclada em 11/10/2026 no commit `654057a5fcd909c92dd48f7876e790c7052b1f67`.
+- **PR #29 aberta:** [ChatGPT] Setores V233 — sugestões na escala manual (branch `chatgpt/setores-v233-sugestoes-escala-manual`). Não mesclar sem autorização explícita; execução #150: suíte rápida e completa passaram. A PR continua aberta até autorização explícita do dono.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V233**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
 
 ---
 
@@ -97,6 +98,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-11 — Setores V233 — sugestões na escala manual — ChatGPT
+- **Objetivo:** reduzir o trabalho do gestor sugerindo funcionários por domingo, mantendo a decisão humana e a auditoria existente.
+- **O que mudou:** adiciona um painel a cada cartão no modo Manual/Mista; gera candidatos ativos, aptos, não líderes, não escalados e sem folga fixa dominical; ordena pela menor carga de domingos considerada; permite aceitar candidatos marcados ou rejeitar sugestões sem alterar a escala.
+- **Validação:** no aceite, o sistema revalida candidato por candidato com a função existente `auditarSelecaoAntesDaGeracao`, limita as inclusões às vagas restantes, evita duplicidade, preserva escolhas existentes e chama a auditoria ao vivo depois da inclusão.
+- **Arquivos:** `Escala_de_Setores_V233.html`, `setores/index.html`, `versoes_anteriores/Escala_de_Setores_V232.html`, `testes/rodar.js`, `AGENTS.md`, `README.md`, `CHANGELOG.md` e esta passagem.
+- **Teste:** foram adicionados testes de interface para o painel, geração e rejeição sem alterar seleções. A execução #150 do GitHub Actions passou na suíte rápida e na completa (12 meses). Logs confirmam painel, geração, aceite com elegibilidade/duplicidade, rejeição sem alteração e ausência de erro JavaScript.
+- **Claude:** esta passagem e a descrição/comentário da PR registram o escopo, regras e pontos de revisão para continuidade pelo Claude. Não fazer merge sem autorização explícita do dono.
 
 ### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
 - **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
@@ -225,4 +234,5 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
+- **V233 — atenção para revisão:** confirmar nos checks da PR #29 que o painel é montado após re-render, que a auditoria revalida inclusões e que nenhuma seleção manual é perdida.
 - **Branch `chatgpt/teste-integracao`:** desatualizado (veja a seção 1).
