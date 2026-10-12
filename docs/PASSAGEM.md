@@ -17,14 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V232.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V234.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
-- **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
-- **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V233**, Encarregados **V166**.
+- **PRs abertos:** o PR do Claude com a Setores V233 (ChatGPT, PR #31) + V234 (Claude). Os PRs #29, #30 e #31 foram fechados: as três eram “V233” da mesma função; só a #31 funcionava com a planilha real e ela entrou neste PR. Depois do merge: nenhum.
+- **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
+- **Próximo número de versão:** Setores **V235**, Encarregados **V166**.
 
 ---
 
@@ -98,6 +97,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-11 — Setores V233 — sugestões na escala manual — ChatGPT
+- **Objetivo:** reduzir o trabalho do gestor sugerindo funcionários por domingo, mantendo a decisão humana e a auditoria existente.
+- **O que mudou:** adiciona um painel a cada cartão no modo Manual/Mista; gera candidatos ativos, aptos, não líderes, não escalados e sem folga fixa dominical; ordena pela menor carga de domingos considerada; permite aceitar candidatos marcados ou rejeitar sugestões sem alterar a escala.
+- **Validação:** no aceite, o sistema revalida candidato por candidato com a função existente `auditarSelecaoAntesDaGeracao`, limita as inclusões às vagas restantes, evita duplicidade, preserva escolhas existentes e chama a auditoria ao vivo depois da inclusão.
+- **Arquivos:** `Escala_de_Setores_V233.html`, `setores/index.html`, `versoes_anteriores/Escala_de_Setores_V232.html`, `testes/rodar.js`, `AGENTS.md`, `README.md`, `CHANGELOG.md` e esta passagem.
+- **Teste:** foram adicionados testes de interface para o painel, geração e rejeição sem alterar seleções. A execução #150 do GitHub Actions passou na suíte rápida e na completa (12 meses). Logs confirmam painel, geração, aceite com elegibilidade/duplicidade, rejeição sem alteração e ausência de erro JavaScript.
+- **Claude:** esta passagem e a descrição/comentário da PR registram o escopo, regras e pontos de revisão para continuidade pelo Claude. Não fazer merge sem autorização explícita do dono.
+
 ### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
 - **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
 - **Onde no código:** `Escala_de_Setores_V232.html`: `<title>`, `div.menu-version` e primeira linha do comentário `HISTÓRICO DE VERSÕES`; `setores/index.html` é cópia exata da V232.
@@ -127,6 +134,27 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V234 — sugestões da escala à mão: escolha entre 3 PRs e melhorias — Claude (V233 do ChatGPT, PR #31)
+- **O que mudou e por quê:** o ChatGPT abriu três PRs com a mesma V233 (“💡 Sugestão de funcionários” em cada domingo da escala à mão): #29, #30 e #31. Os três tinham o teste do GitHub verde. O dono pediu limpeza e melhoria das ideias. Teste com a planilha real (loja recém-importada e com folgas definidas, Frente de Loja e Açougue):
+  - **#29:** 0 sugeridos no Açougue e com folga “a definir”;
+  - **#30:** 0 sugeridos em tudo;
+  - **#31:** 77/77 e 13/13, sem regra quebrada.
+
+  A #31 entrou neste PR (commits do ChatGPT preservados) e as três foram fechadas.
+- **Por que #29/#30 falhavam:** comparavam o TEXTO dos avisos antes/depois. O aviso de cobertura do Açougue muda a cada pessoa (“0/3” → “1/3”) e virava “regra nova quebrada”. A #29 também pulava quem tem folga “a definir” (toda a loja logo após importar o ERP).
+- **V234 (melhorias na #31):**
+  - (1) só barra **regra quebrada (🔴) que cite a pessoa**, com a mesma classificação da auditoria ao vivo (`window.v227Pendente`, novo, exposto no bloco V227). Avisos 🟡 não barram. O aviso de 6×1, que não traz a data do domingo, agora barra. Nomes parecidos não se confundem (`cita`);
+  - (2) mais rápida: a auditoria “antes” é feita uma vez por domingo e a conferência para em vagas + até 10 reservas (Frente de Loja ~3 s → ~1 s);
+  - (3) no empate, quem tem folga fixa definida vem antes; “folga fixa a definir” aparece no candidato.
+- **Onde no código:** bloco `/* ═════ V233 — sugestões de funcionários… ═════ */` com linhas `// V234` (`auditoriaCandidato`, `candidatosDoDia`, `renderSugestoes`, `window.v234Sugestoes`). No bloco V227: `window.v227Pendente`.
+- **Testes:**
+  - o teste da V233 aceitava “nenhum candidato” (por isso #29/#30 passavam) e agora exige candidatos;
+  - novo: auditoria sem regra quebrada depois de aceitar;
+  - novo: cobertura por função incompleta (simulada) não barra as sugestões.
+- **Limpeza junto:** PRs #29/#30/#31 fechados; branches antigos do ChatGPT listados na seção 1 (não deu para apagar daqui); Node 22 no workflow; `testes/screenshots/` no `.gitignore` (a imagem fica como anexo da execução no GitHub).
+- **Como foi testado:** suíte rápida e completa ✅; planilha real (local): Frente de Loja 77/77 e Açougue 13/13 em 3 domingos, 0 regras quebradas, 0 erros.
+- **Para continuar:** veja a pendência de velocidade das sugestões (seção 6).
 
 ### 2026-10-11 — Setores V229 — virada do mês no 6×1 e no feriado da segunda — Claude (investigação pedida pelo ChatGPT)
 - **Resultado de cada item de `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`:**
@@ -219,10 +247,12 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
-- **GitHub Actions:** aparece o aviso "Node.js 20 is deprecated". Funciona, mas um dia vale trocar `node-version: 20` por `22` no workflow.
+- ~~GitHub Actions com Node 20~~ — trocado para **Node 22** na limpeza de 12/10/2026.
 - ~~Investigar a auditoria ao vivo da V228~~ — **feito na V229** (resultado de cada item no Diário).
 - **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
-- **Branch `chatgpt/teste-integracao`:** desatualizado (veja a seção 1).
+- ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
+- **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
+- **Sugestões da escala à mão (V234):** na Frente de Loja cada toque leva ~1 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
