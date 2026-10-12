@@ -59,6 +59,28 @@ async function testarSetores(browser){
   await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1500);
   const nSet = fs.readFileSync(path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'utf8').split(/\r?\n/).filter(l => /^\d+;/.test(l)).length;
   ok(await p.evaluate(() => equipe.length) === nSet, `equipe fictícia carregada (${nSet} pessoas)`);
+  // V233: sugestões na escala manual, sem alterar a escala ao rejeitar.
+  {
+    const r = await p.evaluate(() => {
+      const modo = $('modoGeracao'), anterior = modo.value;
+      modo.value = 'mista';
+      renderSelecaoDomingosGeracao();
+      const bal = balancoDoMes(+$('ano').value, +$('mes').value);
+      const card = [...document.querySelectorAll('#selecaoDomingosMista .dom-card[data-geracao-dom]')].find(c => Number(c.dataset.geracaoDom) !== Number(bal));
+      const ui = !!window.v233Sugestoes && !!card?.querySelector('[data-v233-action="suggest"]') && !!card?.querySelector('[data-v233-action="accept"]') && !!card?.querySelector('[data-v233-action="reject"]');
+      card?.querySelector('[data-v233-action="suggest"]')?.click();
+      const gerou = !!card?.querySelector('.v233-sug-list') && !!card.querySelector('.v233-sug-msg-status');
+      const antes = JSON.stringify(selecaoManualDomingo || {});
+      card?.querySelector('[data-v233-action="reject"]')?.click();
+      const rejeitarPreserva = antes === JSON.stringify(selecaoManualDomingo || {});
+      modo.value = anterior;
+      renderSelecaoDomingosGeracao();
+      return { ui, gerou, rejeitarPreserva };
+    });
+    ok(r.ui, 'V233: cada card manual/misto tem botões de sugerir, aceitar e rejeitar');
+    ok(r.gerou, 'V233: botão sugerir renderiza a lista de candidatos');
+    ok(r.rejeitarPreserva, 'V233: rejeitar sugestões não altera a escala existente');
+  }
   {   // V221: quem não está afastado é apto ao domingo (exceto jovem aprendiz) e não tem folga fixa no domingo
     await p.waitForTimeout(2500);
     const r = await p.evaluate(() => { const ap = f => { try{ return !!window.v157Regras?.bloqueioDomingo?.(f); }catch(e){ return false; } };
@@ -307,6 +329,8 @@ async function testarEncarregados(browser){
     const hist = html.match(/<!-- HISTÓRICO DE VERSÕES[^\n]*\n([^\n]+)/);
     ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT)\\] — ').test(hist[1]),
       'primeira entrada do histórico corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
+    ok(html.includes('id="v233-sugestoes-manual-js"') && html.includes('window.v233Sugestoes={candidatos, testarInclusao}'),
+      'V233: camada de sugestões e função de revalidação presentes');
   }
   // a passagem de bastão (docs/PASSAGEM.md) tem que estar em dia com as versões atuais — AGENTS.md, seção 10
   { const pas = path.join(RAIZ, 'docs', 'PASSAGEM.md'), txt = fs.existsSync(pas) ? fs.readFileSync(pas, 'utf8') : '';
