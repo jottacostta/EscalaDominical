@@ -12468,8 +12468,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(actions)actions.before(area);else card.appendChild(area);
   }
   function montarTodos(){document.querySelectorAll('#selecaoDomingosManual .dom-card[data-geracao-dom],#selecaoDomingosMista .dom-card[data-geracao-dom]').forEach(montarPainel);}
-  function renderSugestoes(d){
-    const card=document.querySelector('.dom-card[data-geracao-dom="'+d+'"]'),area=card?.querySelector('.v233-sugestoes');
+  function renderSugestoes(d, area){
+    area=area||document.querySelector('#selecaoDomingosManual .dom-card[data-geracao-dom="'+d+'"] .v233-sugestoes')||document.querySelector('#selecaoDomingosMista .dom-card[data-geracao-dom="'+d+'"] .v233-sugestoes');
     if(!card||!area)return;
     const vagas=vagasDoDia(d), candidatos=candidatosDoDia(d), limite=Math.min(candidatos.length,Math.max(vagas,vagas*2));
     if(vagas<1){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não há vagas restantes neste domingo.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Dispensar sugestões</button></div>';return;}
@@ -12480,7 +12480,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function persistir(){try{window.v45Persist?.();}catch(e){}try{window.v227Auditar?.();}catch(e){}}
   document.addEventListener('click',e=>{
     const gerar=e.target.closest('[data-v233-gerar]');
-    if(gerar){renderSugestoes(Number(gerar.dataset.v233Gerar));return;}
+    if(gerar){renderSugestoes(Number(gerar.dataset.v233Gerar),gerar.closest('.v233-sugestoes'));return;}
     const rejeitar=e.target.closest('[data-v233-rejeitar]');
     if(rejeitar){const c=rejeitar.closest('.v233-sugestoes');if(c)c.innerHTML='<h4>💡 Sugestões dispensadas</h4><p>A escala existente foi mantida sem alterações.</p><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-gerar="'+rejeitar.dataset.v233Rejeitar+'">Gerar novamente</button></div>';return;}
     const aceitar=e.target.closest('[data-v233-aceitar]');if(!aceitar)return;
