@@ -130,8 +130,22 @@ async function testarSetores(browser){
       const temListaSug = await p.locator('#selecaoDomingosManual .v233-sugestoes input[data-v233-candidato]').count();
       const semCandidatos = await p.locator('#selecaoDomingosManual .v233-sugestoes .v233-vazio').count();
       ok(temListaSug > 0 || semCandidatos > 0, 'V233: gerar sugestões apresenta candidatos ou informa que não há elegíveis');
-      const btnRejeitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-rejeitar]').first();
-      if(await btnRejeitar.count()){ await btnRejeitar.click(); await p.waitForTimeout(150); }
+      if(temListaSug > 0){
+        const btnAceitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-aceitar]').first();
+        ok(await btnAceitar.count() > 0, 'V233: lista de candidatos oferece aceite explícito');
+        if(await btnAceitar.count()){
+          await btnAceitar.click(); await p.waitForTimeout(500);
+          const verifAceite = await p.evaluate(() => {
+            const selecionados=Object.entries(selecaoManualDomingo||{}).flatMap(([d,a])=>(a||[]).map(Number).map(i=>({d,i})));
+            return {unicos:selecionados.length===new Set(selecionados.map(x=>x.d+':'+x.i)).size,
+              elegiveis:selecionados.every(({i})=>equipe[i]&&String(equipe[i].situacao||'A').toUpperCase()==='A'&&!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i]))};
+          });
+          ok(verifAceite.unicos&&verifAceite.elegiveis, 'V233: aceite mantém matrículas sem duplicidade e só deixa operacionais elegíveis selecionados');
+        }
+      }
+      await p.evaluate(() => { selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(250);
+      const btnRejeitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-gerar]').first();
+      if(await btnRejeitar.count()){ await btnRejeitar.click(); await p.waitForTimeout(150); const rej=p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-rejeitar]').first(); if(await rej.count())await rej.click(); }
       ok(await p.evaluate(() => Object.values(selecaoManualDomingo||{}).every(a=>!a||!a.length)), 'V233: dispensar sugestões preserva a escala sem inclusões');
     }
     await p.evaluate(() => { const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); });
