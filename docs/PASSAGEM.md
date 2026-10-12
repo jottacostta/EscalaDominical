@@ -17,18 +17,18 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V237.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V238.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V170.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #36 do Claude com a Encarregados V169 (domingos antes dos feriados) + V170 (mês passado antes dos domingos). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V238 (mês passado antes dos domingos). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V238**, Encarregados **V171**.
+- **Próximo número de versão:** Setores **V239**, Encarregados **V171**.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
 
 ---
 
-## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,3 mil linhas)
+## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
 **Como o arquivo é organizado:** um único HTML. O núcleo antigo (motor da escala, telas, passos) fica no meio do arquivo. Cada versão nova acrescenta **camadas** no fim:
 - um bloco `<style id="vNNN-assunto">` antes de `</head>`;
@@ -48,6 +48,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - `historicoManual(i)` (`ultimo` / `penultimo` domingo do mês passado), `foraDom(f)` (não pode domingo), `ehLiderancaDomingo(f)`.
 - `folgaFixaAtivaNaData(i, dt)`, `descansosDoCandidato(i, d)` (folga antecipada e posterior do domingo).
 - `coberturaOperacional(indices, d)`: cobertura mínima por função.
+- **Passos (V238):** 1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar (+ ⚙️ Configurações escondido). O **índice interno** (`v45GotoStep(n)`, `ir:n`, `data-step`) é a posição do botão: Equipe 0, ⚙️ 1, **Mês passado 2**, **Domingos 3** (`#coberturaCard`), **Feriados 4** (`#geracaoCard`), Gerar 5. O bloco V170 antigo (`OP=[0,2,3,4,5]`, `labels`) faz a barra de baixo pular o ⚙️. Mudou a ordem? Troque também os `ir:` de `destinoConformidade`, os `labels` da barra (dois lugares), os `v45GotoStep(n)` das camadas, os slides do passo a passo (`SLIDES`) e a lista da Ajuda.
 - `gerarSetores()` / `gerarSetoresCore()`: o motor ("Gerar").
 - `auditarSelecaoAntesDaGeracao(modo)`: a conferência de regras do "Gerar" na escala à mão/mista. Ela chama `validarLiderancaManualDomingo`, `auditarDescansosSimulados` e `auditarProtecao6x1Simulada`. **Regra nova tem que entrar aqui** para valer também na auditoria ao vivo.
 - `renderSelecaoDomingosGeracao()`: redesenha os cartões dos domingos da escala à mão.
@@ -69,7 +70,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 **Armazenamento no aparelho:** chaves `localStorage` começam com `escalaSetores.` (ex.: `escalaSetores.v183` = cópia de cada setor/mês, `escalaSetores.quadroERP` = quadro da loja). O espaço é limitado (V216 libera sozinho).
 
-## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~7,7 mil linhas)
+## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
 - Mesmo padrão de camadas.
 - **Passos (V170):** 1 Equipe · 2 Mês · 3 Mês passado · 4 Domingos · 5 Feriados · 6 Gerar. O **índice interno** (`v80GotoStep(n)`, `ir:n`, `data-step`) é a **posição do botão**: Equipe 0, Mês 1, **Mês passado 2**, **Domingos 3** (`#domingosEtapa`, área `#v169DomArea`), **Feriados 4**, Gerar 5. `#coberturaCard` (grupos da V162) continua no HTML, escondido. Mudou de novo a ordem? Troque também os `ir:` de `destinoConformidade`/“O que falta”/marcos do Início e os `v80GotoStep` das camadas (procure por `v80GotoStep?.(` e `ir:`).
@@ -109,6 +110,21 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+Modelo de entrada:
+```
+### AAAA-MM-DD — <App Vnnn ou "Documentação"> — <título curto> — <Claude|ChatGPT>
+- **O que mudou e por quê:** …
+- **Onde no código:** bloco /* ═════ Vnnn ═════ */, funções …, chaves localStorage …, campos do histórico …
+- **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
+- **Para continuar:** o que ficou faltando, ideias, cuidados.
+```
+
+### 2026-10-12 — Setores V238 — mês passado antes dos domingos — Claude
+- **O que mudou e por quê:** o dono pediu a ordem “Equipe → Mês passado → Domingos → Feriados → Gerar” também no Setores (igual à V170 dos Encarregados): o mês passado decide quem pode trabalhar no 1º domingo, e a auditoria ao vivo da escala à mão usa esse dado.
+- **Onde no código:** botões e painéis reordenados (índices: Mês passado 2, Domingos 3, Feriados 4); `ir:` de `destinoConformidade`; os dois `labels` da barra de baixo; `v45GotoStep` do “usar arquivo como mês passado” e do `v206IrParaManual`; atalho “Carregar mês passado” (`.step[data-step="2"]`); slides do passo a passo de 1 minuto; lista da Ajuda e “Por onde começar?”. Números nos textos: 2→3, 3→4, 4→2, fora do comentário de histórico.
+- **Como foi testado:** `testes/rodar.js` acha o passo Domingos pelo painel (`coberturaCard`) e confere a ordem nova. Suítes rápida e completa ✅.
+- **Junto (passagem):** o diário foi reordenado (mais novo primeiro) e o “Modelo de entrada” foi para o topo da seção 5 — achados da revisão de documentação de 12/10.
+
 ### 2026-10-12 — Encarregados V170 — mês passado antes dos domingos — Claude
 - **O que mudou e por quê:** o dono pediu a ordem “Equipe – Mês – Mês passado – Domingo – Feriados – Gerar”. Faz sentido: quem trabalhou nos 2 últimos domingos do mês passado decide quem pode trabalhar no 1º domingo (3 domingos seguidos), então ele vem antes de montar os domingos.
 - **Onde no código:** os botões do passo e os painéis foram reordenados; o índice interno é a posição (Mês passado 2, Domingos 3, Feriados 4, Gerar 5). Atualizados os `ir:` (Conformidade, “O que falta”, marcos do Início) e os `v80GotoStep` (busca do Mês passado, atalhos da escala à mão). Números nos textos: 3→4 (Domingos), 4→5 (Feriados), 5→3 (Mês passado), fora do comentário de histórico.
@@ -143,44 +159,6 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
   - suítes rápida e completa ✅;
   - equipe real (local): 12 meses (nov/2026 → out/2027), 53 domingos só pela sugestão, 0 regras quebradas, todos os meses “pronta”, e a mesma quantidade de domingos por pessoa do automático; cálculo da sugestão 10–45 ms por domingo.
 - **Para continuar:** ideias na seção 6.
-
-### 2026-10-11 — Setores V233 — sugestões na escala manual — ChatGPT
-- **Objetivo:** reduzir o trabalho do gestor sugerindo funcionários por domingo, mantendo a decisão humana e a auditoria existente.
-- **O que mudou:** adiciona um painel a cada cartão no modo Manual/Mista; gera candidatos ativos, aptos, não líderes, não escalados e sem folga fixa dominical; ordena pela menor carga de domingos considerada; permite aceitar candidatos marcados ou rejeitar sugestões sem alterar a escala.
-- **Validação:** no aceite, o sistema revalida candidato por candidato com a função existente `auditarSelecaoAntesDaGeracao`, limita as inclusões às vagas restantes, evita duplicidade, preserva escolhas existentes e chama a auditoria ao vivo depois da inclusão.
-- **Arquivos:** `Escala_de_Setores_V233.html`, `setores/index.html`, `versoes_anteriores/Escala_de_Setores_V232.html`, `testes/rodar.js`, `AGENTS.md`, `README.md`, `CHANGELOG.md` e esta passagem.
-- **Teste:** foram adicionados testes de interface para o painel, geração e rejeição sem alterar seleções. A execução #150 do GitHub Actions passou na suíte rápida e na completa (12 meses). Logs confirmam painel, geração, aceite com elegibilidade/duplicidade, rejeição sem alteração e ausência de erro JavaScript.
-- **Claude:** esta passagem e a descrição/comentário da PR registram o escopo, regras e pontos de revisão para continuidade pelo Claude. Não fazer merge sem autorização explícita do dono.
-
-### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
-- **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
-- **Onde no código:** `Escala_de_Setores_V232.html`: `<title>`, `div.menu-version` e primeira linha do comentário `HISTÓRICO DE VERSÕES`; `setores/index.html` é cópia exata da V232.
-- **Prevenção:** `testes/rodar.js` verifica separadamente título, rodapé e primeira entrada do histórico contra o número do nome do arquivo. `AGENTS.md` torna essa conferência obrigatória antes de abrir PR.
-- **Documentação:** README, CHANGELOG e passagem de bastão atualizados com a nova versão e a armadilha descoberta.
-- **Como foi testado:** GitHub Actions, execução #92, suíte rápida e completa passaram. O teste de empréstimo foi reforçado para simular Açougue → Padaria e validar explicitamente setor de destino, origem identificada, sinalização de empréstimo, status ativo e aptidão para a escala/domingo, além de contagens e persistência. Os checks serão executados novamente após esta ampliação.
-- **Para continuar:** conferir os checks gerados por esta atualização da passagem e aguardar autorização explícita antes do merge. Assinado: ChatGPT
-
-### 2026-10-11 — Setores V231 — funcionário emprestado entre setores — ChatGPT
-- **Regra implementada:** EP continua como cadastro único no setor de origem; aparece lá como registro visual de empréstimo, fica fora da contagem disponível e não participa da escala de origem. O setor de destino recebe uma visão operacional derivada do mesmo cadastro, apta para a escala e incluída na contagem do destino. A matrícula não é duplicada em `todasEquipes`.
-- **Editor e persistência:** ao selecionar EP, o editor exige o setor de destino e impede escolher o próprio setor de origem. O campo `SetorEmprestimo` é mantido no `Equipe.txt` e no quadro geral do histórico JSON. A V230 foi movida para `versoes_anteriores/Escala_de_Setores_V230.html`; `setores/index.html` aponta para a V231.
-- **Onde no código:** `Escala_de_Setores_V231.html`, camada `v231-emprestimo-setores-js`, `equipeDoSetor()`, editor de equipe, parser/exportador do Equipe.txt e montagem/restauração do histórico.
-- **Testes:** foi acrescentado teste de regressão para origem/destino, contagem e matrícula única. A validação automatizada do GitHub Actions ainda deve ser conferida no PR antes do merge.
-- **Para continuar:** revisar o fluxo no celular e navegador, confirmar que a escala manual e automática aceitam o emprestado apenas no destino, validar importação/exportação de Equipe.txt e histórico após reload. **Não fazer merge sem autorização explícita do dono.** Assinado: ChatGPT
-
-### 2026-10-11 — Setores V230 — filtro da escala manual — ChatGPT
-- **O que mudou e por quê:** a lista de seleção manual/mista passa a exibir somente operacionais ativos. Lideranças reconhecidas por `ehLiderancaDomingo`, afastados (AF) e emprestados (EP) são ocultados; operacionais ativos com folga fixa no domingo continuam visíveis. O filtro atua apenas na renderização da lista, sem remover funcionários do cadastro nem alterar o motor.
-- **Onde no código:** `Escala_de_Setores_V230.html`, na montagem de `cards` em `renderSelecaoDomingosGeracao()`; cópia publicada em `setores/index.html`.
-- **Como foi testado:** teste de regressão V230 passou com dados fictícios. `npm test` e `npm run test:completo` passaram no GitHub Actions (execução 45, check “Testes” verde). A captura da lista manual foi guardada no artefato `capturas-setores-v230`.
-- **Para continuar:** revisar a captura da lista manual e confirmar que a alteração não afeta a geração automática, o domingo de balanço, o histórico nem a persistência. A PR foi mesclada no `main` pela PR #26; o histórico acima descreve o estado daquela entrega antes do merge. Assinado: ChatGPT
-
-Modelo de entrada:
-```
-### AAAA-MM-DD — <App Vnnn ou "Documentação"> — <título curto> — <Claude|ChatGPT>
-- **O que mudou e por quê:** …
-- **Onde no código:** bloco /* ═════ Vnnn ═════ */, funções …, chaves localStorage …, campos do histórico …
-- **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
-- **Para continuar:** o que ficou faltando, ideias, cuidados.
-```
 
 ### 2026-10-12 — Setores V236 + Encarregados V166 — ícones coloridos iguais em qualquer aparelho — Claude
 - **O que mudou e por quê:** o dono pediu “ícones bonitos”. Primeiro foram testados desenhos em linha e depois desenhos “cheios em dois tons”. Vendo uma captura, **o dono escolheu o estilo colorido do Noto Emoji** (o das figuras do Google), dentro de um quadrado azul-claro nos cartões dos setores.
@@ -256,6 +234,36 @@ Modelo de entrada:
 - **Limpeza junto:** PRs #29/#30/#31 fechados; branches antigos do ChatGPT listados na seção 1 (não deu para apagar daqui); Node 22 no workflow; `testes/screenshots/` no `.gitignore` (a imagem fica como anexo da execução no GitHub).
 - **Como foi testado:** suíte rápida e completa ✅; planilha real (local): Frente de Loja 77/77 e Açougue 13/13 em 3 domingos, 0 regras quebradas, 0 erros.
 - **Para continuar:** veja a pendência de velocidade das sugestões (seção 6).
+
+### 2026-10-11 — Setores V233 — sugestões na escala manual — ChatGPT
+- **Objetivo:** reduzir o trabalho do gestor sugerindo funcionários por domingo, mantendo a decisão humana e a auditoria existente.
+- **O que mudou:** adiciona um painel a cada cartão no modo Manual/Mista; gera candidatos ativos, aptos, não líderes, não escalados e sem folga fixa dominical; ordena pela menor carga de domingos considerada; permite aceitar candidatos marcados ou rejeitar sugestões sem alterar a escala.
+- **Validação:** no aceite, o sistema revalida candidato por candidato com a função existente `auditarSelecaoAntesDaGeracao`, limita as inclusões às vagas restantes, evita duplicidade, preserva escolhas existentes e chama a auditoria ao vivo depois da inclusão.
+- **Arquivos:** `Escala_de_Setores_V233.html`, `setores/index.html`, `versoes_anteriores/Escala_de_Setores_V232.html`, `testes/rodar.js`, `AGENTS.md`, `README.md`, `CHANGELOG.md` e esta passagem.
+- **Teste:** foram adicionados testes de interface para o painel, geração e rejeição sem alterar seleções. A execução #150 do GitHub Actions passou na suíte rápida e na completa (12 meses). Logs confirmam painel, geração, aceite com elegibilidade/duplicidade, rejeição sem alteração e ausência de erro JavaScript.
+- **Claude:** esta passagem e a descrição/comentário da PR registram o escopo, regras e pontos de revisão para continuidade pelo Claude. Não fazer merge sem autorização explícita do dono.
+
+### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
+- **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
+- **Onde no código:** `Escala_de_Setores_V232.html`: `<title>`, `div.menu-version` e primeira linha do comentário `HISTÓRICO DE VERSÕES`; `setores/index.html` é cópia exata da V232.
+- **Prevenção:** `testes/rodar.js` verifica separadamente título, rodapé e primeira entrada do histórico contra o número do nome do arquivo. `AGENTS.md` torna essa conferência obrigatória antes de abrir PR.
+- **Documentação:** README, CHANGELOG e passagem de bastão atualizados com a nova versão e a armadilha descoberta.
+- **Como foi testado:** GitHub Actions, execução #92, suíte rápida e completa passaram. O teste de empréstimo foi reforçado para simular Açougue → Padaria e validar explicitamente setor de destino, origem identificada, sinalização de empréstimo, status ativo e aptidão para a escala/domingo, além de contagens e persistência. Os checks serão executados novamente após esta ampliação.
+- **Para continuar:** conferir os checks gerados por esta atualização da passagem e aguardar autorização explícita antes do merge. Assinado: ChatGPT
+
+### 2026-10-11 — Setores V231 — funcionário emprestado entre setores — ChatGPT
+- **Regra implementada:** EP continua como cadastro único no setor de origem; aparece lá como registro visual de empréstimo, fica fora da contagem disponível e não participa da escala de origem. O setor de destino recebe uma visão operacional derivada do mesmo cadastro, apta para a escala e incluída na contagem do destino. A matrícula não é duplicada em `todasEquipes`.
+- **Editor e persistência:** ao selecionar EP, o editor exige o setor de destino e impede escolher o próprio setor de origem. O campo `SetorEmprestimo` é mantido no `Equipe.txt` e no quadro geral do histórico JSON. A V230 foi movida para `versoes_anteriores/Escala_de_Setores_V230.html`; `setores/index.html` aponta para a V231.
+- **Onde no código:** `Escala_de_Setores_V231.html`, camada `v231-emprestimo-setores-js`, `equipeDoSetor()`, editor de equipe, parser/exportador do Equipe.txt e montagem/restauração do histórico.
+- **Testes:** foi acrescentado teste de regressão para origem/destino, contagem e matrícula única. A validação automatizada do GitHub Actions ainda deve ser conferida no PR antes do merge.
+- **Para continuar:** revisar o fluxo no celular e navegador, confirmar que a escala manual e automática aceitam o emprestado apenas no destino, validar importação/exportação de Equipe.txt e histórico após reload. **Não fazer merge sem autorização explícita do dono.** Assinado: ChatGPT
+
+### 2026-10-11 — Setores V230 — filtro da escala manual — ChatGPT
+- **O que mudou e por quê:** a lista de seleção manual/mista passa a exibir somente operacionais ativos. Lideranças reconhecidas por `ehLiderancaDomingo`, afastados (AF) e emprestados (EP) são ocultados; operacionais ativos com folga fixa no domingo continuam visíveis. O filtro atua apenas na renderização da lista, sem remover funcionários do cadastro nem alterar o motor.
+- **Onde no código:** `Escala_de_Setores_V230.html`, na montagem de `cards` em `renderSelecaoDomingosGeracao()`; cópia publicada em `setores/index.html`.
+- **Como foi testado:** teste de regressão V230 passou com dados fictícios. `npm test` e `npm run test:completo` passaram no GitHub Actions (execução 45, check “Testes” verde). A captura da lista manual foi guardada no artefato `capturas-setores-v230`.
+- **Para continuar:** revisar a captura da lista manual e confirmar que a alteração não afeta a geração automática, o domingo de balanço, o histórico nem a persistência. A PR foi mesclada no `main` pela PR #26; o histórico acima descreve o estado daquela entrega antes do merge. Assinado: ChatGPT
+
 
 ### 2026-10-11 — Setores V229 — virada do mês no 6×1 e no feriado da segunda — Claude (investigação pedida pelo ChatGPT)
 - **Resultado de cada item de `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`:**
