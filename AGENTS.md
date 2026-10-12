@@ -3,6 +3,8 @@
 Este arquivo é lido automaticamente pelo Codex do ChatGPT em toda tarefa. **Siga tudo o que está aqui.**
 Escreva sempre em **português do Brasil**, com linguagem simples (quem usa o app é gestor de loja, não programador).
 
+> **Regra de ouro do dono (UX/UI):** o app tem que ser fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Toda mudança de tela segue a seção 4.1.
+
 ## 1. O que é o projeto
 
 Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo HTML** (abre no navegador, funciona sem internet):
@@ -58,6 +60,23 @@ Para cada mudança num app (ex.: Setores V222 → V223):
   **histórico do mês** (arquivo `Historico_<Setor>_mm_aaaa.json`, montado em `montarProjeto`). Se criar um dado novo,
   inclua no histórico e garanta que ele volta ao abrir o arquivo num aparelho novo.
 - Depois de mexer, confira no navegador que não aparece erro de JavaScript (console) e que o menu ⋮ continua abrindo.
+
+## 4.1 Telas fáceis (regra de ouro: uma criança de 10 anos consegue usar)
+
+Antes de abrir o PR, confira cada item numa tela nova ou alterada:
+
+1. **Palavras do dia a dia.** Nada de termo técnico, sigla sem explicação ou inglês. Ex.: “folga”, não “DSR” sozinho; “quem trabalha no domingo”, não “alocação”.
+2. **Frases curtas**, de até ~15 palavras. Uma ideia por frase.
+3. **Cada botão diz o que faz**, com um verbo e um emoji (“✅ Aceitar os escolhidos”, “🗑️ Limpar domingo”). Nunca só “OK” ou só um ícone.
+4. **Um passo de cada vez.** A tela mostra primeiro o que fazer agora. Opções avançadas ficam escondidas (ex.: “Mais opções”).
+5. **Diga o que vai acontecer antes** de qualquer ação que muda muita coisa, e **mostre o resultado depois** (“3 pessoas foram colocadas no domingo 05/11”).
+6. **Erro sem bronca, com o caminho:** o que aconteceu + o que fazer (“Falta escolher o horário de 2 pessoas. Toque no ⏰ de cada uma.”). Nunca só “erro”, “inválido” ou código.
+7. **Cores com sentido e sempre com texto junto:** 🟢 tudo certo · 🟡 falta completar · 🔴 não pode. Cor nunca é a única pista.
+8. **Botões grandes** (no mínimo ~44 px de altura) e espaço entre eles, para o dedo no celular.
+9. **Nada some sem aviso.** Se alguém não aparece numa lista, a tela diz quem e por quê.
+10. **Desfazer fácil:** ação que apaga ou troca muita coisa pede confirmação ou tem “↩️ Desfazer”.
+
+Quando estiver em dúvida, leia a tela em voz alta: se uma criança de 10 anos não entender o que fazer, reescreva.
 
 ## 5. Regras de negócio que NÃO podem ser quebradas
 

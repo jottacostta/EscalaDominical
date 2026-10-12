@@ -53,6 +53,8 @@ Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md e o do
   para versoes_anteriores/, copie a nova para setores/index.html ou encarregados/index.html e atualize
   CHANGELOG.md e README.md;
 - mude o mínimo (bloco <style>/<script> novo antes de </head>/</body>), sem reformatar o arquivo;
+- REGRA DE OURO DE UX/UI (seção 4.1 do AGENTS.md): toda tela tem que ser entendida por uma criança de 10 anos
+  aprendendo informática — palavras do dia a dia, frases curtas, botões que dizem o que fazem, erro com o caminho;
 - tudo que o usuário define tem que ficar guardado no aparelho e no histórico do mês;
 - rode "cd testes && npm test" (tem que terminar com "Tudo certo"); se o seu ambiente não conseguir rodar,
   abra o PR mesmo assim e confira o teste "Testes" na aba Checks do PR: só está pronto quando ficar verde;

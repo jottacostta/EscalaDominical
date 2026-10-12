@@ -11,4 +11,5 @@ Lembretes para o Claude:
   `— *Claude*` no CHANGELOG e `Vnnn [Claude] —` no HISTÓRICO DE VERSÕES. O ChatGPT assina `ChatGPT`.
 - **Deixe tudo explicado para o ChatGPT continuar** (seção 10 do AGENTS.md): leia e atualize `docs/PASSAGEM.md` em toda
   mudança (estado atual, diário, mapa técnico, armadilhas, pendências) e termine o PR com “Para quem continuar”.
+- **Regra de ouro de UX/UI (seção 4.1 do AGENTS.md):** toda tela tem que ser entendida por uma criança de 10 anos aprendendo informática.
 - O guia de como o ChatGPT foi ligado ao GitHub está em [`docs/CHATGPT_COPILOTO.md`](docs/CHATGPT_COPILOTO.md).

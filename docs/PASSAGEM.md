@@ -135,6 +135,10 @@ Modelo de entrada:
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
 
+### 2026-10-12 — Documentação — regra de ouro de UX/UI — Claude
+- **O que mudou e por quê:** o dono pediu que o app seja fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Isso virou regra para os dois assistentes: a seção **4.1 do `AGENTS.md`**, um checklist de 10 itens para conferir antes de todo PR que mexe em tela. Está repetida no `CLAUDE.md` e no texto de colar do ChatGPT.
+- **Para continuar:** ao mexer numa tela, passe o checklist. A pendência de revisar as telas atuais está na seção 6.
+
 ### 2026-10-12 — Setores V235 — simulação de estresse das sugestões: horário, composição e 2 defeitos antigos da escala à mão — Claude
 - **O que mudou e por quê:** o dono pediu uma simulação de estresse das sugestões da escala à mão. Com a planilha real (local), cada domingo foi preenchido só por sugestão, 3 meses seguidos, em todos os setores. Achados:
   - (1) **quem entrava pela sugestão ficava SEM horário de domingo** e o “Gerar” bloqueava. O teste da V233/V234 só olhava regra 🔴, e “sem horário” é 🟡. Corrigido: `horarioPadraoSugestao(d,i)` dá o horário oficial mais perto do habitual, no turno (regra da V209);
@@ -278,5 +282,6 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
+- **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
