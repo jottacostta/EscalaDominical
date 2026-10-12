@@ -380,7 +380,15 @@ async function testarEncManual(browser){
     if(m === 9){
       if(await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
         const ordem = await p.$$eval('.stepper .step', b => b.filter(x => x.offsetParent !== null).map(x => x.querySelector('b').textContent.trim()));
-        ok(ordem.join(' → ') === 'Equipe → Mês → Mês passado → Domingos → Feriados → Gerar', 'passos na ordem: ' + ordem.join(' → '));   // V170: mês passado antes dos domingos
+        ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'passos na ordem: ' + ordem.join(' → '));   // V171: igual ao Setores (o “Mês” virou “📅 Mês e opções”)
+        if(await p.evaluate(() => !!window.v171AbrirMes)){
+          const nav = await p.evaluate(async () => { const ativo = () => document.querySelector('.step-panel.active')?.id; const r = {};
+            window.v80GotoStep(0, false); document.querySelector('#v80BottomBar [data-bar="primary"]').click(); await new Promise(z => setTimeout(z, 200)); r.proximo = ativo();
+            window.v171AbrirMes(); await new Promise(z => setTimeout(z, 200)); r.mes = ativo();
+            document.querySelector('#v80BottomBar [data-bar="primary"]').click(); await new Promise(z => setTimeout(z, 200)); r.depois = ativo(); return r; });
+          ok(nav.proximo === 'historicoCard' && nav.mes === 'configCard' && nav.depois === 'historicoCard', `“Próximo” vai da Equipe ao Mês passado; “📅 Mês e opções” abre o mês e volta ao Mês passado (${JSON.stringify(nav)})`);
+          await p.evaluate(() => { const k = [...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'domingosEtapa'); window.v80GotoStep(k, false); }); await p.waitForTimeout(300);
+        }
       }
       await p.click('[data-modo="manual"]'); await p.waitForTimeout(300);
       ok(await p.$$eval('.v167-card', c => c.length) === await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).length), 'escala à mão: um cartão por domingo');

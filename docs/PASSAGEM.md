@@ -18,12 +18,12 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
 | Escala de Setores | `Escala_de_Setores_V238.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V170.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V171.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V238 (mês passado antes dos domingos). Depois do merge: nenhum.
+- **PRs abertos:** o PR #37 do Claude com a Setores V238 + Encarregados V171 (os dois apps com os passos Equipe → Mês passado → Domingos → Feriados → Gerar). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V239**, Encarregados **V171**.
+- **Próximo número de versão:** Setores **V239**, Encarregados **V172**.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
 
 ---
@@ -73,7 +73,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
 - Mesmo padrão de camadas.
-- **Passos (V170):** 1 Equipe · 2 Mês · 3 Mês passado · 4 Domingos · 5 Feriados · 6 Gerar. O **índice interno** (`v80GotoStep(n)`, `ir:n`, `data-step`) é a **posição do botão**: Equipe 0, Mês 1, **Mês passado 2**, **Domingos 3** (`#domingosEtapa`, área `#v169DomArea`), **Feriados 4**, Gerar 5. `#coberturaCard` (grupos da V162) continua no HTML, escondido. Mudou de novo a ordem? Troque também os `ir:` de `destinoConformidade`/“O que falta”/marcos do Início e os `v80GotoStep` das camadas (procure por `v80GotoStep?.(` e `ir:`).
+- **Passos (V171, iguais aos do Setores):** 1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar. O “Mês” virou **📅 Mês e opções** (botão escondido `.mes-step-oculto`, como o ⚙️ do Setores): abre por ⋮ → Mês e opções ou pelo aviso `#v171Mes` no topo do Mês passado (`window.v171AbrirMes()`); a barra de baixo pula o índice 1. O **índice interno** (`v80GotoStep(n)`, `ir:n`, `data-step`) é a **posição do botão**: Equipe 0, Mês e opções 1, **Mês passado 2**, **Domingos 3** (`#domingosEtapa`, área `#v169DomArea`), **Feriados 4**, Gerar 5. `#coberturaCard` (grupos da V162) continua no HTML, escondido. Mudou de novo a ordem? Troque também os `ir:` de `destinoConformidade`/“O que falta”/marcos do Início e os `v80GotoStep` das camadas (procure por `v80GotoStep?.(` e `ir:`).
 - `gerar()`: gera o mês. Ela chama `autoGrupos()` sozinha (os grupos não mudam a escala desde a V162).
 - `montarEscalaFeriados()` começa com `aplicarBloqueioFolgaFeriado()`. `bloqueioFolgaFeriado(i, dt)`: folga fixa/DSR no dia do feriado impede trabalhar, com a exceção da segunda-feira.
 - Ganchos: `v156CopiarFeriado`, `v159SyncPrazo` (prazo 20/30 dias), `v161MarcarGuardado`, `v163AbrirCard` (cartões clicáveis).
@@ -118,6 +118,12 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Encarregados V171 — passos iguais aos do Setores — Claude
+- **O que mudou e por quê:** o dono pediu os mesmos passos nos dois apps: Equipe → Mês passado → Domingos → Feriados → Gerar. O “Mês” dos Encarregados saiu da barra e virou **📅 Mês e opções** (o app já escolhe o mês seguinte sozinho; o resto é opcional), igual ao ⚙️ Configurações do Setores.
+- **Onde no código:** botão do índice 1 com a classe `mes-step-oculto`; barra de baixo (Próximo/Voltar e o rótulo) pula o índice 1; aviso `#v171Mes` no topo do Mês passado; item “Mês e opções” no menu ⋮ (bloco `/* ═════ V171 … ═════ */`). Textos: “passo 2 (Mês)” → “📅 Mês e opções”; 3→2, 4→3, 5→4, 6→5.
+- **Como foi testado:** `testes/rodar.js` confere a ordem nos dois apps e que “Próximo” vai da Equipe ao Mês passado e o “📅 Mês e opções” abre o mês e volta. Suítes rápida e completa ✅. Captura no celular.
+- **Documentação:** o dono decidiu que os manuais (Claude Docs: Manual do Encarregado e o novo Manual da Escala de Setores) passam a ser atualizados nesta conversa do Claude.
 
 ### 2026-10-12 — Setores V238 — mês passado antes dos domingos — Claude
 - **O que mudou e por quê:** o dono pediu a ordem “Equipe → Mês passado → Domingos → Feriados → Gerar” também no Setores (igual à V170 dos Encarregados): o mês passado decide quem pode trabalhar no 1º domingo, e a auditoria ao vivo da escala à mão usa esse dado.
