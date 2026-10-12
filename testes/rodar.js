@@ -274,6 +274,13 @@ async function testarSetores(browser){
       'V231: Açougue → Padaria; destino ativo e apto, identifica origem, contagens corretas, matrícula única e persistência TXT/histórico ('+JSON.stringify(r)+')');
   }
 
+  if(await p.evaluate(() => !!window.gbIcones)){   // V236/V166: figuras coloridas (Noto) no lugar dos emojis (botões, menus, títulos)
+    await p.waitForTimeout(300);
+    const ic = await p.evaluate(() => ({ n: document.querySelectorAll('img.gb-ic').length, vazios: [...document.querySelectorAll('img.gb-ic')].filter(i => !/^data:image\/webp;base64,.{100}/.test(i.getAttribute('src') || '') || (i.complete && !i.naturalWidth)).length }));
+    ok(ic.n > 10 && ic.vazios === 0, `ícones coloridos (Noto) na tela: ${ic.n} figuras, ${ic.vazios} quebradas`);
+    const logo = await p.evaluate(() => { const i = document.querySelector('img.brand-logo'); return i ? { w: i.naturalWidth, h: i.naturalHeight } : null; });
+    ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
+  }
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
@@ -336,6 +343,13 @@ async function testarEncarregados(browser){
     ok(/^Historico_Encarregados_12_2027\.json$/.test(dl.suggestedFilename()), 'nome do histórico: ' + dl.suggestedFilename());
     await p.waitForTimeout(1800);
     ok(/ok/.test(await cls()), 'lembrete mostra “guardado” depois de guardar');
+  }
+  if(await p.evaluate(() => !!window.gbIcones)){   // V236/V166: figuras coloridas (Noto) no lugar dos emojis (botões, menus, títulos)
+    await p.waitForTimeout(300);
+    const ic = await p.evaluate(() => ({ n: document.querySelectorAll('img.gb-ic').length, vazios: [...document.querySelectorAll('img.gb-ic')].filter(i => !/^data:image\/webp;base64,.{100}/.test(i.getAttribute('src') || '') || (i.complete && !i.naturalWidth)).length }));
+    ok(ic.n > 10 && ic.vazios === 0, `ícones coloridos (Noto) na tela: ${ic.n} figuras, ${ic.vazios} quebradas`);
+    const logo = await p.evaluate(() => { const i = document.querySelector('img.brand-logo'); return i ? { w: i.naturalWidth, h: i.naturalHeight } : null; });
+    ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
   }
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }

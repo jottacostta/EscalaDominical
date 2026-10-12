@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V235.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V236.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V166.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V235 (simulação de estresse das sugestões). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com Setores V236 + Encarregados V166 (ícones coloridos Noto) e a regra de ouro de UX/UI. Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V236**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V237**, Encarregados **V167**.
 
 ---
 
@@ -89,6 +89,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Link do site mostra versão antiga:** é o cache do navegador (Ctrl+F5).
 - **Versão HTML divergente do nome do arquivo:** a V231 foi publicada com nome V231 e histórico V231, mas o `<title>` e o rodapé ainda diziam V230. Isso passou porque os testes verificavam a cópia publicada e a passagem de bastão, mas não os metadados visíveis do app. Agora `testes/rodar.js` confere separadamente nome, `<title>`, rodapé e primeira entrada do histórico; não considerar versão concluída sem essas quatro verificações e a igualdade com `setores/index.html`.
 - **Conferência de teste que nunca falha:** nunca compare um valor com ele mesmo (ex.: `x.length === x.length`).
+- **Ícones (V236/V166):** se um bloco novo compara o texto de um elemento com emoji (`el.textContent!==txt`), ponha a classe dele na lista `FORA` do bloco de ícones. Senão o app e a troca de ícones se desfazem em ciclo.
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
 - **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
 - **`auditarDescansosSimulados` vazia de propósito:** a capacidade de folgas por dia/turno é META, não trava (comentários em `limiteFolgaRespeitadoNaData` e `turnoFolgaValidoNaData`). Não “conserte” fazendo ela acusar erro sem o dono pedir.
@@ -134,6 +135,36 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V236 + Encarregados V166 — ícones coloridos iguais em qualquer aparelho — Claude
+- **O que mudou e por quê:** o dono pediu “ícones bonitos”. Primeiro foram testados desenhos em linha e depois desenhos “cheios em dois tons”. Vendo uma captura, **o dono escolheu o estilo colorido do Noto Emoji** (o das figuras do Google), dentro de um quadrado azul-claro nos cartões dos setores.
+  - Como cada aparelho desenha emoji de um jeito (Windows, iPhone, Android), as figuras do Noto foram **embutidas no próprio arquivo**: WebP 72 px em base64, ~150 KB no Setores e ~100 KB no Encarregados.
+  - Ficam iguais em qualquer aparelho e funcionam sem internet.
+  - Licença: Apache 2.0 (© Google), com o crédito no comentário do bloco.
+- **Onde no código:**
+  - bloco `/* ═════ V236 — ÍCONES COLORIDOS … ═════ */` (V166 no Encarregados) e CSS `#V236-icones` / `#V166-icones`;
+  - uma camada troca o emoji por `<img class="gb-ic">` sem mexer nas palavras e vigia os redesenhos (`MutationObserver`);
+  - a camada antiga de ícones em linha (V205, botões e menu) continua, mas deixou de mexer nos cartões dos setores (`.home-card`).
+- **Ficaram como emoji de propósito:**
+  - as etiquetas que o app compara pelo texto (`.v217-tag`, `.v217-alerta`, `.v222-t`, `.v226-fn`, `.v227-st`);
+  - a lista de nomes de cada domingo (`.dom-funcs`, milhares de linhas, para não pesar);
+  - campos e listas de opção.
+- **Junto (Setores):** “Aceitar” as sugestões reaproveita a auditoria anterior: uma conferência por pessoa, não duas.
+- **Depois (pedido do dono: “ícones coloridos com desenhos vivos” e “logo do Guanabara completo”):**
+  - a camada antiga de ícones em linha (V205, função `iconizar`) foi **desligada** (`return;` no começo). Agora botões, menu ⋮ e barra do topo usam as figuras coloridas;
+  - o `MAPA` passou a cobrir **todos** os emojis dos apps (100 figuras; apelidos: ↻/↺ → 🔄, ✚ → ➕, ★ → ⭐). Setas de texto (→ ← ↓) e marcas pequenas (✓ ✕) ficam como texto;
+  - **logo:** a imagem embutida (`img.brand-logo`, 420×214) tinha a ponta de baixo do triângulo amarelo cortada desde a V150. Não havia o original no repositório. A ponta foi **reconstruída** (as duas bordas prolongadas até se encontrarem, com o mesmo amarelo e o mesmo chanfro 3D), e a imagem nova tem 420×276. CSS: `.top-header .brand-logo` e `.home-top .v202-logo` um pouco mais altos. **Se o dono mandar o arquivo original do logo, troque a imagem pelo original.**
+- **Como foi testado:**
+  - teste novo em `testes/rodar.js` nos dois apps (figuras presentes e nenhuma quebrada);
+  - suítes rápida e completa ✅;
+  - capturas de tela no computador e no celular;
+  - planilha real (local): tempo de sugerir/aceitar na Frente de Loja igual ou melhor que na V235.
+- **Teste:** `testes/rodar.js` também confere o logo completo (altura/largura > 0,6).
+- **Para trocar/acrescentar figura:** as figuras vêm de `googlefonts/noto-emoji`, pasta `2D/png/72/emoji_uXXXX.png`, convertidas para WebP (qualidade 88). Com isso, monte o `IMG`/`MAPA`.
+
+### 2026-10-12 — Documentação — regra de ouro de UX/UI — Claude
+- **O que mudou e por quê:** o dono pediu que o app seja fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Isso virou regra para os dois assistentes: a seção **4.1 do `AGENTS.md`**, um checklist de 10 itens para conferir antes de todo PR que mexe em tela. Está repetida no `CLAUDE.md` e no texto de colar do ChatGPT.
+- **Para continuar:** ao mexer numa tela, passe o checklist. A pendência de revisar as telas atuais está na seção 6.
 
 ### 2026-10-12 — Setores V235 — simulação de estresse das sugestões: horário, composição e 2 defeitos antigos da escala à mão — Claude
 - **O que mudou e por quê:** o dono pediu uma simulação de estresse das sugestões da escala à mão. Com a planilha real (local), cada domingo foi preenchido só por sugestão, 3 meses seguidos, em todos os setores. Achados:
@@ -278,5 +309,6 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
+- **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
