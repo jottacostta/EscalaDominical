@@ -18,12 +18,12 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
 | Escala de Setores | `Escala_de_Setores_V237.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V168.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V169.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #35 do Claude com a Encarregados V167 (escala à mão nos domingos) + Setores V237 / Encarregados V168 (salvar arquivos dentro do APK). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Encarregados V169 (domingos antes dos feriados). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V238**, Encarregados **V169**.
+- **Próximo número de versão:** Setores **V238**, Encarregados **V170**.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
 
 ---
@@ -72,16 +72,18 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~7,7 mil linhas)
 
 - Mesmo padrão de camadas.
-- `gerar()`: gera o mês. Ela chama `autoGrupos()` sozinha, porque o passo "Grupos" foi retirado na V162: a aba fica escondida e `gotoStep` pula o índice 2.
+- **Passos (V169):** 1 Equipe · 2 Mês · 3 Domingos · 4 Feriados · 5 Mês passado · 6 Gerar. Os **índices internos** não mudaram (`v80GotoStep(0…5)`): o índice 2, que era o “Grupos” escondido da V162, agora é o passo **Domingos** (`#domingosEtapa`, área `#v169DomArea`); `#coberturaCard` (grupos) continua no HTML, escondido. Feriados = índice 3, Mês passado = 4, Gerar = 5.
+- `gerar()`: gera o mês. Ela chama `autoGrupos()` sozinha (os grupos não mudam a escala desde a V162).
 - `montarEscalaFeriados()` começa com `aplicarBloqueioFolgaFeriado()`. `bloqueioFolgaFeriado(i, dt)`: folga fixa/DSR no dia do feriado impede trabalhar, com a exceção da segunda-feira.
 - Ganchos: `v156CopiarFeriado`, `v159SyncPrazo` (prazo 20/30 dias), `v161MarcarGuardado`, `v163AbrirCard` (cartões clicáveis).
 - **Regras do domingo normal** (motor `escolherDomingo` / `combinacoesDomingoNormal` e conferência `validarEscala`): exatamente 3 pessoas, pelo menos 1 Encarregado (`tipo==='enc'`) e 1 Subencarregado (`'sub'`), as 3 de setores diferentes (no máximo 1 do Laticínio), ninguém 3 domingos seguidos (`podeDomingo`, conta `historicoManual` = 2 últimos domingos do mês passado), fora quem `foraDom` (folga fixa no domingo ou `inativo`). O motor sempre põe 1 do Laticínio (`laticinioEsperado`, blocos de 2); a conferência só exige “no máximo 1”. Domingo de balanço: todos trabalham (`trabalhamNoBalanco`).
-- **Escala à mão (V167)** — bloco `/* ═════ V167 — ESCALA À MÃO NOS DOMINGOS … ═════ */` no fim do arquivo, CSS `#v167-escala-mao`:
+- **Escala à mão (V167; no passo 3 desde a V169)** — bloco `/* ═════ V167 — ESCALA À MÃO NOS DOMINGOS … ═════ */` no fim do arquivo, CSS `#v167-escala-mao`:
   - modo `auto` / `manual` / `misto` e as marcações ficam em `localStorage` **`enc.v167EscalaMao`** = `{modo, meses:{'AAAA-MM':{dia:[chave]}}, mostrar, ord, fn}`. A chave da pessoa é `chaveDomingoPrevisto(i)` (`m:<matrícula>` ou `n:<nome>`), **não o índice** (o índice muda quando a equipe muda). Guarda os 8 meses mais recentes.
   - histórico do mês: campo **`escalaMao`** (`window.v167Exportar()` em `exportarProjeto`, `window.v167Importar(p.escalaMao)` em `restaurarProjeto`). “Recomeçar do zero” apaga a chave (embrulho de `window.limparRascunho`).
   - o motor recebe a escolha por **embrulhos**: `window.escolherDomingo` e `window.combinacoesDomingoNormal` (domingo com 3 marcados = exatamente eles; com 1–2 marcados = só as combinações do motor que contêm os marcados — é o Misto) e `window.gerar` (À mão: só gera sem 🔴 e sem 🟡; Misto: só sem 🔴). No modo Automático tudo passa direto para o original (escala igual à V166).
   - `window.v167`: `auditar(sel?)` → `{r:[…], y:[…]}` (cada item `{d, ds?, is:[índices], t:texto}` — use `is` para saber quem o aviso cita, sem procurar nome no texto), `sel()` (marcações do mês na tela, em índices), `motivo(i,d,sel)` (por que não pode entrar; `''` = pode), `marcar(i,d,silencioso)`, `desmarcar`, `sugestoes(d)` (chama o `escolherDomingo` ORIGINAL e filtra pela conferência; reserva: combinações com menos domingos no mês), `copiarAnterior(d)`, `render()`, `estado()`, `definirModo(m)`.
   - **Regra nova do domingo tem que entrar em `auditar` e em `motivo`** (as duas), senão a lista deixa marcar e só a conferência acusa (ou o contrário).
+  - V169: `window.bloqueioFolgaFeriado` é embrulhado — no À mão/Misto, a folga (DSR, `descansosDoCandidato`) de quem foi marcado num domingo bloqueia o feriado nesse dia, mesmo antes de gerar. No Gerar, `#v169Resumo` mostra o modo e o estado dos domingos.
 
 ---
 
@@ -106,6 +108,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Encarregados V169 — domingos antes dos feriados — Claude
+- **O que mudou e por quê:** o dono pediu que “a escala de domingo venha antes do feriado” na versão Encarregados. Agora os passos são 1 Equipe · 2 Mês · **3 Domingos** · 4 Feriados · 5 Mês passado · 6 Gerar (a mesma ordem do Setores: Domingos antes de Feriados). O passo 3 tem o “① Quem monta os domingos?” e os cartões da escala à mão (antes no Gerar). No Automático, ele explica que o app monta ao gerar e, depois de gerar, lista quem trabalha em cada domingo. No Gerar fica um resumo com o atalho “Ver ou mudar no passo 3”.
+- **Feriados depois dos domingos:** quem foi marcado à mão num domingo não pode ser escalado no feriado que cai na folga (DSR) desse domingo (embrulho de `bloqueioFolgaFeriado`) — antes isso só aparecia depois de gerar.
+- **Onde no código:** botão do passo com `data-step="2"` agora aponta para `#domingosEtapa`; tirados os dois “pulos” do índice 2 (`gotoStep` e `updateBottomBar`); números dos passos nos textos trocados só fora do comentário de histórico (3→4, 4→5, 5→6). Camada V167 com linhas `// V169` (`resumoAuto`, `resumoGerar`, `bloqueioFolgaFeriado`).
+- **Como foi testado:** `testes/rodar.js` — a escala à mão abre no passo 3; nova conferência da ordem dos passos e do bloqueio do feriado 15/11/2027 (segunda) para quem foi marcado à mão no domingo 14/11; o teste antigo só clica no passo “Grupos” se ele ainda existir. Suítes rápida e completa ✅. Capturas no computador e no celular.
+- **APK (V237/V168):** o dono confirmou que salvar dentro do APK e no navegador está funcionando e testado.
 
 ### 2026-10-12 — Setores V237 + Encarregados V168 — salvar arquivos dentro do APK (ApkForja) — Claude
 - **O que mudou e por quê:** o dono transformou o link em APK (ApkForja V41, modo site) e, ao guardar o histórico, o Android mostrou “Nenhum aplicativo para abrir: blob:https://jottacostta.github.io/…”, enquanto o app dizia “guardado na pasta Downloads”. Causa: o WebView não baixa `blob:`; o ApkForja só conserta isso injetando a ponte em HTML empacotado, não no modo site. Os apps agora usam a ponte direto (`Android.salvarArquivo`) quando ela existe; sem ponte num WebView, avisam em vermelho e o lembrete do histórico não fica verde. Vale para todos os downloads: histórico do mês, Excel, backup (Encarregados), Equipe.txt e relatório do ano (Setores).
@@ -343,7 +352,6 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
 - **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
-- **APK no aparelho:** conferir com o dono, num APK gerado com a ponte ligada, se “Abrir histórico guardado” (escolher arquivo) também funciona dentro do APK.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Encarregados — escala à mão (V167), ideias:** (1) a sugestão segue o motor, que prefere a dupla 2×1 (quem trabalhou o domingo anterior) — por isso um mês usa ~6–8 pessoas diferentes, igual ao automático; se o dono quiser “espalhar mais”, a mudança é no `escolherDomingo` (vale para os dois modos). (2) Revisar a tela da escala à mão com o checklist da seção 4.1 do `AGENTS.md` junto com o dono.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.

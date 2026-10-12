@@ -326,7 +326,7 @@ async function testarEncarregados(browser){
   for(let m = MESES[0]; m <= MESES[1]; m++){
     await mudarMes(p, m, ANO); await p.waitForTimeout(900);
     // até a V161 havia o passo “Grupos” (sem efeito na escala); da V162 em diante ele não aparece mais
-    if(m === MESES[0] && await p.isVisible('.step[data-step="2"]')){ await p.click('.step[data-step="2"]'); await p.waitForTimeout(400); await p.click('#btnAutoGrupos'); await p.waitForTimeout(900); }
+    if(m === MESES[0] && await p.isVisible('.step[data-step="2"][data-panel="coberturaCard"]')){ await p.click('.step[data-step="2"]'); await p.waitForTimeout(400); await p.click('#btnAutoGrupos'); await p.waitForTimeout(900); }
     await p.click('.step[data-step="5"]'); await p.waitForTimeout(400);
     const antes = await p.evaluate(() => JSON.stringify(trabalhoDomingo || {}));
     await p.evaluate(() => document.getElementById('btnGerar').click());
@@ -374,8 +374,12 @@ async function testarEncManual(browser){
   await p.evaluate(a => { datasBalanco.push({ d: 21, m: 10, a }); }, ANO);
   for(const m of [9, 10, 11]){
     await mudarMes(p, m, ANO); await p.waitForTimeout(900);
-    await p.evaluate(() => window.v80GotoStep(5, false)); await p.waitForTimeout(400);
+    await p.evaluate(() => window.v80GotoStep(document.querySelector('.step[data-step="2"]')?.dataset.panel === 'domingosEtapa' ? 2 : 5, false)); await p.waitForTimeout(400);   // V169: os domingos ficam no passo 3, antes dos feriados
     if(m === 9){
+      if(await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
+        const ordem = await p.$$eval('.stepper .step', b => b.filter(x => x.offsetParent !== null).map(x => x.querySelector('b').textContent.trim()));
+        ok(ordem.join(' → ') === 'Equipe → Mês → Domingos → Feriados → Mês passado → Gerar', 'passos na ordem: ' + ordem.join(' → '));
+      }
       await p.click('[data-modo="manual"]'); await p.waitForTimeout(300);
       ok(await p.$$eval('.v167-card', c => c.length) === await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).length), 'escala à mão: um cartão por domingo');
       const txt = await gerarE();
@@ -414,6 +418,18 @@ async function testarEncManual(browser){
     const igual = await p.evaluate(() => { const s = v167.sel(), b = balancoDoMes(+$('ano').value, +$('mes').value); return Object.keys(s).every(d => +d === b || JSON.stringify([...s[d]].sort()) === JSON.stringify([...(trabalhoDomingo[d] || [])].map(Number).sort())); });
     const r = await verificarEnc(p);
     ok(/pronta/.test(txt) && igual && !r.viol.length, `${String(r.mes).padStart(2, '0')}/${ANO} à mão: gerada igual ao que foi marcado | domingos ${r.dom}${r.viol.length ? ' → ' + r.viol.slice(0, 3).join('; ') : ''}`);
+
+    // V169: no passo Feriados, quem foi marcado à mão num domingo não pode trabalhar no feriado que cai na folga (DSR) desse domingo
+    if(m === 10 && await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
+      const f = await p.evaluate(a => { const D = 14, fer = new Date(a, 10, 15);   // 15/11 (segunda, feriado) logo depois do domingo 14/11
+        const bkT = trabalhoDomingo, bkD = descansosDomingo; trabalhoDomingo = {}; descansosDomingo = {};   // só a marcação à mão conta (escala ainda não gerada)
+        const i = equipe.findIndex(f => Number(f.folgaFixa) === 1 && !foraDom(f)); if(i < 0){ trabalhoDomingo = bkT; descansosDomingo = bkD; return null; }
+        const est = v167.estado(), k = `${a}-11`, antes = JSON.stringify(est.meses[k] || {});
+        est.meses[k] = Object.assign({}, est.meses[k], { [D]: [chaveDomingoPrevisto(i)] }); const comMarca = bloqueioFolgaFeriado(i, fer);
+        est.meses[k] = Object.assign({}, est.meses[k], { [D]: [] }); const semMarca = bloqueioFolgaFeriado(i, fer);
+        est.meses[k] = JSON.parse(antes); trabalhoDomingo = bkT; descansosDomingo = bkD; return { comMarca, semMarca }; }, ANO);
+      ok(f && /folga do domingo 14\/11/.test(f.comMarca) && !f.semMarca, `feriado 15/11 (segunda): quem foi marcado à mão no domingo 14 fica bloqueado (“${f && f.comMarca}”); sem a marcação, livre`);
+    }
   }
   // ↻ copiar o domingo anterior não copia quem cairia no 3º domingo seguido
   { const res = await p.evaluate(() => { const a = +$('ano').value, m = +$('mes').value, b = balancoDoMes(a, m), ds = domingosDoMes(a, m).filter(d => d !== b);
