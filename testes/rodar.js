@@ -592,6 +592,24 @@ async function testarLiderTurno(browser, app){
     ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
 }
 
+async function testarSemTxt(browser, app, nome, dados){
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
+  if(v < (nome === 'Setores' ? 242 : 173)) return;
+  console.log(`\n▶ ${nome} — sem Equipe.txt na tela`);
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  if(nome === 'Setores'){ await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); }
+  else await p.click('.hero-cta').catch(() => {});
+  const vis = await p.evaluate(() => ({ caixa: !!document.querySelector('[data-upload="arquivoTxt"]')?.offsetParent, baixar: !!document.getElementById('btnGerarEquipeTxt')?.offsetParent, hist: !!document.querySelector('[data-v242hist]')?.offsetParent }));
+  ok(!vis.caixa && !vis.baixar && vis.hist, 'a caixa do Equipe.txt e o “Baixar Equipe.txt” saíram; o passo Equipe tem “📂 Abrir histórico guardado”');
+  const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-v242hist]')]);
+  await fc.setFiles(path.join(DADOS, dados)); await p.waitForTimeout(2000);
+  const n = await p.evaluate(() => equipe.length);
+  ok(n > 0, `um Equipe.txt antigo ainda abre pelo “📂 Abrir histórico guardado” (${n} pessoas)`);
+  if(nome !== 'Setores'){ await p.click('[data-v173rh]'); await p.waitForTimeout(400); ok(await p.evaluate(() => !!document.querySelector('.fb-topo')), '“📥 Planilha do RH” abre a janela do local da planilha'); }
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+}
+
 (async () => {
   const t0 = Date.now();
   // os endereços fixos do site (setores/ e encarregados/) precisam ser a cópia da versão atual
@@ -617,7 +635,7 @@ async function testarLiderTurno(browser, app){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);

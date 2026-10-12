@@ -17,16 +17,16 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V241.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V172.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V242.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V173.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #37 do Claude com a Setores V238–V241 + Encarregados V171/V172 (passos Equipe → Mês passado → Domingos → Feriados → Gerar nos dois apps; data de admissão editável em dd/mm/aaaa; “Por cargo” com as lideranças; liderança por turno). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V242 + Encarregados V173 (sem Equipe.txt na tela). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V242**, Encarregados **V173**.
+- **Próximo número de versão:** Setores **V243**, Encarregados **V174**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V238): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V242): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V171): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -101,6 +101,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Data de admissão** vem em dois formatos (`AAAA-MM-DD` do ERP e `dd/mm/aaaa` do Equipe.txt). Normalize, senão aparece "NaN anos".
 - **Data de admissão no Editar equipe (V239/V172):** a tela mostra `dd/mm/aaaa` (`admissaoBR`), mas o dado guardado é sempre `AAAA-MM-DD` (`admissaoISO`: `''` = vazio, `null` = data inválida). Não grave o texto da tela direto.
 - **Liderança por turno (V241):** `liderTurno()` vale mais que os outros modos (`liderVarias()` devolve `true` e `modoLideranca()` devolve `'turno'`). Quem chama `definirLiderVarias`/`definirLiderancaUnica` para trocar de modo tem que desligar antes com `definirLiderTurno(false)` (ou usar `definirModoLideranca`), senão Frente de Loja, Mercearia e CPD continuam “Por turno” pelo padrão. O turno da liderança é `turnoLider(i)` (turno do cadastro; sem turno, pelo horário).
+- **Equipe.txt escondido (V242/V173):** a caixa `[data-upload="arquivoTxt"]` e o `#btnGerarEquipeTxt` continuam no HTML, só escondidos. Não apague: o leitor antigo (`#arquivoTxt` → `parseEquipe`/`salvarEquipePersistente`), o “equipe da última sessão” e os testes (`setInputFiles('#arquivoTxt')`) usam. O “📂 Abrir histórico guardado” (`#arquivoProjetoJSON`) repassa um .txt/.csv para o `#arquivoTxt`.
 - **“Equipe da última sessão” do Setores (`escalaSetores.v64.state`):** o snapshot guarda a equipe em `equipe:[…]` e, ao abrir, remonta um Equipe.txt e chama `parseEquipe`. Campo novo da pessoa tem que entrar nos DOIS lugares (snapshot e linhas de 14 colunas da restauração) — até a V238 ele guardava só 9 colunas e a data de admissão sumia ao recarregar.
 - **Abrir o histórico num aparelho novo:** troque primeiro o setor da tela para o setor do arquivo, senão o app prepara o mês seguinte.
 - **"A definir"** não pode virar terça ao salvar o Editar equipe nem ao reimportar o ERP.
@@ -126,6 +127,12 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V242 + Encarregados V173 — sem Equipe.txt na tela — Claude
+- **O que mudou e por quê:** o dono percebeu que o “Guardar histórico do mês” já leva a equipe inteira (Setores: quadro da loja desde a V219; Encarregados: `equipe`), então o Equipe.txt virou repetição. Saíram da tela a caixa do Equipe.txt e o “Baixar Equipe.txt”; o passo Equipe ganhou “📂 Abrir histórico guardado” (e, nos Encarregados, “📥 Planilha do RH”, que abre `v134Fonte.abrirModal`). Textos de aviso sem citar o Equipe.txt.
+- **Onde no código:** bloco `/* ═════ V242|V173 — SEM EQUIPE.TXT NA TELA ═════ */` (igual nos dois apps): botão `[data-v242hist]`; o `#arquivoProjetoJSON` passa a aceitar .txt/.csv e, num listener de captura, repassa o arquivo ao `#arquivoTxt` com `DataTransfer`.
+- **Como foi testado:** `testarSemTxt` no `testes/rodar.js` (os dois apps): caixa e botão escondidos, o botão novo aparece, um Equipe.txt fictício abre pelo histórico, e (Encarregados) a “📥 Planilha do RH” abre a janela do local da planilha. Suítes rápida e completa.
+- **Para continuar:** o APK antigo com `Android.lerEquipe/salvarEquipe` continua igual (não mexi). Manual da Escala de Setores atualizado para a V242 (passo 1 sem Equipe.txt e com a data de admissão; ③ com o modo “Por turno” e o “Se faltar, entra”; quadro do “Por cargo”; 4 prints novos com dados fictícios).
 
 ### 2026-10-12 — Setores V241 — liderança por turno (Frente de Loja, Mercearia, CPD) — Claude
 - **O que mudou e por quê:** o dono contou os cenários reais. Frente de Loja: Encarregado (abertura) + Sub (fechamento), ou Sub + Sub. Mercearia: Enc + Enc, Líder + Enc, Enc + Sub. CPD: Enc + Preparador de dados, Sub + Preparador ou 2 Preparadores — sempre 1 na abertura e 1 no fechamento. Nenhum modo antigo cobria isso: o “1 Encarregado + 1 Sub” proíbe Sub + Sub, e o “Várias” não olha o turno.
