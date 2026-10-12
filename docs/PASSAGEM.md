@@ -17,16 +17,16 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V242.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V243.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V173.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V242 + Encarregados V173 (sem Equipe.txt na tela). Depois do merge: nenhum.
+- **PRs abertos:** PR do ChatGPT para Setores V243 (alerta de folgas no mesmo horário). Depois do merge: nenhuma.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V243**, Encarregados **V174**.
+- **Próximo número de versão:** Setores **V244**, Encarregados **V174**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V242): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V242 — pendente atualizar para V243): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V171): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -118,6 +118,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Escala de Setores V243 — alerta de folgas no mesmo horário — ChatGPT
+- **O que mudou e por quê:** após o relato da usuária testadora, o resumo do mês passa a listar datas de segunda a sábado com duas ou mais pessoas ativas, de horário de trabalho idêntico, de folga na mesma data. O aviso mostra data, setor, horário, quantidade, nomes e motivo da folga.
+- **Onde no código:** camada final `/* ═════ V243 — ALERTA INFORMATIVO DE FOLGAS NO MESMO HORÁRIO ═════ */`; `window.v243FolgasHorario.auditar` agrupa as folgas vistas por `statusDiaSet` e horário normalizado; `window.renderPainelMes` é embrulhada para inserir o cartão sem alterar a auditoria nem a escala. Não cria dado persistente.
+- **Como foi testado:** teste novo `testarFolgasMesmoHorario` em `testes/rodar.js`: dois horários diferentes no mesmo dia, terceira pessoa do mesmo horário, redução para uma pessoa e preservação das folgas. A suíte automática do GitHub será conferida na PR; resultado pendente nesta passagem.
+- **Para continuar:** revisar visualmente o cartão no celular e confirmar os Checks da PR. O alerta cobre folgas fixas, DSR, compensatórias e folgas em feriado de segunda a sábado; domingos ficam fora porque têm escala própria. Atualizar o Manual da Escala de Setores (hoje V242) após a revisão. — ChatGPT
 
 Modelo de entrada:
 ```
@@ -394,6 +400,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
+- **Manual da Escala de Setores:** atualizar para V243 depois de revisar o novo cartão informativo de folgas por horário (manual mantido pelo Claude, conforme decisão do dono).
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
 - ~~GitHub Actions com Node 20~~ — trocado para **Node 22** na limpeza de 12/10/2026.
