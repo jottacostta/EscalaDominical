@@ -150,11 +150,16 @@ Modelo de entrada:
   - a lista de nomes de cada domingo (`.dom-funcs`, milhares de linhas, para não pesar);
   - campos e listas de opção.
 - **Junto (Setores):** “Aceitar” as sugestões reaproveita a auditoria anterior: uma conferência por pessoa, não duas.
+- **Depois (pedido do dono: “ícones coloridos com desenhos vivos” e “logo do Guanabara completo”):**
+  - a camada antiga de ícones em linha (V205, função `iconizar`) foi **desligada** (`return;` no começo). Agora botões, menu ⋮ e barra do topo usam as figuras coloridas;
+  - o `MAPA` passou a cobrir **todos** os emojis dos apps (100 figuras; apelidos: ↻/↺ → 🔄, ✚ → ➕, ★ → ⭐). Setas de texto (→ ← ↓) e marcas pequenas (✓ ✕) ficam como texto;
+  - **logo:** a imagem embutida (`img.brand-logo`, 420×214) tinha a ponta de baixo do triângulo amarelo cortada desde a V150. Não havia o original no repositório. A ponta foi **reconstruída** (as duas bordas prolongadas até se encontrarem, com o mesmo amarelo e o mesmo chanfro 3D), e a imagem nova tem 420×276. CSS: `.top-header .brand-logo` e `.home-top .v202-logo` um pouco mais altos. **Se o dono mandar o arquivo original do logo, troque a imagem pelo original.**
 - **Como foi testado:**
   - teste novo em `testes/rodar.js` nos dois apps (figuras presentes e nenhuma quebrada);
   - suítes rápida e completa ✅;
   - capturas de tela no computador e no celular;
   - planilha real (local): tempo de sugerir/aceitar na Frente de Loja igual ou melhor que na V235.
+- **Teste:** `testes/rodar.js` também confere o logo completo (altura/largura > 0,6).
 - **Para trocar/acrescentar figura:** as figuras vêm de `googlefonts/noto-emoji`, pasta `2D/png/72/emoji_uXXXX.png`, convertidas para WebP (qualidade 88). Com isso, monte o `IMG`/`MAPA`.
 
 ### 2026-10-12 — Documentação — regra de ouro de UX/UI — Claude
