@@ -1,0 +1,207 @@
+INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
+==================================================================================
+Atualizado em 12/10/2026, depois do merge do PR #40 (Setores V244 · Encarregados V173). Assinado: Claude
+
+COMO USAR ESTE ARQUIVO
+----------------------
+Numa conversa nova (Claude ou ChatGPT), cole a mensagem do item 0 abaixo. Ela manda o assistente ler este
+arquivo e os outros documentos do repositório antes de fazer qualquer coisa. Mantenha este arquivo atualizado:
+quando algo aqui mudar (versão, regra, pendência), atualize no mesmo PR da mudança.
+
+
+0. MENSAGEM PARA COLAR NA CONVERSA NOVA
+---------------------------------------
+"Você vai continuar o projeto EscalaDominical (repositório jottacostta/EscalaDominical). Antes de qualquer
+mudança: faça git fetch origin main, leia docs/INICIO_NOVA_CONVERSA.txt, AGENTS.md, CLAUDE.md, o topo do
+CHANGELOG.md e o docs/PASSAGEM.md inteiro, e veja os PRs abertos. Fale comigo só em português, simples.
+Siga todas as regras desses arquivos (versão nova a cada mudança, testes, assinatura, passagem de bastão,
+privacidade, regra de ouro de UX). Merge só quando eu pedir. Me diga a versão atual de cada app e o que
+está pendente, e espere o meu pedido."
+
+
+1. QUEM É O DONO E COMO FALAR COM ELE
+-------------------------------------
+- Dono do projeto: Jonatas (GitHub jottacostta). Não é programador; usa os apps na loja e no celular.
+- Falar EXCLUSIVAMENTE em português do Brasil, frases curtas, sem termo técnico. Explicar o resultado,
+  não o código. Mostrar capturas de tela (sempre com dados fictícios) quando mudar tela.
+- Ele costuma pedir em mensagens curtas ("Faça a merge", "Verifique as PR abertas", um print com um
+  problema). Quando a regra de negócio não estiver clara, perguntar com opções curtas.
+- MERGE: só quando ele pedir com essas palavras ("Faça a merge"). Antes do merge, conferir que os testes do
+  GitHub (Checks) estão verdes no último commit do PR.
+- Regra de ouro (AGENTS.md 4.1): toda tela tem que ser entendida por uma criança de 10 anos aprendendo
+  informática. Avisos curtos, detalhes fechados ("Ver os dias"), botão com verbo + emoji, cor sempre com texto.
+
+
+2. O PROJETO
+------------
+- Dois apps separados, cada um num único arquivo HTML (funciona sem internet). NUNCA juntar os dois.
+  · Escala de Setores ......... Escala_de_Setores_Vnnn.html  → setores/index.html
+    https://jottacostta.github.io/EscalaDominical/setores/
+  · Escala 2×1 de Encarregados  Escala_2x1_encarregados_Vnnn.html → encarregados/index.html
+    https://jottacostta.github.io/EscalaDominical/encarregados/
+- O dono também usa os apps como APK (feito com o app dele, ApkForja, em "modo site" = WebView do link).
+  Downloads no APK vão por Android.salvarArquivo (V237/V168). Ver armadilha no PASSAGEM.
+- Dois assistentes trabalham no mesmo repositório:
+  · Claude → título do PR "[Claude] …" · branch muda por conversa (ccr-…, claude/… ou outro) · assina "Claude"
+  · ChatGPT (Codex) → título do PR "[ChatGPT] …" · branches chatgpt/… · assina "ChatGPT"
+  Para saber de quem é um PR, olhe o TÍTULO ([Claude] / [ChatGPT]), não o nome do branch.
+  Sempre partir do main mais novo e não sobrescrever o trabalho do outro. PR do outro: revisar de verdade
+  (gerar uma escala e olhar a tela), e se precisar de ajuste, propor ao dono antes (ex.: PR #39 → V244).
+
+
+3. ESTADO ATUAL (atualize a cada mudança)
+-----------------------------------------
+- Setores: V244 (próxima: V245).  Encarregados: V173 (próxima: V174).
+- PRs abertos: nenhum depois do #41 (o #39 do ChatGPT entrou junto com o #40; os dois aparecem como "merged").
+- Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
+  (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
+- Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
+  · Manual da Escala de Setores (V244): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  · Manual do Encarregado (V171):        https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
+  · Roteiro do Beta (Encarregados V171): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
+- Últimas versões (detalhes no CHANGELOG e no Diário do PASSAGEM):
+  · Setores V238 mês passado antes dos domingos · V239 data de admissão dd/mm/aaaa (e conserto da "equipe da
+    última sessão") · V240 "Por cargo" com as lideranças · V241 liderança POR TURNO (Frente de Loja,
+    Mercearia, CPD; "Se faltar liderança no turno, entra: Preparador de dados") · V242 sem Equipe.txt na tela
+    · V243 (ChatGPT) alerta de folgas no mesmo horário · V244 alerta enxuto (sem feriado, só quando mais da
+    metade do horário folga, resumo curto depois dos números do mês).
+  · Encarregados V167 escala à mão · V168 downloads no APK · V169–V171 ordem dos passos · V172 data de
+    admissão dd/mm/aaaa · V173 sem Equipe.txt na tela.
+
+
+4. ROTINA OBRIGATÓRIA ANTES DE MEXER
+------------------------------------
+1. git fetch origin main ; git log --oneline -15 origin/main ; topo do CHANGELOG.md ; docs/PASSAGEM.md.
+2. Ver PRs abertos (o do outro assistente no mesmo app → esperar o merge ou falar com o dono).
+3. Se o PR do seu branch já foi aceito (merge), recomece o branch a partir do main:
+   git checkout -B <branch> origin/main   (nunca empilhar trabalho novo em cima de PR já aceito).
+4. Rodar os testes ANTES (para saber que o main está verde) e DEPOIS da mudança.
+
+
+5. COMO FAZER UMA VERSÃO NOVA (resumo do AGENTS.md seção 3)
+-----------------------------------------------------------
+Para cada mudança num app (ex.: Setores V244 → V245):
+1. Gerar Escala_de_Setores_V245.html a partir da V244 com:
+   · <title> com V245; rodapé do menu "Versão V245 · <resumo curto>";
+   · entrada no TOPO do comentário HISTÓRICO DE VERSÕES: "V245 [Claude] — TÍTULO: explicação…"
+     (linhas seguintes recuadas com 7 espaços).
+2. git mv Escala_de_Setores_V244.html versoes_anteriores/   (na raiz fica só a versão atual).
+3. cp Escala_de_Setores_V245.html setores/index.html   (têm que ficar IDÊNTICOS — o teste confere).
+4. CHANGELOG.md (entrada no topo da seção do app, termina com "— *Claude*"), README.md (tabela),
+   docs/PASSAGEM.md (estado atual, Diário no topo, pendências, armadilhas, mapa técnico) e este arquivo.
+5. Teste novo em testes/rodar.js para a regra/tela nova (com "gate" de versão, ex.: if(v < 245) return;).
+Técnica que o Claude usa para gerar a versão (os scripts ficam fora do repositório e se perdem quando a
+conversa termina — recrie se precisar): um script Python que lê a versão anterior, troca trechos com
+rep(a,b) conferindo que o trecho aparece exatamente 1 vez (assert), acrescenta CSS em
+<style id="vNNN-assunto"> antes de </head> e JS em <script>(function(){ /* ═════ VNNN — … ═════ */ })();</script>
+antes de </body>, e grava a versão nova. Mudar o mínimo; nunca reformatar o arquivo (~13 mil linhas).
+
+
+6. TESTES
+---------
+- Neste ambiente (Claude na nuvem, Playwright já instalado):
+    PWPATH=$(npm root -g)/playwright node testes/rodar.js              (rápida, ~3 min)
+    PWPATH=$(npm root -g)/playwright node testes/rodar.js --completo   (ano inteiro)
+- Em outro ambiente: cd testes && npm install && npx playwright install chromium && npm test
+  (ou npm run test:completo).
+- No GitHub os testes rodam sozinhos em todo PR (workflow .github/workflows/testes.yml, "Playwright +
+  Chromium"). O PR só está pronto com o check verde no ÚLTIMO commit.
+- O teste confere: título/rodapé/histórico com o mesmo número do arquivo, index.html idêntico, e que o
+  docs/PASSAGEM.md cita o nome do arquivo atual de cada app. Esquecer o PASSAGEM = teste vermelho.
+- Dados de teste FICTÍCIOS em testes/dados/: setores_frente_de_loja_50.txt, setores_cpd_6.txt,
+  encarregados_15_pares.txt. Os testes carregam pelo #arquivoTxt (escondido desde a V242, mas existe).
+- Nunca pular, desligar ou "enfraquecer" teste para ficar verde. Conferência tem que poder falhar.
+
+
+7. GIT, PR E ASSINATURA
+-----------------------
+- Nunca push direto no main. Branch do Claude: o que a sessão indicar (ccr-…, claude/… ou outro). ChatGPT: chatgpt/<assunto>.
+- Commit: termina com "Assinado: Claude" (+ rodapé de coautoria da sessão, quando houver).
+- PR: título "[Claude] Setores V245: …"; corpo em português com "O que muda", "Testes", "Para quem
+  continuar" e "Assinado: Claude". Um assunto por PR.
+- Depois de abrir o PR: acompanhar os Checks; se ficar vermelho, consertar e mandar de novo (não esperar
+  o dono pedir). Merge só quando o dono pedir.
+- Nunca assinar pelo outro assistente nem apagar a assinatura dele; dar o crédito ("ideia do ChatGPT").
+
+
+8. DOCUMENTAÇÃO E MANUAIS
+-------------------------
+- Em todo PR: CHANGELOG.md, README.md (se mudar versão), docs/PASSAGEM.md e, se for o caso, este arquivo.
+- Manuais no Claude Docs (links no item 3): quando mudar tela, passo ou nome de botão, atualizar o manual
+  do app (texto + print). Prints SEMPRE com dados fictícios de testes/dados (nunca a planilha real).
+  Como o Claude atualiza: tirar o print com Playwright (celular 390×844, escala 2) → enviar a imagem ao
+  manual (Artifact publish com asset:true e url do manual) → criar o "blob" no doc com o id do asset →
+  inserir no texto ![descrição](blob/<id>). Nas edições do doc, usar o id COMPLETO dos blocos
+  (sessão + número, ex.: mrw0a5z5j2g.1838) e as guardas ifHash/ifRev de uma leitura recente.
+- docs/CHATGPT_COPILOTO.md explica como o ChatGPT foi ligado ao GitHub.
+
+
+9. PRIVACIDADE (obrigatório)
+----------------------------
+- Nunca colocar no repositório, em commit, PR, manual ou print: planilha do RH (*.xlsx), históricos
+  (Historico_*.json), Equipe.txt real, nomes ou matrículas reais. O .gitignore bloqueia *.xlsx e Historico_*.json.
+- Dados reais que o dono mandar ficam só na pasta temporária da conversa (não no repositório). Numa conversa
+  nova eles NÃO existem mais: se precisar testar com dados reais, peça ao dono para mandar de novo.
+
+
+10. REGRAS DE NEGÓCIO (resumo — a lista completa está no AGENTS.md seção 5)
+---------------------------------------------------------------------------
+Setores
+- Ninguém trabalha 3 domingos seguidos (conta os 2 últimos do mês passado; balanço é exceção).
+- Quem não está afastado é apto ao domingo; só fica fora quem tem folga fixa no domingo escolhida à mão.
+  Jovem aprendiz não trabalha domingo nem feriado. Folga fixa do usuário nunca é trocada pelo ERP.
+- Domingo é domingo mesmo sendo feriado. Folga compensatória em até 20 dias, segunda a sábado.
+- No máximo 6 dias seguidos de trabalho. Açougue: 11 operacionais no domingo + liderança.
+- Liderança do domingo (③ Quem lidera): Uma só · 1 Encarregado + 1 Sub · POR TURNO (🌅 abertura +
+  🌙 fechamento, qualquer cargo de liderança; Frente de Loja, Mercearia e CPD começam assim) · Várias.
+  CPD: "Se faltar liderança no turno, entra: Preparador de dados" (Enc + Preparador, Sub + Preparador ou
+  2 Preparadores; sempre 1 na abertura e 1 no fechamento; vale no modo de cobertura "Por cargo").
+- Cobertura do ②: Metade da equipe · Grupos · Por cargo (quantas lideranças e quantos de cada cargo).
+- Escala à mão/mista: auditoria ao vivo (auditarSelecaoAntesDaGeracao) bloqueia marcação que quebra regra.
+- Alerta "Folgas por horário" (V243/V244): só aviso, quando mais da metade de um horário folga no dia.
+Encarregados
+- Domingo normal: 3 pessoas, pelo menos 1 Encarregado e 1 Sub, setores diferentes, no máximo 1 do
+  Laticínio, ninguém 3 domingos seguidos.
+- Folga de feriado: no máximo 2 de folga por dia (contando DSR), 1 no sábado, 1 por setor; prazo 20 dias
+  (Guanabara) ou 30 (CLT).
+Os dois
+- Equipe entra pela planilha do RH, pelo "📂 Abrir histórico guardado" (o histórico do mês leva a equipe
+  toda) ou à mão (Editar equipe). Um Equipe.txt antigo ainda abre pelo "📂 Abrir histórico guardado".
+- Data de admissão no Editar equipe: dd/mm/aaaa na tela, guardada como AAAA-MM-DD.
+- Tudo que o usuário define é guardado no aparelho e no histórico do mês (Historico_<Setor>_mm_aaaa.json).
+
+
+11. MAPA RÁPIDO DO CÓDIGO (detalhes no PASSAGEM seções 2 e 3)
+-------------------------------------------------------------
+- Índice interno dos passos (igual nos dois apps): Equipe 0 · ⚙️/📅 1 (escondido) · Mês passado 2 ·
+  Domingos 3 · Feriados 4 · Gerar 5. Ir para um passo: v45GotoStep(n) (Setores) / v80GotoStep(n) (Enc.).
+- Setores: gerarSetores/gerarSetoresCore (motor) · auditarSelecaoAntesDaGeracao · renderPainelMes (resumo
+  do mês) · metasFuncaoUsuario (modo Por cargo; embrulhada na V241) · liderTurno/definirLiderTurno/
+  turnoLider (V241) · calcularSugestaoLideranca · montarProjeto/restaurarProjeto (histórico) ·
+  window.v243FolgasHorario.auditar (alerta de folgas) · snapshot "escalaSetores.v64.state".
+- Encarregados: window.v167 (escala à mão) · v134Fonte (planilha do RH) · montarProjeto/restaurarProjeto.
+- Os dois: admissaoBR/admissaoISO (V239/V172) · #arquivoProjetoJSON (abrir histórico; aceita .txt antigo).
+
+
+12. ARMADILHAS QUE JÁ ACONTECERAM (lista completa no PASSAGEM seção 4)
+---------------------------------------------------------------------
+- Campo novo da pessoa no Setores: entrar no snapshot v64 E nas 14 colunas da restauração.
+- liderTurno() manda nos outros modos: para trocar de modo use definirModoLideranca.
+- A caixa do Equipe.txt e o #btnGerarEquipeTxt estão só escondidos: não apagar (leitor antigo e testes usam).
+- Trocar número de passo nos textos: proteger comentários/histórico (o HISTÓRICO não muda).
+- Link do site com versão antiga = cache (Ctrl+F5). APK modo site não baixa blob: (usar a ponte Android).
+- Sempre gerar uma escala de verdade e OLHAR a tela no celular antes de aprovar uma tela nova
+  (foi assim que se viu que a V243 mostrava 61 avisos).
+
+
+13. PENDÊNCIAS E IDEIAS (atualize; lista completa no PASSAGEM seção 6)
+----------------------------------------------------------------------
+- Ajuda do Setores: conferir o texto "EP" (o certo é EMPRESTADO, não "período especial") e revisar a Ajuda
+  e o passo a passo de 1 minuto com tudo que mudou da V238 à V244.
+- Encarregados: revisar o "O que falta" com os passos novos; conferência de metadados (título/rodapé/
+  histórico) também no teste dos Encarregados.
+- .gitignore: bloquear também Equipe*.txt, *.csv e backups com dados reais (fora de testes/dados).
+- Manual do Encarregado e Roteiro do Beta ainda na V171: atualizar (data de admissão, sem Equipe.txt).
+- Transformar docs/PROPOSTAS_ESTRESSE_SETORES.md em testes (feriados, 6×1, compensatórias).
+- Revisar a escala à mão com a regra de ouro; velocidade das sugestões em setores grandes.
+- Dono pode apagar os branches antigos do ChatGPT no GitHub (lista no PASSAGEM).

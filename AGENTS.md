@@ -21,9 +21,11 @@ Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo
 
 1. Puxe o `main` mais recente (`git fetch origin main`) e trabalhe a partir dele.
 2. Veja o que mudou desde a última vez: `git log --oneline -15 origin/main`, o topo do `CHANGELOG.md` e o **`docs/PASSAGEM.md`** (seção 10).
-3. Veja se há Pull Requests abertos de outro assistente (o Claude usa branches que começam com `ccr-`).
+3. Veja se há Pull Requests abertos de outro assistente. **Reconheça pelo título**: `[Claude] …` ou `[ChatGPT] …`
+   (o branch do Claude muda de conversa para conversa: `ccr-…`, `claude/…` ou outro; o do ChatGPT é `chatgpt/…`).
    Se houver PR aberto mexendo no mesmo app, **espere ele entrar no main** ou combine com o dono do projeto.
 4. Descubra qual é a **versão atual** de cada app pelo nome do arquivo na raiz (ex.: `Escala_de_Setores_V222.html`).
+5. Numa **conversa nova**, leia também [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) (regras de continuidade, estado e pendências) e mantenha esse arquivo atualizado.
 
 ## 3. Toda mudança gera uma VERSÃO NOVA (obrigatório)
 
@@ -88,7 +90,7 @@ Quando estiver em dúvida, leia a tela em voz alta: se uma criança de 10 anos n
 - Folga fixa no dia do feriado **impede** trabalhar nesse feriado (exceção: feriado na segunda logo após um domingo que a pessoa não trabalhou).
 - Folga compensatória de feriado em até 20 dias corridos, de segunda a sábado, sem formar 3 ou mais dias seguidos de folga.
 - No máximo 6 dias seguidos de trabalho (OJ 410 do TST).
-- Liderança do domingo: uma só, 1 Encarregado + 1 Sub, ou várias (Frente de Loja e Mercearia).
+- Liderança do domingo: uma só, 1 Encarregado + 1 Sub, **por turno** (🌅 abertura + 🌙 fechamento, de qualquer cargo de liderança — Frente de Loja, Mercearia e CPD começam assim) ou várias. No CPD, se faltar liderança num turno, entra um Preparador de dados (sempre 1 na abertura e 1 no fechamento; vale no modo de cobertura “Por cargo”).
 - **Açougue:** 11 operacionais no domingo (3 açougueiros + 3 operadores/balconistas na abertura, 2 + 3 no fechamento) + a liderança — no automático e na escala à mão.
 - A escala à mão/mista tem **auditoria ao vivo** (mesmas regras do “Gerar”, função `auditarSelecaoAntesDaGeracao`) e **bloqueia** a marcação que quebra regra. Regra nova tem que entrar nessa auditoria.
 - Sugestões da escala manual (V233) devem reutilizar essa auditoria no momento do aceite, não substituir nem apagar escolhas existentes e nunca incluir candidatos que falhem nas regras. `testes/rodar.js` deve cobrir a presença do painel, geração/rejeição e preservar o estado da escala.
