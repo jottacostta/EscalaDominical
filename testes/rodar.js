@@ -440,6 +440,37 @@ async function testarEncManual(browser){
   ok(!erros.length, 'escala à mão: sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
+/* V237/V168 — APK do ApkForja (modo site): os downloads vão para Android.salvarArquivo; sem a ponte, o app avisa e não finge que salvou */
+async function testarApk(browser, app, nome){
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
+  if(v < (nome === 'Setores' ? 237 : 168)) return;
+  console.log(`\n▶ ${nome} — salvar arquivos dentro do APK (ApkForja)`);
+  const UA_WV = 'Mozilla/5.0 (Linux; Android 14; SM-A146B Build/UP1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0 Mobile Safari/537.36';
+  const baixar = p => p.evaluate(() => { const b = new Blob([JSON.stringify({ teste: 'ação', n: 1 })], { type: 'application/json;charset=utf-8' }); const u = URL.createObjectURL(b);
+    const a = document.createElement('a'); a.href = u; a.download = 'Historico_teste.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 500); });
+  // 1) APK com a ponte ligada: o arquivo chega inteiro em Android.salvarArquivo e não vira download do navegador
+  { const ctx = await browser.newContext({ userAgent: UA_WV, acceptDownloads: true }); const p = await ctx.newPage(); const erros = []; p.on('pageerror', e => erros.push(e.message)); p.on('dialog', d => d.accept());
+    await p.addInitScript(() => { window.__salvos = []; window.Android = { salvarArquivo: (n, b64, t) => { window.__salvos.push({ n, t, txt: decodeURIComponent(escape(atob(b64))) }); return 'OK'; } }; });
+    let baixou = false; p.on('download', () => { baixou = true; });
+    await p.goto('file://' + app); await p.waitForTimeout(1200);
+    await baixar(p); await p.waitForTimeout(600);
+    const s = await p.evaluate(() => window.__salvos);
+    ok(s.length === 1 && s[0].n === 'Historico_teste.json' && s[0].t === 'application/json' && JSON.parse(s[0].txt).teste === 'ação' && !baixou, `com a ponte: o arquivo vai inteiro para Android.salvarArquivo (${s.length} salvo)`);
+    ok(!erros.length, 'com a ponte: sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close(); }
+  // 2) APK sem a ponte: não tenta baixar (o Android mostrava “Nenhum aplicativo para abrir: blob:”) e avisa em vermelho
+  { const ctx = await browser.newContext({ userAgent: UA_WV, acceptDownloads: true }); const p = await ctx.newPage(); p.on('dialog', d => d.accept());
+    let baixou = false; p.on('download', () => { baixou = true; });
+    await p.goto('file://' + app); await p.waitForTimeout(1200);
+    await baixar(p); await p.waitForTimeout(900);
+    const t = await p.evaluate(() => document.querySelector('.toast')?.innerText || '');
+    ok(!baixou && /NÃO foi salvo/.test(t), 'sem a ponte: avisa que o arquivo NÃO foi salvo, em vez de “guardado”'); await ctx.close(); }
+  // 3) navegador comum: continua baixando normalmente
+  { const ctx = await browser.newContext({ acceptDownloads: true }); const p = await ctx.newPage();
+    await p.goto('file://' + app); await p.waitForTimeout(1200);
+    const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), baixar(p)]);
+    ok(dl && dl.suggestedFilename() === 'Historico_teste.json', 'no navegador comum o download continua igual'); await ctx.close(); }
+}
+
 (async () => {
   const t0 = Date.now();
   // os endereços fixos do site (setores/ e encarregados/) precisam ser a cópia da versão atual
@@ -465,7 +496,7 @@ async function testarEncManual(browser){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);

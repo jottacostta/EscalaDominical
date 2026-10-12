@@ -7,10 +7,16 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V167</title>
+<title>Escala 2×1 — Encarregados V168</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V168 [Claude] — SALVAR ARQUIVOS DENTRO DO APK (ApkForja, modo site): no APK feito a partir do link, o WebView não
+       baixava os arquivos do app (histórico do mês, planilha Excel, backup, Equipe.txt): o Android mostrava
+       “Nenhum aplicativo para abrir: blob:…” e o app dizia “guardado” sem ter guardado. Agora, com a ponte do ApkForja
+       ligada (“🔌 Permitir que o site use os recursos do Android”), o arquivo vai para a pasta Downloads do celular pela
+       função Android.salvarArquivo. Num APK sem a ponte, o app não finge que salvou: avisa em vermelho como resolver e o
+       lembrete do histórico continua “falta guardar”. No navegador (Chrome, computador) nada muda.
 V167 [Claude] — ESCALA À MÃO NOS DOMINGOS (os mesmos critérios da Escala de Setores): no passo 5, “① Quem monta os
        domingos?” → 🤖 Automático (como sempre), ✋ À mão (você escolhe as 3 pessoas de cada domingo) ou 🤝 Misto (você marca
        algumas e o app completa). Cada domingo vira um cartão com busca por matrícula ou nome, lista separada por função
@@ -1799,7 +1805,7 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V167 · escala à mão nos domingos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V168 · salva arquivos dentro do APK</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -8289,6 +8295,51 @@ function perguntarOrientacaoImpressao(cb){
   const iniciar=()=>{ atalho(); render(); };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,50)); else setTimeout(iniciar,50);
   setTimeout(render,1500);
+})();
+</script>
+
+<script>
+/* ═════ V168 — SALVAR ARQUIVOS DENTRO DO APK (ApkForja, modo site) ═════
+   No APK feito pelo ApkForja a partir do LINK (modo site), o WebView não baixa arquivos “blob:” (histórico do mês, Excel,
+   backup, Equipe.txt, relatório): o Android mostrava “Nenhum aplicativo para abrir: blob:…” e o app dizia “guardado” sem ter
+   guardado nada. Agora todo download do app (todos passam por <a download>.click()) vai por aqui:
+   - APK com a ponte ligada (ApkForja → “🔌 Permitir que o site use os recursos do Android”): o arquivo é entregue a
+     Android.salvarArquivo(nome, base64, tipo) e fica na pasta Downloads do celular;
+   - APK SEM a ponte (WebView, “; wv)” no userAgent): o app não tenta baixar e avisa em vermelho como resolver;
+   - navegador comum (Chrome, computador): nada muda. */
+(function(){
+  const temPonte=()=>!!(window.Android&&typeof window.Android.salvarArquivo==='function');
+  const ehWebView=/;\s*wv\)/.test(navigator.userAgent||'');
+  const blobs=new Map();
+  const criar=URL.createObjectURL.bind(URL), revogar=URL.revokeObjectURL.bind(URL);
+  URL.createObjectURL=function(o){ const u=criar(o); try{ if(o instanceof Blob) blobs.set(u,o); }catch(e){} return u; };
+  URL.revokeObjectURL=function(u){ setTimeout(()=>blobs.delete(u),60000); return revogar(u); };
+  function b64(ab){ const u=new Uint8Array(ab); let s=''; for(let i=0;i<u.length;i+=32768) s+=String.fromCharCode.apply(null,u.subarray(i,i+32768)); return btoa(s); }
+  let ultimaFalha=0;
+  const falhar=msg=>{ ultimaFalha=Date.now(); setTimeout(()=>window.showToast?.(msg,'danger',true),450); };
+  async function salvar(a){
+    const h=a.href, nome=a.getAttribute('download')||'arquivo';
+    try{
+      const b=blobs.get(h)||await (await fetch(h)).blob();
+      const r=window.Android.salvarArquivo(nome,b64(await b.arrayBuffer()),(b.type||'application/octet-stream').split(';')[0]);
+      if(r&&r!=='OK') throw new Error(r);
+    }catch(e){ falhar(`⚠️ O arquivo “${nome}” NÃO foi salvo no celular (${e.message||e}). Tente de novo ou abra o app pelo Chrome.`); }
+  }
+  const clk=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(){
+    const h=this.href||'';
+    if(this.hasAttribute('download')&&/^(blob|data):/.test(h)){
+      if(temPonte()){ salvar(this); return; }
+      if(ehWebView){
+        falhar(`⚠️ O arquivo “${this.getAttribute('download')||'arquivo'}” NÃO foi salvo: este APK não deixa o app salvar arquivos. Abra o app pelo Chrome, ou gere o APK de novo no ApkForja com “🔌 Permitir que o site use os recursos do Android” ligado.`);
+        return;
+      }
+    }
+    return clk.apply(this,arguments);
+  };
+  /* o lembrete “histórico guardado” não pode ficar verde se o arquivo não foi salvo */
+  ['v161MarcarGuardado','v217MarcarGuardado'].forEach(k=>{ const f=window[k]; if(typeof f==='function') window[k]=function(){ if(Date.now()-ultimaFalha<2000) return; return f.apply(this,arguments); }; });
+  window.V168Apk={temPonte,ehWebView};
 })();
 </script>
 

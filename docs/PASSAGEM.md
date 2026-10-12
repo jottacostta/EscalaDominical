@@ -17,13 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V236.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V167.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V237.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V168.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Encarregados V167 (escala à mão nos domingos). Depois do merge: nenhum.
+- **PRs abertos:** o PR #35 do Claude com a Encarregados V167 (escala à mão nos domingos) + Setores V237 / Encarregados V168 (salvar arquivos dentro do APK). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V237**, Encarregados **V168**.
+- **Próximo número de versão:** Setores **V238**, Encarregados **V169**.
+- **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
 
 ---
 
@@ -99,11 +100,19 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Ícones (V236/V166):** se um bloco novo compara o texto de um elemento com emoji (`el.textContent!==txt`), ponha a classe dele na lista `FORA` do bloco de ícones. Senão o app e a troca de ícones se desfazem em ciclo.
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
 - **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
+- **Downloads dentro do APK (V237/V168):** o APK do ApkForja em **modo site** é um WebView que abre o link; ele **não baixa `blob:`** (o Android mostra “Nenhum aplicativo para abrir: blob:…”), e o script de ponte do ApkForja que conserta `<a download>` só é injetado em HTML empacotado, não no site. Por isso cada app tem a camada `/* ═════ V237 (V168) — SALVAR ARQUIVOS DENTRO DO APK ═════ */`: embrulha `HTMLAnchorElement.prototype.click` e `URL.createObjectURL` (guarda o Blob) e, se existir `Android.salvarArquivo(nome, base64, tipo)` (ApkForja → “🔌 Permitir que o site use os recursos do Android”), entrega o arquivo para ele; num WebView sem ponte (`; wv)` no userAgent) avisa em vermelho e impede o lembrete de ficar “guardado”. **Todo download novo tem que ser `<a download>` + `.click()`** (como `baixarJSON`), senão não passa por essa camada. Não use `dispatchEvent(new MouseEvent…)` nem `window.open(blob)`.
 - **`auditarDescansosSimulados` vazia de propósito:** a capacidade de folgas por dia/turno é META, não trava (comentários em `limiteFolgaRespeitadoNaData` e `turnoFolgaValidoNaData`). Não “conserte” fazendo ela acusar erro sem o dono pedir.
 
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Setores V237 + Encarregados V168 — salvar arquivos dentro do APK (ApkForja) — Claude
+- **O que mudou e por quê:** o dono transformou o link em APK (ApkForja V41, modo site) e, ao guardar o histórico, o Android mostrou “Nenhum aplicativo para abrir: blob:https://jottacostta.github.io/…”, enquanto o app dizia “guardado na pasta Downloads”. Causa: o WebView não baixa `blob:`; o ApkForja só conserta isso injetando a ponte em HTML empacotado, não no modo site. Os apps agora usam a ponte direto (`Android.salvarArquivo`) quando ela existe; sem ponte num WebView, avisam em vermelho e o lembrete do histórico não fica verde. Vale para todos os downloads: histórico do mês, Excel, backup (Encarregados), Equipe.txt e relatório do ano (Setores).
+- **O que o dono precisa fazer no ApkForja:** etapa Arquivos → 🌐 Site → marcar **“🔌 Permitir que o site use os recursos do Android”** (o site é dele) → gerar o APK de novo (mesmo pacote e mesma chave, para atualizar por cima sem perder os dados).
+- **Onde no código:** bloco `/* ═════ V237 — SALVAR ARQUIVOS DENTRO DO APK … ═════ */` no fim do Setores e `V168` no Encarregados (mesmo código); gancho `window.V237Apk` / `window.V168Apk` = `{temPonte, ehWebView}`. Junto: os comentários `'+new+'` do Setores V236 viraram “V236”.
+- **Como foi testado:** novo `testarApk` em `testes/rodar.js` (nos dois apps): com uma ponte simulada o arquivo chega inteiro (nome, tipo e conteúdo com acento) e não vira download do navegador; num WebView sem ponte aparece “NÃO foi salvo”; no navegador comum o download continua igual. Fora da suíte: botão real “Guardar histórico do mês” e Excel do Encarregados com e sem ponte (lembrete continua “falta guardar” sem ponte). Suítes rápida e completa ✅.
+- **Para continuar:** se o dono gerar o APK como HTML empacotado (não site), a ponte do ApkForja também funciona — a camada usa a mesma função. Abrir arquivo (input file) dentro do WebView depende do `onShowFileChooser` do molde do ApkForja; não foi testado no aparelho.
 
 ### 2026-10-12 — Encarregados V167 — escala à mão nos domingos (mesmos critérios do Setores) — Claude
 - **O que mudou e por quê:** o dono pediu “uma versão de escala manual para a versão encarregados seguindo os mesmos critérios da versão setores”. No passo 5 entrou “① Quem monta os domingos?” (🤖 Automático / ✋ À mão / 🤝 Misto, os mesmos cartões da V206 do Setores) e, no À mão/Misto, um cartão por domingo com o que o Setores tem na escala à mão:
@@ -334,7 +343,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
 - **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
+- **APK no aparelho:** conferir com o dono, num APK gerado com a ponte ligada, se “Abrir histórico guardado” (escolher arquivo) também funciona dentro do APK.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
-- **Setores — comentário com `'+new+'`:** na função `iconizar` (bloco V205) do Setores V236 dois comentários dizem `'+new+'` em vez de “V236” (sobra do script que gerou a versão). Não muda nada no app; corrija na próxima versão do Setores (no Encarregados já foi corrigido na V167).
 - **Encarregados — escala à mão (V167), ideias:** (1) a sugestão segue o motor, que prefere a dupla 2×1 (quem trabalhou o domingo anterior) — por isso um mês usa ~6–8 pessoas diferentes, igual ao automático; se o dono quiser “espalhar mais”, a mudança é no `escolherDomingo` (vale para os dois modos). (2) Revisar a tela da escala à mão com o checklist da seção 4.1 do `AGENTS.md` junto com o dono.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
