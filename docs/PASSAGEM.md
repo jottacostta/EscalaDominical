@@ -21,7 +21,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V173.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR de documentação do Claude (arquivo de continuidade). Depois do merge: nenhum.
+- **PRs abertos:** o PR de documentação do Claude (regra de ouro com 16 itens). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V245**, Encarregados **V174**.
@@ -119,6 +119,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Documentação — regra de ouro com 16 itens (ideias da Taste Skill) — Claude
+- **O que mudou e por quê:** o dono mostrou vídeos com ferramentas para o Claude e pediu para ficar só com o que o projeto precisa. Da *Taste Skill* (github.com/Leonxlnx/taste-skill, MIT) foram adaptados 6 itens para a lista da seção 4.1 do `AGENTS.md` (itens 11–16): um nome só para cada ação, contraste forte, cores fixas, números alinhados (`tabular-nums`), nada pula no celular (`100dvh`) e conferir antes de mexer. O resto da skill **não** serve (é para sites de propaganda; proíbe emoji em botão, pede React/Tailwind e fontes da internet) — **não instale a skill inteira**. Também avaliadas e descartadas: OmniRoute (manda o trabalho para robôs desconhecidos e mais fracos; o reserva do projeto é o ChatGPT), Claude Mem e Task Observer (o PASSAGEM e o `INICIO_NOVA_CONVERSA.txt` já fazem isso para os dois assistentes), Headroom, Awesome Design e Image to Code. Playwright já é usado nos testes.
+- **Onde:** `AGENTS.md` seção 4.1; `docs/INICIO_NOVA_CONVERSA.txt` itens 1 e 13.
+- **Como foi testado:** `testes/rodar.js` (os apps não mudaram).
+- **Para continuar:** usar a lista de 16 itens na revisão da escala à mão (pendência da seção 6).
 
 ### 2026-10-12 — Documentação — arquivo de continuidade para conversas novas — Claude
 - **O que mudou e por quê:** o dono pediu todas as regras de continuidade num arquivo de texto, para começar uma conversa nova (Claude ou ChatGPT) sem perder nada. Criado `docs/INICIO_NOVA_CONVERSA.txt` (mensagem para colar, jeito de falar com o dono, estado atual, rotina, como fazer versão, testes, Git/PR/assinatura, manuais, privacidade, regras de negócio, mapa rápido, armadilhas e pendências). `AGENTS.md`: regra da liderança atualizada (modo Por turno e CPD) e passos na ordem atual; `CLAUDE.md` e `README.md` apontam para o arquivo novo.
@@ -423,7 +429,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
-- **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
+- **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md, lista de 16 itens):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Encarregados — escala à mão (V167), ideias:** (1) a sugestão segue o motor, que prefere a dupla 2×1 (quem trabalhou o domingo anterior) — por isso um mês usa ~6–8 pessoas diferentes, igual ao automático; se o dono quiser “espalhar mais”, a mudança é no `escolherDomingo` (vale para os dois modos). (2) Revisar a tela da escala à mão com o checklist da seção 4.1 do `AGENTS.md` junto com o dono.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.

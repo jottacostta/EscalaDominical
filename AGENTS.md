@@ -77,6 +77,14 @@ Antes de abrir o PR, confira cada item numa tela nova ou alterada:
 8. **Botões grandes** (no mínimo ~44 px de altura) e espaço entre eles, para o dedo no celular.
 9. **Nada some sem aviso.** Se alguém não aparece numa lista, a tela diz quem e por quê.
 10. **Desfazer fácil:** ação que apaga ou troca muita coisa pede confirmação ou tem “↩️ Desfazer”.
+11. **Um nome só para cada ação.** A mesma ação tem o mesmo nome (e o mesmo emoji) no app inteiro: não chame de “📂 Abrir histórico guardado” num lugar e “Carregar arquivo” em outro. Antes de criar um botão, procure se já existe um com a mesma função e repita o nome dele.
+12. **Dá para ler sempre:** texto, botão, campo de digitar, dica dentro do campo e aviso de erro com contraste forte contra o fundo (mínimo WCAG AA, 4,5:1). Nada de cinza-claro no branco nem letra branca em fundo claro.
+13. **Cores fixas:** cada cor tem um sentido só no app inteiro (🟢 certo · 🟡 falta · 🔴 não pode · a cor de destaque do app para o botão principal). Não invente uma cor nova numa tela só.
+14. **Números alinhados em tabelas e contagens** (`font-variant-numeric: tabular-nums`), para comparar pessoas e dias de olho.
+15. **Nada pula no celular:** tela cheia usa `min-height: 100dvh` (não `100vh`), e o conteúdo não se mexe quando a barra do navegador aparece ou some.
+16. **Conferir antes de mexer:** numa tela que já existe, primeiro liste o que está ruim (com esta lista), depois melhore o que já existe — sem refazer do zero nem trocar o visual inteiro.
+
+Os itens 11 a 16 foram adaptados da *Taste Skill* (github.com/Leonxlnx/taste-skill, licença MIT), por decisão do dono em 12/10/2026. **Só esses itens valem:** o resto dela é para sites de propaganda e vai contra este projeto (ela proíbe emoji nos botões, pede React/Tailwind e fontes da internet, e busca visual “diferente” em vez de simples). Não instale a skill inteira.
 
 Quando estiver em dúvida, leia a tela em voz alta: se uma criança de 10 anos não entender o que fazer, reescreva.
 
