@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V234.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V235.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V233 (ChatGPT, PR #31) + V234 (Claude). Os PRs #29, #30 e #31 foram fechados: as três eram “V233” da mesma função; só a #31 funcionava com a planilha real e ela entrou neste PR. Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V235 (simulação de estresse das sugestões). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V235**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V236**, Encarregados **V166**.
 
 ---
 
@@ -134,6 +134,30 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V235 — simulação de estresse das sugestões: horário, composição e 2 defeitos antigos da escala à mão — Claude
+- **O que mudou e por quê:** o dono pediu uma simulação de estresse das sugestões da escala à mão. Com a planilha real (local), cada domingo foi preenchido só por sugestão, 3 meses seguidos, em todos os setores. Achados:
+  - (1) **quem entrava pela sugestão ficava SEM horário de domingo** e o “Gerar” bloqueava. O teste da V233/V234 só olhava regra 🔴, e “sem horário” é 🟡. Corrigido: `horarioPadraoSugestao(d,i)` dá o horário oficial mais perto do habitual, no turno (regra da V209);
+  - (2) **no Açougue a sugestão ignorava a composição** (açougueiros e balconistas por turno). Corrigido: em `candidatosDoDia`, quem completa o que falta (`coberturaOperacional`) entra primeiro;
+  - (3) **defeito antigo — Açougue 13 × 11:** a escala à mão pedia `alvoCoberturaAtual()` = 13, mas `coberturaOperacionalAçougue` exige exatamente 11, e o motor também usa 11 (regra V102: “11 operacionais + 1 liderança”). Nenhuma escala à mão do Açougue passava. Corrigido: `alvoCoberturaAtual()` devolve 11 no Açougue (modo “metade”);
+  - (4) **defeito antigo — “Gerar” da escala à mão:** comparava a escala com `alvosPorDomingo` (alvo variável do motor, ex.: 19 num domingo e 16 noutro) e bloqueava escalas certas com “18 de 19 pessoas” (Depósito, Tesouraria, Padaria). Corrigido: na escala à mão não se compara mais com o alvo do motor, porque a quantidade do cartão já foi conferida em `auditarSelecaoAntesDaGeracao`.
+- **Casos difíceis (todos ✅):** marcados à mão continuam; tirar 2 e pedir de novo enche só as 2 vagas; lista desatualizada; duplo clique em Aceitar; modo Misto; setor de 4 pessoas.
+- **Onde no código:**
+  - bloco V233 com linhas `// V235` (`horarioPadraoSugestao`, `candidatosDoDia`, aceite);
+  - `alvoCoberturaAtual()` (Açougue = 11);
+  - no motor, a linha `if(esc.length<alvoDia && … modoGeracaoAtual!=='manual')`.
+- **Testes novos:**
+  - “quem entra pela sugestão já vem com horário de domingo válido”;
+  - “mês inteiro preenchido só com sugestões e o Gerar aceita”.
+
+  Os dois **falham na V234** (conferido) e passam na V235.
+- **Simulação (planilha real, local):**
+  - 14 setores × 3 meses (nov/2026 → jan/2027), 196 domingos preenchidos só por sugestão, 392 cliques, 0 erros de JavaScript;
+  - nenhuma regra quebrada, nenhum nome repetido, nenhum não operacional, nenhum 3º domingo seguido (conferência independente, contando o mês passado);
+  - virada do mês OK: o mês seguinte herda quem trabalhou o último domingo;
+  - depois das correções, Açougue, Depósito, Tesouraria, Padaria e Mercearia: “validada e gerada” nos 3 meses;
+  - Manutenção e ADM Geral continuam bloqueados por falta de gente apta (aviso legítimo, já conhecido).
+- **Para continuar:** veja a pendência de velocidade (seção 6).
 
 ### 2026-10-12 — Setores V234 — sugestões da escala à mão: escolha entre 3 PRs e melhorias — Claude (V233 do ChatGPT, PR #31)
 - **O que mudou e por quê:** o ChatGPT abriu três PRs com a mesma V233 (“💡 Sugestão de funcionários” em cada domingo da escala à mão): #29, #30 e #31. Os três tinham o teste do GitHub verde. O dono pediu limpeza e melhoria das ideias. Teste com a planilha real (loja recém-importada e com folgas definidas, Frente de Loja e Açougue):
@@ -255,4 +279,4 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
-- **Sugestões da escala à mão (V234):** na Frente de Loja cada toque leva ~1 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
+- **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
