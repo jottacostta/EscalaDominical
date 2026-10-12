@@ -23,7 +23,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
 - **PR #28:** [ChatGPT] Setores V232 — alinhamento da versão visível; mesclada em 11/10/2026 no commit `654057a5fcd909c92dd48f7876e790c7052b1f67`.
-- **PR #30 aberta:** [ChatGPT] Setores V233 — sugestões validadas na escala manual (branch `chatgpt/setores-v233-sugestoes-manual`). Aguardando as suítes rápida e completa e revisão visual; não mesclar sem autorização explícita.
+- **PR #30 aberta:** [ChatGPT] Setores V233 — sugestões validadas na escala manual (branch `chatgpt/setores-v233-sugestoes-manual`). Suítes rápida e completa passaram na execução #152 (12/10/2026); revisão visual pendente; não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
 - **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
 
@@ -102,8 +102,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ### 2026-10-11 — Setores V233 — sugestões com validação na escala manual — ChatGPT
 - **O que mudou e por quê:** cada card de domingo na escala manual/mista pode gerar sugestões priorizadas pelo menor número de domingos recentes. O gestor marca quais deseja aceitar ou rejeita a lista sem modificar a escala. O aceite valida novamente elegibilidade, limite de vagas e auditoria, preservando as seleções manuais existentes.
 - **Onde no código:** camada CSS `v233-sugestoes-manual` e script `v233-sugestoes-manual-js` no fim de `Escala_de_Setores_V233.html`; gancho `window.v233Sugestoes`; cópia de publicação `setores/index.html`. A V232 foi arquivada em `versoes_anteriores/Escala_de_Setores_V232.html`.
-- **Prevenção:** `testes/rodar.js` confere a presença da camada e verifica os botões, a geração da lista e que rejeitar não altera `selecaoManualDomingo`. A auditoria existente `auditarSelecaoAntesDaGeracao` é reutilizada para testar candidatos e após aceitar.
-- **Como foi testado:** os testes de regressão foram adicionados; confirmar os resultados da suíte rápida e completa nos checks desta PR antes de merge. Não houve merge.
+- **Prevenção:** `testes/rodar.js` confere a presença da camada e verifica os botões, a geração da lista e que rejeitar não altera `selecaoManualDomingo`. A auditoria existente `auditarSelecaoAntesDaGeracao` é reutilizada para testar candidatos; o teste dinâmico confirma aceite real, rejeição sem mutação e ausência de novas violações na auditoria.
+- **Como foi testado:** GitHub Actions execução #152 — suíte rápida e suíte completa passaram. O teste V233 encontrou 22 candidatos elegíveis, confirmou que rejeitar não altera a seleção, que aceitar adiciona funcionários e que não surgem novas violações de auditoria. Não houve merge.
 - **Para continuar:** conferir visualmente no celular e desktop, validar a inclusão real em diferentes regras de cobertura e verificar a execução das duas suítes. Assinado: ChatGPT
 
 ### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
