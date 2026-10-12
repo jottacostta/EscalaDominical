@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V239.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V240.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V172.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #37 do Claude com a Setores V238/V239 + Encarregados V171/V172 (passos Equipe → Mês passado → Domingos → Feriados → Gerar nos dois apps; data de admissão editável em dd/mm/aaaa). Depois do merge: nenhum.
+- **PRs abertos:** o PR #37 do Claude com a Setores V238–V240 + Encarregados V171/V172 (passos Equipe → Mês passado → Domingos → Feriados → Gerar nos dois apps; data de admissão editável em dd/mm/aaaa; “Por cargo” com as lideranças). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V240**, Encarregados **V173**.
+- **Próximo número de versão:** Setores **V241**, Encarregados **V173**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V238): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -125,6 +125,12 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V240 — “Por cargo” com as lideranças — Claude
+- **O que mudou e por quê:** o dono explicou que, no “Por cargo”, a pessoa escolhe quantas lideranças trabalham e quantos de cada cargo operacional. Antes a quantidade de lideranças ficava só no ③ “Quem lidera” (botões Uma só / 1+1 / Várias e a meta), longe do quadro dos cargos, e o total dizia “+ liderança (definida pela gerência)”.
+- **Onde no código:** bloco `/* ═════ V240 … ═════ */`: `v240LinhaLider()` (linha ⭐ Lideranças, chamada dentro de `renderConfigFuncao`) e `v240QtdLider()` (uma = 1, encsub = 2, várias = `qtdLiderVarias()`). O − / + usa `definirLiderVarias` / `definirLiderancaUnica` (o mesmo dado do ③). `renderLiderancaDomingo` foi embrulhada para redesenhar o quadro do “Por cargo”. Texto da opção e do `#coberturaResumo` (em `atualizarModoCobertura`); exemplo CPD com id `v240ExGrupos`, só no modo Grupos.
+- **Como foi testado:** `testarPorCargo` no `testes/rodar.js`: a linha existe, o total conta as lideranças, 1 = “Uma só”, + vira “Várias”, e mudar a meta no ③ atualiza o quadro. Suítes rápida e completa.
+- **Para continuar:** o motor ainda não usa esse número para escolher lideranças sozinho — os nomes vêm do ③ (à mão ou 🤖 Sugerir liderança, que usa a meta). O Manual da Escala de Setores (seção Domingos) precisa citar a linha ⭐ Lideranças.
 
 ### 2026-10-12 — Setores V239 + Encarregados V172 — data de admissão editável (dd/mm/aaaa) — Claude
 - **O que mudou e por quê:** o dono não conseguia pôr a data de admissão no Editar equipe e pediu o formato dd/mm/aaaa nos dois apps. No Setores o campo era só leitura e mostrava `AAAA-MM-DD`; nos Encarregados o campo nem existia.

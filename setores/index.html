@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V239</title>
+<title>Escala de Setores — V240</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V240 [Claude] — “POR CARGO” COM AS LIDERANÇAS (pedido do dono): no modo “Por cargo” a pessoa escolhe quantas lideranças
+       trabalham por domingo E quantos de cada cargo operacional, no mesmo quadro. O quadro “Quantos de cada cargo por
+       domingo” ganhou a linha “⭐ Lideranças” com − e +: 1 = “Uma só”; 2 ou mais = “Várias” com essa meta (o ③ “Quem lidera”
+       acompanha, e vice-versa). O total mostra lideranças + operacionais. Nome da opção e explicação novos; o exemplo dos
+       grupos (CPD) só aparece no modo Grupos.
 V239 [Claude] — DATA DE ADMISSÃO NO EDITAR EQUIPE (pedido do dono): o campo estava travado (só leitura), mostrava a data
        como 1989-11-01 e a data editada não era salva. Agora dá para digitar a data no formato dd/mm/aaaa (as barras
        entram sozinhas), o app confere se a data existe e não é no futuro, guarda no quadro e no Equipe.txt. Se a planilha
@@ -2163,6 +2168,9 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   if(s!==x.value) x.value=s; x.classList.toggle('adm-erro', s.length===10 && admissaoISO(s)===null); },true);
 </script>
 <style id="v239-admissao">.ed-admissao.adm-erro{border-color:#D92D20!important;box-shadow:0 0 0 3px rgba(217,45,32,.15)!important}</style>
+<style id="v240-lider-cargo">
+.fn-row.v240-lider{background:#FFF8DB;border:1px solid #F3DE8A;border-radius:12px;padding:8px 10px;margin-bottom:8px}
+</style>
 </head>
 <body>
 <script>
@@ -2258,7 +2266,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V239 · data de admissão editável (dd/mm/aaaa)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V240 · por cargo: lideranças e cargos juntos</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2463,7 +2471,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
       <select id="modoCobertura">
         <option value="50">Metade da equipe em cada domingo</option>
         <option value="grupos">Grupos que eu mesmo monto</option>
-        <option value="funcao">Por cargo — eu escolho quantos de cada cargo</option>
+        <option value="funcao">Por cargo — eu escolho quantas lideranças e quantos de cada cargo</option>
       </select>
       <div id="coberturaResumo" class="alert info" style="margin-top:8px">50% do quadro elegível será escalado a cada domingo.</div>
       <div id="liderancaDomingoArea" class="card" style="margin-top:10px;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
@@ -2471,7 +2479,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
         <p class="hint" style="margin:0 0 8px">A liderança é <b>opcional</b>. Primeiro escolha <b>quantas lideranças</b> trabalham por domingo (uma só, um Encarregado + um Sub, ou <b>várias</b>). Depois escolha os nomes em cada domingo, ou toque em <b>🤖 Sugerir liderança</b>. Cada liderança precisa da <b>folga (DSR)</b> escolhida por você.</p>
         <div id="liderancaDomingoLista"></div>
       </div>
-      <small class="hint">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
+      <small class="hint" id="v240ExGrupos">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
     </div>
   </div>
   <div id="configFuncao" style="display:none"></div>
@@ -5704,8 +5712,9 @@ function atualizarModoCobertura(){
   const ativos=equipe.filter(f=>!foraDom(f)&&!ehLiderancaDomingo(f)).length;
   const alvo=Math.max(1,Math.round(ativos/2));
   const resumo=$('coberturaResumo');
-  if(resumo) resumo.textContent=modo==='grupos' ? 'Modo por grupos: defina os grupos abaixo.' : modo==='funcao' ? 'Por função: defina abaixo quantas pessoas de cada cargo trabalham em cada domingo. O motor escolhe quem está disponível e você confirma ou troca no Resultado.' : `Metade da equipe: ${ativos} elegível(is) → ${alvo} por domingo.`;
+  if(resumo) resumo.textContent=modo==='grupos' ? 'Modo por grupos: defina os grupos abaixo.' : modo==='funcao' ? 'Por cargo: no quadro abaixo, escolha quantas lideranças e quantos de cada cargo trabalham em cada domingo. O app escolhe quem está disponível e você confirma ou troca no Resultado.' : `Metade da equipe: ${ativos} elegível(is) → ${alvo} por domingo.`;
   $('configGrupos').style.display=modo==='grupos'?'block':'none';
+  if($('v240ExGrupos')) $('v240ExGrupos').style.display=modo==='grupos'?'':'none';   // V240: o exemplo é dos grupos
   if($('configFuncao')){ $('configFuncao').style.display=modo==='funcao'?'block':'none'; if(modo==='funcao'){ carregarCfgFuncao(); renderConfigFuncao(); } }
   if(modo==='grupos' && equipe.length && !grupos.length){
     const q=Math.max(1,Math.min(20,parseInt($('qtdGrupos')?.value||3,10)));
@@ -7244,13 +7253,14 @@ function renderConfigFuncao(){
   const total=fns.reduce((n,fn)=>n+qtdFuncaoBase(fn.chave),0);
   const lid=funcoesLideranca();
   el.innerHTML=`<div class="card" style="margin-top:10px;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
-    <h3 style="margin:0 0 4px;font-size:16px">🧑‍🔧 Quantos de cada função por domingo</h3>
-    <p class="hint" style="margin:0 0 6px">Ex.: Açougue → 3 Açougueiros, 3 Operadores de Câmara Fria e 1 Balconista. O motor escolhe <b>quem</b> está disponível; você confirma ou troca no Resultado.</p>
+    <h3 style="margin:0 0 4px;font-size:16px">🧑‍🔧 Quantos de cada cargo por domingo</h3>
+    <p class="hint" style="margin:0 0 6px">Ex.: Açougue → 1 liderança, 3 Açougueiros, 3 Operadores de Câmara Fria e 1 Balconista. O app escolhe <b>quem</b> está disponível; você confirma ou troca no Resultado.</p>
+    ${window.v240LinhaLider?.()||''}
     ${fns.map(fn=>{ const q=qtdFuncaoBase(fn.chave), mx=maxSustentavelFuncao(fn);
       return `<div class="fn-row"><div class="fn-info"><b>${htmlEsc(fn.rotulo)}</b><small>${fn.ids.length} no quadro • ${fn.ab} abertura • ${fn.fe} fechamento${q>mx?` • <span style="color:var(--info,#0B6BA8)">ℹ️ em alguns domingos virão menos que ${q}: quem trabalhou 2 domingos seguidos folga no 3º (2×1)</span>`:''}</small></div>
         <div class="fn-qtd"><button type="button" data-fn-menos="${htmlEsc(fn.chave)}" aria-label="menos">−</button><input type="number" inputmode="numeric" min="0" max="${fn.ids.length}" value="${q}" data-fn-base="${htmlEsc(fn.chave)}" aria-label="Quantidade de ${htmlEsc(fn.rotulo)}"><button type="button" data-fn-mais="${htmlEsc(fn.chave)}" aria-label="mais">+</button></div></div>
         ${fns.length>1?`<div class="fn-sub" style="display:flex;align-items:center;gap:8px;margin:-4px 0 8px;font-size:12.5px;color:var(--ink-2)"><span style="flex:none">🔁 Se faltar, cobrir com:</span><select data-fn-subst="${htmlEsc(fn.chave)}" style="flex:1;min-width:0;padding:6px 8px;font-size:12.5px"><option value="">ninguém (fica com menos)</option>${fns.filter(o=>o.chave!==fn.chave).map(o=>`<option value="${htmlEsc(o.chave)}" ${substitutoFuncao(fn.chave)===o.chave?'selected':''}>${htmlEsc(o.rotulo)}</option>`).join('')}</select></div>`:''}`;}).join('')}
-    <div class="alert info" style="margin-top:8px">Por domingo: <b>${total}</b> operacionais${lid?` + liderança (${htmlEsc(lid)})`:''}.</div>
+    <div class="alert info" style="margin-top:8px">${(()=>{ const nl=lid?(window.v240QtdLider?.()||0):0; return nl?`Por domingo: <b>${nl}</b> liderança${nl===1?'':'s'} + <b>${total}</b> operacionais = <b>${nl+total}</b> pessoas.`:`Por domingo: <b>${total}</b> operacionais.`; })()}</div>
     <details style="margin-top:8px"><summary style="font-weight:800;cursor:pointer">📅 Ajustar um domingo específico</summary>
       <p class="hint" style="margin:6px 0">Em branco = usa a quantidade padrão acima.</p>
       <div style="overflow-x:auto"><table class="fn-dom-tab"><tr><th>Domingo</th>${fns.map(fn=>`<th>${htmlEsc(fn.rotulo)}</th>`).join('')}</tr>
@@ -12698,5 +12708,37 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 
+<script>
+/* ═════ V240 — “POR CARGO” COM AS LIDERANÇAS ═════
+   No modo “Por cargo” a pessoa escolhe, no mesmo quadro, quantas lideranças e quantos de cada cargo operacional trabalham
+   por domingo. A linha “⭐ Lideranças” usa o mesmo dado do ③ “Quem lidera”: 1 = modo “Uma só”; 2 ou mais = modo “Várias”
+   com essa meta (definirLiderVarias). O modo “1 Encarregado + 1 Sub” conta como 2. Os NOMES continuam sendo escolhidos no
+   ③ (ou 🤖 Sugerir liderança). Mexer no ③ redesenha o quadro, e vice-versa. */
+(function(){
+  const qtd=()=>{ try{ const m=modoLideranca(); return m==='varias'?qtdLiderVarias():m==='encsub'?2:1; }catch(e){ return 1; } };
+  window.v240QtdLider=qtd;
+  window.v240LinhaLider=function(){
+    try{ if(!funcoesLideranca()) return ''; }catch(e){ return ''; }
+    const n=qtd(), m=modoLideranca();
+    const nomes=equipe.filter(f=>!foraDom(f)&&ehLiderancaDomingo(f)).length;
+    return `<div class="fn-row v240-lider"><div class="fn-info"><b>⭐ Lideranças</b><small>${nomes} no quadro • Encarregado, Sub ou Líder${m==='encsub'?' • 1 Encarregado + 1 Sub':''} • os nomes você escolhe em ③</small></div>
+      <div class="fn-qtd"><button type="button" data-v240="-1" aria-label="menos lideranças">−</button><input type="number" inputmode="numeric" min="1" max="8" value="${n}" data-v240-n aria-label="Quantas lideranças por domingo"><button type="button" data-v240="1" aria-label="mais lideranças">+</button></div></div>`;
+  };
+  function definir(n){
+    n=Math.max(1,Math.min(8,parseInt(n,10)||1));
+    if(n===1){ definirLiderVarias(false); definirLiderancaUnica(true); }
+    else definirLiderVarias(true,n);
+    window.v45Persist?.();
+    try{ renderLiderancaDomingo(); }catch(e){ try{ renderConfigFuncao(); }catch(_){} }
+  }
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('[data-v240]'); if(!b) return; definir(qtd()+Number(b.dataset.v240)); });
+  document.addEventListener('change',e=>{ if(e.target.matches?.('[data-v240-n]')) definir(e.target.value); });
+  // ③ mudou → o quadro do “Por cargo” acompanha
+  const orig=window.renderLiderancaDomingo;
+  if(typeof orig==='function') window.renderLiderancaDomingo=function(){ const r=orig.apply(this,arguments); try{ if(($('modoCobertura')?.value)==='funcao') renderConfigFuncao(); }catch(e){} return r; };
+  const ini=()=>{ const ex=document.getElementById('v240ExGrupos'); if(ex) ex.style.display=(document.getElementById('modoCobertura')?.value==='grupos')?'':'none'; };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(ini,80)); else setTimeout(ini,80);
+})();
+</script>
 </body>
 </html>
