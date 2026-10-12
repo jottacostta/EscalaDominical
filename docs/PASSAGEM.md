@@ -23,7 +23,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
 - **PR #28:** [ChatGPT] Setores V232 — alinhamento da versão visível; mesclada em 11/10/2026 no commit `654057a5fcd909c92dd48f7876e790c7052b1f67`.
-- **PR #29 aberta:** [ChatGPT] Setores V233 — sugestões na escala manual (branch `chatgpt/setores-v233-sugestoes-escala-manual`). Não mesclar sem autorização explícita; aguardar as suítes rápida e completa do GitHub Actions.
+- **PR #29 aberta:** [ChatGPT] Setores V233 — sugestões na escala manual (branch `chatgpt/setores-v233-sugestoes-escala-manual`). Não mesclar sem autorização explícita; execução #150: suíte rápida e completa passaram. A PR continua aberta até autorização explícita do dono.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
 - **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
 
@@ -104,7 +104,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **O que mudou:** adiciona um painel a cada cartão no modo Manual/Mista; gera candidatos ativos, aptos, não líderes, não escalados e sem folga fixa dominical; ordena pela menor carga de domingos considerada; permite aceitar candidatos marcados ou rejeitar sugestões sem alterar a escala.
 - **Validação:** no aceite, o sistema revalida candidato por candidato com a função existente `auditarSelecaoAntesDaGeracao`, limita as inclusões às vagas restantes, evita duplicidade, preserva escolhas existentes e chama a auditoria ao vivo depois da inclusão.
 - **Arquivos:** `Escala_de_Setores_V233.html`, `setores/index.html`, `versoes_anteriores/Escala_de_Setores_V232.html`, `testes/rodar.js`, `AGENTS.md`, `README.md`, `CHANGELOG.md` e esta passagem.
-- **Teste:** foram adicionados testes de interface para o painel, geração e rejeição sem alterar seleções. A aprovação final depende das suítes rápida e completa no PR #29; não declarar aprovado antes dos checks.
+- **Teste:** foram adicionados testes de interface para o painel, geração e rejeição sem alterar seleções. A execução #150 do GitHub Actions passou na suíte rápida e na completa (12 meses). Logs confirmam painel, geração, aceite com elegibilidade/duplicidade, rejeição sem alteração e ausência de erro JavaScript.
 - **Claude:** esta passagem e a descrição/comentário da PR registram o escopo, regras e pontos de revisão para continuidade pelo Claude. Não fazer merge sem autorização explícita do dono.
 
 ### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
