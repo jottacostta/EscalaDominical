@@ -42,8 +42,9 @@ está pendente, e espere o meu pedido."
 - O dono também usa os apps como APK (feito com o app dele, ApkForja, em "modo site" = WebView do link).
   Downloads no APK vão por Android.salvarArquivo (V237/V168). Ver armadilha no PASSAGEM.
 - Dois assistentes trabalham no mesmo repositório:
-  · Claude → branches ccr-…  · assina "Claude"
-  · ChatGPT (Codex) → branches chatgpt/… · assina "ChatGPT"
+  · Claude → título do PR "[Claude] …" · branch muda por conversa (ccr-…, claude/… ou outro) · assina "Claude"
+  · ChatGPT (Codex) → título do PR "[ChatGPT] …" · branches chatgpt/… · assina "ChatGPT"
+  Para saber de quem é um PR, olhe o TÍTULO ([Claude] / [ChatGPT]), não o nome do branch.
   Sempre partir do main mais novo e não sobrescrever o trabalho do outro. PR do outro: revisar de verdade
   (gerar uma escala e olhar a tela), e se precisar de ajuste, propor ao dono antes (ex.: PR #39 → V244).
 
@@ -51,7 +52,7 @@ está pendente, e espere o meu pedido."
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
 - Setores: V244 (próxima: V245).  Encarregados: V173 (próxima: V174).
-- PRs abertos: nenhum (o #39 do ChatGPT entrou junto com o #40; os dois aparecem como "merged").
+- PRs abertos: nenhum depois do #41 (o #39 do ChatGPT entrou junto com o #40; os dois aparecem como "merged").
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
   (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
 - Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
@@ -114,7 +115,7 @@ antes de </body>, e grava a versão nova. Mudar o mínimo; nunca reformatar o ar
 
 7. GIT, PR E ASSINATURA
 -----------------------
-- Nunca push direto no main. Branch do Claude: o que a sessão indicar (ex.: ccr-…). ChatGPT: chatgpt/<assunto>.
+- Nunca push direto no main. Branch do Claude: o que a sessão indicar (ccr-…, claude/… ou outro). ChatGPT: chatgpt/<assunto>.
 - Commit: termina com "Assinado: Claude" (+ rodapé de coautoria da sessão, quando houver).
 - PR: título "[Claude] Setores V245: …"; corpo em português com "O que muda", "Testes", "Para quem
   continuar" e "Assinado: Claude". Um assunto por PR.

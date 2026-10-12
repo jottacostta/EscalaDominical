@@ -122,6 +122,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ### 2026-10-12 — Documentação — arquivo de continuidade para conversas novas — Claude
 - **O que mudou e por quê:** o dono pediu todas as regras de continuidade num arquivo de texto, para começar uma conversa nova (Claude ou ChatGPT) sem perder nada. Criado `docs/INICIO_NOVA_CONVERSA.txt` (mensagem para colar, jeito de falar com o dono, estado atual, rotina, como fazer versão, testes, Git/PR/assinatura, manuais, privacidade, regras de negócio, mapa rápido, armadilhas e pendências). `AGENTS.md`: regra da liderança atualizada (modo Por turno e CPD) e passos na ordem atual; `CLAUDE.md` e `README.md` apontam para o arquivo novo.
+- **Ajuste na revisão (pedido do dono):** as regras mandavam reconhecer o PR do Claude pelo branch `ccr-…`, mas o branch do Claude muda de conversa para conversa (ex.: `claude/…`). Agora `AGENTS.md`, `docs/CHATGPT_COPILOTO.md` e o arquivo novo mandam reconhecer pelo **título** (`[Claude]` / `[ChatGPT]`) — assim o ChatGPT não deixa de ver um PR do Claude e não mexe no mesmo app ao mesmo tempo.
 - **Onde:** `docs/INICIO_NOVA_CONVERSA.txt` (manter atualizado no mesmo PR de cada mudança, como o PASSAGEM).
 - **Como foi testado:** `testes/rodar.js` (nada mudou nos apps).
 - **Para continuar:** pendências no item 13 do arquivo novo e na seção 6 daqui.

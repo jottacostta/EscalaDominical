@@ -48,7 +48,7 @@ Comece **toda** tarefa com este texto (copie e cole) e depois descreva o que voc
 
 ```
 Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md e o docs/PASSAGEM.md inteiros e siga todas as regras:
-- parta do main mais recente e confira se há PR aberto do Claude (branches ccr-*) mexendo no mesmo app;
+- parta do main mais recente e confira se há PR aberto do Claude (título começa com [Claude]; o branch pode ser ccr-…, claude/… ou outro) mexendo no mesmo app;
 - crie uma VERSÃO NOVA do app (próximo número), com a linha no HISTÓRICO DE VERSÕES, mova a versão anterior
   para versoes_anteriores/, copie a nova para setores/index.html ou encarregados/index.html e atualize
   CHANGELOG.md e README.md;
@@ -93,7 +93,7 @@ Dicas para pedir:
 ## Parte 4 — Trabalhando em dupla (ChatGPT + Claude)
 
 - **Os dois partem sempre do `main` mais recente.** Antes de começar, cada um olha o que o outro já colocou lá.
-- **Não trabalhem no mesmo app ao mesmo tempo.** Se o Claude estiver com um PR aberto no Setores (branch `ccr-…`),
+- **Não trabalhem no mesmo app ao mesmo tempo.** Se o Claude estiver com um PR aberto no Setores (título `[Claude] …`; branch `ccr-…`, `claude/…` ou outro),
   deixe o ChatGPT mexer no Encarregados, ou espere o merge.
 - **Número de versão:** quem entrar no `main` por último renumera a sua versão, se o número já tiver sido usado.
 - **Conflito no Pull Request** (o GitHub avisa “This branch has conflicts”): peça ao assistente dono do PR para

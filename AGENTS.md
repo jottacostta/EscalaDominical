@@ -21,7 +21,8 @@ Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo
 
 1. Puxe o `main` mais recente (`git fetch origin main`) e trabalhe a partir dele.
 2. Veja o que mudou desde a última vez: `git log --oneline -15 origin/main`, o topo do `CHANGELOG.md` e o **`docs/PASSAGEM.md`** (seção 10).
-3. Veja se há Pull Requests abertos de outro assistente (o Claude usa branches que começam com `ccr-`).
+3. Veja se há Pull Requests abertos de outro assistente. **Reconheça pelo título**: `[Claude] …` ou `[ChatGPT] …`
+   (o branch do Claude muda de conversa para conversa: `ccr-…`, `claude/…` ou outro; o do ChatGPT é `chatgpt/…`).
    Se houver PR aberto mexendo no mesmo app, **espere ele entrar no main** ou combine com o dono do projeto.
 4. Descubra qual é a **versão atual** de cada app pelo nome do arquivo na raiz (ex.: `Escala_de_Setores_V222.html`).
 5. Numa **conversa nova**, leia também [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) (regras de continuidade, estado e pendências) e mantenha esse arquivo atualizado.
