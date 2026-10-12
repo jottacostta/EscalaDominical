@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V236</title>
+<title>Escala de Setores — V237</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V237 [Claude] — SALVAR ARQUIVOS DENTRO DO APK (ApkForja, modo site): no APK feito a partir do link, o WebView não
+       baixava os arquivos do app (histórico do mês, planilha Excel, backup, Equipe.txt, relatório do ano): o Android mostrava
+       “Nenhum aplicativo para abrir: blob:…” e o app dizia “guardado” sem ter guardado. Agora, com a ponte do ApkForja
+       ligada (“🔌 Permitir que o site use os recursos do Android”), o arquivo vai para a pasta Downloads do celular pela
+       função Android.salvarArquivo. Num APK sem a ponte, o app não finge que salvou: avisa em vermelho como resolver e o
+       lembrete do histórico continua “falta guardar”. No navegador (Chrome, computador) nada muda.
 V236 [Claude] — ÍCONES COLORIDOS IGUAIS EM QUALQUER APARELHO (estilo escolhido pelo dono): os emojis de botões,
        menus, títulos e cartões dos setores viram as figuras coloridas do Noto Emoji (Google, licença Apache 2.0),
        embutidas no próprio arquivo — antes cada celular/computador desenhava de um jeito; agora é sempre igual, e funciona
@@ -2228,7 +2234,7 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V236 · ícones coloridos iguais em qualquer aparelho</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V237 · salva arquivos dentro do APK</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -11170,7 +11176,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const span=document.createElement('span'); span.innerHTML=svg(MAPA[ch]); const ic=span.firstChild;
       n.parentNode.insertBefore(ic,n); n.nodeValue=(el.classList.contains('mi')?'':resto); el.dataset.ic='1'; return; }
   }
-  function iconizar(root){ return; /* '+new+': figuras coloridas no lugar dos desenhos em linha */ (root||document).querySelectorAll(SEL).forEach(el=>{ if(el.closest('.toast-stack')||el.matches('.home-card')) return; trocar(el);   /* '+new+': cartões dos setores ficam com as figuras coloridas */ }); }
+  function iconizar(root){ return; /* V236: figuras coloridas no lugar dos desenhos em linha */ (root||document).querySelectorAll(SEL).forEach(el=>{ if(el.closest('.toast-stack')||el.matches('.home-card')) return; trocar(el);   /* V236: cartões dos setores ficam com as figuras coloridas */ }); }
   let pend=false; const mo=new MutationObserver(()=>{ if(pend) return; pend=true; requestAnimationFrame(()=>{ pend=false; iconizar(document); }); });
   function iniciar(){ iconizar(document); mo.observe(document.body,{childList:true,subtree:true,characterData:true}); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
@@ -12620,5 +12626,50 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,150),{once:true}); else setTimeout(iniciar,150);
 })();
 </script>
+<script>
+/* ═════ V237 — SALVAR ARQUIVOS DENTRO DO APK (ApkForja, modo site) ═════
+   No APK feito pelo ApkForja a partir do LINK (modo site), o WebView não baixa arquivos “blob:” (histórico do mês, Excel,
+   backup, Equipe.txt, relatório): o Android mostrava “Nenhum aplicativo para abrir: blob:…” e o app dizia “guardado” sem ter
+   guardado nada. Agora todo download do app (todos passam por <a download>.click()) vai por aqui:
+   - APK com a ponte ligada (ApkForja → “🔌 Permitir que o site use os recursos do Android”): o arquivo é entregue a
+     Android.salvarArquivo(nome, base64, tipo) e fica na pasta Downloads do celular;
+   - APK SEM a ponte (WebView, “; wv)” no userAgent): o app não tenta baixar e avisa em vermelho como resolver;
+   - navegador comum (Chrome, computador): nada muda. */
+(function(){
+  const temPonte=()=>!!(window.Android&&typeof window.Android.salvarArquivo==='function');
+  const ehWebView=/;\s*wv\)/.test(navigator.userAgent||'');
+  const blobs=new Map();
+  const criar=URL.createObjectURL.bind(URL), revogar=URL.revokeObjectURL.bind(URL);
+  URL.createObjectURL=function(o){ const u=criar(o); try{ if(o instanceof Blob) blobs.set(u,o); }catch(e){} return u; };
+  URL.revokeObjectURL=function(u){ setTimeout(()=>blobs.delete(u),60000); return revogar(u); };
+  function b64(ab){ const u=new Uint8Array(ab); let s=''; for(let i=0;i<u.length;i+=32768) s+=String.fromCharCode.apply(null,u.subarray(i,i+32768)); return btoa(s); }
+  let ultimaFalha=0;
+  const falhar=msg=>{ ultimaFalha=Date.now(); setTimeout(()=>window.showToast?.(msg,'danger',true),450); };
+  async function salvar(a){
+    const h=a.href, nome=a.getAttribute('download')||'arquivo';
+    try{
+      const b=blobs.get(h)||await (await fetch(h)).blob();
+      const r=window.Android.salvarArquivo(nome,b64(await b.arrayBuffer()),(b.type||'application/octet-stream').split(';')[0]);
+      if(r&&r!=='OK') throw new Error(r);
+    }catch(e){ falhar(`⚠️ O arquivo “${nome}” NÃO foi salvo no celular (${e.message||e}). Tente de novo ou abra o app pelo Chrome.`); }
+  }
+  const clk=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(){
+    const h=this.href||'';
+    if(this.hasAttribute('download')&&/^(blob|data):/.test(h)){
+      if(temPonte()){ salvar(this); return; }
+      if(ehWebView){
+        falhar(`⚠️ O arquivo “${this.getAttribute('download')||'arquivo'}” NÃO foi salvo: este APK não deixa o app salvar arquivos. Abra o app pelo Chrome, ou gere o APK de novo no ApkForja com “🔌 Permitir que o site use os recursos do Android” ligado.`);
+        return;
+      }
+    }
+    return clk.apply(this,arguments);
+  };
+  /* o lembrete “histórico guardado” não pode ficar verde se o arquivo não foi salvo */
+  ['v161MarcarGuardado','v217MarcarGuardado'].forEach(k=>{ const f=window[k]; if(typeof f==='function') window[k]=function(){ if(Date.now()-ultimaFalha<2000) return; return f.apply(this,arguments); }; });
+  window.V237Apk={temPonte,ehWebView};
+})();
+</script>
+
 </body>
 </html>

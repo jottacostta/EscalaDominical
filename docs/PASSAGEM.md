@@ -17,13 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V236.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V166.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V237.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V168.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com Setores V236 + Encarregados V166 (ícones coloridos Noto) e a regra de ouro de UX/UI. Depois do merge: nenhum.
+- **PRs abertos:** o PR #35 do Claude com a Encarregados V167 (escala à mão nos domingos) + Setores V237 / Encarregados V168 (salvar arquivos dentro do APK). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V237**, Encarregados **V167**.
+- **Próximo número de versão:** Setores **V238**, Encarregados **V169**.
+- **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
 
 ---
 
@@ -74,6 +75,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - `gerar()`: gera o mês. Ela chama `autoGrupos()` sozinha, porque o passo "Grupos" foi retirado na V162: a aba fica escondida e `gotoStep` pula o índice 2.
 - `montarEscalaFeriados()` começa com `aplicarBloqueioFolgaFeriado()`. `bloqueioFolgaFeriado(i, dt)`: folga fixa/DSR no dia do feriado impede trabalhar, com a exceção da segunda-feira.
 - Ganchos: `v156CopiarFeriado`, `v159SyncPrazo` (prazo 20/30 dias), `v161MarcarGuardado`, `v163AbrirCard` (cartões clicáveis).
+- **Regras do domingo normal** (motor `escolherDomingo` / `combinacoesDomingoNormal` e conferência `validarEscala`): exatamente 3 pessoas, pelo menos 1 Encarregado (`tipo==='enc'`) e 1 Subencarregado (`'sub'`), as 3 de setores diferentes (no máximo 1 do Laticínio), ninguém 3 domingos seguidos (`podeDomingo`, conta `historicoManual` = 2 últimos domingos do mês passado), fora quem `foraDom` (folga fixa no domingo ou `inativo`). O motor sempre põe 1 do Laticínio (`laticinioEsperado`, blocos de 2); a conferência só exige “no máximo 1”. Domingo de balanço: todos trabalham (`trabalhamNoBalanco`).
+- **Escala à mão (V167)** — bloco `/* ═════ V167 — ESCALA À MÃO NOS DOMINGOS … ═════ */` no fim do arquivo, CSS `#v167-escala-mao`:
+  - modo `auto` / `manual` / `misto` e as marcações ficam em `localStorage` **`enc.v167EscalaMao`** = `{modo, meses:{'AAAA-MM':{dia:[chave]}}, mostrar, ord, fn}`. A chave da pessoa é `chaveDomingoPrevisto(i)` (`m:<matrícula>` ou `n:<nome>`), **não o índice** (o índice muda quando a equipe muda). Guarda os 8 meses mais recentes.
+  - histórico do mês: campo **`escalaMao`** (`window.v167Exportar()` em `exportarProjeto`, `window.v167Importar(p.escalaMao)` em `restaurarProjeto`). “Recomeçar do zero” apaga a chave (embrulho de `window.limparRascunho`).
+  - o motor recebe a escolha por **embrulhos**: `window.escolherDomingo` e `window.combinacoesDomingoNormal` (domingo com 3 marcados = exatamente eles; com 1–2 marcados = só as combinações do motor que contêm os marcados — é o Misto) e `window.gerar` (À mão: só gera sem 🔴 e sem 🟡; Misto: só sem 🔴). No modo Automático tudo passa direto para o original (escala igual à V166).
+  - `window.v167`: `auditar(sel?)` → `{r:[…], y:[…]}` (cada item `{d, ds?, is:[índices], t:texto}` — use `is` para saber quem o aviso cita, sem procurar nome no texto), `sel()` (marcações do mês na tela, em índices), `motivo(i,d,sel)` (por que não pode entrar; `''` = pode), `marcar(i,d,silencioso)`, `desmarcar`, `sugestoes(d)` (chama o `escolherDomingo` ORIGINAL e filtra pela conferência; reserva: combinações com menos domingos no mês), `copiarAnterior(d)`, `render()`, `estado()`, `definirModo(m)`.
+  - **Regra nova do domingo tem que entrar em `auditar` e em `motivo`** (as duas), senão a lista deixa marcar e só a conferência acusa (ou o contrário).
 
 ---
 
@@ -92,11 +100,35 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Ícones (V236/V166):** se um bloco novo compara o texto de um elemento com emoji (`el.textContent!==txt`), ponha a classe dele na lista `FORA` do bloco de ícones. Senão o app e a troca de ícones se desfazem em ciclo.
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
 - **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
+- **Downloads dentro do APK (V237/V168):** o APK do ApkForja em **modo site** é um WebView que abre o link; ele **não baixa `blob:`** (o Android mostra “Nenhum aplicativo para abrir: blob:…”), e o script de ponte do ApkForja que conserta `<a download>` só é injetado em HTML empacotado, não no site. Por isso cada app tem a camada `/* ═════ V237 (V168) — SALVAR ARQUIVOS DENTRO DO APK ═════ */`: embrulha `HTMLAnchorElement.prototype.click` e `URL.createObjectURL` (guarda o Blob) e, se existir `Android.salvarArquivo(nome, base64, tipo)` (ApkForja → “🔌 Permitir que o site use os recursos do Android”), entrega o arquivo para ele; num WebView sem ponte (`; wv)` no userAgent) avisa em vermelho e impede o lembrete de ficar “guardado”. **Todo download novo tem que ser `<a download>` + `.click()`** (como `baixarJSON`), senão não passa por essa camada. Não use `dispatchEvent(new MouseEvent…)` nem `window.open(blob)`.
 - **`auditarDescansosSimulados` vazia de propósito:** a capacidade de folgas por dia/turno é META, não trava (comentários em `limiteFolgaRespeitadoNaData` e `turnoFolgaValidoNaData`). Não “conserte” fazendo ela acusar erro sem o dono pedir.
 
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Setores V237 + Encarregados V168 — salvar arquivos dentro do APK (ApkForja) — Claude
+- **O que mudou e por quê:** o dono transformou o link em APK (ApkForja V41, modo site) e, ao guardar o histórico, o Android mostrou “Nenhum aplicativo para abrir: blob:https://jottacostta.github.io/…”, enquanto o app dizia “guardado na pasta Downloads”. Causa: o WebView não baixa `blob:`; o ApkForja só conserta isso injetando a ponte em HTML empacotado, não no modo site. Os apps agora usam a ponte direto (`Android.salvarArquivo`) quando ela existe; sem ponte num WebView, avisam em vermelho e o lembrete do histórico não fica verde. Vale para todos os downloads: histórico do mês, Excel, backup (Encarregados), Equipe.txt e relatório do ano (Setores).
+- **O que o dono precisa fazer no ApkForja:** etapa Arquivos → 🌐 Site → marcar **“🔌 Permitir que o site use os recursos do Android”** (o site é dele) → gerar o APK de novo (mesmo pacote e mesma chave, para atualizar por cima sem perder os dados).
+- **Onde no código:** bloco `/* ═════ V237 — SALVAR ARQUIVOS DENTRO DO APK … ═════ */` no fim do Setores e `V168` no Encarregados (mesmo código); gancho `window.V237Apk` / `window.V168Apk` = `{temPonte, ehWebView}`. Junto: os comentários `'+new+'` do Setores V236 viraram “V236”.
+- **Como foi testado:** novo `testarApk` em `testes/rodar.js` (nos dois apps): com uma ponte simulada o arquivo chega inteiro (nome, tipo e conteúdo com acento) e não vira download do navegador; num WebView sem ponte aparece “NÃO foi salvo”; no navegador comum o download continua igual. Fora da suíte: botão real “Guardar histórico do mês” e Excel do Encarregados com e sem ponte (lembrete continua “falta guardar” sem ponte). Suítes rápida e completa ✅.
+- **Para continuar:** se o dono gerar o APK como HTML empacotado (não site), a ponte do ApkForja também funciona — a camada usa a mesma função. Abrir arquivo (input file) dentro do WebView depende do `onShowFileChooser` do molde do ApkForja; não foi testado no aparelho.
+
+### 2026-10-12 — Encarregados V167 — escala à mão nos domingos (mesmos critérios do Setores) — Claude
+- **O que mudou e por quê:** o dono pediu “uma versão de escala manual para a versão encarregados seguindo os mesmos critérios da versão setores”. No passo 5 entrou “① Quem monta os domingos?” (🤖 Automático / ✋ À mão / 🤝 Misto, os mesmos cartões da V206 do Setores) e, no À mão/Misto, um cartão por domingo com o que o Setores tem na escala à mão:
+  - busca por matrícula ou nome com Enter (V207); lista separada por função (V226); filtros Ordenar e Função por cartão (V222/V223); “Mostrar: Todos | Só os escalados” (V215); ↻ Copiar o domingo anterior, pulando o balanço e quem cairia no 3º domingo seguido (V213);
+  - 💡 Sugestão do app com “Outra sugestão” (V233–V235) — aqui ela usa o **mesmo cálculo do automático** (`escolherDomingo` original), então a divisão dos domingos fica igual à do automático;
+  - folga antes/depois do domingo e a folga fixa no próprio cartão (V223/V225); quantos domingos a pessoa já tem no mês (V217);
+  - 🛡️ Conferência ao vivo com 🔴/🟡 e selo por domingo, e bloqueio na hora de marcar com o motivo (V227/V228);
+  - afastados e férias escondidos da lista (V230); quem tem folga fixa no domingo aparece em cinza.
+  - Específico dos Encarregados: as regras são as do motor (3 pessoas, 1 Enc + 1 Sub, setores diferentes, 3 domingos seguidos contando o mês passado e o balanço; folga do domingo caindo num feriado trabalhado); quando o domingo já tem 3 pessoas, o cartão mostra só as 3 (a lista de 30 nomes cinza não ajudava); 📌 no 1º domingo, “Usar estas pessoas” coloca quem o app já tinha previsto no mês passado (as folgas antes desse domingo já foram avisadas).
+- **O que ficou de fora de propósito:** a janela “☑️ Escolher na lista” do Setores (lá são até 120 pessoas; aqui o próprio cartão já mostra as ~30); escolha do horário de domingo (os Encarregados não têm horário de domingo no app); 6×1 na conferência (com a folga antes e depois de cada domingo trabalhado não dá para passar de 6 dias — conferido no código; `validarEscala` continua conferindo depois de gerar).
+- **Onde no código:** veja o mapa técnico (seção 3, “Escala à mão (V167)”). Corrigido junto: dois comentários da V166 tinham saído com o texto do script (`'+new+'`) no lugar de “V166” (no Setores V236 também — pendência na seção 6).
+- **Como foi testado:**
+  - `testes/rodar.js`: novo `testarEncManual` (roda da V167 em diante): cartões, Gerar bloqueado com domingo vazio, pessoa do mesmo setor recusada (na tela e direto), busca por matrícula + Enter, 3 meses seguidos montados só pela 💡 sugestão (um com domingo de balanço) e gerados iguais ao que foi marcado, 📌 previsão, ↻ copiar sem 3º domingo seguido, folga “Domingo” no cartão, 🤝 Misto, memória depois de recarregar e campo `escalaMao` no histórico. O verificador independente dos Encarregados virou a função `verificarEnc` (o mesmo do automático).
+  - suítes rápida e completa ✅;
+  - equipe real (local): 12 meses (nov/2026 → out/2027), 53 domingos só pela sugestão, 0 regras quebradas, todos os meses “pronta”, e a mesma quantidade de domingos por pessoa do automático; cálculo da sugestão 10–45 ms por domingo.
+- **Para continuar:** ideias na seção 6.
 
 ### 2026-10-11 — Setores V233 — sugestões na escala manual — ChatGPT
 - **Objetivo:** reduzir o trabalho do gestor sugerindo funcionários por domingo, mantendo a decisão humana e a auditoria existente.
@@ -289,6 +321,7 @@ Modelo de entrada:
 - **V219:** quadro da loja no histórico.
 - **V218:** tudo que mostra número é clicável.
 - **Encarregados:**
+  - V166: ícones coloridos e logo completo;
   - V165: rolagem do menu;
   - V164: folga fixa bloqueia feriado;
   - V163: cartões clicáveis;
@@ -310,5 +343,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
 - **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
+- **APK no aparelho:** conferir com o dono, num APK gerado com a ponte ligada, se “Abrir histórico guardado” (escolher arquivo) também funciona dentro do APK.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
+- **Encarregados — escala à mão (V167), ideias:** (1) a sugestão segue o motor, que prefere a dupla 2×1 (quem trabalhou o domingo anterior) — por isso um mês usa ~6–8 pessoas diferentes, igual ao automático; se o dono quiser “espalhar mais”, a mudança é no `escolherDomingo` (vale para os dois modos). (2) Revisar a tela da escala à mão com o checklist da seção 4.1 do `AGENTS.md` junto com o dono.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
