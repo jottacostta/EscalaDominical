@@ -12423,7 +12423,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const modo=modoAtual(),bal=balancoDoMes(+$('ano').value,+$('mes').value);
     if(modo==='motor'||Number(d)===Number(bal))return 0;
     const selecionados=new Set((selecaoManualDomingo[String(d)]||[]).map(Number));
-    return Math.max(0,alvoCoberturaAtual()+lideresSelecionadosDomingo(d).length-selecionados.size);
+    return Math.max(0,alvoCoberturaAtual()-selecionados.size);
   }
   function auditoriaCandidato(i,d){
     const f=equipe[i]; if(!f)return {ok:false,motivo:'Cadastro não encontrado.'};
@@ -12454,7 +12454,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function candidatosDoDia(d){
     const doms=domingoAtual();
-    return equipe.map((f,i)=>({f,i})).filter(({f,i})=>auditoriaCandidato(i,d).ok)
+    return equipe.map((f,i)=>({f,i})).filter(({i})=>auditoriaCandidato(i,d).ok)
       .map(x=>({...x,score:scoreFuncionario(x.i,doms)}))
       .sort((a,b)=>a.score-b.score||String(a.f.nome||'').localeCompare(String(b.f.nome||''),'pt-BR'));
   }
@@ -12467,9 +12467,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const actions=card.querySelector('.dom-actions');
     if(actions)actions.before(area);else card.appendChild(area);
   }
-  function montarTodos(){
-    document.querySelectorAll('#selecaoDomingosManual .dom-card[data-geracao-dom],#selecaoDomingosMista .dom-card[data-geracao-dom]').forEach(montarPainel);
-  }
+  function montarTodos(){document.querySelectorAll('#selecaoDomingosManual .dom-card[data-geracao-dom],#selecaoDomingosMista .dom-card[data-geracao-dom]').forEach(montarPainel);}
   function renderSugestoes(d){
     const card=document.querySelector('.dom-card[data-geracao-dom="'+d+'"]'),area=card?.querySelector('.v233-sugestoes');
     if(!card||!area)return;
@@ -12479,17 +12477,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const lista=candidatos.slice(0,limite);
     area.innerHTML='<h4>💡 Sugestões para '+String(d).padStart(2,'0')+'/'+String(+$('mes').value+1).padStart(2,'0')+'</h4><p>Vagas restantes: '+vagas+'. Marcamos inicialmente os candidatos com menor carga de domingos. Confira a lista antes de aceitar.</p><div class="v233-lista">'+lista.map((x,k)=>'<label class="v233-candidato"><input type="checkbox" data-v233-candidato="'+x.i+'" data-v233-dia="'+d+'" '+(k<vagas?'checked':'')+'><span><b>'+esc(x.f.nome)+'</b><small>'+esc(x.f.cargo||'Cargo não informado')+' · '+esc(x.f.turno||'Turno não informado')+' · '+x.score+' domingo(s) no histórico considerado</small></span></label>').join('')+'</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-aceitar="'+d+'">Aceitar selecionados</button><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Rejeitar sugestões</button></div>';
   }
-  function persistir(){
-    try{window.v45Persist?.();}catch(e){}
-    try{window.v227Auditar?.();}catch(e){}
-  }
+  function persistir(){try{window.v45Persist?.();}catch(e){}try{window.v227Auditar?.();}catch(e){}}
   document.addEventListener('click',e=>{
     const gerar=e.target.closest('[data-v233-gerar]');
     if(gerar){renderSugestoes(Number(gerar.dataset.v233Gerar));return;}
     const rejeitar=e.target.closest('[data-v233-rejeitar]');
     if(rejeitar){const c=rejeitar.closest('.v233-sugestoes');if(c)c.innerHTML='<h4>💡 Sugestões dispensadas</h4><p>A escala existente foi mantida sem alterações.</p><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-gerar="'+rejeitar.dataset.v233Rejeitar+'">Gerar novamente</button></div>';return;}
-    const aceitar=e.target.closest('[data-v233-aceitar]');
-    if(!aceitar)return;
+    const aceitar=e.target.closest('[data-v233-aceitar]');if(!aceitar)return;
     const d=Number(aceitar.dataset.v233Aceitar),area=aceitar.closest('.v233-sugestoes');
     const marcados=[...(area?.querySelectorAll('input[data-v233-candidato]:checked')||[])].map(x=>Number(x.dataset.v233Candidato));
     if(!marcados.length){window.showToast?.('Marque pelo menos um funcionário para aceitar.','warn');return;}
@@ -12510,15 +12504,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(recusados.length)window.showToast?.('Não incluídos: '+recusados.join(' | '),'warn',true);
   });
   const renderOriginal=renderSelecaoDomingosGeracao;
-  renderSelecaoDomingosGeracao=function(){
-    renderOriginal();
-    setTimeout(montarTodos,0);
-  };
+  renderSelecaoDomingosGeracao=function(){renderOriginal();setTimeout(montarTodos,0);};
   const obs=new MutationObserver(()=>montarTodos());
-  function iniciar(){
-    montarTodos();
-    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{const el=$(id);if(el)obs.observe(el,{childList:true,subtree:true});});
-  }
+  function iniciar(){montarTodos();['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{const el=$(id);if(el)obs.observe(el,{childList:true,subtree:true});});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,500),{once:true});else setTimeout(iniciar,500);
 })();
 </script>
