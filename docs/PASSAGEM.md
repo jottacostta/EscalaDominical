@@ -26,7 +26,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **Próximo número de versão:** Setores **V243**, Encarregados **V174**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V238): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V242): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V171): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -132,7 +132,7 @@ Modelo de entrada:
 - **O que mudou e por quê:** o dono percebeu que o “Guardar histórico do mês” já leva a equipe inteira (Setores: quadro da loja desde a V219; Encarregados: `equipe`), então o Equipe.txt virou repetição. Saíram da tela a caixa do Equipe.txt e o “Baixar Equipe.txt”; o passo Equipe ganhou “📂 Abrir histórico guardado” (e, nos Encarregados, “📥 Planilha do RH”, que abre `v134Fonte.abrirModal`). Textos de aviso sem citar o Equipe.txt.
 - **Onde no código:** bloco `/* ═════ V242|V173 — SEM EQUIPE.TXT NA TELA ═════ */` (igual nos dois apps): botão `[data-v242hist]`; o `#arquivoProjetoJSON` passa a aceitar .txt/.csv e, num listener de captura, repassa o arquivo ao `#arquivoTxt` com `DataTransfer`.
 - **Como foi testado:** `testarSemTxt` no `testes/rodar.js` (os dois apps): caixa e botão escondidos, o botão novo aparece, um Equipe.txt fictício abre pelo histórico, e (Encarregados) a “📥 Planilha do RH” abre a janela do local da planilha. Suítes rápida e completa.
-- **Para continuar:** o APK antigo com `Android.lerEquipe/salvarEquipe` continua igual (não mexi). Manual da Escala de Setores atualizado para a V242.
+- **Para continuar:** o APK antigo com `Android.lerEquipe/salvarEquipe` continua igual (não mexi). Manual da Escala de Setores atualizado para a V242 (passo 1 sem Equipe.txt e com a data de admissão; ③ com o modo “Por turno” e o “Se faltar, entra”; quadro do “Por cargo”; 4 prints novos com dados fictícios).
 
 ### 2026-10-12 — Setores V241 — liderança por turno (Frente de Loja, Mercearia, CPD) — Claude
 - **O que mudou e por quê:** o dono contou os cenários reais. Frente de Loja: Encarregado (abertura) + Sub (fechamento), ou Sub + Sub. Mercearia: Enc + Enc, Líder + Enc, Enc + Sub. CPD: Enc + Preparador de dados, Sub + Preparador ou 2 Preparadores — sempre 1 na abertura e 1 no fechamento. Nenhum modo antigo cobria isso: o “1 Encarregado + 1 Sub” proíbe Sub + Sub, e o “Várias” não olha o turno.
@@ -156,7 +156,7 @@ Modelo de entrada:
 - **O que mudou e por quê:** o dono pediu os mesmos passos nos dois apps: Equipe → Mês passado → Domingos → Feriados → Gerar. O “Mês” dos Encarregados saiu da barra e virou **📅 Mês e opções** (o app já escolhe o mês seguinte sozinho; o resto é opcional), igual ao ⚙️ Configurações do Setores.
 - **Onde no código:** botão do índice 1 com a classe `mes-step-oculto`; barra de baixo (Próximo/Voltar e o rótulo) pula o índice 1; aviso `#v171Mes` no topo do Mês passado; item “Mês e opções” no menu ⋮ (bloco `/* ═════ V171 … ═════ */`). Textos: “passo 2 (Mês)” → “📅 Mês e opções”; 3→2, 4→3, 5→4, 6→5.
 - **Como foi testado:** `testes/rodar.js` confere a ordem nos dois apps e que “Próximo” vai da Equipe ao Mês passado e o “📅 Mês e opções” abre o mês e volta. Suítes rápida e completa ✅. Captura no celular.
-- **Documentação:** o dono decidiu que os manuais (Claude Docs) passam a ser atualizados pelo Claude. O Manual do Encarregado foi reescrito para a V171 (prints novos de uma simulação de nov/2026 com dados fictícios), o Roteiro do Beta foi para a V171 (+2 cenários: domingos à mão e app no celular) e foi criado o Manual da Escala de Setores (V238). Links na seção 1.
+- **Documentação:** o dono decidiu que os manuais (Claude Docs) passam a ser atualizados pelo Claude. O Manual do Encarregado foi reescrito para a V171 (prints novos de uma simulação de nov/2026 com dados fictícios), o Roteiro do Beta foi para a V171 (+2 cenários: domingos à mão e app no celular) e foi criado o Manual da Escala de Setores (V242). Links na seção 1.
 
 ### 2026-10-12 — Setores V238 — mês passado antes dos domingos — Claude
 - **O que mudou e por quê:** o dono pediu a ordem “Equipe → Mês passado → Domingos → Feriados → Gerar” também no Setores (igual à V170 dos Encarregados): o mês passado decide quem pode trabalhar no 1º domingo, e a auditoria ao vivo da escala à mão usa esse dado.
