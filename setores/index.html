@@ -7,10 +7,32 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V237</title>
+<title>Escala de Setores — V241</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V241 [Claude] — LIDERANÇA POR TURNO (cenários do dono): Frente de Loja e Mercearia trabalham com 1 liderança na ABERTURA
+       e 1 no FECHAMENTO, de qualquer cargo — Encarregado + Sub, Sub + Sub, Encarregado + Encarregado, Líder + Encarregado…
+       Novo modo no ③ “Quem lidera”: “Por turno” (🌅 quantas na abertura + 🌙 quantas no fechamento). O 🤖 Sugerir liderança
+       escolhe por turno (qualquer cargo, sem 3 domingos seguidos, em blocos de 2, dividindo igual); cada domingo mostra
+       quantas tem em cada turno e o aviso diz qual turno ficou sem liderança. No “Por cargo” a linha ⭐ vira duas: abertura e
+       fechamento. Frente de Loja e Mercearia começam em “Por turno” (1 + 1) se o setor nunca foi ajustado. O modo vai no
+       histórico do mês. CPD: “Se faltar liderança no turno, entra: Preparador de dados” — Encarregado + Preparador, Sub +
+       Preparador ou 2 Preparadores, sempre 1 na abertura e 1 no fechamento (o motor conta essa vaga no “Por cargo”).
+V240 [Claude] — “POR CARGO” COM AS LIDERANÇAS (pedido do dono): no modo “Por cargo” a pessoa escolhe quantas lideranças
+       trabalham por domingo E quantos de cada cargo operacional, no mesmo quadro. O quadro “Quantos de cada cargo por
+       domingo” ganhou a linha “⭐ Lideranças” com − e +: 1 = “Uma só”; 2 ou mais = “Várias” com essa meta (o ③ “Quem lidera”
+       acompanha, e vice-versa). O total mostra lideranças + operacionais. Nome da opção e explicação novos; o exemplo dos
+       grupos (CPD) só aparece no modo Grupos.
+V239 [Claude] — DATA DE ADMISSÃO NO EDITAR EQUIPE (pedido do dono): o campo estava travado (só leitura), mostrava a data
+       como 1989-11-01 e a data editada não era salva. Agora dá para digitar a data no formato dd/mm/aaaa (as barras
+       entram sozinhas), o app confere se a data existe e não é no futuro, guarda no quadro e no Equipe.txt. Se a planilha
+       do RH trouxer a data, ela continua valendo na próxima importação. Corrigido também (defeito antigo): ao fechar e
+       abrir o app, a “equipe da última sessão” voltava SEM a data de admissão e sem os dados do ERP.
+V238 [Claude] — MÊS PASSADO ANTES DOS DOMINGOS (pedido do dono, igual à Escala de Encarregados): os passos agora são
+       1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar. Quem trabalhou nos 2 últimos domingos do mês passado
+       decide quem pode trabalhar no 1º domingo (3 domingos seguidos), por isso ele vem antes de montar os domingos. Avisos,
+       atalhos, guias e textos de ajuda com os números novos dos passos.
 V237 [Claude] — SALVAR ARQUIVOS DENTRO DO APK (ApkForja, modo site): no APK feito a partir do link, o WebView não
        baixava os arquivos do app (histórico do mês, planilha Excel, backup, Equipe.txt, relatório do ano): o Android mostrava
        “Nenhum aplicativo para abrir: blob:…” e o app dizia “guardado” sem ter guardado. Agora, com a ponte do ApkForja
@@ -556,7 +578,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .emp-card.open .emp-fields{display:grid}
 .emp-fields .full{grid-column:1/-1}
 .emp-fields input,.emp-fields select{width:100%;padding:10px 11px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);font-size:13.5px}
-.emp-fields .ed-status-erp,.emp-fields .ed-situacao-detalhe,.emp-fields .ed-admissao{background:var(--surface-2);color:var(--ink-2);font-weight:600;border-style:dashed}
+.emp-fields .ed-status-erp,.emp-fields .ed-situacao-detalhe{background:var(--surface-2);color:var(--ink-2);font-weight:600;border-style:dashed}
 .emp-fields .check-row{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);font-size:12.5px;font-weight:600;cursor:pointer}
 .emp-fields .check-row input{width:18px;height:18px;accent-color:var(--danger)}
 .emp-remove{background:transparent;color:var(--danger);border:1.5px solid var(--danger-lt);padding:10px 12px;font-size:12.5px;font-weight:700;border-radius:9px;justify-self:start}
@@ -1893,7 +1915,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 .v207-jrod button{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#0A5BDB,#0047BA 45%,#002A6E);color:#fff}
 </style>
 <style id="v208-varias-liderancas">
-.v208-modos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.v208-modos{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:0 0 12px}
 @media(max-width:700px){.v208-modos{grid-template-columns:1fr}}
 .v208-modo{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;padding:10px 12px;border:2px solid var(--border);border-radius:14px;background:#fff;font:inherit;cursor:pointer;color:var(--ink)}
 .v208-modo b{font-size:14px}.v208-modo small{font-size:12px;color:var(--muted);font-weight:500}
@@ -2139,6 +2161,24 @@ html[data-runtime="desktop"] .top-header .brand-logo{height:52px}
 html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
 @media print{.gb-ic{width:1em;height:1em}}
 </style>
+<script>
+/* V239 — DATA DE ADMISSÃO NO EDITAR EQUIPE, NO FORMATO dd/mm/aaaa. Por dentro o app continua guardando aaaa-mm-dd (como vem do ERP). */
+function admissaoBR(v){ const t=String(v||'').trim(); let m=t.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[3]+'/'+m[2]+'/'+m[1];
+  m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3]; return t; }
+/* '' = vazio; null = data inválida; senão 'aaaa-mm-dd' */
+function admissaoISO(v){ const t=String(v||'').trim(); if(!t) return ''; let d,mo,a,m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){ d=+m[1]; mo=+m[2]; a=+m[3]; } else if((m=t.match(/^(\d{4})-(\d{2})-(\d{2})$/))){ a=+m[1]; mo=+m[2]; d=+m[3]; } else return null;
+  const dt=new Date(a,mo-1,d); if(dt.getFullYear()!==a||dt.getMonth()!==mo-1||dt.getDate()!==d||a<1940||dt>new Date()) return null;
+  return a+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+/* enquanto digita: só números, e as barras entram sozinhas (01022015 → 01/02/2015) */
+document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.classList||!x.classList.contains('ed-admissao')) return;
+  const dig=x.value.replace(/\D/g,'').slice(0,8); let s=dig; if(dig.length>4) s=dig.slice(0,2)+'/'+dig.slice(2,4)+'/'+dig.slice(4); else if(dig.length>2) s=dig.slice(0,2)+'/'+dig.slice(2);
+  if(s!==x.value) x.value=s; x.classList.toggle('adm-erro', s.length===10 && admissaoISO(s)===null); },true);
+</script>
+<style id="v239-admissao">.ed-admissao.adm-erro{border-color:#D92D20!important;box-shadow:0 0 0 3px rgba(217,45,32,.15)!important}</style>
+<style id="v240-lider-cargo">
+.fn-row.v240-lider{background:#FFF8DB;border:1px solid #F3DE8A;border-radius:12px;padding:8px 10px;margin-bottom:8px}
+</style>
 </head>
 <body>
 <script>
@@ -2192,7 +2232,7 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
     <ol class="comece-passos">
       <li><span class="n">1</span><div><b>Atualize os funcionários</b><small>Toque em “Importar funcionários” e escolha a planilha que o RH enviou. Só precisa repetir quando o RH mandar uma planilha nova.</small><button type="button" class="btn" id="comeceImportar">📥 Importar funcionários</button></div></li>
       <li><span class="n">2</span><div><b>Escolha o seu setor</b><small>Toque no cartão do seu setor aqui embaixo (Açougue, Padaria, CPD...).</small></div></li>
-      <li><span class="n">3</span><div><b>Siga os passos</b><small>Equipe → Domingos → Feriados → Mês passado → Gerar. Em cada passo uma caixa azul explica o que fazer.</small></div></li>
+      <li><span class="n">3</span><div><b>Siga os passos</b><small>Equipe → Mês passado → Domingos → Feriados → Gerar. Em cada passo uma caixa azul explica o que fazer.</small></div></li>
     </ol>
     <div class="comece-acoes"><button type="button" class="btn success" id="comeceTour">▶ Ver como usar (1 minuto)</button><button type="button" class="btn secondary" id="comeceFechar">Já sei usar</button></div>
   </section>
@@ -2234,16 +2274,16 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V237 · salva arquivos dentro do APK</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V241 · liderança por turno</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
   <div class="step-track">
     <button type="button" class="step active" data-step="0" data-panel="equipeCard" role="tab" aria-selected="true"><span class="step-num"><span>1</span></span><b>Equipe</b><span>Quem trabalha</span></button>
     <button type="button" class="step config-step-hidden" data-step="1" data-panel="configCard" role="tab" aria-selected="false"><span class="step-num"><span>⚙️</span></span><b>Configurações</b><span>Parâmetros da escala</span></button>
-    <button type="button" class="step" data-step="2" data-panel="coberturaCard" role="tab" aria-selected="false"><span class="step-num"><span>2</span></span><b>Domingos</b><span>Quem trabalha e quem monta</span></button>
-    <button type="button" class="step" data-step="3" data-panel="geracaoCard" role="tab" aria-selected="false"><span class="step-num"><span>3</span></span><b>Feriados</b><span>Folgas do mês</span></button>
-    <button type="button" class="step" data-step="4" data-panel="historicoCard" role="tab" aria-selected="false"><span class="step-num"><span>4</span></span><b>Mês passado</b><span>Últimos domingos</span></button>
+    <button type="button" class="step" data-step="2" data-panel="historicoCard" role="tab" aria-selected="false"><span class="step-num"><span>2</span></span><b>Mês passado</b><span>Últimos domingos</span></button>
+    <button type="button" class="step" data-step="3" data-panel="coberturaCard" role="tab" aria-selected="false"><span class="step-num"><span>3</span></span><b>Domingos</b><span>Quem trabalha e quem monta</span></button>
+    <button type="button" class="step" data-step="4" data-panel="geracaoCard" role="tab" aria-selected="false"><span class="step-num"><span>4</span></span><b>Feriados</b><span>Folgas do mês</span></button>
     <button type="button" class="step" data-step="5" data-panel="resultadoCard" role="tab" aria-selected="false"><span class="step-num"><span>5</span></span><b>Gerar</b><span>Ver e baixar</span></button>
   </div>
 </div>
@@ -2407,9 +2447,15 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
   </div>
 </section>
 
+<section class="card step-panel" id="historicoCard" data-panel-id="historico">
+  <h2 class="section-title"><span class="st-num">2</span> Mês passado — últimos 2 domingos</h2>
+<div class="guia"><span class="passo">Passo 2 de 5</span><b>O que fazer:</b> marque quem trabalhou nos <b>dois últimos domingos do mês passado</b>. Isso evita que alguém trabalhe 3 domingos seguidos na virada do mês. Se o app já tiver o mês passado guardado, tudo vem preenchido: só confira e toque em <b>Próximo</b>. Trocou de aparelho? Abra o histórico do mês passado em <b>⋮ → Abrir histórico guardado</b>.</div>
+  <p class="hint">Para cada pessoa, marque se trabalhou no <b>penúltimo</b> e/ou no <b>último</b> domingo do mês passado. Pode trabalhar 2 domingos seguidos; o 3º seguido não pode.</p>
+  <div id="historicoLista" class="manual-list"></div>
+</section>
 <section class="card step-panel" id="coberturaCard" data-panel-id="cobertura">
-  <h2 class="section-title"><span class="st-num">2</span> Domingos: quantas pessoas e quem lidera</h2>
-<div class="guia"><span class="passo">Passo 2 de 5</span><b>O que fazer:</b> <b>① Quem monta a escala:</b> deixe em <b>🤖 Automático</b> para o app escolher os nomes, ou toque em <b>✋ Manual</b> para você marcar quem trabalha em cada domingo (ou <b>🤝 Misto</b>: você marca alguns e o app completa). <b>② Quantas pessoas</b> trabalham em cada domingo. <b>③ Quem lidera</b> (opcional): escolha se é <b>uma só</b>, <b>1 Encarregado + 1 Sub</b> ou <b>várias</b> lideranças, os nomes de cada domingo e a <b>folga (DSR)</b> de cada liderança. <b>④ No Manual ou Misto</b>, os domingos aparecem no fim desta tela: marque os nomes e o horário de cada um (digite a <b>matrícula ou o nome</b> na busca do domingo, use <b>☑️ Escolher na lista</b> ou <b>↻ Copiar o domingo anterior</b>). Ao marcar, cada pessoa mostra quantos domingos já tem no mês, e o app avisa em vermelho quem ficaria com <b>3 domingos seguidos</b>. <b>Na dúvida, deixe no Automático e toque em Próximo.</b></div>
+  <h2 class="section-title"><span class="st-num">3</span> Domingos: quantas pessoas e quem lidera</h2>
+<div class="guia"><span class="passo">Passo 3 de 5</span><b>O que fazer:</b> <b>① Quem monta a escala:</b> deixe em <b>🤖 Automático</b> para o app escolher os nomes, ou toque em <b>✋ Manual</b> para você marcar quem trabalha em cada domingo (ou <b>🤝 Misto</b>: você marca alguns e o app completa). <b>② Quantas pessoas</b> trabalham em cada domingo. <b>③ Quem lidera</b> (opcional): escolha se é <b>uma só</b>, <b>1 Encarregado + 1 Sub</b> ou <b>várias</b> lideranças, os nomes de cada domingo e a <b>folga (DSR)</b> de cada liderança. <b>④ No Manual ou Misto</b>, os domingos aparecem no fim desta tela: marque os nomes e o horário de cada um (digite a <b>matrícula ou o nome</b> na busca do domingo, use <b>☑️ Escolher na lista</b> ou <b>↻ Copiar o domingo anterior</b>). Ao marcar, cada pessoa mostra quantos domingos já tem no mês, e o app avisa em vermelho quem ficaria com <b>3 domingos seguidos</b>. <b>Na dúvida, deixe no Automático e toque em Próximo.</b></div>
   <div id="geracaoConfigWrap" class="card" style="margin:14px 0 0;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
     <h3 style="margin:0 0 4px;font-size:16px">① Quem monta a escala?</h3>
     <p class="hint" style="margin:0 0 6px">Escolha uma opção. No <b>Manual</b> e no <b>Misto</b>, os domingos aparecem no fim desta tela para você marcar os nomes.</p>
@@ -2433,15 +2479,15 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
       <select id="modoCobertura">
         <option value="50">Metade da equipe em cada domingo</option>
         <option value="grupos">Grupos que eu mesmo monto</option>
-        <option value="funcao">Por cargo — eu escolho quantos de cada cargo</option>
+        <option value="funcao">Por cargo — eu escolho quantas lideranças e quantos de cada cargo</option>
       </select>
       <div id="coberturaResumo" class="alert info" style="margin-top:8px">50% do quadro elegível será escalado a cada domingo.</div>
       <div id="liderancaDomingoArea" class="card" style="margin-top:10px;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
         <h3 style="margin:0 0 4px;font-size:16px">③ Quem lidera no domingo? (opcional)</h3>
-        <p class="hint" style="margin:0 0 8px">A liderança é <b>opcional</b>. Primeiro escolha <b>quantas lideranças</b> trabalham por domingo (uma só, um Encarregado + um Sub, ou <b>várias</b>). Depois escolha os nomes em cada domingo, ou toque em <b>🤖 Sugerir liderança</b>. Cada liderança precisa da <b>folga (DSR)</b> escolhida por você.</p>
+        <p class="hint" style="margin:0 0 8px">A liderança é <b>opcional</b>. Primeiro escolha <b>quantas lideranças</b> trabalham por domingo (uma só, um Encarregado + um Sub, <b>por turno</b> — abertura e fechamento — ou <b>várias</b>). Depois escolha os nomes em cada domingo, ou toque em <b>🤖 Sugerir liderança</b>. Cada liderança precisa da <b>folga (DSR)</b> escolhida por você.</p>
         <div id="liderancaDomingoLista"></div>
       </div>
-      <small class="hint">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
+      <small class="hint" id="v240ExGrupos">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
     </div>
   </div>
   <div id="configFuncao" style="display:none"></div>
@@ -2473,8 +2519,8 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
 </section>
 
 <section class="card step-panel" id="geracaoCard" data-panel-id="geracao">
-  <h2 class="section-title"><span class="st-num">3</span> Feriados do mês</h2>
-<div class="guia"><span class="passo">Passo 3 de 5</span><b>O que fazer:</b> se o mês tiver feriado, marque quem <b>vai trabalhar</b> em cada um. Quem trabalha no feriado ganha uma folga em outro dia (compensação): o app sugere a data e você toca em <b>✅ Aceitar</b>. Não gostou da data? Toque em <b>🔄 Outra data</b>. Confira a <b>📅 Prévia das folgas</b> antes de aceitar. Para achar alguém rápido, digite a <b>matrícula ou o nome</b> na busca do feriado; a partir do 2º feriado, <b>↻ Copiar o feriado anterior</b> marca as mesmas pessoas; em <b>Mostrar: Só os escalados</b>, cada feriado lista só quem trabalha. Se não houver feriado, é só tocar em <b>Próximo</b>.</div>
+  <h2 class="section-title"><span class="st-num">4</span> Feriados do mês</h2>
+<div class="guia"><span class="passo">Passo 4 de 5</span><b>O que fazer:</b> se o mês tiver feriado, marque quem <b>vai trabalhar</b> em cada um. Quem trabalha no feriado ganha uma folga em outro dia (compensação): o app sugere a data e você toca em <b>✅ Aceitar</b>. Não gostou da data? Toque em <b>🔄 Outra data</b>. Confira a <b>📅 Prévia das folgas</b> antes de aceitar. Para achar alguém rápido, digite a <b>matrícula ou o nome</b> na busca do feriado; a partir do 2º feriado, <b>↻ Copiar o feriado anterior</b> marca as mesmas pessoas; em <b>Mostrar: Só os escalados</b>, cada feriado lista só quem trabalha. Se não houver feriado, é só tocar em <b>Próximo</b>.</div>
   <div class="alert" id="semFeriados" style="margin-top:8px">📅 Este mês não tem feriados. Toque em Próximo.</div>
   <div id="feriadosCard" style="display:none;margin-top:10px">
     <h2 class="section-title">Escala de feriados</h2>
@@ -2501,12 +2547,7 @@ html[data-runtime="desktop"] .home-top .v202-logo{height:52px}
   </div>
 </section>
 
-<section class="card step-panel" id="historicoCard" data-panel-id="historico">
-  <h2 class="section-title"><span class="st-num">4</span> Mês passado — últimos 2 domingos</h2>
-<div class="guia"><span class="passo">Passo 4 de 5</span><b>O que fazer:</b> marque quem trabalhou nos <b>dois últimos domingos do mês passado</b>. Isso evita que alguém trabalhe 3 domingos seguidos na virada do mês. Se o app já tiver o mês passado guardado, tudo vem preenchido: só confira e toque em <b>Próximo</b>. Trocou de aparelho? Abra o histórico do mês passado em <b>⋮ → Abrir histórico guardado</b>.</div>
-  <p class="hint">Para cada pessoa, marque se trabalhou no <b>penúltimo</b> e/ou no <b>último</b> domingo do mês passado. Pode trabalhar 2 domingos seguidos; o 3º seguido não pode.</p>
-  <div id="historicoLista" class="manual-list"></div>
-</section>
+
 
 <section class="card step-panel" id="resultadoCard" data-panel-id="resultado">
   <h2 class="section-title"><span class="st-num">5</span> Gerar e conferir a escala</h2>
@@ -3483,7 +3524,7 @@ function renderEditorRows(rows){
     <select class="ed-situacao" title="Situação operacional do quadro"><option value="A" ${String(r.situacao||'A').toUpperCase()==='A'?'selected':''}>A — Ativo</option><option value="AF" ${String(r.situacao||'A').toUpperCase()==='AF'?'selected':''}>AF — Afastado</option><option value="EP" ${String(r.situacao||'A').toUpperCase()==='EP'?'selected':''}>EP — Emprestado</option></select>
     <input class="ed-status-erp" value="${htmlEsc(r.statusErp||'')}" placeholder="Status original do ERP" readonly>
     <input class="ed-situacao-detalhe" value="${htmlEsc(r.situacaoDetalhe||'')}" placeholder="Situação detalhada do ERP" readonly>
-    <input class="ed-admissao" value="${htmlEsc(r.admissao||'')}" placeholder="Data de admissão" readonly>
+    <input class="ed-admissao" value="${htmlEsc(admissaoBR(r.admissao))}" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10">
     <input type="checkbox" class="ed-apto-dom" hidden>
     <button type="button" class="remove" data-remove="${i}" title="Excluir">🗑️</button>
   </div>`).join('');
@@ -3523,10 +3564,11 @@ function coletarEquipeEditor(){
     else if(situacao==='EP'&&!setorEmprestimo)erros.push('Linha '+(i+1)+': informe o setor de destino do empréstimo.');
     else if(situacao==='EP'&&norm(setorEmprestimo)===norm(grupoDoSetor(setorSelecionado)?.id||setorSelecionado))erros.push('Linha '+(i+1)+': o setor de destino deve ser diferente do setor de origem.');
     else if(!turno)erros.push('Linha '+(i+1)+': selecione o turno (Abertura ou Fechamento).');
+    else if(admissaoISO(row.querySelector('.ed-admissao')?.value)===null)erros.push('Linha '+(i+1)+' ('+nome+'): a data de admissão não é válida. Use dia/mês/ano, ex.: 01/02/2015.');   // V239
     else {
       const naoAptoDomingo=false;   // V221: quem não está afastado é apto ao domingo
       const subsetor=(norm(setorSelecionado)==='mercearia') ? String(row.querySelector('.ed-subsetor')?.value||'').toUpperCase() : '';
-    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,setorEmprestimo:situacao==='EP'?setorEmprestimo:'',subsetor,turno,folga,pendente,situacao,naoAptoDomingo});
+    dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,setorEmprestimo:situacao==='EP'?setorEmprestimo:'',subsetor,turno,folga,pendente,situacao,naoAptoDomingo,admissao:admissaoISO(row.querySelector('.ed-admissao')?.value)||''});   // V239: admissao
     }
   });
   // Uma matrícula não pode representar dois funcionários no cadastro.
@@ -3551,7 +3593,7 @@ function equipeTextoDosDados(dados){
     `Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo;SetorEmprestimo\n`+
     dados.map(x=>{ const f=porId.get(String(x.aptidaoId||'')) || (todasEquipes||[]).find(y=>String(y.matricula)===String(x.matricula));
       const horario=String(x.horario||f?.horario||'').trim(); const mh=horario.match(/^(\d{1,2}):\d{2}/); const turno=mh?(+mh[1]<12?'Abertura':'Fechamento'):turnoSaida(x.turno);
-      return [String(x.matricula||'').trim(),String(x.nome||'').trim().toUpperCase(),horario,String(x.cargo||'').trim().toUpperCase(),turno,String(x.setor||setorArquivo||'').trim(),String(x.subsetor||f?.subsetor||'').trim(),nomeDiaFolga(x.folga),situacaoSaida(x.situacao),String(f?.statusErp||'').trim(),String(f?.situacaoDetalhe||'').trim(),String(f?.admissao||'').trim(),f?.aptoDomingo===false?'0':'1',String(x.setorEmprestimo||f?.setorEmprestimo||'').trim()].join(';'); }).join('\n');
+      return [String(x.matricula||'').trim(),String(x.nome||'').trim().toUpperCase(),horario,String(x.cargo||'').trim().toUpperCase(),turno,String(x.setor||setorArquivo||'').trim(),String(x.subsetor||f?.subsetor||'').trim(),nomeDiaFolga(x.folga),situacaoSaida(x.situacao),String(f?.statusErp||'').trim(),String(f?.situacaoDetalhe||'').trim(),String((x.admissao!==undefined?x.admissao:f?.admissao)||'').trim(),f?.aptoDomingo===false?'0':'1',String(x.setorEmprestimo||f?.setorEmprestimo||'').trim()].join(';'); }).join('\n');
 }
 
 function nomeArquivoEquipe(setorNome){
@@ -3590,10 +3632,10 @@ function salvarEquipeEditor(){
     const existente=d.aptidaoId
       ? todasEquipes.find(f=>String(f.aptidaoId)===String(d.aptidaoId))
       : todasEquipes.find(f=>String(f.matricula)===String(d.matricula));
-    if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.setorEmprestimo=d.setorEmprestimo||'';existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';
+    if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.setorEmprestimo=d.setorEmprestimo||'';existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';if(d.admissao!==undefined)existente.admissao=d.admissao;   /* V239 */
       const chave=chaveFuncionario(existente); if(d.naoAptoDomingo) naoAptosDomingo.add(chave); else naoAptosDomingo.delete(chave);
       existente.aptoDomingo=!d.naoAptoDomingo;}
-    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:'',aptidaoId,tipo:tipo(d.cargo)}); }
+    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:d.admissao||'',aptidaoId,tipo:tipo(d.cargo)}); }
   });
   // V154: no navegador, só a ÁREA editada muda. Antes, parseEquipe() recriava o quadro inteiro só com as pessoas desta área (os outros setores sumiam).
   if(!(window.Android && typeof Android.salvarEquipe==='function')){
@@ -3777,7 +3819,7 @@ $('arquivoBalanco').onchange=e=>{
      if(p.length===3)datasBalanco.push({d:+p[0],m:+p[1]-1,a:+p[2]});
    });
    window.showToast(datasBalanco.length+' data(s) de balanço carregada(s).','ok');
-   try{ sincronizarFlagBalancoAutomatico(true); atualizarModoGeracao(); }catch(e){}   // V195: mostra na hora o cartão do balanço no passo 2
+   try{ sincronizarFlagBalancoAutomatico(true); atualizarModoGeracao(); }catch(e){}   // V195: mostra na hora o cartão do balanço no passo 3
  };
  r.readAsText(f);
 };
@@ -5287,12 +5329,24 @@ function _lerLiderUnica(){ try{ return JSON.parse(localStorage.getItem('escalaSe
 function liderancaUnica(){ if(liderVarias()) return false; const v=_lerLiderUnica()[norm($('setorSelecionado')?.value||'')]; return v===undefined?true:!!v; }
 /* V208 — várias lideranças por domingo (setores grandes). Guardado por setor no aparelho. */
 function _lerLiderVarias(){ try{ return JSON.parse(localStorage.getItem('escalaSetores.liderVarias')||'{}')||{}; }catch(e){ return {}; } }
-function liderVarias(){ const s=norm($('setorSelecionado')?.value||''); const v=_lerLiderVarias()[s]; if(v!==undefined) return !!v.on;
+/* V241 — liderança POR TURNO: {ab, fe} = quantas na abertura e no fechamento, qualquer cargo (Enc, Sub, Líder) */
+function _lerLiderTurno(){ try{ return JSON.parse(localStorage.getItem('escalaSetores.liderTurno')||'{}')||{}; }catch(e){ return {}; } }
+function liderTurno(){ const s=norm($('setorSelecionado')?.value||''), v=_lerLiderTurno()[s];
+  if(v!==undefined) return v&&v.on?{ab:Math.max(0,Number(v.ab)||0),fe:Math.max(0,Number(v.fe)||0),comp:String(v.comp||'')}:null;
+  if(_lerLiderVarias()[s]!==undefined||_lerLiderUnica()[s]!==undefined) return null;
+  if(/\bcpd\b/.test(s)){ let c=''; try{ c=(funcoesDoSetor().find(f=>/preparador/.test(f.chave))||{}).chave||''; }catch(e){} return {ab:1,fe:1,comp:c}; }   // CPD: falta liderança no turno → entra Preparador de dados
+  return /frente de loja|mercearia/.test(s)?{ab:1,fe:1,comp:''}:null; }
+function definirLiderTurno(on,ab,fe,comp){ try{ const all=_lerLiderTurno(), s=norm($('setorSelecionado')?.value||''), at=liderTurno()||{ab:1,fe:1,comp:''};
+  all[s]={on:!!on,ab:Number.isInteger(ab)?ab:at.ab,fe:Number.isInteger(fe)?fe:at.fe,comp:comp!==undefined?String(comp||''):(at.comp||'')}; localStorage.setItem('escalaSetores.liderTurno',JSON.stringify(all)); }catch(e){} }
+function turnoLider(i){ const f=equipe[i]||{}; const t=turnoPeso(f.turno); if(t!=='OUTROS') return t; const m=String(f.horario||'').match(/^(\d{1,2}):/); return m?(+m[1]<12?'ABERTURA':'FECHAMENTO'):'OUTROS'; }
+function liderVarias(){ if(liderTurno()) return true;   // V241: por turno guarda como “várias”
+  const s=norm($('setorSelecionado')?.value||''); const v=_lerLiderVarias()[s]; if(v!==undefined) return !!v.on;
   if(_lerLiderUnica()[s]!==undefined) return false;
   return /frente de loja|mercearia/.test(s); }
-function qtdLiderVarias(){ const v=_lerLiderVarias()[norm($('setorSelecionado')?.value||'')]; const n=Number(v&&v.n); return Number.isInteger(n)&&n>=1?n:2; }
+function qtdLiderVarias(){ { const T=liderTurno(); if(T) return Math.max(1,T.ab+T.fe); }   // V241
+  const v=_lerLiderVarias()[norm($('setorSelecionado')?.value||'')]; const n=Number(v&&v.n); return Number.isInteger(n)&&n>=1?n:2; }
 function definirLiderVarias(on,n){ try{ const all=_lerLiderVarias(), s=norm($('setorSelecionado')?.value||''); all[s]={on:!!on,n:Number.isInteger(n)?n:qtdLiderVarias()}; localStorage.setItem('escalaSetores.liderVarias',JSON.stringify(all)); }catch(e){} }
-function modoLideranca(){ return liderVarias()?'varias':(liderancaUnica()?'uma':'encsub'); }
+function modoLideranca(){ return liderTurno()?'turno':liderVarias()?'varias':(liderancaUnica()?'uma':'encsub'); }
 /* V209 — se a escala guardada tem mais lideranças do que o modo permite (arquivo de outro aparelho, dados do aparelho
    apagados), o modo é ajustado sozinho em vez de mostrar erro. Nunca reduz: só abre para o modo que cabe. */
 function ajustarModoPelosRegistros(){
@@ -5302,7 +5356,7 @@ function ajustarModoPelosRegistros(){
   regs.forEach(ls=>{ if(ls.length<=1) return; const tipos=ls.map(i=>tipoLiderancaDomingo(equipe[i])||'enc');
     const repetido=new Set(tipos).size<tipos.length, lidJunto=tipos.includes('lid')&&tipos.some(t=>t!=='lid');
     if(ls.length>2||repetido||lidJunto) precisa='varias'; else if(precisa==='uma') precisa='encsub'; });
-  const atual=modoLideranca(), ordem={uma:0,encsub:1,varias:2};
+  const atual=modoLideranca(), ordem={uma:0,encsub:1,varias:2,turno:2};
   if(ordem[precisa]>ordem[atual]){
     if(precisa==='varias') definirLiderVarias(true); else { definirLiderVarias(false); definirLiderancaUnica(false); }
     setTimeout(()=>window.showToast?.(`ℹ️ Liderança ajustada para “${precisa==='varias'?'Várias':'1 Encarregado + 1 Sub'}”: esta escala tem mais de uma liderança no mesmo domingo.`,'ok'),300);
@@ -5330,6 +5384,8 @@ function ajustarRegistrosLideranca(modo){
   });
 }
 function definirModoLideranca(modo){
+  if(modo==='turno'){ definirLiderTurno(true); ajustarRegistrosLideranca('varias'); window.v45Persist?.(); renderLiderancaDomingo(); return; }   // V241
+  definirLiderTurno(false);
   if(modo==='varias') definirLiderVarias(true);
   else { definirLiderVarias(false); definirLiderancaUnica(modo==='uma'); }
   ajustarRegistrosLideranca(modo); window.v45Persist?.(); renderLiderancaDomingo();
@@ -5337,7 +5393,7 @@ function definirModoLideranca(modo){
 function htmlModoLider(){
   const m=modoLideranca();
   const op=(v,t,d)=>`<button type="button" class="v208-modo" data-lider-modo="${v}" aria-pressed="${m===v}"><b>${t}</b><small>${d}</small></button>`;
-  return `<div class="v208-modos" role="group" aria-label="Quantas lideranças por domingo">${op('uma','Uma só','Encarregado <b>ou</b> Subencarregado <b>ou</b> Líder')}${op('encsub','1 Encarregado + 1 Sub','no máximo um de cada')}${op('varias','Várias','quantas precisar (Frente de Loja, Mercearia…)')}</div>`;
+  return `<div class="v208-modos" role="group" aria-label="Quantas lideranças por domingo">${op('uma','Uma só','Encarregado <b>ou</b> Subencarregado <b>ou</b> Líder')}${op('encsub','1 Encarregado + 1 Sub','no máximo um de cada')}${op('turno','Por turno','🌅 abertura + 🌙 fechamento, de qualquer cargo (Frente de Loja, Mercearia…)')}${op('varias','Várias','quantas precisar, sem separar por turno')}</div>`;
 }
 function ligarModoLider(){ document.querySelectorAll('[data-lider-modo]').forEach(b=>b.addEventListener('click',()=>{ if(b.getAttribute('aria-pressed')==='true') return; definirModoLideranca(b.dataset.liderModo); })); }
 function definirLiderancaUnica(v){ try{ const all=_lerLiderUnica(); all[norm($('setorSelecionado')?.value||'')]=!!v; localStorage.setItem('escalaSetores.liderUnica',JSON.stringify(all)); }catch(e){} }
@@ -5392,7 +5448,11 @@ function atualizarAvisoLideranca(){
   else if(doms.some(d=>d!==bal&&lideresSelecionadosDomingo(d).some(i=>dsrLiderPendente(d,i)))){ const n=doms.filter(d=>d!==bal&&lideresSelecionadosDomingo(d).some(i=>dsrLiderPendente(d,i))).length; box.className='alert warn'; box.textContent=`🛌 Falta escolher a folga (DSR) da liderança em ${n} domingo(s) — a folga da liderança é definida pela gerência.`; }
   else if(semLider.length){ box.className='alert info'; box.textContent=semLider.length===doms.filter(d=>d!==bal).length?'ℹ️ Liderança opcional: nenhum domingo tem Encarregado/Subencarregado escolhido, então trabalham só os funcionários.':`ℹ️ Liderança opcional: ${semLider.length} domingo(s) só com funcionários (${semLider.map(d=>String(d).padStart(2,'0')).join(', ')}).`; }
   else { box.className='alert ok'; box.textContent=liderancaUnica()?'✅ Uma liderança definida em cada domingo, sem 3 domingos seguidos.':'✅ Liderança definida para todos os domingos, sem 3 domingos seguidos.'; }
-  if(liderVarias()){ const doms2=doms.filter(d=>d!==bal); const n=qtdLiderVarias(); const pouco=doms2.filter(d=>{ const k=lideresSelecionadosDomingo(d).length; return k>0&&k<n; }); if(pouco.length&&!/bad|warn/.test(box.className)){ box.className='alert info'; box.textContent=`ℹ️ ${pouco.map(d=>String(d).padStart(2,'0')).join(', ')}: menos de ${n} lideranças (a meta que você escolheu). É só um lembrete.`; } }
+  if(liderTurno()){ const T=liderTurno(); const falta=doms.filter(d=>d!==bal&&lideresSelecionadosDomingo(d).length).map(d=>{ const ls=lideresSelecionadosDomingo(d), a=ls.filter(i=>turnoLider(i)==='ABERTURA').length, f=ls.filter(i=>turnoLider(i)==='FECHAMENTO').length;
+      const o=[]; if(a<T.ab) o.push('🌅 abertura'); if(f<T.fe) o.push('🌙 fechamento'); return o.length?`${String(d).padStart(2,'0')} sem ${o.join(' e ')}`:''; }).filter(Boolean);
+    const nc=T.comp?((funcoesDoSetor().find(f=>f.chave===T.comp)||{}).rotulo||''):'';
+    if(falta.length&&!/bad|warn/.test(box.className)){ box.className='alert info'; box.textContent=nc?`ℹ️ Liderança por turno (🌅 ${T.ab} + 🌙 ${T.fe}): ${falta.join('; ')} — nesse turno entra ${nc} no lugar.`:`ℹ️ Liderança por turno (🌅 ${T.ab} na abertura + 🌙 ${T.fe} no fechamento): ${falta.join('; ')}. É só um aviso: a liderança é opcional.`; } }
+  else if(liderVarias()){ const doms2=doms.filter(d=>d!==bal); const n=qtdLiderVarias(); const pouco=doms2.filter(d=>{ const k=lideresSelecionadosDomingo(d).length; return k>0&&k<n; }); if(pouco.length&&!/bad|warn/.test(box.className)){ box.className='alert info'; box.textContent=`ℹ️ ${pouco.map(d=>String(d).padStart(2,'0')).join(', ')}: menos de ${n} lideranças (a meta que você escolheu). É só um lembrete.`; } }
 }
 /* V127: sugestão automática — a gerência continua podendo trocar qualquer nome. */
 function sugerirLiderancaDomingo(){
@@ -5409,6 +5469,27 @@ function calcularSugestaoLideranca(){
   const doms=domingosDoMes(+$('ano').value,+$('mes').value);
   const novo={__ref:refLideranca()};
   const prev=previsaoDoDomingoSetor(doms[0]);
+  if(liderTurno()){   // V241: por turno — T.ab na abertura e T.fe no fechamento, qualquer cargo; blocos de 2, sem 3 seguidos, dividindo igual
+    const T=liderTurno(), ordemTipo={enc:0,sub:1,lid:2};
+    const cands=[...candidatosLideranca('enc'),...candidatosLideranca('sub'),...candidatosLideranca('lid')];
+    if(!cands.length) return novo;
+    const cont={}; cands.forEach(i=>cont[i]=0);
+    const trab=(i,idx)=>idx===-2?!!historicoManual(i).penultimo:idx===-1?!!historicoManual(i).ultimo:lideresDoRegistro(novo[String(doms[idx])]).includes(i);
+    const prevIds=idx=>(idx===0&&prev&&prev.lideres)?(Array.isArray(prev.lideres.todosIdx)&&prev.lideres.todosIdx.length?prev.lideres.todosIdx:[prev.lideres.encIdx,prev.lideres.subIdx,prev.lideres.lidIdx].filter(i=>Number.isInteger(i))):[];
+    doms.forEach((d,idx)=>{
+      const ok=cands.filter(i=>!(trab(i,idx-1)&&trab(i,idx-2)));
+      const esc=[];
+      [['ABERTURA',T.ab],['FECHAMENTO',T.fe]].forEach(([tn,q])=>{
+        const resto=ok.filter(i=>turnoLider(i)===tn).sort((a,b)=>{ const fa=prevIds(idx).includes(a)?1:0, fb=prevIds(idx).includes(b)?1:0;
+          const pa=(trab(a,idx-1)&&!trab(a,idx-2))?1:0, pb=(trab(b,idx-1)&&!trab(b,idx-2))?1:0;
+          return (fb-fa)||(pb-pa)||(cont[a]-cont[b])||((ordemTipo[tipoLiderancaDomingo(equipe[a])]??3)-(ordemTipo[tipoLiderancaDomingo(equipe[b])]??3))||(a-b); });
+        esc.push(...resto.slice(0,q));
+      });
+      esc.forEach(i=>cont[i]++);
+      if(esc.length) novo[String(d)]={mais:esc};
+    });
+    return novo;
+  }
   if(liderVarias()){   // V208: N lideranças por domingo, blocos de 2, sem 3 seguidos, dividindo igual
     const N=qtdLiderVarias();
     const ordemTipo={enc:0,sub:1,lid:2};
@@ -5603,11 +5684,12 @@ function renderLiderancaVarias(area,doms,topo){
   const rot=i=>`${htmlEsc(equipe[i].nome)}`;
   const det=i=>[equipe[i].matricula?'Mat. '+equipe[i].matricula:'',nomeTipoLider(tipoLiderancaDomingo(equipe[i])),String(equipe[i].turno||'').toLowerCase()].filter(Boolean).map(htmlEsc).join(' • ');
   const usoMes=i=>doms.filter(d=>lideresSelecionadosDomingo(d).includes(i)).length;
-  area.innerHTML=topo+`<div class="v208-meta"><label>Meta de lideranças por domingo <select id="v208Qtd">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}" ${n===N?'selected':''}>${n}</option>`).join('')}</select></label><small>Usada pelo “Sugerir liderança”. Você pode colocar mais ou menos em cada domingo.</small></div>`
+  const T241=liderTurno(), sel241=(id,v)=>`<select id="${id}">${[0,1,2,3,4].map(n=>`<option value="${n}" ${n===v?'selected':''}>${n}</option>`).join('')}</select>`;
+  area.innerHTML=topo+(T241?`<div class="v208-meta"><label>🌅 Na abertura ${sel241('v241Ab',T241.ab)}</label><label>🌙 No fechamento ${sel241('v241Fe',T241.fe)}</label><label>Se faltar liderança no turno, entra: ${window.v241SelComp?.('v241Comp')||''}</label><small>Qualquer cargo de liderança: Encarregado, Sub ou Líder. O “Sugerir liderança” escolhe assim; você pode trocar em cada domingo.</small></div>`:`<div class="v208-meta"><label>Meta de lideranças por domingo <select id="v208Qtd">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}" ${n===N?'selected':''}>${n}</option>`).join('')}</select></label><small>Usada pelo “Sugerir liderança”. Você pode colocar mais ou menos em cada domingo.</small></div>`)
   +doms.map(d=>{
     const ls=lideresSelecionadosDomingo(d);
     const chips=ls.length?ls.map(i=>`<span class="v208-chip t-${tipoLiderancaDomingo(equipe[i])||'enc'}"><span><b>${rot(i)}</b><small>${det(i)}</small></span><button type="button" data-v208-tirar="${d}_${i}" aria-label="Tirar ${htmlEsc(equipe[i].nome)} do domingo ${d}">✕</button></span>`).join(''):'<span class="v208-vazio">Sem liderança neste domingo (só funcionários)</span>';
-    return `<div class="manual-row lider-row v208-row" style="grid-template-columns:minmax(60px,.3fr) 1fr;gap:8px;margin-bottom:8px"><b>${String(d).padStart(2,'0')}/${mesTxt}${d===bal?'<small style="display:block;color:#8A6A00">balanço</small>':''}<small class="v208-n">${ls.length} liderança${ls.length===1?'':'s'}</small></b><div class="v208-corpo"><input type="hidden" data-lider-dia="${d}"><div class="v208-chips">${chips}</div><div class="v208-add"><input type="search" autocomplete="off" placeholder="➕ Adicionar liderança: matrícula ou nome…" data-v208-busca="${d}" aria-label="Adicionar liderança no domingo ${d}"><div class="v208-sug" hidden></div></div></div></div>`;
+    return `<div class="manual-row lider-row v208-row" style="grid-template-columns:minmax(60px,.3fr) 1fr;gap:8px;margin-bottom:8px"><b>${String(d).padStart(2,'0')}/${mesTxt}${d===bal?'<small style="display:block;color:#8A6A00">balanço</small>':''}<small class="v208-n">${ls.length} liderança${ls.length===1?'':'s'}${liderTurno()&&ls.length?` · 🌅 ${ls.filter(i=>turnoLider(i)==='ABERTURA').length} · 🌙 ${ls.filter(i=>turnoLider(i)==='FECHAMENTO').length}`:''}</small></b><div class="v208-corpo"><input type="hidden" data-lider-dia="${d}"><div class="v208-chips">${chips}</div><div class="v208-add"><input type="search" autocomplete="off" placeholder="➕ Adicionar liderança: matrícula ou nome…" data-v208-busca="${d}" aria-label="Adicionar liderança no domingo ${d}"><div class="v208-sug" hidden></div></div></div></div>`;
   }).join('')
   +`<div class="actions" style="margin-top:4px"><button type="button" class="btn secondary sm" id="btnSugerirLideranca">🤖 Sugerir liderança (${N} por domingo)</button><button type="button" class="btn secondary sm" id="btnV208Copiar" style="margin-left:6px">↻ Repetir o 1º domingo em todos</button><button type="button" class="btn secondary sm" id="btnLimparLideranca" style="margin-left:6px">🧹 Sem liderança</button></div><div id="liderancaAviso" class="alert" aria-live="polite"></div>`;
   const salvar=(d,ls)=>{ const k=String(d), old=liderancaManualDomingo[k]||{}; const novo=ls.length?{mais:ls}:{}; if(old.dsr){ const keep={}; ls.forEach(i=>{ if(old.dsr[String(i)]) keep[String(i)]=old.dsr[String(i)]; }); if(Object.keys(keep).length) novo.dsr=keep; } liderancaManualDomingo[k]=novo; window.v45Persist?.(); };
@@ -5631,6 +5713,7 @@ function renderLiderancaVarias(area,doms,topo){
     sug.addEventListener('click',e=>{ const b=e.target.closest('[data-n]'); if(b) escolher(+b.dataset.n); });
   });
   $('v208Qtd')?.addEventListener('change',e=>{ definirLiderVarias(true,Number(e.target.value)); renderLiderancaDomingo(); });
+  ['v241Ab','v241Fe','v241Comp'].forEach(id=>$(id)?.addEventListener('change',()=>{ definirLiderTurno(true,Number($('v241Ab').value),Number($('v241Fe').value),$('v241Comp')?.value); window.v45Persist?.(); renderLiderancaDomingo(); }));   // V241
   $('btnV208Copiar')?.addEventListener('click',()=>{ const d0=doms.find(d=>d!==bal&&lideresSelecionadosDomingo(d).length); if(d0===undefined){ window.showToast?.('Escolha primeiro as lideranças de um domingo.','warn'); return; } const base=lideresSelecionadosDomingo(d0); doms.forEach(d=>{ if(d!==d0&&d!==bal) salvar(d,base.slice()); }); renderLiderancaDomingo(); window.showToast?.('Mesmas lideranças em todos os domingos. Confira os avisos de 3 domingos seguidos.','ok'); });
   $('btnSugerirLideranca')?.addEventListener('click',sugerirLiderancaDomingo); $('btnLimparLideranca')?.addEventListener('click',limparLiderancaDomingo);
   ligarModoLider();
@@ -5678,8 +5761,9 @@ function atualizarModoCobertura(){
   const ativos=equipe.filter(f=>!foraDom(f)&&!ehLiderancaDomingo(f)).length;
   const alvo=Math.max(1,Math.round(ativos/2));
   const resumo=$('coberturaResumo');
-  if(resumo) resumo.textContent=modo==='grupos' ? 'Modo por grupos: defina os grupos abaixo.' : modo==='funcao' ? 'Por função: defina abaixo quantas pessoas de cada cargo trabalham em cada domingo. O motor escolhe quem está disponível e você confirma ou troca no Resultado.' : `Metade da equipe: ${ativos} elegível(is) → ${alvo} por domingo.`;
+  if(resumo) resumo.textContent=modo==='grupos' ? 'Modo por grupos: defina os grupos abaixo.' : modo==='funcao' ? 'Por cargo: no quadro abaixo, escolha quantas lideranças e quantos de cada cargo trabalham em cada domingo. O app escolhe quem está disponível e você confirma ou troca no Resultado.' : `Metade da equipe: ${ativos} elegível(is) → ${alvo} por domingo.`;
   $('configGrupos').style.display=modo==='grupos'?'block':'none';
+  if($('v240ExGrupos')) $('v240ExGrupos').style.display=modo==='grupos'?'':'none';   // V240: o exemplo é dos grupos
   if($('configFuncao')){ $('configFuncao').style.display=modo==='funcao'?'block':'none'; if(modo==='funcao'){ carregarCfgFuncao(); renderConfigFuncao(); } }
   if(modo==='grupos' && equipe.length && !grupos.length){
     const q=Math.max(1,Math.min(20,parseInt($('qtdGrupos')?.value||3,10)));
@@ -6005,16 +6089,16 @@ function conformidadeMesSet(mes,ano,bal){
   let pend=0,trabFer=0;
   Object.keys(fer).map(Number).forEach(d=>{ const dt=new Date(ano,mes,d); const t=dt.getDay()===0?(trabalhoDomingo[d]||[]):(trabalhoFeriado[d]||[]);
     [...new Set(t)].forEach(i=>{ trabFer++; if(!(folgasCompensatorias||{})[`${d}_${i}`]) pend++; }); });
-  if(Object.keys(fer).length) itens.push(pend?{st:'warn',t:'Folga dos feriados trabalhados',d:`${pend} de ${trabFer} ainda sem data. Use “✅ Aceitar todas” no passo 3 (Feriados).`}:{st:'ok',t:'Folga dos feriados trabalhados',d:trabFer?`As ${trabFer} folgas de feriado estão definidas.`:'Ninguém trabalha nos feriados deste mês.'});
+  if(Object.keys(fer).length) itens.push(pend?{st:'warn',t:'Folga dos feriados trabalhados',d:`${pend} de ${trabFer} ainda sem data. Use “✅ Aceitar todas” no passo 4 (Feriados).`}:{st:'ok',t:'Folga dos feriados trabalhados',d:trabFer?`As ${trabFer} folgas de feriado estão definidas.`:'Ninguém trabalha nos feriados deste mês.'});
   return {itens,pend};
 }
 /* V151 — para onde cada aviso de conformidade leva o usuário (igual ao app Encarregados) */
 function destinoConformidade(x){
   const t=String(x?.t||'');
-  if(/feriados trabalhados/i.test(t)) return {ir:3,alvo:['#aceitarTodasFeriadoBar','#feriadosArea'],rot:'Ir para os feriados (passo 3)'};
-  if(/domingos seguidos|a cada 3 semanas/i.test(t)) return {ir:4,alvo:['#historicoLista'],rot:'Conferir o mês passado (passo 4)'};
-  if(/Lideran/i.test(t)) return {ir:2,alvo:['#liderancaDomingoArea','#liderancaDomingoLista'],rot:'Revisar a liderança do domingo (passo 2: Domingos)'};
-  if(/Cobertura/i.test(t)) return {ir:2,alvo:['#coberturaResumo','#modoCobertura','#configFuncao'],rot:'Ajustar a cobertura (passo 2: Domingos)'};
+  if(/feriados trabalhados/i.test(t)) return {ir:4,alvo:['#aceitarTodasFeriadoBar','#feriadosArea'],rot:'Ir para os feriados (passo 4)'};
+  if(/domingos seguidos|a cada 3 semanas/i.test(t)) return {ir:2,alvo:['#historicoLista'],rot:'Conferir o mês passado (passo 2)'};
+  if(/Lideran/i.test(t)) return {ir:3,alvo:['#liderancaDomingoArea','#liderancaDomingoLista'],rot:'Revisar a liderança do domingo (passo 3: Domingos)'};
+  if(/Cobertura/i.test(t)) return {ir:3,alvo:['#coberturaResumo','#modoCobertura','#configFuncao'],rot:'Ajustar a cobertura (passo 3: Domingos)'};
   if(/Folga semanal/i.test(t)) return {ir:1,alvo:['#dsrCard','#dsrDiasConfig'],rot:'Conferir os dias permitidos para DSR (⚙️ Configurações)'};
   if(/dias seguidos/i.test(t)) return {ir:0,alvo:['#equipeLista'],rot:'Conferir a equipe e as folgas fixas (passo 1)'};
   return null;
@@ -7218,13 +7302,14 @@ function renderConfigFuncao(){
   const total=fns.reduce((n,fn)=>n+qtdFuncaoBase(fn.chave),0);
   const lid=funcoesLideranca();
   el.innerHTML=`<div class="card" style="margin-top:10px;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
-    <h3 style="margin:0 0 4px;font-size:16px">🧑‍🔧 Quantos de cada função por domingo</h3>
-    <p class="hint" style="margin:0 0 6px">Ex.: Açougue → 3 Açougueiros, 3 Operadores de Câmara Fria e 1 Balconista. O motor escolhe <b>quem</b> está disponível; você confirma ou troca no Resultado.</p>
+    <h3 style="margin:0 0 4px;font-size:16px">🧑‍🔧 Quantos de cada cargo por domingo</h3>
+    <p class="hint" style="margin:0 0 6px">Ex.: Açougue → 1 liderança, 3 Açougueiros, 3 Operadores de Câmara Fria e 1 Balconista. O app escolhe <b>quem</b> está disponível; você confirma ou troca no Resultado.</p>
+    ${window.v240LinhaLider?.()||''}
     ${fns.map(fn=>{ const q=qtdFuncaoBase(fn.chave), mx=maxSustentavelFuncao(fn);
       return `<div class="fn-row"><div class="fn-info"><b>${htmlEsc(fn.rotulo)}</b><small>${fn.ids.length} no quadro • ${fn.ab} abertura • ${fn.fe} fechamento${q>mx?` • <span style="color:var(--info,#0B6BA8)">ℹ️ em alguns domingos virão menos que ${q}: quem trabalhou 2 domingos seguidos folga no 3º (2×1)</span>`:''}</small></div>
         <div class="fn-qtd"><button type="button" data-fn-menos="${htmlEsc(fn.chave)}" aria-label="menos">−</button><input type="number" inputmode="numeric" min="0" max="${fn.ids.length}" value="${q}" data-fn-base="${htmlEsc(fn.chave)}" aria-label="Quantidade de ${htmlEsc(fn.rotulo)}"><button type="button" data-fn-mais="${htmlEsc(fn.chave)}" aria-label="mais">+</button></div></div>
         ${fns.length>1?`<div class="fn-sub" style="display:flex;align-items:center;gap:8px;margin:-4px 0 8px;font-size:12.5px;color:var(--ink-2)"><span style="flex:none">🔁 Se faltar, cobrir com:</span><select data-fn-subst="${htmlEsc(fn.chave)}" style="flex:1;min-width:0;padding:6px 8px;font-size:12.5px"><option value="">ninguém (fica com menos)</option>${fns.filter(o=>o.chave!==fn.chave).map(o=>`<option value="${htmlEsc(o.chave)}" ${substitutoFuncao(fn.chave)===o.chave?'selected':''}>${htmlEsc(o.rotulo)}</option>`).join('')}</select></div>`:''}`;}).join('')}
-    <div class="alert info" style="margin-top:8px">Por domingo: <b>${total}</b> operacionais${lid?` + liderança (${htmlEsc(lid)})`:''}.</div>
+    <div class="alert info" style="margin-top:8px">${(()=>{ const nl=lid?(window.v240QtdLider?.()||0):0; return nl?`Por domingo: <b>${nl}</b> liderança${nl===1?'':'s'} + <b>${total}</b> operacionais = <b>${nl+total}</b> pessoas.`:`Por domingo: <b>${total}</b> operacionais.`; })()}</div>
     <details style="margin-top:8px"><summary style="font-weight:800;cursor:pointer">📅 Ajustar um domingo específico</summary>
       <p class="hint" style="margin:6px 0">Em branco = usa a quantidade padrão acima.</p>
       <div style="overflow-x:auto"><table class="fn-dom-tab"><tr><th>Domingo</th>${fns.map(fn=>`<th>${htmlEsc(fn.rotulo)}</th>`).join('')}</tr>
@@ -7728,7 +7813,7 @@ function gerarSetoresCore(){
       const pertoBal=bi>=0&&Math.abs(idx-bi)===1;   // V195: explica a falta causada pelo balanço
       if(pertoBal) observacoes.push(`${formatarDataDomingo(d)}: ${esc.length} de ${alvoDia} pessoas — como todos trabalham no balanço (${formatarDataDomingo(bal)}), quem trabalha neste domingo não pode trabalhar no outro domingo ao lado do balanço (seriam 3 domingos seguidos). É normal ter menos gente aqui`);
       else { const nOps=equipe.filter(f=>!foraDom(f)&&!ehLiderancaDomingo(f)).length, nd=doms.length, cap=nOps*(nd-Math.floor(nd/3));   // V217: explica quando falta gente apta
-        avisos.push(`${formatarDataDomingo(d)}: ${esc.length} de ${alvoDia} pessoas.`+(cap<alvoDia*nd?` Motivo: só ${nOps} pessoa${nOps===1?'':'s'} (fora a liderança) ${nOps===1?'pode':'podem'} trabalhar no domingo, e ninguém faz 3 domingos em sequência; não dá para ter ${alvoDia} em todos os ${nd} domingos. ${equipe.some(f=>!foraDom(f)&&ehLiderancaDomingo(f))?'Coloque uma liderança neste domingo (passo 2, ③) ou diminua a quantidade (②).':'Diminua a quantidade (passo 2, ②) ou confira em Equipe quem pode trabalhar no domingo.'}`:'')); }
+        avisos.push(`${formatarDataDomingo(d)}: ${esc.length} de ${alvoDia} pessoas.`+(cap<alvoDia*nd?` Motivo: só ${nOps} pessoa${nOps===1?'':'s'} (fora a liderança) ${nOps===1?'pode':'podem'} trabalhar no domingo, e ninguém faz 3 domingos em sequência; não dá para ter ${alvoDia} em todos os ${nd} domingos. ${equipe.some(f=>!foraDom(f)&&ehLiderancaDomingo(f))?'Coloque uma liderança neste domingo (passo 3, ③) ou diminua a quantidade (②).':'Diminua a quantidade (passo 3, ②) ou confira em Equipe quem pode trabalhar no domingo.'}`:'')); }
     }
   });
 
@@ -7740,7 +7825,7 @@ function gerarSetoresCore(){
       if(!igual) avisos.push(`${formatarDataDomingo(doms[0])}: a equipe confirmada é diferente da prevista no fim do mês anterior — revise as folgas antecipadas já publicadas.`);
     }
   }
-  doms.forEach(d=>{ if(d===bal) return; lideresSelecionadosDomingo(d).forEach(i=>{ if(dsrLiderPendente(d,i)) avisos.push(`${formatarDataDomingo(d)}: escolha a folga (DSR) de ${equipe[i].nome} — liderança (passo 2: Domingos).`); }); });
+  doms.forEach(d=>{ if(d===bal) return; lideresSelecionadosDomingo(d).forEach(i=>{ if(dsrLiderPendente(d,i)) avisos.push(`${formatarDataDomingo(d)}: escolha a folga (DSR) de ${equipe[i].nome} — liderança (passo 3: Domingos).`); }); });
   montarEscalaFeriados();
   const errosFinais=auditarResultadoFinal(trabalhoDomingo,alvo);
   if(errosFinais.length){
@@ -8027,7 +8112,7 @@ function atribuirHorariosAutomaticosDomingo(d,indices,isBalanco=false){
     : (norm(equipe[i]?.turno)==='fechamento'?'FECHAMENTO':'ABERTURA')));
 }
 
-/* V195 — horário do balanço: quem o encarregado escolheu no passo 2 mantém a escolha; os demais recebem
+/* V195 — horário do balanço: quem o encarregado escolheu no passo 3 mantém a escolha; os demais recebem
    automaticamente o horário de balanço (lista de feriado) mais próximo do horário habitual. */
 function atribuirHorariosBalanco(d,esc){ atribuirHorariosAutomaticosDomingo(d,esc,true); }
 function horarioBalancoValido(d,i){ const h=String(horarioDomingoSelecionado(d,i)||'').split('-')[0]; return !!h && listaHorariosDomingoParaData(d).some(x=>x[0]===h); }
@@ -8218,7 +8303,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     };
     n.querySelector('[data-load-action="historico"]').onclick=()=>{
       fechar();
-      const step=document.querySelector('.step[data-step="4"]');
+      const step=document.querySelector('.step[data-step="2"]');   // V238: Mês passado
       step?.click();
       setTimeout(()=>document.getElementById('historicoLista')?.scrollIntoView({behavior:'smooth',block:'start'}),120);
     };
@@ -8348,7 +8433,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       btn.textContent = '🚀 Gerar escala';
       btn.classList.remove('secondary'); btn.classList.add('success');
     } else {
-      const labels = ['Próximo: Domingos ▸','Próximo: Domingos ▸','Próximo: Feriados ▸','Próximo: Mês passado ▸','Próximo: Gerar ▸'];   // V184: o passo 2 (Mês) virou o modal ⚙️ Configurações; depois de Equipe vem Domingos
+      const labels = ['Próximo: Mês passado ▸','Próximo: Mês passado ▸','Próximo: Domingos ▸','Próximo: Feriados ▸','Próximo: Gerar ▸'];   // V238: Equipe → Mês passado → Domingos → Feriados → Gerar   // V184: o passo 2 (Mês) virou o modal ⚙️ Configurações; depois de Equipe vem Domingos
       btn.textContent = labels[V45.step] || 'Avançar ▸';
       btn.classList.remove('success'); btn.classList.add('primary');
     }
@@ -8495,8 +8580,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           <input class="ed-situacao-detalhe" value="${htmlEscape(situacaoDetalhe)}" placeholder="Não informado pelo ERP" readonly>
         </label>
         <label>
-          <span style="display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px">Data de admissão</span>
-          <input class="ed-admissao" value="${htmlEscape(admissao)}" placeholder="Não informada pelo ERP" readonly>
+          <span style="display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px">Data de admissão (dd/mm/aaaa)</span>
+          <input class="ed-admissao" value="${htmlEscape(admissaoBR(admissao))}" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10">
         </label>
         <label class="check-row full">
           <input type="checkbox" class="ed-apto-dom" ${aptoChecked?'checked':''}>
@@ -8756,9 +8841,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <h3 style="font-size:14px;margin:0 0 6px">🧭 Os 5 passos</h3>
       <ul class="glossario">
         <li><b>1. Equipe</b> — confira a lista de funcionários do setor. Se o RH mandou planilha nova, use <b>📥 Importar funcionários (planilha do RH)</b>. Se faltar alguém, toque em “Editar equipe”.</li>
-        <li><b>2. Domingos</b> — ① quem monta a escala (🤖 Automático, ✋ Manual ou 🤝 Misto); ② quantas pessoas por domingo; ③ quem lidera (uma, 1 Encarregado + 1 Sub, ou várias) e a folga (DSR) de cada liderança; ④ no Manual/Misto, os nomes e horários de cada domingo.</li>
-        <li><b>3. Feriados</b> — marque quem trabalha em cada feriado e aceite as folgas de compensação sugeridas.</li>
-        <li><b>4. Mês passado</b> — confirme quem trabalhou nos 2 últimos domingos do mês passado (ou abra o histórico guardado do mês passado).</li>
+        <li><b>2. Mês passado</b> — confirme quem trabalhou nos 2 últimos domingos do mês passado (ou abra o histórico guardado do mês passado).</li>
+        <li><b>3. Domingos</b> — ① quem monta a escala (🤖 Automático, ✋ Manual ou 🤝 Misto); ② quantas pessoas por domingo; ③ quem lidera (uma, 1 Encarregado + 1 Sub, ou várias) e a folga (DSR) de cada liderança; ④ no Manual/Misto, os nomes e horários de cada domingo.</li>
+        <li><b>4. Feriados</b> — marque quem trabalha em cada feriado e aceite as folgas de compensação sugeridas.</li>
         <li><b>5. Gerar</b> — toque em 🚀 Gerar escala, confira o resultado, baixe a planilha e guarde o histórico do mês.</li>
         <li><b>⚙️ Configurações</b> (fora dos passos) — mês, ano, setor, horários de domingo e feriado, dias de DSR, feriados extras e balanço. Quase nunca mudam.</li>
       </ul>
@@ -8780,11 +8865,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <h3 style="font-size:14px;margin:12px 0 6px">🧠 Como o app decide</h3>
       <p><b>Domingo:</b> quem tem folga fixa no domingo sai do revezamento. O app testa várias combinações antes de confirmar cada domingo. Ninguém trabalha 3 domingos seguidos, e isso vale também na virada do mês.</p>
       <p><b>Feriados:</b> a folga fixa tem prioridade. Domingo é domingo, mesmo sendo feriado: segue a escala do domingo, e quem trabalha ganha também a folga de compensação do feriado. A folga de compensação cai em até 20 dias.</p>
-      <p><b>Folgas de feriado (passo 3):</b> em cada sugestão, <b>🔄 Outra data</b> mostra a próxima opção; <b>🔄 Sugerir outras datas</b> troca todas; <b>🧹 Limpar sugestões</b> apaga as pendentes e <b>🧹 Limpar todas as folgas</b> (dentro de cada feriado) apaga as datas daquele feriado. <b>🚫 Período sem folga de feriado</b> impede folgas em certos dias, e a <b>📅 Prévia das folgas</b> mostra tudo no modelo da tabela mensal antes de aceitar. O app também evita 3 dias seguidos de folga para a mesma pessoa; se você escolher uma data assim à mão, ele avisa e pede confirmação.</p>
+      <p><b>Folgas de feriado (passo 4):</b> em cada sugestão, <b>🔄 Outra data</b> mostra a próxima opção; <b>🔄 Sugerir outras datas</b> troca todas; <b>🧹 Limpar sugestões</b> apaga as pendentes e <b>🧹 Limpar todas as folgas</b> (dentro de cada feriado) apaga as datas daquele feriado. <b>🚫 Período sem folga de feriado</b> impede folgas em certos dias, e a <b>📅 Prévia das folgas</b> mostra tudo no modelo da tabela mensal antes de aceitar. O app também evita 3 dias seguidos de folga para a mesma pessoa; se você escolher uma data assim à mão, ele avisa e pede confirmação.</p>
       <p><b>Sábado na folga de feriado:</b> o app <b>sugere</b> o sábado quando o domingo seguinte é de folga da pessoa (2 dias seguidos de descanso). É só sugestão: você aceita (✅ Aceitar) ou pede outra data (🔄 Outra data). Sábado antes de domingo trabalhado só aparece se não houver outra opção.</p>
       <p><b>Tempo de serviço (tela inicial):</b> o bloco <b>🎖️ Funcionários por tempo de serviço</b> mostra quantos funcionários têm cada ano completo de casa (por exemplo, 30 anos: 2 funcionários), calculado pela <b>data de admissão do ERP</b>. Toque numa linha para abrir a lista com os nomes e as datas de admissão. Dá para agrupar por ano ou por faixa e ordenar dos mais antigos ou dos mais novos.</p>
-      <p><b>Escala à mão (passo 2):</b> escolha ✋ Manual em “① Quem monta a escala”. Em cada domingo, digite a <b>matrícula ou parte do nome</b> na busca (aparecem matrícula, cargo e turno para separar nomes iguais) ou toque em <b>☑️ Escolher na lista</b> para marcar várias pessoas de uma vez. Em <b>Mostrar: Só os escalados</b>, cada domingo lista apenas quem você marcou (a tela fica mais curta). <b>↻ Copiar o domingo anterior</b> repete as pessoas e os horários do domingo de antes (no 1º domingo, do último domingo do mês passado), sem copiar quem cairia no 3º domingo seguido. Escolha o horário de cada pessoa. A liderança escolhida no ③ recebe sozinha o horário mais perto do de costume, e você pode trocar.</p>
-      <p><b>Várias lideranças (passo 2, ③):</b> toque em <b>Várias</b>, escolha a <b>meta</b> de lideranças por domingo e toque em 🤖 Sugerir liderança, ou adicione cada uma pela busca (matrícula ou nome). A sugestão faz blocos de 2 domingos, nunca 3 seguidos, divide igual e mistura cargo e turno.</p>
+      <p><b>Escala à mão (passo 3):</b> escolha ✋ Manual em “① Quem monta a escala”. Em cada domingo, digite a <b>matrícula ou parte do nome</b> na busca (aparecem matrícula, cargo e turno para separar nomes iguais) ou toque em <b>☑️ Escolher na lista</b> para marcar várias pessoas de uma vez. Em <b>Mostrar: Só os escalados</b>, cada domingo lista apenas quem você marcou (a tela fica mais curta). <b>↻ Copiar o domingo anterior</b> repete as pessoas e os horários do domingo de antes (no 1º domingo, do último domingo do mês passado), sem copiar quem cairia no 3º domingo seguido. Escolha o horário de cada pessoa. A liderança escolhida no ③ recebe sozinha o horário mais perto do de costume, e você pode trocar.</p>
+      <p><b>Várias lideranças (passo 3, ③):</b> toque em <b>Várias</b>, escolha a <b>meta</b> de lideranças por domingo e toque em 🤖 Sugerir liderança, ou adicione cada uma pela busca (matrícula ou nome). A sugestão faz blocos de 2 domingos, nunca 3 seguidos, divide igual e mistura cargo e turno.</p>
       <p><b>Fonte da base (📍):</b> aponte uma vez onde está o relatório do ERP (um arquivo ou uma pasta). Ao abrir o app, ele relê o arquivo atual, compara com a última atualização e mostra a prévia (novos, alterados, saíram) para você aplicar. É só leitura: nada é gravado no arquivo de origem. Se o navegador pedir permissão, toque em <b>Verificar</b>. Em navegadores que não permitem apontar arquivos, use <b>📥 Importar funcionários (planilha do RH)</b>.</p>
       <p><b>Cartões recolhíveis (etapa Gerar):</b> cada cartão do resultado e cada domingo tem uma <b>seta ▾/▸</b> no canto: toque para ocultar ou mostrar os nomes. Setores grandes abrem já recolhidos (com o total de pessoas no cabeçalho); use <b>Expandir todos</b> ou <b>Recolher todos</b> acima da lista.</p>
       <p><b>Nomes dos afastados:</b> na tela inicial, toque numa linha do gráfico de afastados (por função, horário ou situação) para abrir a lista com os <b>nomes</b>, o cargo, a área, o horário e a situação de cada pessoa. O botão <b>📋 Copiar lista</b> copia os nomes para você colar onde precisar.</p>
@@ -8830,7 +8915,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           equipe: (window.todasEquipes||[]).map(f => ({
             matricula:f.matricula, nome:f.nome, cargo:f.cargo,
             setor:f.setor, subsetor:f.subsetor||'',
-            turno:f.turno||'', folgaFixa:Number(f.folgaFixa), horario:f.horario||'', situacao:f.situacao||'A'
+            turno:f.turno||'', folgaFixa:Number(f.folgaFixa), horario:f.horario||'', situacao:f.situacao||'A',
+            statusErp:f.statusErp||'', situacaoDetalhe:f.situacaoDetalhe||'', admissao:f.admissao||'', aptoDomingo:f.aptoDomingo!==false, setorEmprestimo:f.setorEmprestimo||''   // V239
           }))
         };
         const txt=JSON.stringify(snap);
@@ -8883,9 +8969,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         if(!(window.Android && typeof Android.lerEquipe==='function') && !(window.todasEquipes||[]).length && Array.isArray(snap.equipe) && snap.equipe.length){
           const dn=['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
           const limpa=v=>String(v??'').replace(/[;\r\n]/g,' ').trim();
-          const linhas=snap.equipe.map(f=>[f.matricula,f.nome,f.horario,f.cargo,f.turno,f.setor,f.subsetor,dn[Number(f.folgaFixa)]||'TER',f.situacao||'A'].map(limpa).join(';'));
+          const linhas=snap.equipe.map(f=>[f.matricula,f.nome,f.horario,f.cargo,f.turno,f.setor,f.subsetor,dn[Number(f.folgaFixa)]||'TER',f.situacao||'A',f.statusErp,f.situacaoDetalhe,f.admissao,f.aptoDomingo===false?'0':'',f.setorEmprestimo].map(limpa).join(';'));   // V239: 14 colunas (admissão e ERP)
           const setorSel=$('setorSelecionado')?.value;
-          if(parseEquipe('Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação\n'+linhas.join('\n'))!==false){
+          if(parseEquipe('Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo;SetorEmprestimo\n'+linhas.join('\n'))!==false){
             if(setorSel && $('setorSelecionado')) $('setorSelecionado').value=setorSel;
             if($('equipeEditor')) $('equipeEditor').style.display='none';
             showToast('Equipe da última sessão restaurada ('+snap.equipe.length+' funcionários).','info');
@@ -8963,7 +9049,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function montarProjeto(){
     const p=projetoBase(); p.system='SETORES';
     p.config={mes:val('mes'),ano:val('ano'),setor:val('setorSelecionado'),modoCobertura:val('modoCobertura'),modoGeracao:val('modoGeracao'),tituloXlsx:val('tituloXlsxEmpresa'),diasDsrPermitidos:clone(diasDsrPermitidos),perfilHorarioDomingo:clone(perfilHorarioDomingo),liderancaManualDomingo:clone(liderancaManualDomingo),horariosOficiaisDomingo:clone(HORARIOS_OFICIAIS_DOMINGO),horariosOficiaisFeriado:clone(HORARIOS_OFICIAIS_FERIADO)};
-    try{ p.config.liderModo=modoLideranca(); p.config.liderMeta=qtdLiderVarias(); }catch(e){}   // V209: o modo da liderança vai no arquivo
+    try{ p.config.liderModo=modoLideranca(); p.config.liderMeta=qtdLiderVarias(); const T=liderTurno(); if(T) p.config.liderTurno=T; }catch(e){}   /* V241: + por turno */   // V209: o modo da liderança vai no arquivo
     p.equipe={todas:clone(todasEquipes),atual:clone(equipe),naoAptosDomingo:[...naoAptosDomingo],soSetor:true};   // V203: só as pessoas do setor
     try{ const qi=window.v219QuadroInfo?.(); const quadro=Array.isArray(todasEquipes)?todasEquipes:[];   // V219: quadro da loja inteira (tempo de serviço, situação, folgas…)
       if(quadro.length) p.loja={quadro:clone(quadro),importadoEm:Number(qi?.importadoEm||qi?.t||0)||null,emissao:qi?.emissao||'',arquivoERP:qi?.arquivo||'',pessoas:quadro.length};
@@ -8993,7 +9079,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(Array.isArray(c.horariosOficiaisDomingo)){const h=normalizarListaHorarios(c.horariosOficiaisDomingo);if(h.length)HORARIOS_OFICIAIS_DOMINGO=h;}
     if(Array.isArray(c.horariosOficiaisFeriado)){const h=normalizarListaHorarios(c.horariosOficiaisFeriado);if(h.length)HORARIOS_OFICIAIS_FERIADO=h;}
     liderancaManualDomingo=clone(c.liderancaManualDomingo)||{};
-    try{ if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
+    try{ if(c.liderModo==='turno'){ definirLiderTurno(true,Number(c.liderTurno?.ab??1),Number(c.liderTurno?.fe??1),c.liderTurno?.comp||''); } else { if(c.liderModo) definirLiderTurno(false); } if(c.liderModo==='turno'){} else if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
     { // V203: mantém o quadro da loja que já está no aparelho; só o setor do arquivo é trocado
       const doArq=Array.isArray(e.atual)?clone(e.atual):[];
       const quadro=Array.isArray(todasEquipes)?todasEquipes:[];
@@ -10164,7 +10250,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 /* ════════════════════════════════════════════════════════════════════
    V172 — V171 + GRÁFICO DE TEMPO DE SERVIÇO POR SETOR
    - Configurações saem do fluxo principal e ficam em uma área dedicada.
-   - O fluxo operacional permanece: Equipe → Domingos → Feriados → Mês passado → Gerar.
+   - O fluxo operacional (V238): Equipe → Mês passado → Domingos → Feriados → Gerar.
    - IDs e regras existentes são preservados para não quebrar o motor.
    ════════════════════════════════════════════════════════════════════ */
 (function(){
@@ -10201,7 +10287,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     </div>`;
     document.body.appendChild(bd);
     $id('v170ConfigBody').appendChild(card);
-    // V206: “Quem monta a escala” fica no passo 2 (Domingos), não aqui.
+    // V206: “Quem monta a escala” fica no passo 3 (Domingos), não aqui.
     card.classList.add('active');
     const fechar=()=>fecharConfiguracoes();
     $id('v170ConfigFechar').onclick=fechar;
@@ -10283,7 +10369,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(prev) prev.disabled=atual===0;
     if(!primary) return;
     if(atual===5){primary.textContent='🚀 Gerar escala';primary.classList.remove('secondary','primary');primary.classList.add('success');return;}
-    const labels={0:'Próximo: Domingos ▸',2:'Próximo: Feriados ▸',3:'Próximo: Mês passado ▸',4:'Próximo: Gerar ▸'};
+    const labels={0:'Próximo: Mês passado ▸',2:'Próximo: Domingos ▸',3:'Próximo: Feriados ▸',4:'Próximo: Gerar ▸'};   // V238
     primary.textContent=labels[atual]||'Avançar ▸';
     primary.classList.remove('success','secondary');primary.classList.add('primary');
   }
@@ -10777,9 +10863,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     {ic:'📥',t:'Primeiro: os funcionários',x:'Quando o RH mandar uma planilha nova, toque em <b>📥 Importar funcionários</b>. O app mostra <b>o que mudou</b> (novos, alterados, quem saiu) e <b>só atualiza depois que você confirmar</b>.',d:'Com <b>📍 Local da planilha</b>, você mostra uma vez onde a planilha fica e o app confere sozinho toda vez que abrir. Quando está em dia, os botões de importar <b>somem</b>: é normal.'},
     {ic:'🧭',t:'Escolha o seu setor',x:'Na tela inicial, toque no <b>cartão do seu setor</b> (Açougue, Padaria, CPD...). Para trocar de setor depois, toque em <b>🏬</b> no topo da tela.',d:'Cada setor tem a sua própria escala. O app guarda cada uma separada.'},
     {ic:'👥',t:'Passo 1 — Equipe',x:'<b>Confira se a lista de funcionários está certa.</b> Se faltar alguém ou algo estiver errado, toque em <b>✏️ Editar equipe</b>. Se aparecer “folga fixa a definir”, toque em <b>Definir agora</b> e escolha o dia de folga de cada pessoa.',d:'A folga fixa é o dia da semana em que a pessoa sempre folga.'},
-    {ic:'☀️',t:'Passo 2 — Domingos',x:'Primeiro escolha <b>quem monta a escala</b>: <b>🤖 Automático</b> (o app escolhe os nomes) ou <b>✋ Manual</b> (você marca, com busca por matrícula ou nome). Depois, <b>quantas pessoas</b> trabalham e, se quiser, <b>quem lidera</b> (uma ou várias lideranças). Na dúvida, <b>deixe no Automático</b> e toque em Próximo.',d:'Ninguém trabalha 3 domingos seguidos: o app cuida disso sozinho.'},
-    {ic:'🎉',t:'Passo 3 — Feriados',x:'Marque <b>quem trabalha</b> em cada feriado. Quem trabalha ganha uma <b>folga em outro dia</b>: o app sugere a data e você toca em <b>✅ Aceitar</b>. Não gostou? Toque em <b>🔄 Outra data</b>.',d:'Se o mês não tem feriado, é só tocar em Próximo.'},
-    {ic:'📅',t:'Passo 4 — Mês passado',x:'Confirme <b>quem trabalhou nos 2 últimos domingos do mês passado</b>. Isso evita que alguém trabalhe 3 domingos seguidos na virada do mês.',d:'Se o app já souber, a tela vem preenchida: só confira.'},
+    {ic:'📅',t:'Passo 2 — Mês passado',x:'Confirme <b>quem trabalhou nos 2 últimos domingos do mês passado</b>. Isso evita que alguém trabalhe 3 domingos seguidos na virada do mês.',d:'Se o app já souber, a tela vem preenchida: só confira.'},
+    {ic:'☀️',t:'Passo 3 — Domingos',x:'Primeiro escolha <b>quem monta a escala</b>: <b>🤖 Automático</b> (o app escolhe os nomes) ou <b>✋ Manual</b> (você marca, com busca por matrícula ou nome). Depois, <b>quantas pessoas</b> trabalham e, se quiser, <b>quem lidera</b> (uma ou várias lideranças). Na dúvida, <b>deixe no Automático</b> e toque em Próximo.',d:'Ninguém trabalha 3 domingos seguidos: o app cuida disso sozinho.'},
+    {ic:'🎉',t:'Passo 4 — Feriados',x:'Marque <b>quem trabalha</b> em cada feriado. Quem trabalha ganha uma <b>folga em outro dia</b>: o app sugere a data e você toca em <b>✅ Aceitar</b>. Não gostou? Toque em <b>🔄 Outra data</b>.',d:'Se o mês não tem feriado, é só tocar em Próximo.'},
     {ic:'🚀',t:'Passo 5 — Gerar a escala',x:'Toque no botão verde <b>🚀 Gerar escala</b>. Depois confira o resultado. Se algum aviso estiver <b>amarelo ou vermelho</b>, toque nele: o app leva você até o problema. Para terminar, toque em <b>📊 Baixar planilha (Excel)</b> e em <b>📦 Guardar histórico do mês</b>.',d:'No celular, também dá para 📱 copiar o texto para o WhatsApp.'},
     {ic:'💾',t:'Seus dados ficam salvos',x:'Tudo o que você preenche é <b>salvo sozinho neste aparelho</b>. Se fechar sem querer, abra de novo e continue de onde parou.',d:'No fim de cada mês, toque em <b>⋮ → Guardar histórico do mês</b>. No mês seguinte (ou em outro aparelho), abra esse arquivo em <b>⋮ → Abrir histórico guardado</b>.'},
     {ic:'🙋',t:'Ficou com dúvida?',x:'Toque em <b>⋮</b> e depois em <b>Ajuda e significado das palavras</b>. As palavras com <span class="gl" style="white-space:normal">risquinho pontilhado</span> mostram o significado quando você passa o mouse ou toca nelas.',d:'No computador, aperte a tecla <b>?</b> para ver este passo a passo de novo.'}
@@ -11066,9 +11152,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const CURTA={
     'Passo 1 de 5':'Confira se a equipe do setor está certa.',
     'Configuração':'Ajuste as opções da escala deste setor.',
-    'Passo 2 de 5':'Escolha quem monta a escala (o app ou você), quantas pessoas trabalham e, se quiser, quem lidera.',
-    'Passo 3 de 5':'Marque quem trabalha em cada feriado do mês.',
-    'Passo 4 de 5':'Marque quem trabalhou nos 2 últimos domingos do mês passado (ou abra o histórico guardado).',
+    'Passo 3 de 5':'Escolha quem monta a escala (o app ou você), quantas pessoas trabalham e, se quiser, quem lidera.',
+    'Passo 4 de 5':'Marque quem trabalha em cada feriado do mês.',
+    'Passo 2 de 5':'Marque quem trabalhou nos 2 últimos domingos do mês passado (ou abra o histórico guardado).',
     'Passo 5 de 5':'Toque em Gerar escala, confira o resultado e guarde o histórico do mês.'
   };
   function guias(){
@@ -11233,7 +11319,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }catch(e){}
     const sel=$('setorSelecionado');
     if(setor && sel && sel.value!==setor){ sel.value=setor; sel.dispatchEvent(new Event('change')); }
-    try{ if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
+    try{ if(c.liderModo==='turno'){ definirLiderTurno(true,Number(c.liderTurno?.ab??1),Number(c.liderTurno?.fe??1),c.liderTurno?.comp||''); } else { if(c.liderModo) definirLiderTurno(false); } if(c.liderModo==='turno'){} else if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
     trocarMes(prox.getMonth(),prox.getFullYear());
     setTimeout(()=>{
       try{
@@ -11246,7 +11332,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         try{ renderLiderancaDomingo(); }catch(e){}   // V209: agora com a previsão do arquivo, o 1º domingo já vem com as lideranças
         try{ window.v45Persist?.(); }catch(e){}
         try{ document.getElementById('inicioSetor')?.classList.remove('on'); document.getElementById('homeSetores')?.classList.remove('on'); }catch(e){}
-        try{ window.v45GotoStep?.(4,false); }catch(e){}
+        try{ window.v45GotoStep?.(2,false); }catch(e){}   // V238: Mês passado
         window.showToast?.(`✅ ${MESES[mArq]} (${setor||'setor'}) virou o mês passado de ${MESES[prox.getMonth()]}/${prox.getFullYear()}. Confira quem trabalhou nos últimos domingos e siga para Gerar.${guardou?` Para rever ${MESES[mArq]}, é só voltar o mês.`:''}`,'ok');
       }catch(err){ console.error(err); window.showToast?.('Não foi possível usar o arquivo como mês passado: '+(err?.message||err),'danger',true); }
     },120);
@@ -11254,7 +11340,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 <script>
-/* ═════ V206 — “Quem monta a escala” no passo 2, em cartões, e atalho “Fazer a escala à mão” ═════ */
+/* ═════ V206 — “Quem monta a escala” no passo 3, em cartões, e atalho “Fazer a escala à mão” ═════ */
 (function(){
   const $id=id=>document.getElementById(id);
   const MODOS=[
@@ -11300,7 +11386,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   window.v206IrParaManual=function(){
     try{ $id('inicioSetor')?.classList.remove('on'); }catch(e){}
-    try{ window.v45GotoStep?.(2,false); }catch(e){}
+    try{ window.v45GotoStep?.(3,false); }catch(e){}   // V238: Domingos
     setTimeout(()=>{
       montar();
       if(!escolher('manual')) return;
@@ -11504,7 +11590,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     let base, nomeOrigem;
     if(origem!==null){ base=(selecaoManualDomingo[String(origem)]||[]).map(Number); nomeOrigem=`domingo ${dd(origem)}`; }
     else { base=equipe.map((f,i)=>i).filter(i=>historicoManual(i).ultimo&&!ehLiderancaDomingo(equipe[i])); nomeOrigem='último domingo do mês passado'; }
-    if(!base.length){ window.showToast?.(origem!==null?`O ${nomeOrigem} ainda não tem ninguém marcado.`:'O passo 4 (Mês passado) não tem ninguém no último domingo. Marque lá ou escolha os nomes aqui.','warn'); return; }
+    if(!base.length){ window.showToast?.(origem!==null?`O ${nomeOrigem} ainda não tem ninguém marcado.`:'O passo 2 (Mês passado) não tem ninguém no último domingo. Marque lá ou escolha os nomes aqui.','warn'); return; }
     const atuais=(selecaoManualDomingo[String(d)]||[]);
     if(atuais.length && !confirm(`O domingo ${dd(d)} já tem ${atuais.length} pessoa(s) marcada(s). Trocar pelas pessoas do ${nomeOrigem}?`)) return;
     // posição do domingo de origem e do anterior a ele (para a regra dos 3 seguidos)
@@ -11540,7 +11626,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const d=Number(card.dataset.geracaoDom); const {idx,origem}=contexto(d); if(idx<0) return;
     const b=document.createElement('button'); b.type='button'; b.className='v213-copiar';
     b.textContent=origem!==null?'↻ Copiar o domingo anterior':'↻ Copiar do mês passado';
-    b.title=origem!==null?`Repete as pessoas${($('modoGeracao')?.value==='manual')?' e os horários':''} do domingo ${dd(origem)}`:'Repete quem trabalhou no último domingo do mês passado (passo 4)';
+    b.title=origem!==null?`Repete as pessoas${($('modoGeracao')?.value==='manual')?' e os horários':''} do domingo ${dd(origem)}`:'Repete quem trabalhou no último domingo do mês passado (passo 2)';
     b.addEventListener('click',()=>copiar(d));
     ferr.appendChild(b);
   }
@@ -11711,7 +11797,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 <script>
-/* ═════ V217 — feriados (passo 3) iguais ao app de Encarregados: busca por matrícula ou nome, ↻ Copiar o feriado anterior
+/* ═════ V217 — feriados (passo 4) iguais ao app de Encarregados: busca por matrícula ou nome, ↻ Copiar o feriado anterior
    e “Mostrar: Todos | Só os escalados”. Quem muda o dado é o mesmo botão Trabalha/Folga de antes. ═════ */
 (function(){
   const $id=id=>document.getElementById(id);
@@ -12671,5 +12757,77 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 
+<script>
+/* ═════ V240 — “POR CARGO” COM AS LIDERANÇAS ═════
+   No modo “Por cargo” a pessoa escolhe, no mesmo quadro, quantas lideranças e quantos de cada cargo operacional trabalham
+   por domingo. A linha “⭐ Lideranças” usa o mesmo dado do ③ “Quem lidera”: 1 = modo “Uma só”; 2 ou mais = modo “Várias”
+   com essa meta (definirLiderVarias). O modo “1 Encarregado + 1 Sub” conta como 2. Os NOMES continuam sendo escolhidos no
+   ③ (ou 🤖 Sugerir liderança). Mexer no ③ redesenha o quadro, e vice-versa. */
+(function(){
+  const qtd=()=>{ try{ const m=modoLideranca(); return m==='varias'?qtdLiderVarias():m==='encsub'?2:1; }catch(e){ return 1; } };
+  window.v240QtdLider=qtd;
+  window.v240LinhaLider=function(){
+    try{ if(!funcoesLideranca()) return ''; }catch(e){ return ''; }
+    const n=qtd(), m=modoLideranca();
+    const nomes=equipe.filter(f=>!foraDom(f)&&ehLiderancaDomingo(f)).length;
+    return `<div class="fn-row v240-lider"><div class="fn-info"><b>⭐ Lideranças</b><small>${nomes} no quadro • Encarregado, Sub ou Líder${m==='encsub'?' • 1 Encarregado + 1 Sub':''} • os nomes você escolhe em ③</small></div>
+      <div class="fn-qtd"><button type="button" data-v240="-1" aria-label="menos lideranças">−</button><input type="number" inputmode="numeric" min="1" max="8" value="${n}" data-v240-n aria-label="Quantas lideranças por domingo"><button type="button" data-v240="1" aria-label="mais lideranças">+</button></div></div>`;
+  };
+  function definir(n){
+    n=Math.max(1,Math.min(8,parseInt(n,10)||1));
+    if(n===1){ definirLiderVarias(false); definirLiderancaUnica(true); }
+    else definirLiderVarias(true,n);
+    window.v45Persist?.();
+    try{ renderLiderancaDomingo(); }catch(e){ try{ renderConfigFuncao(); }catch(_){} }
+  }
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('[data-v240]'); if(!b) return; definir(qtd()+Number(b.dataset.v240)); });
+  document.addEventListener('change',e=>{ if(e.target.matches?.('[data-v240-n]')) definir(e.target.value); });
+  // ③ mudou → o quadro do “Por cargo” acompanha
+  const orig=window.renderLiderancaDomingo;
+  if(typeof orig==='function') window.renderLiderancaDomingo=function(){ const r=orig.apply(this,arguments); try{ if(($('modoCobertura')?.value)==='funcao') renderConfigFuncao(); }catch(e){} return r; };
+  const ini=()=>{ const ex=document.getElementById('v240ExGrupos'); if(ex) ex.style.display=(document.getElementById('modoCobertura')?.value==='grupos')?'':'none'; };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(ini,80)); else setTimeout(ini,80);
+})();
+</script>
+<script>
+/* ═════ V241 — LIDERANÇA POR TURNO NO “POR CARGO” ═════
+   No modo “Por turno” a linha ⭐ do quadro “Quantos de cada cargo por domingo” vira duas: 🌅 abertura e 🌙 fechamento
+   (mesmo dado do ③: definirLiderTurno). Nos outros modos fica a linha única da V240, com o botão “Separar por turno”. */
+(function(){
+  const linhaV240=window.v240LinhaLider;
+  const row=(k,tit,v,sub)=>`<div class="fn-row v240-lider"><div class="fn-info"><b>${tit}</b><small>${sub}</small></div>
+      <div class="fn-qtd"><button type="button" data-v241="${k}" data-d="-1" aria-label="menos">−</button><input type="number" inputmode="numeric" min="0" max="4" value="${v}" data-v241-n="${k}" aria-label="${tit}"><button type="button" data-v241="${k}" data-d="1" aria-label="mais">+</button></div></div>`;
+  window.v240LinhaLider=function(){
+    try{ if(!funcoesLideranca()) return ''; }catch(e){ return ''; }
+    const T=liderTurno();
+    if(!T) return (linhaV240?.()||'')+`<div style="margin:-2px 0 10px"><button type="button" class="btn secondary sm" data-v241-turno="1">🌅🌙 Separar por turno (abertura e fechamento)</button></div>`;
+    const n=t=>equipe.filter((f,i)=>!foraDom(f)&&ehLiderancaDomingo(f)&&turnoLider(i)===t).length;
+    return row('ab','⭐ Lideranças na 🌅 abertura',T.ab,`${n('ABERTURA')} no quadro • Encarregado, Sub ou Líder • os nomes você escolhe em ③`)
+      +row('fe','⭐ Lideranças no 🌙 fechamento',T.fe,`${n('FECHAMENTO')} no quadro • Encarregado, Sub ou Líder`)
+      +`<div class="v208-meta" style="margin:0 0 8px"><label>Se faltar liderança no turno, entra: ${window.v241SelComp()}</label><small>Ex.: CPD → Preparador de dados. Assim o turno nunca fica vazio.</small></div>`
+      +`<div style="margin:-2px 0 10px"><button type="button" class="btn secondary sm" data-v241-turno="0">Não separar por turno</button></div>`;
+  };
+  window.v241SelComp=function(id){ const T=liderTurno()||{}; let fns=[]; try{ fns=funcoesDoSetor(); }catch(e){}
+    return `<select ${id?`id="${id}"`:'data-v241-comp="1"'}><option value="">ninguém (o turno fica sem liderança)</option>${fns.map(f=>`<option value="${htmlEsc(f.chave)}" ${f.chave===T.comp?'selected':''}>${htmlEsc(f.rotulo)}</option>`).join('')}</select>`; };
+  /* o cargo escolhido ocupa a vaga do turno que ficou sem liderança: +1 por vaga, no turno certo (motor, auditoria e conferência) */
+  const metasOrig=window.metasFuncaoUsuario;
+  if(typeof metasOrig==='function') window.metasFuncaoUsuario=function(doms,ano,mes){
+    const mapa=metasOrig.apply(this,arguments);
+    try{ const T=liderTurno(), m=T&&T.comp&&mapa[T.comp]; if(!m) return mapa;
+      const bal=balancoDoMes(ano,mes);
+      m.porDomingo=m.porDomingo.map((q,idx)=>{ const d=doms[idx]; if(d===bal) return q; const ls=lideresSelecionadosDomingo(d);
+        const fa=Math.max(0,T.ab-ls.filter(i=>turnoLider(i)==='ABERTURA').length), ff=Math.max(0,T.fe-ls.filter(i=>turnoLider(i)==='FECHAMENTO').length);
+        return {...q,total:Math.min(m.total,q.total+fa+ff),abertura:q.abertura+fa,fechamento:q.fechamento+ff,lideranca:fa+ff}; });
+    }catch(e){ console.warn('[V241] vaga da liderança:',e); }
+    return mapa; };
+  window.v240QtdLider=(q=>function(){ const T=liderTurno(); return T?T.ab+T.fe:q(); })(window.v240QtdLider||(()=>1));
+  const aplicar=(ab,fe)=>{ definirLiderTurno(true,Math.max(0,Math.min(4,ab)),Math.max(0,Math.min(4,fe))); window.v45Persist?.(); try{ renderLiderancaDomingo(); }catch(e){ try{ renderConfigFuncao(); }catch(_){} } };
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('[data-v241]'); if(b){ const T=liderTurno()||{ab:1,fe:1}, d=Number(b.dataset.d); aplicar(T.ab+(b.dataset.v241==='ab'?d:0),T.fe+(b.dataset.v241==='fe'?d:0)); return; }
+    const t=e.target.closest?.('[data-v241-turno]'); if(t){ definirModoLideranca(t.dataset.v241Turno==='1'?'turno':'varias'); }
+  });
+  document.addEventListener('change',e=>{ if(e.target.dataset?.v241Comp){ const T=liderTurno()||{ab:1,fe:1}; definirLiderTurno(true,T.ab,T.fe,e.target.value); window.v45Persist?.(); try{ renderLiderancaDomingo(); }catch(_){} return; } const k=e.target.dataset?.v241N; if(!k) return; const T=liderTurno()||{ab:1,fe:1}, v=parseInt(e.target.value,10)||0; aplicar(k==='ab'?v:T.ab,k==='fe'?v:T.fe); });
+})();
+</script>
 </body>
 </html>

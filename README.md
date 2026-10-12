@@ -12,11 +12,12 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V237.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V170.html` | **Versão atual** da Escala de Encarregados |
+| `Escala_de_Setores_V241.html` | **Versão atual** da Escala de Setores |
+| `Escala_2x1_encarregados_V172.html` | **Versão atual** da Escala de Encarregados |
 | [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V235 e V150–V165), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
+| Manuais de uso (Claude Docs) | [Manual do Encarregado](https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726) · [Manual da Escala de Setores](https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197) · [Roteiro do Beta](https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9) — com prints de dados fictícios |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (ChatGPT/Codex e Claude) |
 | [`docs/PASSAGEM.md`](docs/PASSAGEM.md) | **passagem de bastão** entre Claude e ChatGPT: estado atual, mapa do código, armadilhas, diário e pendências |
 | [`docs/CHATGPT_COPILOTO.md`](docs/CHATGPT_COPILOTO.md) | passo a passo para ligar o ChatGPT ao GitHub e trabalhar em dupla com o Claude |

@@ -69,7 +69,7 @@ async function testarSetores(browser){
 
   for(let m = MESES[0]; m <= MESES[1]; m++){
     await mudarMes(p, m, ANO); await p.waitForTimeout(900);
-    await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(2, false); }); await p.waitForTimeout(300);
+    await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.([...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'coberturaCard'), false); }); await p.waitForTimeout(300);
     await p.evaluate(() => { try{ if(liderVarias()) definirLiderVarias(true, 2); sugerirLiderancaDomingo(); }catch(e){} }); await p.waitForTimeout(300);
     for(let k = 0; k < 80; k++){
       const mais = await p.evaluate(() => { const s = [...document.querySelectorAll('select.lider-dsr')].find(s => !s.value && [...s.options].some(o => o.value)); if(!s) return false; s.value = [...s.options].find(o => o.value).value; s.dispatchEvent(new Event('change', { bubbles: true })); return true; });
@@ -169,7 +169,7 @@ async function testarSetores(browser){
       await p.evaluate(() => { window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(2500);
       const ger = await p.evaluate(() => (document.getElementById('validacao')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160));
       ok(/validada e gerada/i.test(ger), `V235: mês inteiro preenchido só com sugestões e o “Gerar” da escala à mão aceita — “${ger.slice(0, 90)}”`);
-      await p.evaluate(() => window.v45GotoStep?.(2, false)); await p.waitForTimeout(300);
+      await p.evaluate(() => window.v45GotoStep?.([...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'coberturaCard'), false)); await p.waitForTimeout(300);
     }
     await p.evaluate(() => { const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); });
     await p.waitForTimeout(400);
@@ -281,6 +281,8 @@ async function testarSetores(browser){
     const logo = await p.evaluate(() => { const i = document.querySelector('img.brand-logo'); return i ? { w: i.naturalWidth, h: i.naturalHeight } : null; });
     ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
   }
+  { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
+    if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
@@ -378,7 +380,15 @@ async function testarEncManual(browser){
     if(m === 9){
       if(await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
         const ordem = await p.$$eval('.stepper .step', b => b.filter(x => x.offsetParent !== null).map(x => x.querySelector('b').textContent.trim()));
-        ok(ordem.join(' → ') === 'Equipe → Mês → Mês passado → Domingos → Feriados → Gerar', 'passos na ordem: ' + ordem.join(' → '));   // V170: mês passado antes dos domingos
+        ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'passos na ordem: ' + ordem.join(' → '));   // V171: igual ao Setores (o “Mês” virou “📅 Mês e opções”)
+        if(await p.evaluate(() => !!window.v171AbrirMes)){
+          const nav = await p.evaluate(async () => { const ativo = () => document.querySelector('.step-panel.active')?.id; const r = {};
+            window.v80GotoStep(0, false); document.querySelector('#v80BottomBar [data-bar="primary"]').click(); await new Promise(z => setTimeout(z, 200)); r.proximo = ativo();
+            window.v171AbrirMes(); await new Promise(z => setTimeout(z, 200)); r.mes = ativo();
+            document.querySelector('#v80BottomBar [data-bar="primary"]').click(); await new Promise(z => setTimeout(z, 200)); r.depois = ativo(); return r; });
+          ok(nav.proximo === 'historicoCard' && nav.mes === 'configCard' && nav.depois === 'historicoCard', `“Próximo” vai da Equipe ao Mês passado; “📅 Mês e opções” abre o mês e volta ao Mês passado (${JSON.stringify(nav)})`);
+          await p.evaluate(() => { const k = [...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'domingosEtapa'); window.v80GotoStep(k, false); }); await p.waitForTimeout(300);
+        }
       }
       await p.click('[data-modo="manual"]'); await p.waitForTimeout(300);
       ok(await p.$$eval('.v167-card', c => c.length) === await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).length), 'escala à mão: um cartão por domingo');
@@ -487,6 +497,101 @@ async function testarApk(browser, app, nome){
     ok(dl && dl.suggestedFilename() === 'Historico_teste.json', 'no navegador comum o download continua igual'); await ctx.close(); }
 }
 
+/* V239/V172 — data de admissão no Editar equipe: digitada em dd/mm/aaaa, conferida e guardada */
+async function testarAdmissao(browser, app, nome, dados){
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
+  if(v < (nome === 'Setores' ? 239 : 172)) return;
+  console.log(`\n▶ ${nome} — data de admissão no Editar equipe`);
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  if(nome === 'Setores'){ await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); }
+  else await p.click('.hero-cta').catch(() => {});
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, dados)); await p.waitForTimeout(1800);
+  await p.evaluate(() => { abrirEditorEquipe(true); }); await p.waitForTimeout(600);
+  const r = await p.evaluate(async () => {
+    const campo = document.querySelector('#equipeEditorRows .ed-admissao'); if(!campo) return { semCampo: true };
+    const mostra = campo.value, livre = !campo.readOnly;
+    campo.value = ''; campo.focus(); for(const c of '05031998'){ campo.value += c; campo.dispatchEvent(new Event('input', { bubbles: true })); }
+    const mascara = campo.value;
+    const mat = campo.closest('.editor-row').querySelector('.ed-matricula').value;
+    salvarEquipeEditor(); await new Promise(z => setTimeout(z, 800));
+    const f = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe).find(x => String(x.matricula) === String(mat));
+    // data impossível é recusada
+    abrirEditorEquipe(true); await new Promise(z => setTimeout(z, 600));
+    const c2 = document.querySelector('#equipeEditorRows .ed-admissao'); const volta = c2.value; c2.value = '31/02/2015';
+    let msg = ''; const a = window.alert; window.alert = m => { msg = String(m); }; const t = window.showToast; window.showToast = m => { msg = msg || String(m); };
+    try{ salvarEquipeEditor(); }finally{ window.alert = a; window.showToast = t; }
+    const f2 = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe).find(x => String(x.matricula) === String(mat));
+    return { mat, mostra, livre, mascara, salvo: f && f.admissao, volta, recusou: /não é válida/.test(msg), manteve: f2 && f2.admissao };
+  });
+  ok(!r.semCampo && r.livre && /^\d{2}\/\d{2}\/\d{4}$|^$/.test(r.mostra), `o campo aceita digitação e mostra dd/mm/aaaa (${r.mostra || 'vazio'})`);
+  ok(r.mascara === '05/03/1998' && r.salvo === '1998-03-05', `digitando 05031998 vira 05/03/1998 e fica guardada (${r.salvo})`);
+  ok(r.volta === '05/03/1998' && r.recusou && r.manteve === '1998-03-05', 'ao abrir de novo mostra 05/03/1998; 31/02/2015 é recusada e a data certa continua');
+  // fechar e abrir o app de novo: a data continua lá (o Setores guardava a equipe sem a admissão — corrigido na V239)
+  await p.waitForTimeout(1500);
+  await p.reload(); await p.waitForTimeout(3000);
+  const depois = await p.evaluate(m => { const l = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe); const f = l.find(x => String(x.matricula) === String(m)); return f && f.admissao; }, r.mat);
+  ok(depois === '1998-03-05', `depois de recarregar a página a data continua guardada (${depois || 'vazio'})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+}
+
+async function testarPorCargo(browser, app){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 240) return;
+  console.log('\n▶ Setores — “Por cargo”: quantas lideranças e quantos de cada cargo');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800);
+  await p.evaluate(() => { v45GotoStep(3, false); const s = $('modoCobertura'); s.value = 'funcao'; s.dispatchEvent(new Event('change', { bubbles: true })); }); await p.waitForTimeout(600);
+  // V241: a Frente de Loja começa “Por turno”; aqui o teste é da linha única (modo Várias)
+  await p.evaluate(() => { if(window.liderTurno && liderTurno()) definirModoLideranca('varias'); }); await p.waitForTimeout(300);
+  const ler = () => p.evaluate(() => ({ n: document.querySelector('.v240-lider [data-v240-n]')?.value, modo: modoLideranca(), total: document.querySelector('#configFuncao .alert.info')?.textContent || '' }));
+  const a = await ler();
+  ok(!!a.n && /liderança/.test(a.total), `o quadro do “Por cargo” tem a linha ⭐ Lideranças (${a.n}) e o total conta as lideranças`);
+  await p.evaluate(() => { const v = document.querySelector('[data-v240-n]'); v.value = '1'; v.dispatchEvent(new Event('change', { bubbles: true })); }); await p.waitForTimeout(300);
+  const b = await ler();
+  await p.click('[data-v240="1"]'); await p.click('[data-v240="1"]'); await p.waitForTimeout(300);
+  const c = await ler();
+  ok(b.modo === 'uma' && c.modo === 'varias' && c.n === '3' && /\b3\b liderança/.test(c.total), `1 liderança = “Uma só”; com + vira “Várias” com 3 (${b.modo} → ${c.modo} ${c.n})`);
+  await p.selectOption('#v208Qtd', '5'); await p.waitForTimeout(300);
+  ok((await ler()).n === '5', 'mudando a meta no ③ “Quem lidera”, o quadro do “Por cargo” acompanha');
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+}
+
+async function testarLiderTurno(browser, app){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 241) return;
+  console.log('\n▶ Setores — liderança por turno (Frente de Loja e CPD)');
+  const abrir = async (setor, dados) => { const { p, erros } = await novaPagina(browser);
+    await p.goto('file://' + app); await p.waitForTimeout(1200);
+    await p.click('#comeceFechar').catch(() => {}); await p.click(`[data-home-setor="${setor}"]`); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoTxt', path.join(DADOS, dados)); await p.waitForTimeout(1800);
+    await p.evaluate(() => v45GotoStep(3, false)); await p.waitForTimeout(300); return { p, erros }; };
+  const porDomingo = p => p.evaluate(() => { const doms = domingosDoMes(+$('ano').value, +$('mes').value), bal = balancoDoMes(+$('ano').value, +$('mes').value);
+    return doms.filter(d => d !== bal).map(d => { const ls = lideresSelecionadosDomingo(d), todos = [...new Set([...ls, ...(trabalhoDomingo[d] || [])])];
+      return { d, lA: ls.filter(i => turnoLider(i) === 'ABERTURA').length, lF: ls.filter(i => turnoLider(i) === 'FECHAMENTO').length,
+        A: todos.filter(i => turnoLider(i) === 'ABERTURA').length, F: todos.filter(i => turnoLider(i) === 'FECHAMENTO').length }; }); });
+  // Frente de Loja: começa em “Por turno” (1 + 1) e o 🤖 Sugerir põe 1 liderança em cada turno, de qualquer cargo
+  { const { p, erros } = await abrir('Frente de Loja', 'setores_frente_de_loja_50.txt');
+    const modo = await p.evaluate(() => modoLideranca());
+    await p.click('#btnSugerirLideranca'); await p.waitForTimeout(500);
+    const r = await porDomingo(p);
+    ok(modo === 'turno' && r.every(x => x.lA === 1 && x.lF === 1), `Frente de Loja: modo “Por turno” e 1 liderança na abertura + 1 no fechamento em todo domingo (${r.map(x => x.lA + '+' + x.lF).join(' ')})`);
+    ok(!(await p.evaluate(() => conflitosLideranca())).length, 'sugestão por turno sem 3 domingos seguidos');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
+  // CPD: falta liderança no turno → entra Preparador de dados; sempre 1 na abertura e 1 no fechamento
+  { const { p, erros } = await abrir('CPD', 'setores_cpd_6.txt');
+    const T = await p.evaluate(() => { const s = $('modoCobertura'); s.value = 'funcao'; s.dispatchEvent(new Event('change', { bubbles: true })); const T = liderTurno(); coberturaFuncao.base[T.comp] = 0; salvarCfgFuncao(); return T; });
+    await p.click('#btnSugerirLideranca'); await p.waitForTimeout(500);
+    // um domingo sem o Sub (fechamento) → Encarregado + Preparador
+    await p.evaluate(() => { const d = domingosDoMes(+$('ano').value, +$('mes').value)[0]; liderancaManualDomingo[String(d)] = { mais: lideresSelecionadosDomingo(d).filter(i => turnoLider(i) === 'ABERTURA') }; renderLiderancaDomingo(); });
+    await p.evaluate(() => { const s = $('modoGeracao'); if(s){ s.value = 'motor'; s.dispatchEvent(new Event('change', { bubbles: true })); } v45GotoStep(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(3000);
+    const r = await porDomingo(p);
+    ok(/preparador/.test(T.comp || ''), `CPD: “Se faltar liderança no turno, entra: Preparador de dados” já vem marcado (${T.comp})`);
+    ok(r.every(x => x.A === 1 && x.F === 1), `CPD: todo domingo com 1 na abertura e 1 no fechamento (${r.map(x => `${x.d}:${x.lA + x.lF}lid ${x.A}+${x.F}`).join(' ')})`);
+    ok(r[0].lA === 1 && r[0].lF === 0 && r.some(x => x.lA + x.lF === 0), 'CPD: Encarregado + Preparador e 2 Preparadores acontecem');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
+}
+
 (async () => {
   const t0 = Date.now();
   // os endereços fixos do site (setores/ e encarregados/) precisam ser a cópia da versão atual
@@ -512,7 +617,7 @@ async function testarApk(browser, app, nome){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
