@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V232.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V233.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
 - **PR #28 aberta:** [ChatGPT] Setores V232 — alinhar versão visível e evitar regressão (branch `chatgpt/setores-v232-versao-visivel`); suíte rápida e completa passaram na execução #92. Não mesclar sem autorização explícita.
 - **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V233**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
 
 ---
 
@@ -97,6 +97,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-11 — Setores V233 — sugestões com validação na escala manual — ChatGPT
+- **O que mudou e por quê:** cada card de domingo na escala manual/mista pode gerar sugestões priorizadas pelo menor número de domingos recentes. O gestor marca quais deseja aceitar ou rejeita a lista sem modificar a escala. O aceite valida novamente elegibilidade, limite de vagas e auditoria, preservando as seleções manuais existentes.
+- **Onde no código:** camada CSS `v233-sugestoes-manual` e script `v233-sugestoes-manual-js` no fim de `Escala_de_Setores_V233.html`; gancho `window.v233Sugestoes`; cópia de publicação `setores/index.html`. A V232 foi arquivada em `versoes_anteriores/Escala_de_Setores_V232.html`.
+- **Prevenção:** `testes/rodar.js` confere a presença da camada e verifica os botões, a geração da lista e que rejeitar não altera `selecaoManualDomingo`. A auditoria existente `auditarSelecaoAntesDaGeracao` é reutilizada para testar candidatos e após aceitar.
+- **Como foi testado:** os testes de regressão foram adicionados; confirmar os resultados da suíte rápida e completa nos checks desta PR antes de merge. Não houve merge.
+- **Para continuar:** conferir visualmente no celular e desktop, validar a inclusão real em diferentes regras de cobertura e verificar a execução das duas suítes. Assinado: ChatGPT
 
 ### 2026-10-11 — Setores V232 — versão visível e prevenção de regressão — ChatGPT
 - **O que mudou e por quê:** a inspeção do HTML da V231 confirmou que o nome do arquivo e o histórico estavam em V231, mas o título da aba e o rodapé ainda exibiam V230. A V232 alinha ambos os textos ao número atual. A V231 é preservada em `versoes_anteriores/`.
