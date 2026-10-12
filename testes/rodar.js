@@ -632,7 +632,7 @@ async function testarFolgasMesmoHorario(browser, app){
     return [...document.querySelectorAll('#painelMes [data-v243-data]')].some(b=>b.dataset.v243Data==='2027-10-01'&&b.dataset.v243Horario==='FECHAMENTO');
   });
   ok(!um,'uma pessoa sozinha de FECHAMENTO na sexta não gera alerta');
-  const semMudar=await p.evaluate(()=>equipe.every(f=>typeof f.folgaFixa==='number'));
+  const semMudar=await p.evaluate(()=>equipe.length===3 && equipe[0].folgaFixa===5 && equipe[1].folgaFixa===2 && equipe[2].folgaFixa===5);
   ok(semMudar,'o aviso não altera as folgas cadastradas');
   ok(!erros.length,'sem erro de JavaScript'+(erros.length?': '+erros[0]:''));
   await p.context().close();
