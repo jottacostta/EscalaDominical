@@ -17,16 +17,16 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V242.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V244.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V173.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V242 + Encarregados V173 (sem Equipe.txt na tela). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V243 (do ChatGPT, PR #39) + V244 (alerta enxuto). Ao fazer o merge dele, o #39 entra junto e pode ser fechado. Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V243**, Encarregados **V174**.
+- **Próximo número de versão:** Setores **V245**, Encarregados **V174**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V242): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V244): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V171): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -118,6 +118,18 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Setores V244 — alerta de folgas por horário enxuto — Claude
+- **O que mudou e por quê:** revisão da V243 do ChatGPT (PR #39). Numa escala gerada com os dados fictícios da Frente de Loja (50 pessoas) o cartão mostrava 61 avisos e tinha ~10 mil px de altura — no feriado quase todos folgam, e 2 pessoas de folga num horário de 20 também viravam aviso. O dono aprovou os ajustes: tirar a folga no feriado da conta, avisar só quando mais da metade do horário folga (inclui ninguém trabalhando) e mostrar um resumo curto, depois dos números do mês, com os detalhes fechados.
+- **Onde no código:** no próprio bloco `/* ═════ V243 … ═════ */` (V244 mexeu nele): `nomesStatus` sem `ffol`; `auditar` conta o total de pessoas ativas por horário (`total`) e só devolve o grupo quando `k>=2 && k*2>n` (com `total` e `ficam`); `desenhar` monta um `.pm-card` com `<details class="v244-det">` e o coloca logo depois do 1º `.pm-card` (números do mês).
+- **Como foi testado:** `testarFolgasHorarioEnxuto` (posição do cartão, feriado fora, cartão curto na escala normal, 2 de 5 não avisa e 3 de 5 avisa dizendo que ficam 2) + o teste da V243 do ChatGPT continua passando. Suítes rápida e completa.
+- **Para continuar:** o Manual da Escala de Setores ganhou o cartão “Folgas por horário” no passo Gerar.
+
+### 2026-10-12 — Escala de Setores V243 — alerta de folgas no mesmo horário — ChatGPT
+- **O que mudou e por quê:** após o relato da usuária testadora, o resumo do mês passa a listar datas de segunda a sábado com duas ou mais pessoas ativas, de horário de trabalho idêntico, de folga na mesma data. O aviso mostra data, setor, horário, quantidade, nomes e motivo da folga.
+- **Onde no código:** camada final `/* ═════ V243 — ALERTA INFORMATIVO DE FOLGAS NO MESMO HORÁRIO ═════ */`; `window.v243FolgasHorario.auditar` agrupa as folgas vistas por `statusDiaSet` e horário normalizado; `window.renderPainelMes` é embrulhada para inserir o cartão sem alterar a auditoria nem a escala. Não cria dado persistente.
+- **Como foi testado:** teste novo `testarFolgasMesmoHorario` em `testes/rodar.js`: dois horários diferentes no mesmo dia, terceira pessoa do mesmo horário, redução para uma pessoa e preservação das folgas. A suíte automática do GitHub será conferida na PR; resultado pendente nesta passagem.
+- **Para continuar:** revisar visualmente o cartão no celular e confirmar os Checks da PR. O alerta cobre folgas fixas, DSR, compensatórias e folgas em feriado de segunda a sábado; domingos ficam fora porque têm escala própria. Atualizar o Manual da Escala de Setores (hoje V242) após a revisão. — ChatGPT
 
 Modelo de entrada:
 ```
