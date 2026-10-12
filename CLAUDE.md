@@ -12,4 +12,5 @@ Lembretes para o Claude:
 - **Deixe tudo explicado para o ChatGPT continuar** (seção 10 do AGENTS.md): leia e atualize `docs/PASSAGEM.md` em toda
   mudança (estado atual, diário, mapa técnico, armadilhas, pendências) e termine o PR com “Para quem continuar”.
 - **Regra de ouro de UX/UI (seção 4.1 do AGENTS.md):** toda tela tem que ser entendida por uma criança de 10 anos aprendendo informática.
+- **Conversa nova:** comece por [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) e atualize-o junto com o PASSAGEM.
 - O guia de como o ChatGPT foi ligado ao GitHub está em [`docs/CHATGPT_COPILOTO.md`](docs/CHATGPT_COPILOTO.md).

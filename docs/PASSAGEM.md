@@ -21,7 +21,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V173.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V243 (do ChatGPT, PR #39) + V244 (alerta enxuto). Ao fazer o merge dele, o #39 entra junto e pode ser fechado. Depois do merge: nenhum.
+- **PRs abertos:** o PR de documentação do Claude (arquivo de continuidade). Depois do merge: nenhum.
+- **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V245**, Encarregados **V174**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
@@ -118,6 +119,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Documentação — arquivo de continuidade para conversas novas — Claude
+- **O que mudou e por quê:** o dono pediu todas as regras de continuidade num arquivo de texto, para começar uma conversa nova (Claude ou ChatGPT) sem perder nada. Criado `docs/INICIO_NOVA_CONVERSA.txt` (mensagem para colar, jeito de falar com o dono, estado atual, rotina, como fazer versão, testes, Git/PR/assinatura, manuais, privacidade, regras de negócio, mapa rápido, armadilhas e pendências). `AGENTS.md`: regra da liderança atualizada (modo Por turno e CPD) e passos na ordem atual; `CLAUDE.md` e `README.md` apontam para o arquivo novo.
+- **Onde:** `docs/INICIO_NOVA_CONVERSA.txt` (manter atualizado no mesmo PR de cada mudança, como o PASSAGEM).
+- **Como foi testado:** `testes/rodar.js` (nada mudou nos apps).
+- **Para continuar:** pendências no item 13 do arquivo novo e na seção 6 daqui.
 
 ### 2026-10-12 — Setores V244 — alerta de folgas por horário enxuto — Claude
 - **O que mudou e por quê:** revisão da V243 do ChatGPT (PR #39). Numa escala gerada com os dados fictícios da Frente de Loja (50 pessoas) o cartão mostrava 61 avisos e tinha ~10 mil px de altura — no feriado quase todos folgam, e 2 pessoas de folga num horário de 20 também viravam aviso. O dono aprovou os ajustes: tirar a folga no feriado da conta, avisar só quando mais da metade do horário folga (inclui ninguém trabalhando) e mostrar um resumo curto, depois dos números do mês, com os detalhes fechados.
