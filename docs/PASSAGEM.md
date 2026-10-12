@@ -22,7 +22,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PRs abertos:** o PR do Claude com a Setores V233 (ChatGPT, PR #31) + V234 (Claude). Os PRs #29, #30 e #31 foram fechados: as três eram “V233” da mesma função; só a #31 funcionava com a planilha real e ela entrou neste PR. Depois do merge: nenhum.
-- **Branches:** os branches antigos do ChatGPT já incorporados ou abandonados foram apagados na limpeza de 12/10/2026.
+- **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V235**, Encarregados **V166**.
 
 ---
@@ -152,7 +152,7 @@ Modelo de entrada:
   - o teste da V233 aceitava “nenhum candidato” (por isso #29/#30 passavam) e agora exige candidatos;
   - novo: auditoria sem regra quebrada depois de aceitar;
   - novo: cobertura por função incompleta (simulada) não barra as sugestões.
-- **Limpeza junto:** PRs #29/#30/#31 fechados; branches antigos do ChatGPT apagados; Node 22 no workflow; `testes/screenshots/` no `.gitignore` (a imagem fica como anexo da execução no GitHub).
+- **Limpeza junto:** PRs #29/#30/#31 fechados; branches antigos do ChatGPT listados na seção 1 (não deu para apagar daqui); Node 22 no workflow; `testes/screenshots/` no `.gitignore` (a imagem fica como anexo da execução no GitHub).
 - **Como foi testado:** suíte rápida e completa ✅; planilha real (local): Frente de Loja 77/77 e Açougue 13/13 em 3 domingos, 0 regras quebradas, 0 erros.
 - **Para continuar:** veja a pendência de velocidade das sugestões (seção 6).
 
@@ -254,4 +254,5 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
+- **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Sugestões da escala à mão (V234):** na Frente de Loja cada toque leva ~1 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
