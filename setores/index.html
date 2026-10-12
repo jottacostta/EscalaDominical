@@ -7,11 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V232</title>
+<title>Escala de Setores — V233</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
-V232 [ChatGPT] — VERSÃO VISÍVEL E TESTADA: alinha o título HTML e a versão do rodapé ao nome do arquivo; acrescenta teste automático para conferir título, rodapé e primeira entrada do histórico de versões.
+V233 [ChatGPT] — SUGESTÕES NA ESCALA MANUAL: cada cartão de domingo pode sugerir funcionários elegíveis, explicar critérios, permitir seleção e aceite parcial, revalidar regras no aceite e preservar escolhas manuais; teste de interface adicionado.
 V231 [ChatGPT] — EMPRÉSTIMO ENTRE SETORES: o funcionário EP permanece cadastrado no setor de origem como registro visível e bloqueado; o destino do empréstimo fica explícito no editor. A escala de destino recebe uma visão operacional do mesmo cadastro, sem duplicar matrícula, e a contagem disponível diminui na origem e aumenta no destino. Destino persistido no Equipe.txt e no histórico JSON.
 V230 [ChatGPT] — LISTA MANUAL SÓ COM OPERACIONAIS ATIVOS: na escala manual/mista, lideranças já definidas na área própria, afastados (AF) e emprestados (EP) deixam de aparecer na lista de seleção. Operacionais ativos continuam visíveis, inclusive quem tem folga fixa no domingo.
 V229 [Claude] — VIRADA DO MÊS (achado na investigação pedida pelo ChatGPT): o domingo do MÊS PASSADO era tratado
@@ -2081,6 +2081,20 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 @keyframes v227Pisca{0%,100%{box-shadow:0 0 0 0 rgba(229,35,32,0)}40%{box-shadow:0 0 0 4px rgba(229,35,32,.55)}}
 .v227-pisca{animation:v227Pisca 1s ease 2}
 </style>
+
+<style id="v233-sugestoes-manual">
+.v233-sugestoes{margin:10px 0;padding:12px;border:1px solid #c7d8f4;border-radius:12px;background:rgba(0,71,186,.035)}
+.v233-sugestoes h4{margin:0 0 6px;font-size:14px}
+.v233-sugestoes p{margin:4px 0 10px;font-size:12px;color:var(--muted,#64748b)}
+.v233-lista{display:grid;gap:6px;margin:8px 0}
+.v233-candidato{display:flex;gap:9px;align-items:flex-start;padding:8px;border:1px solid var(--border,#d8dee8);border-radius:8px;background:var(--card,#fff)}
+.v233-candidato input{margin-top:3px;flex:0 0 auto}
+.v233-candidato span{display:block;min-width:0}
+.v233-candidato small{display:block;color:var(--muted,#64748b);font-size:11px;margin-top:2px}
+.v233-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.v233-acoes button{min-height:36px}
+.v233-vazio{font-size:12px;padding:8px;border-radius:8px;background:rgba(217,119,6,.08)}
+</style>
 </head>
 <body>
 <script>
@@ -2176,7 +2190,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V232 · versão visível alinhada e conferida automaticamente</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V233 · sugestões de funcionários na escala manual com validação</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12395,6 +12409,107 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   // Garante que as opções de destino apareçam também ao adicionar uma linha manualmente.
   const add=document.getElementById('btnAdicionarFuncionario');
   if(add&&!add.dataset.loanBound){add.addEventListener('click',()=>setTimeout(garantirCamposEmprestimo,0));add.dataset.loanBound='1';}
+})();
+</script>
+
+<script id="v233-sugestoes-escala-manual">
+/* ═════ V233 — sugestões de funcionários na escala manual, com aceite auditado ═════ */
+(function(){
+  'use strict';
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const modoAtual=()=>document.getElementById('modoGeracao')?.value||'motor';
+  const domingoAtual=()=>domingosDoMes(+$('ano').value,+$('mes').value);
+  function vagasDoDia(d){
+    const modo=modoAtual(),bal=balancoDoMes(+$('ano').value,+$('mes').value);
+    if(modo==='motor'||Number(d)===Number(bal))return 0;
+    const selecionados=new Set((selecaoManualDomingo[String(d)]||[]).map(Number));
+    return Math.max(0,alvoCoberturaAtual()+lideresSelecionadosDomingo(d).length-selecionados.size);
+  }
+  function auditoriaCandidato(i,d){
+    const f=equipe[i]; if(!f)return {ok:false,motivo:'Cadastro não encontrado.'};
+    if(String(f.situacao||'A').trim().toUpperCase()!=='A')return {ok:false,motivo:'Funcionário não está ativo.'};
+    if(foraDom(f))return {ok:false,motivo:Number(f.folgaFixa)===0?'Folga fixa no domingo.':'Não está apto para trabalhar neste domingo.'};
+    if(ehLiderancaDomingo(f))return {ok:false,motivo:'A liderança é definida na área própria.'};
+    if(Number(f.folgaFixa)===0)return {ok:false,motivo:'Folga fixa no domingo.'};
+    const chave=String(d), atual=(selecaoManualDomingo[chave]||[]).map(Number);
+    if(atual.includes(Number(i)))return {ok:false,motivo:'Já está escalado neste domingo.'};
+    const modo=modoAtual();
+    if(!['manual','mista'].includes(modo))return {ok:false,motivo:'Ative o modo Manual ou Mista.'};
+    const antes=auditarSelecaoAntesDaGeracao(modo)||[];
+    try{
+      selecaoManualDomingo[chave]=[...atual,Number(i)];
+      const depois=auditarSelecaoAntesDaGeracao(modo)||[];
+      const novos=depois.filter(x=>!antes.includes(x)&&String(x).includes(String(f.nome))&&String(x).includes(formatarDataDomingo(d)));
+      const impeditivos=novos.filter(x=>!/sem hor[aá]rio de domingo/i.test(x));
+      if(impeditivos.length)return {ok:false,motivo:impeditivos[0].replace(/^.*?:\s*/, '')};
+      return {ok:true,motivo:''};
+    }catch(e){return {ok:false,motivo:'Não foi possível confirmar todas as regras.'};}
+    finally{selecaoManualDomingo[chave]=atual;}
+  }
+  function scoreFuncionario(i,doms){
+    const h=historicoManual(i)||{};
+    let n=(h.penultimo?1:0)+(h.ultimo?1:0);
+    doms.forEach(d=>{if((selecaoManualDomingo[String(d)]||[]).map(Number).includes(i))n++;});
+    return n;
+  }
+  function candidatosDoDia(d){
+    const doms=domingoAtual();
+    return equipe.map((f,i)=>({f,i})).filter(({i})=>auditoriaCandidato(i,d).ok)
+      .map(x=>({...x,score:scoreFuncionario(x.i,doms)}))
+      .sort((a,b)=>a.score-b.score||String(a.f.nome||'').localeCompare(String(b.f.nome||''),'pt-BR'));
+  }
+  function montarPainel(card){
+    const d=Number(card.dataset.geracaoDom), modo=modoAtual(), bal=balancoDoMes(+$('ano').value,+$('mes').value);
+    if(!['manual','mista'].includes(modo)||d===Number(bal))return;
+    if(card.querySelector('.v233-sugestoes'))return;
+    const area=document.createElement('section');area.className='v233-sugestoes';area.dataset.v233Dia=String(d);
+    area.innerHTML='<h4>💡 Sugestão de funcionários</h4><p>O sistema prioriza quem tem menos domingos no histórico e no mês. Você decide quais incluir; as regras serão conferidas novamente no aceite.</p><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-gerar="'+d+'">Gerar sugestões</button></div>';
+    const actions=card.querySelector('.dom-actions');
+    if(actions)actions.before(area);else card.appendChild(area);
+  }
+  function montarTodos(){
+    document.querySelectorAll('#selecaoDomingosManual .dom-card[data-geracao-dom],#selecaoDomingosMista .dom-card[data-geracao-dom]').forEach(montarPainel);
+  }
+  function renderSugestoes(d){
+    const card=document.querySelector('.dom-card[data-geracao-dom="'+d+'"]'),area=card?.querySelector('.v233-sugestoes');
+    if(!card||!area)return;
+    const vagas=vagasDoDia(d), candidatos=candidatosDoDia(d), limite=Math.min(candidatos.length,Math.max(vagas,vagas*2));
+    if(vagas<1){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não há vagas restantes neste domingo.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Dispensar sugestões</button></div>';return;}
+    if(!candidatos.length){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não encontrei funcionários elegíveis para as vagas restantes. Confira a equipe e o histórico.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Fechar</button></div>';return;}
+    const lista=candidatos.slice(0,limite);
+    area.innerHTML='<h4>💡 Sugestões para '+String(d).padStart(2,'0')+'/'+String(+$('mes').value+1).padStart(2,'0')+'</h4><p>Vagas restantes: '+vagas+'. Marcamos inicialmente os candidatos com menor carga de domingos. Confira a lista antes de aceitar.</p><div class="v233-lista">'+lista.map((x,k)=>'<label class="v233-candidato"><input type="checkbox" data-v233-candidato="'+x.i+'" data-v233-dia="'+d+'" '+(k<vagas?'checked':'')+'><span><b>'+esc(x.f.nome)+'</b><small>'+esc(x.f.cargo||'Cargo não informado')+' · '+esc(x.f.turno||'Turno não informado')+' · '+x.score+' domingo(s) no histórico considerado</small></span></label>').join('')+'</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-aceitar="'+d+'">Aceitar selecionados</button><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Rejeitar sugestões</button></div>';
+  }
+  function persistir(){try{window.v45Persist?.();}catch(e){}try{window.v227Auditar?.();}catch(e){}}
+  document.addEventListener('click',e=>{
+    const gerar=e.target.closest('[data-v233-gerar]');
+    if(gerar){renderSugestoes(Number(gerar.dataset.v233Gerar));return;}
+    const rejeitar=e.target.closest('[data-v233-rejeitar]');
+    if(rejeitar){const c=rejeitar.closest('.v233-sugestoes');if(c)c.innerHTML='<h4>💡 Sugestões dispensadas</h4><p>A escala existente foi mantida sem alterações.</p><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-gerar="'+rejeitar.dataset.v233Rejeitar+'">Gerar novamente</button></div>';return;}
+    const aceitar=e.target.closest('[data-v233-aceitar]');if(!aceitar)return;
+    const d=Number(aceitar.dataset.v233Aceitar),area=aceitar.closest('.v233-sugestoes');
+    const marcados=[...(area?.querySelectorAll('input[data-v233-candidato]:checked')||[])].map(x=>Number(x.dataset.v233Candidato));
+    if(!marcados.length){window.showToast?.('Marque pelo menos um funcionário para aceitar.','warn');return;}
+    const incluidos=[],recusados=[];let vagas=vagasDoDia(d);
+    for(const i of marcados){
+      if(vagas<=0){recusados.push((equipe[i]?.nome||'Funcionário')+': não há mais vagas.');continue;}
+      const v=auditoriaCandidato(i,d);
+      if(!v.ok){recusados.push((equipe[i]?.nome||'Funcionário')+': '+v.motivo);continue;}
+      const k=String(d),arr=(selecaoManualDomingo[k]||[]).map(Number);
+      if(arr.includes(i)){recusados.push((equipe[i]?.nome||'Funcionário')+': já está escalado.');continue;}
+      selecaoManualDomingo[k]=[...arr,i];
+      const h=horarioManualSelecionado(d,i);
+      if(h){horariosManuaisDomingo[k]=horariosManuaisDomingo[k]||{};horariosManuaisDomingo[k][String(i)]=h;}
+      incluidos.push(equipe[i]?.nome||String(i));vagas--;
+    }
+    renderSelecaoDomingosGeracao();persistir();
+    if(incluidos.length)window.showToast?.(incluidos.length+' funcionário(s) adicionado(s): '+incluidos.join(', ')+'. A auditoria foi atualizada.','ok',true);
+    if(recusados.length)window.showToast?.('Não incluídos: '+recusados.join(' | '),'warn',true);
+  });
+  const renderOriginal=renderSelecaoDomingosGeracao;
+  renderSelecaoDomingosGeracao=function(){renderOriginal();setTimeout(montarTodos,0);};
+  const obs=new MutationObserver(()=>montarTodos());
+  function iniciar(){montarTodos();['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{const el=$(id);if(el)obs.observe(el,{childList:true,subtree:true});});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,500),{once:true});else setTimeout(iniciar,500);
 })();
 </script>
 </body>
