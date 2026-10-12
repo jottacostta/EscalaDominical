@@ -12470,7 +12470,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function montarTodos(){document.querySelectorAll('#selecaoDomingosManual .dom-card[data-geracao-dom],#selecaoDomingosMista .dom-card[data-geracao-dom]').forEach(montarPainel);}
   function renderSugestoes(d, area){
     area=area||document.querySelector('#selecaoDomingosManual .dom-card[data-geracao-dom="'+d+'"] .v233-sugestoes')||document.querySelector('#selecaoDomingosMista .dom-card[data-geracao-dom="'+d+'"] .v233-sugestoes');
-    if(!card||!area)return;
+    if(!area)return;
     const vagas=vagasDoDia(d), candidatos=candidatosDoDia(d), limite=Math.min(candidatos.length,Math.max(vagas,vagas*2));
     if(vagas<1){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não há vagas restantes neste domingo.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Dispensar sugestões</button></div>';return;}
     if(!candidatos.length){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não encontrei funcionários elegíveis para as vagas restantes. Confira a equipe e o histórico.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Fechar</button></div>';return;}
