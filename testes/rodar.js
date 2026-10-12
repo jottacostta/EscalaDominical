@@ -59,27 +59,47 @@ async function testarSetores(browser){
   await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1500);
   const nSet = fs.readFileSync(path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'utf8').split(/\r?\n/).filter(l => /^\d+;/.test(l)).length;
   ok(await p.evaluate(() => equipe.length) === nSet, `equipe fictícia carregada (${nSet} pessoas)`);
-  // V233: sugestões na escala manual, sem alterar a escala ao rejeitar.
+  // V233: sugestões na escala manual; rejeitar não altera e aceitar inclui após revalidar.
   {
     const r = await p.evaluate(() => {
       const modo = $('modoGeracao'), anterior = modo.value;
+      const selOriginal = JSON.parse(JSON.stringify(selecaoManualDomingo || {}));
+      const horasOriginais = JSON.parse(JSON.stringify(horariosManuaisDomingo || {}));
+      const persistOriginal = window.v45Persist;
+      window.v45Persist = () => {};
       modo.value = 'mista';
       renderSelecaoDomingosGeracao();
       const bal = balancoDoMes(+$('ano').value, +$('mes').value);
       const card = [...document.querySelectorAll('#selecaoDomingosMista .dom-card[data-geracao-dom]')].find(c => Number(c.dataset.geracaoDom) !== Number(bal));
       const ui = !!window.v233Sugestoes && !!card?.querySelector('[data-v233-action="suggest"]') && !!card?.querySelector('[data-v233-action="accept"]') && !!card?.querySelector('[data-v233-action="reject"]');
+      const d = Number(card?.dataset.geracaoDom);
       card?.querySelector('[data-v233-action="suggest"]')?.click();
-      const gerou = !!card?.querySelector('.v233-sug-list') && !!card.querySelector('.v233-sug-msg-status');
-      const antes = JSON.stringify(selecaoManualDomingo || {});
+      const lista = card?.querySelector('.v233-sug-list');
+      const candidatos = lista?.querySelectorAll('input[type="checkbox"]').length || 0;
+      const antesRejeitar = JSON.stringify(selecaoManualDomingo || {});
       card?.querySelector('[data-v233-action="reject"]')?.click();
-      const rejeitarPreserva = antes === JSON.stringify(selecaoManualDomingo || {});
+      const rejeitarPreserva = antesRejeitar === JSON.stringify(selecaoManualDomingo || {});
+      card?.querySelector('[data-v233-action="suggest"]')?.click();
+      const antesAceitar = (selecaoManualDomingo[String(d)] || []).length;
+      const errosAntes = (window.v227Auditar?.()?.r || []).slice();
+      card?.querySelector('[data-v233-action="accept"]')?.click();
+      const depoisAceitar = (selecaoManualDomingo[String(d)] || []).length;
+      const errosDepois = window.v227Auditar?.()?.r || [];
+      const semNovaRegra = errosDepois.every(e => errosAntes.includes(e));
+      Object.keys(selecaoManualDomingo || {}).forEach(k => delete selecaoManualDomingo[k]);
+      Object.assign(selecaoManualDomingo, selOriginal);
+      Object.keys(horariosManuaisDomingo || {}).forEach(k => delete horariosManuaisDomingo[k]);
+      Object.assign(horariosManuaisDomingo, horasOriginais);
+      window.v45Persist = persistOriginal;
       modo.value = anterior;
       renderSelecaoDomingosGeracao();
-      return { ui, gerou, rejeitarPreserva };
+      return { ui, candidatos, rejeitarPreserva, aceitou: depoisAceitar > antesAceitar, semNovaRegra };
     });
     ok(r.ui, 'V233: cada card manual/misto tem botões de sugerir, aceitar e rejeitar');
-    ok(r.gerou, 'V233: botão sugerir renderiza a lista de candidatos');
+    ok(r.candidatos > 0, 'V233: há candidatos elegíveis sugeridos para as vagas disponíveis (' + r.candidatos + ')');
     ok(r.rejeitarPreserva, 'V233: rejeitar sugestões não altera a escala existente');
+    ok(r.aceitou, 'V233: aceitar selecionados inclui funcionário após revalidação');
+    ok(r.semNovaRegra, 'V233: aceitar sugestões não acrescenta violações à auditoria');
   }
   {   // V221: quem não está afastado é apto ao domingo (exceto jovem aprendiz) e não tem folga fixa no domingo
     await p.waitForTimeout(2500);
