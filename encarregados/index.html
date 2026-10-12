@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V172</title>
+<title>Escala 2×1 — Encarregados V173</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V173 [Claude] — SEM EQUIPE.TXT NA TELA (pedido do dono): o “Guardar histórico do mês” já leva a equipe inteira, então o
+       Equipe.txt virou repetição. Saíram a caixa “Equipe.txt / 📂 Escolher” e o botão “Baixar Equipe.txt”. A equipe entra
+       pela planilha do RH, pelo “📂 Abrir histórico guardado” (agora também no passo Equipe) ou à mão no Editar equipe.
+       Um Equipe.txt antigo ainda abre: é só escolhê-lo no “📂 Abrir histórico guardado”.
 V172 [Claude] — DATA DE ADMISSÃO NO EDITAR EQUIPE (pedido do dono, igual à Escala de Setores V239): o Editar equipe não
        tinha o campo. Agora cada pessoa tem “Data de admissão (dd/mm/aaaa)”: as barras entram sozinhas, o app confere se
        a data existe e não é no futuro, guarda na equipe e no Equipe.txt e usa no “tempo de serviço”. Se a planilha do RH
@@ -1857,7 +1861,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V172 · data de admissão no Editar equipe (dd/mm/aaaa)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V173 · sem Equipe.txt na tela</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -1909,8 +1913,9 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <section class="card step-panel active" id="equipeCard" data-panel-id="equipe">
 <h2 class="section-title"><span class="st-num">1</span> Equipe</h2>
 <div class="guia"><span class="passo">Passo 1 de 5</span><p class="guia-1">Confira se a lista é a equipe real da loja.</p><details class="guia-mais"><summary>Como funciona</summary><ul><li>Se faltar alguém ou algo estiver errado, toque em <b>Editar equipe</b>.</li><li>Confira a <b>folga fixa</b> de cada pessoa: é dela que saem as folgas da semana.</li><li>Quando estiver certo, toque em <b>Próximo</b>.</li></ul></details></div>
-<p class="hint">Se você tem o arquivo <b>Equipe.txt</b>, toque em <b>Escolher</b> para carregá-lo (cada linha: <b>Matrícula,Nome,Cargo,Folga</b>). Se não tem, é só cadastrar os funcionários manualmente.</p>
-<div class="upload" data-upload="arquivoTxt">
+<p class="hint">A equipe entra de três jeitos: pela <b>📥 planilha do RH</b>, pelo <b>📂 Abrir histórico guardado</b> (o arquivo do mês leva a equipe toda) ou à mão em <b>Editar equipe</b>.</p>
+<div class="actions" style="margin:6px 0 10px"><button type="button" class="btn secondary" data-v173rh="1">📥 Planilha do RH</button><button type="button" class="btn secondary" data-v242hist="1">📂 Abrir histórico guardado</button></div>
+<div class="upload" data-upload="arquivoTxt" hidden style="display:none">
 <div class="upload-info"><b>Equipe.txt</b><small id="arquivoTxtName">Nenhum arquivo selecionado</small></div>
 <label class="upload-btn" for="arquivoTxt">📂 Escolher</label>
 <input type="file" id="arquivoTxt" accept=".txt,.csv">
@@ -1925,7 +1930,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <div class="actions">
 <button class="btn secondary" id="btnAdicionarFuncionario">➕ Adicionar funcionário</button>
 <button class="btn success" id="btnSalvarEquipe">💾 Salvar equipe</button>
-<button class="btn secondary" id="btnGerarEquipeTxt">⬇️ Baixar cópia (Equipe.txt)</button>
+<button class="btn secondary" id="btnGerarEquipeTxt" hidden style="display:none">⬇️ Baixar cópia (Equipe.txt)</button>
 </div>
 <div class="alert" id="equipeEditorStatus"></div>
 </div>
@@ -2493,7 +2498,7 @@ function salvarEquipePersistente(txt){
   // Navegador: atualiza o aplicativo, mas não pode sobrescrever um arquivo local arbitrário.
   parseEquipe(txt);
   $('equipeResumo').className='alert ok';
-  $('equipeResumo').textContent='✅ Equipe salva com sucesso. Se quiser uma cópia em arquivo, toque em “Baixar cópia (Equipe.txt)”.';
+  $('equipeResumo').textContent='✅ Equipe salva com sucesso. Para levar a equipe para outro aparelho, use ⋮ → Guardar histórico do mês.';
   $('equipeEditorStatus').className='alert ok';
   $('equipeEditorStatus').textContent='✅ Alterações salvas.';
   $('equipeTools').style.display='flex';
@@ -2554,11 +2559,11 @@ function carregarEquipeAutomatica(){
       return;
     }
     $('equipeResumo').className='alert ok';
-    $('equipeResumo').textContent='Escolha o arquivo Equipe.txt acima ou cadastre a equipe manualmente.';
+    $('equipeResumo').textContent='Use 📥 Planilha do RH, 📂 Abrir histórico guardado ou cadastre a equipe à mão.';
     abrirEditorEquipe(true);
   }catch(e){
     $('equipeResumo').className='alert bad';
-    $('equipeResumo').textContent='Não consegui ler o arquivo Equipe.txt. Cadastre a equipe abaixo.';
+    $('equipeResumo').textContent='Não consegui ler a equipe guardada. Cadastre a equipe abaixo.';
     abrirEditorEquipe(true);
   }
 }
@@ -8465,6 +8470,30 @@ function perguntarOrientacaoImpressao(cb){
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(ini,60)); else setTimeout(ini,60);
   setInterval(()=>{ const el=document.getElementById('v171Mes'); if(el&&!el.innerHTML) aviso(); },2000);
   window.v171AbrirMes=abrir;
+})();
+</script>
+<script>
+/* ═════ V173 — SEM EQUIPE.TXT NA TELA ═════
+   O histórico do mês já leva a equipe inteira. A caixa do Equipe.txt e o “Baixar Equipe.txt” ficam escondidos (o #arquivoTxt
+   continua no HTML: os testes e o leitor antigo usam). O “📂 Abrir histórico guardado” aceita também um Equipe.txt antigo
+   (.txt/.csv): o arquivo é repassado ao #arquivoTxt, que lê como sempre. */
+(function(){
+  const proj=()=>document.getElementById('arquivoProjetoJSON');
+  function aceitarTxt(){ const i=proj(); if(i&&!/\.txt/.test(i.accept)) i.accept=i.accept+',.txt,.csv,text/plain'; }
+  document.addEventListener('click',e=>{
+    if(e.target&&e.target.id==='arquivoProjetoJSON') aceitarTxt();
+    if(e.target.closest?.('[data-v242hist]')){ aceitarTxt(); proj()?.click(); }
+    if(e.target.closest?.('[data-v173rh]')){ try{ window.v134Fonte?.abrirModal?.(); }catch(_){} }
+  },true);
+  document.addEventListener('change',e=>{
+    const i=e.target; if(!i||i.id!=='arquivoProjetoJSON') return;
+    const f=i.files&&i.files[0]; if(!f||!/\.(txt|csv)$/i.test(f.name)) return;
+    e.stopImmediatePropagation();
+    try{ const dt=new DataTransfer(); dt.items.add(f); const t=document.getElementById('arquivoTxt'); t.files=dt.files; t.dispatchEvent(new Event('change',{bubbles:true})); }
+    catch(err){ window.showToast?.('Não consegui abrir este arquivo: '+(err.message||err),'danger',true); }
+    i.value='';
+  },true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(aceitarTxt,300)); else setTimeout(aceitarTxt,300);
 })();
 </script>
 </body>

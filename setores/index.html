@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V241</title>
+<title>Escala de Setores — V242</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V242 [Claude] — SEM EQUIPE.TXT NA TELA (pedido do dono): o “Guardar histórico do mês” já leva a equipe inteira, então o
+       Equipe.txt virou repetição. Saíram a caixa “Equipe.txt / 📂 Escolher” e o botão “Baixar Equipe.txt”. A equipe entra
+       pela planilha do RH, pelo “📂 Abrir histórico guardado” (agora também no passo Equipe) ou à mão no Editar equipe.
+       Um Equipe.txt antigo ainda abre: é só escolhê-lo no “📂 Abrir histórico guardado”.
 V241 [Claude] — LIDERANÇA POR TURNO (cenários do dono): Frente de Loja e Mercearia trabalham com 1 liderança na ABERTURA
        e 1 no FECHAMENTO, de qualquer cargo — Encarregado + Sub, Sub + Sub, Encarregado + Encarregado, Líder + Encarregado…
        Novo modo no ③ “Quem lidera”: “Por turno” (🌅 quantas na abertura + 🌙 quantas no fechamento). O 🤖 Sugerir liderança
@@ -2274,7 +2278,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V241 · liderança por turno</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V242 · sem Equipe.txt na tela</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2291,18 +2295,18 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <section class="card step-panel active" id="equipeCard" data-panel-id="equipe">
   <h2 class="section-title"><span class="st-num">1</span> Equipe</h2>
 <div class="guia"><span class="passo">Passo 1 de 5</span><b>O que fazer:</b> confira se a lista abaixo é igual à equipe do seu setor. <span class="fb-importacao">Se o RH mandou uma planilha nova, toque em <b>📥 Importar funcionários</b>: o app mostra o que mudou e <b>só atualiza depois que você confirmar</b>.</span><span class="fb-so-fonte">A lista de funcionários é <b>atualizada sozinha</b> a partir da planilha do RH (veja a caixa abaixo).</span> Se faltar alguém ou algo estiver errado, toque em <b>✏️ Editar equipe</b>. Mais abaixo há gráficos (tempo de casa, horários e folgas da semana): são só para consulta, não precisa mexer neles. Quando estiver certo, toque em <b>Próximo</b> na barra de baixo.</div>
-  <p class="hint fb-importacao">Se você já tem um arquivo de equipe (<b>Equipe.txt</b>), toque em <b>Escolher</b> para carregá-lo. Se não tem, use <b>📥 Importar funcionários</b> (planilha do RH) ou cadastre as pessoas à mão em <b>✏️ Editar equipe</b>.</p>
+  <p class="hint fb-importacao">A equipe entra de três jeitos: <b>📥 Importar funcionários</b> (planilha do RH), <b>📂 Abrir histórico guardado</b> (o arquivo do mês leva a equipe toda) ou à mão em <b>✏️ Editar equipe</b>.</p>
   <div id="operacionalContext" class="oper-context" aria-label="Contexto da escala">
     <div><small>Escala em edição</small><b id="operContextTexto">Configurando…</b></div>
     <button type="button" class="btn secondary sm" id="btnConfigurarOperacao">⚙️ Configurações</button>
   </div>
-  <div class="upload fb-importacao" data-upload="arquivoTxt">
+  <div class="upload" data-upload="arquivoTxt" hidden style="display:none">
     <div class="upload-info"><b>Equipe.txt</b><small id="arquivoTxtName">Nenhum arquivo selecionado</small></div>
     <label class="upload-btn" for="arquivoTxt">📂 Escolher</label>
     <input type="file" id="arquivoTxt" accept=".txt,.csv">
     <button type="button" class="upload-clear" data-clear="arquivoTxt" aria-label="Remover arquivo">×</button>
   </div>
-  <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn secondary" id="btnImportarERP">📥 Importar funcionários (planilha do RH)</button><button type="button" class="btn secondary" id="btnFonteBase">📍 Local da planilha <small id="fonteMini" style="font-weight:600;color:var(--muted)"></small></button></div>
+  <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn secondary" id="btnImportarERP">📥 Importar funcionários (planilha do RH)</button><button type="button" class="btn secondary" data-v242hist="1">📂 Abrir histórico guardado</button><button type="button" class="btn secondary" id="btnFonteBase">📍 Local da planilha <small id="fonteMini" style="font-weight:600;color:var(--muted)"></small></button></div>
   <div id="fonteStatusBox" class="fonte-box fb-so-fonte"></div>
   <div id="erpQuadro" class="erp-quadro"></div>
   <div id="erpPendentes" class="alert warn" style="display:none"></div>
@@ -2341,7 +2345,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
     <div class="actions">
       <button type="button" class="btn secondary" id="btnAdicionarFuncionario">➕ Adicionar</button>
       <button type="button" class="btn success" id="btnSalvarEquipe">💾 Salvar equipe</button>
-      <button type="button" class="btn secondary" id="btnGerarEquipeTxt">⬇️ Baixar Equipe.txt</button>
+      <button type="button" class="btn secondary" id="btnGerarEquipeTxt" hidden style="display:none">⬇️ Baixar Equipe.txt</button>
     </div>
     <div id="equipeEditorStatus" class="alert"></div>
   </div>
@@ -3490,7 +3494,7 @@ function abrirEditorEquipe(){
   $('equipeEditorTitulo').textContent=equipe.length?'✏️ Editar equipe':'📝 Cadastrar equipe';
   $('equipeEditorHint').innerHTML=equipe.length
     ? 'Edite <b>matrícula, nome, horário, cargo, turno, setor, subsetor, folga, situação e aptidão para domingo</b>.'
-    : 'O aplicativo criou o <b>Equipe.txt</b>. Cadastre a equipe abaixo.';
+    : 'Cadastre a equipe abaixo.';
   renderEditorRows();
   renderSugestaoFolgasEditor();
   $('equipeEditor').scrollIntoView({behavior:'smooth',block:'start'});
@@ -3653,7 +3657,7 @@ function salvarEquipeEditor(){
     atualizarTituloEscala(); renderEquipe(); montarHistoricoManual(); montarEscalaFeriados(); renderLiderancaDomingo();
     $('statusBadge').textContent=equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis no setor';
     $('equipeResumo').className='alert ok'; $('equipeResumo').textContent='✅ Equipe atualizada: '+equipe.filter(f=>String(f.situacao||'A').toUpperCase()!=='EP').length+' funcionário(s) disponíveis neste setor'+(removidos?' ('+removidos+' removido(s))':'')+'.';
-    $('equipeEditorStatus').className='alert ok'; $('equipeEditorStatus').textContent='Alterações salvas. Se quiser uma cópia em arquivo, toque em “Baixar Equipe.txt”.';
+    $('equipeEditorStatus').className='alert ok'; $('equipeEditorStatus').textContent='Alterações salvas. Para levar a equipe para outro aparelho, use ⋮ → Guardar histórico do mês.';
     $('equipeEditor').style.display='block';
     window.v45Persist?.();
     return true;
@@ -3709,11 +3713,11 @@ function carregarEquipeAutomatica(){
       return;
     }
     $('equipeResumo').className='alert ok';
-    $('equipeResumo').textContent='Modo navegador: importe um Equipe.txt ou cadastre a equipe.';
+    $('equipeResumo').textContent='Importe a planilha do RH, abra um histórico guardado ou cadastre a equipe.';
     abrirEditorEquipe();
   }catch(e){
     $('equipeResumo').className='alert bad';
-    $('equipeResumo').textContent='Não foi possível carregar o Equipe.txt.';
+    $('equipeResumo').textContent='Não foi possível carregar a equipe.';
     abrirEditorEquipe();
   }
 }
@@ -7425,7 +7429,7 @@ function trocarPessoaDomingoFuncao(d,sai,entra){
 
 function gerarSetoresCore(){
   atualizarTituloEscala();
-  if(!equipe.length){ window.showToast('Carregue a Equipe.txt e selecione um setor.','warn',true); return; }
+  if(!equipe.length){ window.showToast('Carregue a equipe (planilha do RH ou histórico guardado) e escolha o setor.','warn',true); return; }
   const modoGeracaoAtual=$('modoGeracao')?.value||'motor';
   if(modoGeracaoAtual!=='manual') aplicarHistoricoAutomatico();
   const mes=+$('mes').value,ano=+$('ano').value,doms=domingosDoMes(ano,mes),bal=balancoDoMes(ano,mes);
@@ -12827,6 +12831,30 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const t=e.target.closest?.('[data-v241-turno]'); if(t){ definirModoLideranca(t.dataset.v241Turno==='1'?'turno':'varias'); }
   });
   document.addEventListener('change',e=>{ if(e.target.dataset?.v241Comp){ const T=liderTurno()||{ab:1,fe:1}; definirLiderTurno(true,T.ab,T.fe,e.target.value); window.v45Persist?.(); try{ renderLiderancaDomingo(); }catch(_){} return; } const k=e.target.dataset?.v241N; if(!k) return; const T=liderTurno()||{ab:1,fe:1}, v=parseInt(e.target.value,10)||0; aplicar(k==='ab'?v:T.ab,k==='fe'?v:T.fe); });
+})();
+</script>
+<script>
+/* ═════ V242 — SEM EQUIPE.TXT NA TELA ═════
+   O histórico do mês já leva a equipe inteira. A caixa do Equipe.txt e o “Baixar Equipe.txt” ficam escondidos (o #arquivoTxt
+   continua no HTML: os testes e o leitor antigo usam). O “📂 Abrir histórico guardado” aceita também um Equipe.txt antigo
+   (.txt/.csv): o arquivo é repassado ao #arquivoTxt, que lê como sempre. */
+(function(){
+  const proj=()=>document.getElementById('arquivoProjetoJSON');
+  function aceitarTxt(){ const i=proj(); if(i&&!/\.txt/.test(i.accept)) i.accept=i.accept+',.txt,.csv,text/plain'; }
+  document.addEventListener('click',e=>{
+    if(e.target&&e.target.id==='arquivoProjetoJSON') aceitarTxt();
+    if(e.target.closest?.('[data-v242hist]')){ aceitarTxt(); proj()?.click(); }
+    if(e.target.closest?.('[data-v173rh]')){ try{ window.v134Fonte?.abrirModal?.(); }catch(_){} }
+  },true);
+  document.addEventListener('change',e=>{
+    const i=e.target; if(!i||i.id!=='arquivoProjetoJSON') return;
+    const f=i.files&&i.files[0]; if(!f||!/\.(txt|csv)$/i.test(f.name)) return;
+    e.stopImmediatePropagation();
+    try{ const dt=new DataTransfer(); dt.items.add(f); const t=document.getElementById('arquivoTxt'); t.files=dt.files; t.dispatchEvent(new Event('change',{bubbles:true})); }
+    catch(err){ window.showToast?.('Não consegui abrir este arquivo: '+(err.message||err),'danger',true); }
+    i.value='';
+  },true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(aceitarTxt,300)); else setTimeout(aceitarTxt,300);
 })();
 </script>
 </body>
