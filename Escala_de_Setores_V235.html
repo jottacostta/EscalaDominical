@@ -18,6 +18,10 @@ V235 [Claude] — SUGESTÕES JÁ ENTRAM COM O HORÁRIO (achado na simulação de
        regra da liderança na escala à mão, V209). O horário continua podendo ser trocado no cartão. COMPOSIÇÃO POR
        FUNÇÃO: quando o domingo tem funções a completar (ex.: Açougue — açougueiros e balconistas na abertura e no
        fechamento), a sugestão escolhe primeiro quem completa o que falta; depois, quem trabalhou menos domingos.
+       ESCALA À MÃO (defeitos antigos achados na mesma simulação): (1) Açougue — a escala à mão pedia 13 operacionais,
+       mas a regra do Açougue (V102) exige 11: nenhuma escala à mão do Açougue passava; agora pede 11. (2) O “Gerar” da
+       escala à mão comparava com o alvo variável do automático (ex.: “18 de 19 pessoas”) e bloqueava escalas certas
+       (Depósito, Tesouraria, Padaria); agora vale a quantidade do cartão, que já é conferida antes.
 V234 [Claude] — SUGESTÕES DA ESCALA À MÃO (melhorias na V233 do ChatGPT): (1) a sugestão só recusa alguém por REGRA
        QUEBRADA que cite a pessoa — a mesma separação 🔴/🟡 da auditoria ao vivo; avisos de “falta completar” (ex.:
        cobertura do Açougue “1/3”) não barram mais ninguém, e o aviso de 6×1 (que não traz a data do domingo) passa a
@@ -7692,7 +7696,7 @@ function gerarSetoresCore(){
     }
     trabalhoDomingo[d]=esc;
     esc.forEach(i=>registrarDescansosDoDomingo(d,i));
-    if(esc.length<alvoDia && modo!=='funcao'){
+    if(esc.length<alvoDia && modo!=='funcao' && modoGeracaoAtual!=='manual'){   // V235: na escala à mão a quantidade já foi conferida antes (a do cartão); o alvo variável do motor não vale aqui
       const bi=bal?doms.indexOf(bal):-1;
       const pertoBal=bi>=0&&Math.abs(idx-bi)===1;   // V195: explica a falta causada pelo balanço
       if(pertoBal) observacoes.push(`${formatarDataDomingo(d)}: ${esc.length} de ${alvoDia} pessoas — como todos trabalham no balanço (${formatarDataDomingo(bal)}), quem trabalha neste domingo não pode trabalhar no outro domingo ao lado do balanço (seriam 3 domingos seguidos). É normal ter menos gente aqui`);
@@ -8010,6 +8014,7 @@ function alvoCoberturaAtual(){
   if($('modoCobertura')?.value==='grupos'){ const gs=grupos.filter(g=>g.length).map(g=>g.filter(i=>!ehLiderancaDomingo(equipe[i]))); return gs.length && gs[0].length ? gs[0].length : Math.max(1,Math.round(ativosOperacionais.length/2)); }
   if($('modoCobertura')?.value==='funcao'){ const ds=domingosDoMes(+$('ano').value,+$('mes').value); return Math.max(1,...ds.map(d=>funcoesDoSetor().reduce((n,fn)=>n+qtdFuncao(fn.chave,chaveDataLocal(new Date(+$('ano').value,+$('mes').value,d))),0))); }
   const base=Math.max(1,Math.round(ativosOperacionais.length/2));
+  if(['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''))&&($('modoCobertura')?.value||'50')==='50') return 11;   // V235: Açougue = 11 operacionais (regra V102 do motor e da cobertura do Açougue)
   const req=coberturaOperacional(ativosOperacionais);
   return Math.max(base, req.ok?0:4);
 }

@@ -70,6 +70,7 @@ Para cada mudança num app (ex.: Setores V222 → V223):
 - Folga compensatória de feriado em até 20 dias corridos, de segunda a sábado, sem formar 3 ou mais dias seguidos de folga.
 - No máximo 6 dias seguidos de trabalho (OJ 410 do TST).
 - Liderança do domingo: uma só, 1 Encarregado + 1 Sub, ou várias (Frente de Loja e Mercearia).
+- **Açougue:** 11 operacionais no domingo (3 açougueiros + 3 operadores/balconistas na abertura, 2 + 3 no fechamento) + a liderança — no automático e na escala à mão.
 - A escala à mão/mista tem **auditoria ao vivo** (mesmas regras do “Gerar”, função `auditarSelecaoAntesDaGeracao`) e **bloqueia** a marcação que quebra regra. Regra nova tem que entrar nessa auditoria.
 - Sugestões da escala manual (V233) devem reutilizar essa auditoria no momento do aceite, não substituir nem apagar escolhas existentes e nunca incluir candidatos que falhem nas regras. `testes/rodar.js` deve cobrir a presença do painel, geração/rejeição e preservar o estado da escala.
 
