@@ -12463,9 +12463,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       .filter(({i})=>elegivel(i,d)&&!ja.has(i))
       .sort((a,b)=>a.p-b.p||String(a.f.nome||'').localeCompare(String(b.f.nome||''),'pt-BR'))
       .reduce((out,x)=>{
-        if(out.length>=limite)return out;
-        const ids=grupoProposto(x.i,modo).filter(i=>elegivel(i,d)||ja.has(i));
-        if(!ids.length||ids.length>limite-out.length)return out;
+        const usados=new Set(out.flatMap(v=>v.ids));
+        const total=out.reduce((n,v)=>n+v.ids.length,0);
+        if(total>=limite||usados.has(x.i))return out;
+        const ids=[...new Set(grupoProposto(x.i,modo).filter(i=>elegivel(i,d)||ja.has(i)))].filter(i=>!usados.has(i));
+        if(!ids.length||ids.length>limite-total)return out;
         const val=testarInclusao(d,ids,modo);
         if(val.ok){out.push({i:x.i,ids,p:x.p});}
         return out;
