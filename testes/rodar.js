@@ -129,7 +129,7 @@ async function testarSetores(browser){
       await btnSug.click(); await p.waitForTimeout(350);
       const temListaSug = await p.locator('#selecaoDomingosManual .v233-sugestoes input[data-v233-candidato]').count();
       const semCandidatos = await p.locator('#selecaoDomingosManual .v233-sugestoes .v233-vazio').count();
-      ok(temListaSug > 0 || semCandidatos > 0, 'V233: gerar sugestões apresenta candidatos ou informa que não há elegíveis');
+      ok(temListaSug > 0, `V233/V234: gerar sugestões apresenta candidatos (${temListaSug}) — os dados fictícios têm operacionais aptos, então “nenhum” é defeito`);   // V234: antes aceitava “nenhum candidato”, e versões que não sugeriam ninguém passavam
       if(temListaSug > 0){
         const btnAceitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-aceitar]').first();
         ok(await btnAceitar.count() > 0, 'V233: lista de candidatos oferece aceite explícito');
@@ -141,12 +141,22 @@ async function testarSetores(browser){
               elegiveis:selecionados.every(({i})=>equipe[i]&&String(equipe[i].situacao||'A').toUpperCase()==='A'&&!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i]))};
           });
           ok(verifAceite.unicos&&verifAceite.elegiveis, 'V233: aceite mantém matrículas sem duplicidade e só deixa operacionais elegíveis selecionados');
+          const aud234 = await p.evaluate(() => { const r = window.v227Auditar?.(); return r ? r.r.length : -1; });
+          ok(aud234 === 0, `V234: depois de aceitar as sugestões a auditoria ao vivo não tem regra quebrada (${aud234})`);
         }
       }
       await p.evaluate(() => { selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(250);
       const btnRejeitar = p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-gerar]').first();
       if(await btnRejeitar.count()){ await btnRejeitar.click(); await p.waitForTimeout(150); const rej=p.locator('#selecaoDomingosManual .v233-sugestoes [data-v233-rejeitar]').first(); if(await rej.count())await rej.click(); }
       ok(await p.evaluate(() => Object.values(selecaoManualDomingo||{}).every(a=>!a||!a.length)), 'V233: dispensar sugestões preserva a escala sem inclusões');
+    }
+    if(await p.evaluate(() => !!window.v234Sugestoes)){   // V234: cobertura por função (como no Açougue) não pode barrar as sugestões
+      const cob = await p.evaluate(() => { const orig = coberturaOperacional; selecaoManualDomingo = {};
+        coberturaOperacional = idx => ({ ok: false, faltas: ['Operacionais: ' + idx.length + '/999'] });   // aviso muda a cada pessoa (“1/999”, “2/999”…)
+        try{ const bal = balancoDoMes(+$('ano').value, +$('mes').value), d = domingosDoMes(+$('ano').value, +$('mes').value).find(x => x !== bal);
+          const vagas = window.v234Sugestoes.vagasDoDia(d), c = window.v234Sugestoes.candidatosDoDia(d, vagas); return { vagas, n: c.length }; }
+        finally{ coberturaOperacional = orig; } });
+      ok(cob.vagas > 0 && cob.n === cob.vagas, `V234: com cobertura por função incompleta (aviso “falta completar”), as sugestões enchem as vagas (${cob.n} de ${cob.vagas})`);
     }
     await p.evaluate(() => { const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); });
     await p.waitForTimeout(400);

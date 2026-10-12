@@ -3,3 +3,6 @@ testes/node_modules/
 # dados reais de funcionários nunca entram no repositório
 *.xlsx
 Historico_*.json
+
+# capturas de tela geradas pelos testes (no GitHub ficam como anexo da execução)
+testes/screenshots/

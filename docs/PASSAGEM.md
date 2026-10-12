@@ -17,15 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V233.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V234.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PR #27:** [ChatGPT] Setores V231 — empréstimo entre setores; mesclada em 11/10/2026 no commit `c3720bef0164141b171362995a87d45da70fa3e0`.
-- **PR #28:** [ChatGPT] Setores V232 — alinhamento da versão visível; mesclada em 11/10/2026 no commit `654057a5fcd909c92dd48f7876e790c7052b1f67`.
-- **PR #29 aberta:** [ChatGPT] Setores V233 — sugestões na escala manual (branch `chatgpt/setores-v233-sugestoes-escala-manual`). Não mesclar sem autorização explícita; execução #150: suíte rápida e completa passaram. A PR continua aberta até autorização explícita do dono.
-- **Branches antigos:** `chatgpt/teste-integracao` está **desatualizado, não faça merge**. A V228 dele deixa marcar o 3º domingo seguido: o bloqueio procurava `Nome:`, mas o aviso é `dd/mm/aaaa: Nome ficaria em 3 domingos…`. As boas ideias dele já entraram no `main` (PR #19). Pode ser apagado pelo dono do projeto.
-- **Próximo número de versão:** Setores **V234**, Encarregados **V166**.
+- **PRs abertos:** o PR do Claude com a Setores V233 (ChatGPT, PR #31) + V234 (Claude). Os PRs #29, #30 e #31 foram fechados: as três eram “V233” da mesma função; só a #31 funcionava com a planilha real e ela entrou neste PR. Depois do merge: nenhum.
+- **Branches:** os branches antigos do ChatGPT já incorporados ou abandonados foram apagados na limpeza de 12/10/2026.
+- **Próximo número de versão:** Setores **V235**, Encarregados **V166**.
 
 ---
 
@@ -137,6 +135,27 @@ Modelo de entrada:
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
 
+### 2026-10-12 — Setores V234 — sugestões da escala à mão: escolha entre 3 PRs e melhorias — Claude (V233 do ChatGPT, PR #31)
+- **O que mudou e por quê:** o ChatGPT abriu três PRs com a mesma V233 (“💡 Sugestão de funcionários” em cada domingo da escala à mão): #29, #30 e #31. Os três tinham o teste do GitHub verde. O dono pediu limpeza e melhoria das ideias. Teste com a planilha real (loja recém-importada e com folgas definidas, Frente de Loja e Açougue):
+  - **#29:** 0 sugeridos no Açougue e com folga “a definir”;
+  - **#30:** 0 sugeridos em tudo;
+  - **#31:** 77/77 e 13/13, sem regra quebrada.
+
+  A #31 entrou neste PR (commits do ChatGPT preservados) e as três foram fechadas.
+- **Por que #29/#30 falhavam:** comparavam o TEXTO dos avisos antes/depois. O aviso de cobertura do Açougue muda a cada pessoa (“0/3” → “1/3”) e virava “regra nova quebrada”. A #29 também pulava quem tem folga “a definir” (toda a loja logo após importar o ERP).
+- **V234 (melhorias na #31):**
+  - (1) só barra **regra quebrada (🔴) que cite a pessoa**, com a mesma classificação da auditoria ao vivo (`window.v227Pendente`, novo, exposto no bloco V227). Avisos 🟡 não barram. O aviso de 6×1, que não traz a data do domingo, agora barra. Nomes parecidos não se confundem (`cita`);
+  - (2) mais rápida: a auditoria “antes” é feita uma vez por domingo e a conferência para em vagas + até 10 reservas (Frente de Loja ~3 s → ~1 s);
+  - (3) no empate, quem tem folga fixa definida vem antes; “folga fixa a definir” aparece no candidato.
+- **Onde no código:** bloco `/* ═════ V233 — sugestões de funcionários… ═════ */` com linhas `// V234` (`auditoriaCandidato`, `candidatosDoDia`, `renderSugestoes`, `window.v234Sugestoes`). No bloco V227: `window.v227Pendente`.
+- **Testes:**
+  - o teste da V233 aceitava “nenhum candidato” (por isso #29/#30 passavam) e agora exige candidatos;
+  - novo: auditoria sem regra quebrada depois de aceitar;
+  - novo: cobertura por função incompleta (simulada) não barra as sugestões.
+- **Limpeza junto:** PRs #29/#30/#31 fechados; branches antigos do ChatGPT apagados; Node 22 no workflow; `testes/screenshots/` no `.gitignore` (a imagem fica como anexo da execução no GitHub).
+- **Como foi testado:** suíte rápida e completa ✅; planilha real (local): Frente de Loja 77/77 e Açougue 13/13 em 3 domingos, 0 regras quebradas, 0 erros.
+- **Para continuar:** veja a pendência de velocidade das sugestões (seção 6).
+
 ### 2026-10-11 — Setores V229 — virada do mês no 6×1 e no feriado da segunda — Claude (investigação pedida pelo ChatGPT)
 - **Resultado de cada item de `docs/PROPOSTAS_CORRECOES_AUDITORIA_V228.md`:**
   - **6×1 na fronteira do mês — CONFIRMADO e corrigido.** O domingo do mês passado era tratado como “não trabalhado” em 3 lugares: `trabalharBaseNaData` (motor), `auditarProtecao6x1` (Gerar) e `auditarProtecao6x1Simulada` (escala à mão). Junto veio um defeito na exceção do feriado da segunda: `feriadoFixaObrigatoria` lia `trabalhoDomingo[dAnterior.getDate()]`, e quando o feriado é na segunda **dia 1º** (01/05/2028, 01/01/2029) o domingo anterior é do mês passado. Assim a exceção valia para todos, e quem trabalhou o domingo e tem folga na segunda podia trabalhar o feriado e ficar 7 dias seguidos. Corrigido com `domingoForaDoMesTrabalhado`.
@@ -228,11 +247,11 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
-- **GitHub Actions:** aparece o aviso "Node.js 20 is deprecated". Funciona, mas um dia vale trocar `node-version: 20` por `22` no workflow.
+- ~~GitHub Actions com Node 20~~ — trocado para **Node 22** na limpeza de 12/10/2026.
 - ~~Investigar a auditoria ao vivo da V228~~ — **feito na V229** (resultado de cada item no Diário).
 - **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
-- **V233 — atenção para revisão:** confirmar nos checks da PR #29 que o painel é montado após re-render, que a auditoria revalida inclusões e que nenhuma seleção manual é perdida.
-- **Branch `chatgpt/teste-integracao`:** desatualizado (veja a seção 1).
+- ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
+- **Sugestões da escala à mão (V234):** na Frente de Loja cada toque leva ~1 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
