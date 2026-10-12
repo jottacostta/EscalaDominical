@@ -12,9 +12,9 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V235.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V165.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V234 e V150–V164), guardadas para comparação |
+| `Escala_de_Setores_V236.html` | **Versão atual** da Escala de Setores |
+| `Escala_2x1_encarregados_V166.html` | **Versão atual** da Escala de Encarregados |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V235 e V150–V165), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (ChatGPT/Codex e Claude) |
@@ -26,3 +26,5 @@ O histórico de mudanças de cada versão também fica no comentário `HISTÓRIC
 O histórico de cada mês é guardado em `Historico_<Setor>_<mês>_<ano>.json` (ex.: `Historico_Frente_de_Loja_11_2026.json`). No mês seguinte, abra esse arquivo em ⋮ → Abrir histórico guardado. Na Escala de Setores o arquivo leva também o quadro da loja inteira (com tempo de serviço e situação) e a seção “Funcionários por tempo de serviço” daquele mês (setor e loja): aberto num aparelho novo, tudo volta. Na Escala de Setores, ⋮ → Relatório do ano (por pessoa) junta esses arquivos e mostra quantos domingos e feriados cada pessoa trabalhou.
 
 **Privacidade:** a planilha do RH e os históricos têm dados de funcionários. Não coloque esses arquivos no repositório (o `.gitignore` já bloqueia `*.xlsx` e `Historico_*.json`).
+
+**Créditos:** as figuras coloridas dos apps são do [Noto Emoji](https://github.com/googlefonts/noto-emoji) (© Google, licença Apache 2.0), embutidas nos arquivos para funcionar sem internet.
