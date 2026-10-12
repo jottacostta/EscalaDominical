@@ -12,9 +12,9 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V234.html` | **Versão atual** da Escala de Setores |
+| `Escala_de_Setores_V235.html` | **Versão atual** da Escala de Setores |
 | `Escala_2x1_encarregados_V165.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V233 e V150–V164), guardadas para comparação |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V234 e V150–V164), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (ChatGPT/Codex e Claude) |

@@ -17,13 +17,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V234.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V235.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V165.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V233 (ChatGPT, PR #31) + V234 (Claude). Os PRs #29, #30 e #31 foram fechados: as três eram “V233” da mesma função; só a #31 funcionava com a planilha real e ela entrou neste PR. Depois do merge: nenhum.
+- **PRs abertos:** nenhum. A V235 (Claude) está em andamento no branch `ccr-7663b03f-ioy0oy`, aguardando o fim da simulação de estresse e a decisão do dono sobre o Açougue (11 × 13).
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V235**, Encarregados **V166**.
+- **Próximo número de versão:** Setores **V236**, Encarregados **V166**.
 
 ---
 
@@ -134,6 +134,16 @@ Modelo de entrada:
 - **Como foi testado:** npm test (resultado), check do GitHub, teste manual …
 - **Para continuar:** o que ficou faltando, ideias, cuidados.
 ```
+
+### 2026-10-12 — Setores V235 — simulação de estresse das sugestões: horário e composição por função — Claude (em andamento)
+- **O que mudou e por quê:** o dono pediu uma simulação de estresse das sugestões da escala à mão. Com a planilha real (local), cada domingo foi preenchido só por sugestão, 3 meses seguidos, em todos os setores. Achados:
+  - (1) **quem entrava pela sugestão ficava SEM horário de domingo** e o “Gerar” bloqueava. O teste da V233/V234 só olhava regra 🔴, e “sem horário” é 🟡. Corrigido: `horarioPadraoSugestao(d,i)` dá o horário oficial mais perto do habitual, no turno (regra da V209);
+  - (2) **no Açougue a sugestão ignorava a composição** (açougueiros e balconistas por turno). Corrigido: em `candidatosDoDia`, quem completa o que falta (`coberturaOperacional`) entra primeiro;
+  - (3) **conflito que já existia antes:** no Açougue, a escala à mão exige `alvoCoberturaAtual()` = 13 e `coberturaOperacionalAçougue` exige exatamente 11 operacionais. Nenhuma escala à mão do Açougue consegue ser gerada. **Aguardando o dono decidir: 11 ou 13.**
+- **Casos difíceis (todos ✅):** marcados à mão continuam; tirar 2 e pedir de novo enche só as 2 vagas; lista desatualizada; duplo clique em Aceitar; modo Misto; setor de 4 pessoas.
+- **Onde no código:** bloco V233 com linhas `// V235` (`horarioPadraoSugestao`, `candidatosDoDia`, aceite).
+- **Teste novo:** “quem entra pela sugestão já vem com horário de domingo válido”.
+- **Para continuar:** terminar a simulação dos 14 setores; aplicar a decisão do Açougue; abrir o PR.
 
 ### 2026-10-12 — Setores V234 — sugestões da escala à mão: escolha entre 3 PRs e melhorias — Claude (V233 do ChatGPT, PR #31)
 - **O que mudou e por quê:** o ChatGPT abriu três PRs com a mesma V233 (“💡 Sugestão de funcionários” em cada domingo da escala à mão): #29, #30 e #31. Os três tinham o teste do GitHub verde. O dono pediu limpeza e melhoria das ideias. Teste com a planilha real (loja recém-importada e com folgas definidas, Frente de Loja e Açougue):
