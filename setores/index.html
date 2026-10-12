@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V240</title>
+<title>Escala de Setores — V241</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V241 [Claude] — LIDERANÇA POR TURNO (cenários do dono): Frente de Loja e Mercearia trabalham com 1 liderança na ABERTURA
+       e 1 no FECHAMENTO, de qualquer cargo — Encarregado + Sub, Sub + Sub, Encarregado + Encarregado, Líder + Encarregado…
+       Novo modo no ③ “Quem lidera”: “Por turno” (🌅 quantas na abertura + 🌙 quantas no fechamento). O 🤖 Sugerir liderança
+       escolhe por turno (qualquer cargo, sem 3 domingos seguidos, em blocos de 2, dividindo igual); cada domingo mostra
+       quantas tem em cada turno e o aviso diz qual turno ficou sem liderança. No “Por cargo” a linha ⭐ vira duas: abertura e
+       fechamento. Frente de Loja e Mercearia começam em “Por turno” (1 + 1) se o setor nunca foi ajustado. O modo vai no
+       histórico do mês. CPD: “Se faltar liderança no turno, entra: Preparador de dados” — Encarregado + Preparador, Sub +
+       Preparador ou 2 Preparadores, sempre 1 na abertura e 1 no fechamento (o motor conta essa vaga no “Por cargo”).
 V240 [Claude] — “POR CARGO” COM AS LIDERANÇAS (pedido do dono): no modo “Por cargo” a pessoa escolhe quantas lideranças
        trabalham por domingo E quantos de cada cargo operacional, no mesmo quadro. O quadro “Quantos de cada cargo por
        domingo” ganhou a linha “⭐ Lideranças” com − e +: 1 = “Uma só”; 2 ou mais = “Várias” com essa meta (o ③ “Quem lidera”
@@ -1907,7 +1915,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 .v207-jrod button{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#0A5BDB,#0047BA 45%,#002A6E);color:#fff}
 </style>
 <style id="v208-varias-liderancas">
-.v208-modos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.v208-modos{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:0 0 12px}
 @media(max-width:700px){.v208-modos{grid-template-columns:1fr}}
 .v208-modo{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;padding:10px 12px;border:2px solid var(--border);border-radius:14px;background:#fff;font:inherit;cursor:pointer;color:var(--ink)}
 .v208-modo b{font-size:14px}.v208-modo small{font-size:12px;color:var(--muted);font-weight:500}
@@ -2266,7 +2274,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V240 · por cargo: lideranças e cargos juntos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V241 · liderança por turno</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2476,7 +2484,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
       <div id="coberturaResumo" class="alert info" style="margin-top:8px">50% do quadro elegível será escalado a cada domingo.</div>
       <div id="liderancaDomingoArea" class="card" style="margin-top:10px;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
         <h3 style="margin:0 0 4px;font-size:16px">③ Quem lidera no domingo? (opcional)</h3>
-        <p class="hint" style="margin:0 0 8px">A liderança é <b>opcional</b>. Primeiro escolha <b>quantas lideranças</b> trabalham por domingo (uma só, um Encarregado + um Sub, ou <b>várias</b>). Depois escolha os nomes em cada domingo, ou toque em <b>🤖 Sugerir liderança</b>. Cada liderança precisa da <b>folga (DSR)</b> escolhida por você.</p>
+        <p class="hint" style="margin:0 0 8px">A liderança é <b>opcional</b>. Primeiro escolha <b>quantas lideranças</b> trabalham por domingo (uma só, um Encarregado + um Sub, <b>por turno</b> — abertura e fechamento — ou <b>várias</b>). Depois escolha os nomes em cada domingo, ou toque em <b>🤖 Sugerir liderança</b>. Cada liderança precisa da <b>folga (DSR)</b> escolhida por você.</p>
         <div id="liderancaDomingoLista"></div>
       </div>
       <small class="hint" id="v240ExGrupos">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
@@ -5321,12 +5329,24 @@ function _lerLiderUnica(){ try{ return JSON.parse(localStorage.getItem('escalaSe
 function liderancaUnica(){ if(liderVarias()) return false; const v=_lerLiderUnica()[norm($('setorSelecionado')?.value||'')]; return v===undefined?true:!!v; }
 /* V208 — várias lideranças por domingo (setores grandes). Guardado por setor no aparelho. */
 function _lerLiderVarias(){ try{ return JSON.parse(localStorage.getItem('escalaSetores.liderVarias')||'{}')||{}; }catch(e){ return {}; } }
-function liderVarias(){ const s=norm($('setorSelecionado')?.value||''); const v=_lerLiderVarias()[s]; if(v!==undefined) return !!v.on;
+/* V241 — liderança POR TURNO: {ab, fe} = quantas na abertura e no fechamento, qualquer cargo (Enc, Sub, Líder) */
+function _lerLiderTurno(){ try{ return JSON.parse(localStorage.getItem('escalaSetores.liderTurno')||'{}')||{}; }catch(e){ return {}; } }
+function liderTurno(){ const s=norm($('setorSelecionado')?.value||''), v=_lerLiderTurno()[s];
+  if(v!==undefined) return v&&v.on?{ab:Math.max(0,Number(v.ab)||0),fe:Math.max(0,Number(v.fe)||0),comp:String(v.comp||'')}:null;
+  if(_lerLiderVarias()[s]!==undefined||_lerLiderUnica()[s]!==undefined) return null;
+  if(/\bcpd\b/.test(s)){ let c=''; try{ c=(funcoesDoSetor().find(f=>/preparador/.test(f.chave))||{}).chave||''; }catch(e){} return {ab:1,fe:1,comp:c}; }   // CPD: falta liderança no turno → entra Preparador de dados
+  return /frente de loja|mercearia/.test(s)?{ab:1,fe:1,comp:''}:null; }
+function definirLiderTurno(on,ab,fe,comp){ try{ const all=_lerLiderTurno(), s=norm($('setorSelecionado')?.value||''), at=liderTurno()||{ab:1,fe:1,comp:''};
+  all[s]={on:!!on,ab:Number.isInteger(ab)?ab:at.ab,fe:Number.isInteger(fe)?fe:at.fe,comp:comp!==undefined?String(comp||''):(at.comp||'')}; localStorage.setItem('escalaSetores.liderTurno',JSON.stringify(all)); }catch(e){} }
+function turnoLider(i){ const f=equipe[i]||{}; const t=turnoPeso(f.turno); if(t!=='OUTROS') return t; const m=String(f.horario||'').match(/^(\d{1,2}):/); return m?(+m[1]<12?'ABERTURA':'FECHAMENTO'):'OUTROS'; }
+function liderVarias(){ if(liderTurno()) return true;   // V241: por turno guarda como “várias”
+  const s=norm($('setorSelecionado')?.value||''); const v=_lerLiderVarias()[s]; if(v!==undefined) return !!v.on;
   if(_lerLiderUnica()[s]!==undefined) return false;
   return /frente de loja|mercearia/.test(s); }
-function qtdLiderVarias(){ const v=_lerLiderVarias()[norm($('setorSelecionado')?.value||'')]; const n=Number(v&&v.n); return Number.isInteger(n)&&n>=1?n:2; }
+function qtdLiderVarias(){ { const T=liderTurno(); if(T) return Math.max(1,T.ab+T.fe); }   // V241
+  const v=_lerLiderVarias()[norm($('setorSelecionado')?.value||'')]; const n=Number(v&&v.n); return Number.isInteger(n)&&n>=1?n:2; }
 function definirLiderVarias(on,n){ try{ const all=_lerLiderVarias(), s=norm($('setorSelecionado')?.value||''); all[s]={on:!!on,n:Number.isInteger(n)?n:qtdLiderVarias()}; localStorage.setItem('escalaSetores.liderVarias',JSON.stringify(all)); }catch(e){} }
-function modoLideranca(){ return liderVarias()?'varias':(liderancaUnica()?'uma':'encsub'); }
+function modoLideranca(){ return liderTurno()?'turno':liderVarias()?'varias':(liderancaUnica()?'uma':'encsub'); }
 /* V209 — se a escala guardada tem mais lideranças do que o modo permite (arquivo de outro aparelho, dados do aparelho
    apagados), o modo é ajustado sozinho em vez de mostrar erro. Nunca reduz: só abre para o modo que cabe. */
 function ajustarModoPelosRegistros(){
@@ -5336,7 +5356,7 @@ function ajustarModoPelosRegistros(){
   regs.forEach(ls=>{ if(ls.length<=1) return; const tipos=ls.map(i=>tipoLiderancaDomingo(equipe[i])||'enc');
     const repetido=new Set(tipos).size<tipos.length, lidJunto=tipos.includes('lid')&&tipos.some(t=>t!=='lid');
     if(ls.length>2||repetido||lidJunto) precisa='varias'; else if(precisa==='uma') precisa='encsub'; });
-  const atual=modoLideranca(), ordem={uma:0,encsub:1,varias:2};
+  const atual=modoLideranca(), ordem={uma:0,encsub:1,varias:2,turno:2};
   if(ordem[precisa]>ordem[atual]){
     if(precisa==='varias') definirLiderVarias(true); else { definirLiderVarias(false); definirLiderancaUnica(false); }
     setTimeout(()=>window.showToast?.(`ℹ️ Liderança ajustada para “${precisa==='varias'?'Várias':'1 Encarregado + 1 Sub'}”: esta escala tem mais de uma liderança no mesmo domingo.`,'ok'),300);
@@ -5364,6 +5384,8 @@ function ajustarRegistrosLideranca(modo){
   });
 }
 function definirModoLideranca(modo){
+  if(modo==='turno'){ definirLiderTurno(true); ajustarRegistrosLideranca('varias'); window.v45Persist?.(); renderLiderancaDomingo(); return; }   // V241
+  definirLiderTurno(false);
   if(modo==='varias') definirLiderVarias(true);
   else { definirLiderVarias(false); definirLiderancaUnica(modo==='uma'); }
   ajustarRegistrosLideranca(modo); window.v45Persist?.(); renderLiderancaDomingo();
@@ -5371,7 +5393,7 @@ function definirModoLideranca(modo){
 function htmlModoLider(){
   const m=modoLideranca();
   const op=(v,t,d)=>`<button type="button" class="v208-modo" data-lider-modo="${v}" aria-pressed="${m===v}"><b>${t}</b><small>${d}</small></button>`;
-  return `<div class="v208-modos" role="group" aria-label="Quantas lideranças por domingo">${op('uma','Uma só','Encarregado <b>ou</b> Subencarregado <b>ou</b> Líder')}${op('encsub','1 Encarregado + 1 Sub','no máximo um de cada')}${op('varias','Várias','quantas precisar (Frente de Loja, Mercearia…)')}</div>`;
+  return `<div class="v208-modos" role="group" aria-label="Quantas lideranças por domingo">${op('uma','Uma só','Encarregado <b>ou</b> Subencarregado <b>ou</b> Líder')}${op('encsub','1 Encarregado + 1 Sub','no máximo um de cada')}${op('turno','Por turno','🌅 abertura + 🌙 fechamento, de qualquer cargo (Frente de Loja, Mercearia…)')}${op('varias','Várias','quantas precisar, sem separar por turno')}</div>`;
 }
 function ligarModoLider(){ document.querySelectorAll('[data-lider-modo]').forEach(b=>b.addEventListener('click',()=>{ if(b.getAttribute('aria-pressed')==='true') return; definirModoLideranca(b.dataset.liderModo); })); }
 function definirLiderancaUnica(v){ try{ const all=_lerLiderUnica(); all[norm($('setorSelecionado')?.value||'')]=!!v; localStorage.setItem('escalaSetores.liderUnica',JSON.stringify(all)); }catch(e){} }
@@ -5426,7 +5448,11 @@ function atualizarAvisoLideranca(){
   else if(doms.some(d=>d!==bal&&lideresSelecionadosDomingo(d).some(i=>dsrLiderPendente(d,i)))){ const n=doms.filter(d=>d!==bal&&lideresSelecionadosDomingo(d).some(i=>dsrLiderPendente(d,i))).length; box.className='alert warn'; box.textContent=`🛌 Falta escolher a folga (DSR) da liderança em ${n} domingo(s) — a folga da liderança é definida pela gerência.`; }
   else if(semLider.length){ box.className='alert info'; box.textContent=semLider.length===doms.filter(d=>d!==bal).length?'ℹ️ Liderança opcional: nenhum domingo tem Encarregado/Subencarregado escolhido, então trabalham só os funcionários.':`ℹ️ Liderança opcional: ${semLider.length} domingo(s) só com funcionários (${semLider.map(d=>String(d).padStart(2,'0')).join(', ')}).`; }
   else { box.className='alert ok'; box.textContent=liderancaUnica()?'✅ Uma liderança definida em cada domingo, sem 3 domingos seguidos.':'✅ Liderança definida para todos os domingos, sem 3 domingos seguidos.'; }
-  if(liderVarias()){ const doms2=doms.filter(d=>d!==bal); const n=qtdLiderVarias(); const pouco=doms2.filter(d=>{ const k=lideresSelecionadosDomingo(d).length; return k>0&&k<n; }); if(pouco.length&&!/bad|warn/.test(box.className)){ box.className='alert info'; box.textContent=`ℹ️ ${pouco.map(d=>String(d).padStart(2,'0')).join(', ')}: menos de ${n} lideranças (a meta que você escolheu). É só um lembrete.`; } }
+  if(liderTurno()){ const T=liderTurno(); const falta=doms.filter(d=>d!==bal&&lideresSelecionadosDomingo(d).length).map(d=>{ const ls=lideresSelecionadosDomingo(d), a=ls.filter(i=>turnoLider(i)==='ABERTURA').length, f=ls.filter(i=>turnoLider(i)==='FECHAMENTO').length;
+      const o=[]; if(a<T.ab) o.push('🌅 abertura'); if(f<T.fe) o.push('🌙 fechamento'); return o.length?`${String(d).padStart(2,'0')} sem ${o.join(' e ')}`:''; }).filter(Boolean);
+    const nc=T.comp?((funcoesDoSetor().find(f=>f.chave===T.comp)||{}).rotulo||''):'';
+    if(falta.length&&!/bad|warn/.test(box.className)){ box.className='alert info'; box.textContent=nc?`ℹ️ Liderança por turno (🌅 ${T.ab} + 🌙 ${T.fe}): ${falta.join('; ')} — nesse turno entra ${nc} no lugar.`:`ℹ️ Liderança por turno (🌅 ${T.ab} na abertura + 🌙 ${T.fe} no fechamento): ${falta.join('; ')}. É só um aviso: a liderança é opcional.`; } }
+  else if(liderVarias()){ const doms2=doms.filter(d=>d!==bal); const n=qtdLiderVarias(); const pouco=doms2.filter(d=>{ const k=lideresSelecionadosDomingo(d).length; return k>0&&k<n; }); if(pouco.length&&!/bad|warn/.test(box.className)){ box.className='alert info'; box.textContent=`ℹ️ ${pouco.map(d=>String(d).padStart(2,'0')).join(', ')}: menos de ${n} lideranças (a meta que você escolheu). É só um lembrete.`; } }
 }
 /* V127: sugestão automática — a gerência continua podendo trocar qualquer nome. */
 function sugerirLiderancaDomingo(){
@@ -5443,6 +5469,27 @@ function calcularSugestaoLideranca(){
   const doms=domingosDoMes(+$('ano').value,+$('mes').value);
   const novo={__ref:refLideranca()};
   const prev=previsaoDoDomingoSetor(doms[0]);
+  if(liderTurno()){   // V241: por turno — T.ab na abertura e T.fe no fechamento, qualquer cargo; blocos de 2, sem 3 seguidos, dividindo igual
+    const T=liderTurno(), ordemTipo={enc:0,sub:1,lid:2};
+    const cands=[...candidatosLideranca('enc'),...candidatosLideranca('sub'),...candidatosLideranca('lid')];
+    if(!cands.length) return novo;
+    const cont={}; cands.forEach(i=>cont[i]=0);
+    const trab=(i,idx)=>idx===-2?!!historicoManual(i).penultimo:idx===-1?!!historicoManual(i).ultimo:lideresDoRegistro(novo[String(doms[idx])]).includes(i);
+    const prevIds=idx=>(idx===0&&prev&&prev.lideres)?(Array.isArray(prev.lideres.todosIdx)&&prev.lideres.todosIdx.length?prev.lideres.todosIdx:[prev.lideres.encIdx,prev.lideres.subIdx,prev.lideres.lidIdx].filter(i=>Number.isInteger(i))):[];
+    doms.forEach((d,idx)=>{
+      const ok=cands.filter(i=>!(trab(i,idx-1)&&trab(i,idx-2)));
+      const esc=[];
+      [['ABERTURA',T.ab],['FECHAMENTO',T.fe]].forEach(([tn,q])=>{
+        const resto=ok.filter(i=>turnoLider(i)===tn).sort((a,b)=>{ const fa=prevIds(idx).includes(a)?1:0, fb=prevIds(idx).includes(b)?1:0;
+          const pa=(trab(a,idx-1)&&!trab(a,idx-2))?1:0, pb=(trab(b,idx-1)&&!trab(b,idx-2))?1:0;
+          return (fb-fa)||(pb-pa)||(cont[a]-cont[b])||((ordemTipo[tipoLiderancaDomingo(equipe[a])]??3)-(ordemTipo[tipoLiderancaDomingo(equipe[b])]??3))||(a-b); });
+        esc.push(...resto.slice(0,q));
+      });
+      esc.forEach(i=>cont[i]++);
+      if(esc.length) novo[String(d)]={mais:esc};
+    });
+    return novo;
+  }
   if(liderVarias()){   // V208: N lideranças por domingo, blocos de 2, sem 3 seguidos, dividindo igual
     const N=qtdLiderVarias();
     const ordemTipo={enc:0,sub:1,lid:2};
@@ -5637,11 +5684,12 @@ function renderLiderancaVarias(area,doms,topo){
   const rot=i=>`${htmlEsc(equipe[i].nome)}`;
   const det=i=>[equipe[i].matricula?'Mat. '+equipe[i].matricula:'',nomeTipoLider(tipoLiderancaDomingo(equipe[i])),String(equipe[i].turno||'').toLowerCase()].filter(Boolean).map(htmlEsc).join(' • ');
   const usoMes=i=>doms.filter(d=>lideresSelecionadosDomingo(d).includes(i)).length;
-  area.innerHTML=topo+`<div class="v208-meta"><label>Meta de lideranças por domingo <select id="v208Qtd">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}" ${n===N?'selected':''}>${n}</option>`).join('')}</select></label><small>Usada pelo “Sugerir liderança”. Você pode colocar mais ou menos em cada domingo.</small></div>`
+  const T241=liderTurno(), sel241=(id,v)=>`<select id="${id}">${[0,1,2,3,4].map(n=>`<option value="${n}" ${n===v?'selected':''}>${n}</option>`).join('')}</select>`;
+  area.innerHTML=topo+(T241?`<div class="v208-meta"><label>🌅 Na abertura ${sel241('v241Ab',T241.ab)}</label><label>🌙 No fechamento ${sel241('v241Fe',T241.fe)}</label><label>Se faltar liderança no turno, entra: ${window.v241SelComp?.('v241Comp')||''}</label><small>Qualquer cargo de liderança: Encarregado, Sub ou Líder. O “Sugerir liderança” escolhe assim; você pode trocar em cada domingo.</small></div>`:`<div class="v208-meta"><label>Meta de lideranças por domingo <select id="v208Qtd">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}" ${n===N?'selected':''}>${n}</option>`).join('')}</select></label><small>Usada pelo “Sugerir liderança”. Você pode colocar mais ou menos em cada domingo.</small></div>`)
   +doms.map(d=>{
     const ls=lideresSelecionadosDomingo(d);
     const chips=ls.length?ls.map(i=>`<span class="v208-chip t-${tipoLiderancaDomingo(equipe[i])||'enc'}"><span><b>${rot(i)}</b><small>${det(i)}</small></span><button type="button" data-v208-tirar="${d}_${i}" aria-label="Tirar ${htmlEsc(equipe[i].nome)} do domingo ${d}">✕</button></span>`).join(''):'<span class="v208-vazio">Sem liderança neste domingo (só funcionários)</span>';
-    return `<div class="manual-row lider-row v208-row" style="grid-template-columns:minmax(60px,.3fr) 1fr;gap:8px;margin-bottom:8px"><b>${String(d).padStart(2,'0')}/${mesTxt}${d===bal?'<small style="display:block;color:#8A6A00">balanço</small>':''}<small class="v208-n">${ls.length} liderança${ls.length===1?'':'s'}</small></b><div class="v208-corpo"><input type="hidden" data-lider-dia="${d}"><div class="v208-chips">${chips}</div><div class="v208-add"><input type="search" autocomplete="off" placeholder="➕ Adicionar liderança: matrícula ou nome…" data-v208-busca="${d}" aria-label="Adicionar liderança no domingo ${d}"><div class="v208-sug" hidden></div></div></div></div>`;
+    return `<div class="manual-row lider-row v208-row" style="grid-template-columns:minmax(60px,.3fr) 1fr;gap:8px;margin-bottom:8px"><b>${String(d).padStart(2,'0')}/${mesTxt}${d===bal?'<small style="display:block;color:#8A6A00">balanço</small>':''}<small class="v208-n">${ls.length} liderança${ls.length===1?'':'s'}${liderTurno()&&ls.length?` · 🌅 ${ls.filter(i=>turnoLider(i)==='ABERTURA').length} · 🌙 ${ls.filter(i=>turnoLider(i)==='FECHAMENTO').length}`:''}</small></b><div class="v208-corpo"><input type="hidden" data-lider-dia="${d}"><div class="v208-chips">${chips}</div><div class="v208-add"><input type="search" autocomplete="off" placeholder="➕ Adicionar liderança: matrícula ou nome…" data-v208-busca="${d}" aria-label="Adicionar liderança no domingo ${d}"><div class="v208-sug" hidden></div></div></div></div>`;
   }).join('')
   +`<div class="actions" style="margin-top:4px"><button type="button" class="btn secondary sm" id="btnSugerirLideranca">🤖 Sugerir liderança (${N} por domingo)</button><button type="button" class="btn secondary sm" id="btnV208Copiar" style="margin-left:6px">↻ Repetir o 1º domingo em todos</button><button type="button" class="btn secondary sm" id="btnLimparLideranca" style="margin-left:6px">🧹 Sem liderança</button></div><div id="liderancaAviso" class="alert" aria-live="polite"></div>`;
   const salvar=(d,ls)=>{ const k=String(d), old=liderancaManualDomingo[k]||{}; const novo=ls.length?{mais:ls}:{}; if(old.dsr){ const keep={}; ls.forEach(i=>{ if(old.dsr[String(i)]) keep[String(i)]=old.dsr[String(i)]; }); if(Object.keys(keep).length) novo.dsr=keep; } liderancaManualDomingo[k]=novo; window.v45Persist?.(); };
@@ -5665,6 +5713,7 @@ function renderLiderancaVarias(area,doms,topo){
     sug.addEventListener('click',e=>{ const b=e.target.closest('[data-n]'); if(b) escolher(+b.dataset.n); });
   });
   $('v208Qtd')?.addEventListener('change',e=>{ definirLiderVarias(true,Number(e.target.value)); renderLiderancaDomingo(); });
+  ['v241Ab','v241Fe','v241Comp'].forEach(id=>$(id)?.addEventListener('change',()=>{ definirLiderTurno(true,Number($('v241Ab').value),Number($('v241Fe').value),$('v241Comp')?.value); window.v45Persist?.(); renderLiderancaDomingo(); }));   // V241
   $('btnV208Copiar')?.addEventListener('click',()=>{ const d0=doms.find(d=>d!==bal&&lideresSelecionadosDomingo(d).length); if(d0===undefined){ window.showToast?.('Escolha primeiro as lideranças de um domingo.','warn'); return; } const base=lideresSelecionadosDomingo(d0); doms.forEach(d=>{ if(d!==d0&&d!==bal) salvar(d,base.slice()); }); renderLiderancaDomingo(); window.showToast?.('Mesmas lideranças em todos os domingos. Confira os avisos de 3 domingos seguidos.','ok'); });
   $('btnSugerirLideranca')?.addEventListener('click',sugerirLiderancaDomingo); $('btnLimparLideranca')?.addEventListener('click',limparLiderancaDomingo);
   ligarModoLider();
@@ -9000,7 +9049,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function montarProjeto(){
     const p=projetoBase(); p.system='SETORES';
     p.config={mes:val('mes'),ano:val('ano'),setor:val('setorSelecionado'),modoCobertura:val('modoCobertura'),modoGeracao:val('modoGeracao'),tituloXlsx:val('tituloXlsxEmpresa'),diasDsrPermitidos:clone(diasDsrPermitidos),perfilHorarioDomingo:clone(perfilHorarioDomingo),liderancaManualDomingo:clone(liderancaManualDomingo),horariosOficiaisDomingo:clone(HORARIOS_OFICIAIS_DOMINGO),horariosOficiaisFeriado:clone(HORARIOS_OFICIAIS_FERIADO)};
-    try{ p.config.liderModo=modoLideranca(); p.config.liderMeta=qtdLiderVarias(); }catch(e){}   // V209: o modo da liderança vai no arquivo
+    try{ p.config.liderModo=modoLideranca(); p.config.liderMeta=qtdLiderVarias(); const T=liderTurno(); if(T) p.config.liderTurno=T; }catch(e){}   /* V241: + por turno */   // V209: o modo da liderança vai no arquivo
     p.equipe={todas:clone(todasEquipes),atual:clone(equipe),naoAptosDomingo:[...naoAptosDomingo],soSetor:true};   // V203: só as pessoas do setor
     try{ const qi=window.v219QuadroInfo?.(); const quadro=Array.isArray(todasEquipes)?todasEquipes:[];   // V219: quadro da loja inteira (tempo de serviço, situação, folgas…)
       if(quadro.length) p.loja={quadro:clone(quadro),importadoEm:Number(qi?.importadoEm||qi?.t||0)||null,emissao:qi?.emissao||'',arquivoERP:qi?.arquivo||'',pessoas:quadro.length};
@@ -9030,7 +9079,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(Array.isArray(c.horariosOficiaisDomingo)){const h=normalizarListaHorarios(c.horariosOficiaisDomingo);if(h.length)HORARIOS_OFICIAIS_DOMINGO=h;}
     if(Array.isArray(c.horariosOficiaisFeriado)){const h=normalizarListaHorarios(c.horariosOficiaisFeriado);if(h.length)HORARIOS_OFICIAIS_FERIADO=h;}
     liderancaManualDomingo=clone(c.liderancaManualDomingo)||{};
-    try{ if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
+    try{ if(c.liderModo==='turno'){ definirLiderTurno(true,Number(c.liderTurno?.ab??1),Number(c.liderTurno?.fe??1),c.liderTurno?.comp||''); } else { if(c.liderModo) definirLiderTurno(false); } if(c.liderModo==='turno'){} else if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
     { // V203: mantém o quadro da loja que já está no aparelho; só o setor do arquivo é trocado
       const doArq=Array.isArray(e.atual)?clone(e.atual):[];
       const quadro=Array.isArray(todasEquipes)?todasEquipes:[];
@@ -11270,7 +11319,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }catch(e){}
     const sel=$('setorSelecionado');
     if(setor && sel && sel.value!==setor){ sel.value=setor; sel.dispatchEvent(new Event('change')); }
-    try{ if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
+    try{ if(c.liderModo==='turno'){ definirLiderTurno(true,Number(c.liderTurno?.ab??1),Number(c.liderTurno?.fe??1),c.liderTurno?.comp||''); } else { if(c.liderModo) definirLiderTurno(false); } if(c.liderModo==='turno'){} else if(c.liderModo==='varias') definirLiderVarias(true,Number(c.liderMeta)||undefined); else if(c.liderModo==='uma'||c.liderModo==='encsub'){ definirLiderVarias(false,Number(c.liderMeta)||undefined); definirLiderancaUnica(c.liderModo==='uma'); } }catch(e){}   // V209
     trocarMes(prox.getMonth(),prox.getFullYear());
     setTimeout(()=>{
       try{
@@ -12738,6 +12787,46 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(typeof orig==='function') window.renderLiderancaDomingo=function(){ const r=orig.apply(this,arguments); try{ if(($('modoCobertura')?.value)==='funcao') renderConfigFuncao(); }catch(e){} return r; };
   const ini=()=>{ const ex=document.getElementById('v240ExGrupos'); if(ex) ex.style.display=(document.getElementById('modoCobertura')?.value==='grupos')?'':'none'; };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(ini,80)); else setTimeout(ini,80);
+})();
+</script>
+<script>
+/* ═════ V241 — LIDERANÇA POR TURNO NO “POR CARGO” ═════
+   No modo “Por turno” a linha ⭐ do quadro “Quantos de cada cargo por domingo” vira duas: 🌅 abertura e 🌙 fechamento
+   (mesmo dado do ③: definirLiderTurno). Nos outros modos fica a linha única da V240, com o botão “Separar por turno”. */
+(function(){
+  const linhaV240=window.v240LinhaLider;
+  const row=(k,tit,v,sub)=>`<div class="fn-row v240-lider"><div class="fn-info"><b>${tit}</b><small>${sub}</small></div>
+      <div class="fn-qtd"><button type="button" data-v241="${k}" data-d="-1" aria-label="menos">−</button><input type="number" inputmode="numeric" min="0" max="4" value="${v}" data-v241-n="${k}" aria-label="${tit}"><button type="button" data-v241="${k}" data-d="1" aria-label="mais">+</button></div></div>`;
+  window.v240LinhaLider=function(){
+    try{ if(!funcoesLideranca()) return ''; }catch(e){ return ''; }
+    const T=liderTurno();
+    if(!T) return (linhaV240?.()||'')+`<div style="margin:-2px 0 10px"><button type="button" class="btn secondary sm" data-v241-turno="1">🌅🌙 Separar por turno (abertura e fechamento)</button></div>`;
+    const n=t=>equipe.filter((f,i)=>!foraDom(f)&&ehLiderancaDomingo(f)&&turnoLider(i)===t).length;
+    return row('ab','⭐ Lideranças na 🌅 abertura',T.ab,`${n('ABERTURA')} no quadro • Encarregado, Sub ou Líder • os nomes você escolhe em ③`)
+      +row('fe','⭐ Lideranças no 🌙 fechamento',T.fe,`${n('FECHAMENTO')} no quadro • Encarregado, Sub ou Líder`)
+      +`<div class="v208-meta" style="margin:0 0 8px"><label>Se faltar liderança no turno, entra: ${window.v241SelComp()}</label><small>Ex.: CPD → Preparador de dados. Assim o turno nunca fica vazio.</small></div>`
+      +`<div style="margin:-2px 0 10px"><button type="button" class="btn secondary sm" data-v241-turno="0">Não separar por turno</button></div>`;
+  };
+  window.v241SelComp=function(id){ const T=liderTurno()||{}; let fns=[]; try{ fns=funcoesDoSetor(); }catch(e){}
+    return `<select ${id?`id="${id}"`:'data-v241-comp="1"'}><option value="">ninguém (o turno fica sem liderança)</option>${fns.map(f=>`<option value="${htmlEsc(f.chave)}" ${f.chave===T.comp?'selected':''}>${htmlEsc(f.rotulo)}</option>`).join('')}</select>`; };
+  /* o cargo escolhido ocupa a vaga do turno que ficou sem liderança: +1 por vaga, no turno certo (motor, auditoria e conferência) */
+  const metasOrig=window.metasFuncaoUsuario;
+  if(typeof metasOrig==='function') window.metasFuncaoUsuario=function(doms,ano,mes){
+    const mapa=metasOrig.apply(this,arguments);
+    try{ const T=liderTurno(), m=T&&T.comp&&mapa[T.comp]; if(!m) return mapa;
+      const bal=balancoDoMes(ano,mes);
+      m.porDomingo=m.porDomingo.map((q,idx)=>{ const d=doms[idx]; if(d===bal) return q; const ls=lideresSelecionadosDomingo(d);
+        const fa=Math.max(0,T.ab-ls.filter(i=>turnoLider(i)==='ABERTURA').length), ff=Math.max(0,T.fe-ls.filter(i=>turnoLider(i)==='FECHAMENTO').length);
+        return {...q,total:Math.min(m.total,q.total+fa+ff),abertura:q.abertura+fa,fechamento:q.fechamento+ff,lideranca:fa+ff}; });
+    }catch(e){ console.warn('[V241] vaga da liderança:',e); }
+    return mapa; };
+  window.v240QtdLider=(q=>function(){ const T=liderTurno(); return T?T.ab+T.fe:q(); })(window.v240QtdLider||(()=>1));
+  const aplicar=(ab,fe)=>{ definirLiderTurno(true,Math.max(0,Math.min(4,ab)),Math.max(0,Math.min(4,fe))); window.v45Persist?.(); try{ renderLiderancaDomingo(); }catch(e){ try{ renderConfigFuncao(); }catch(_){} } };
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('[data-v241]'); if(b){ const T=liderTurno()||{ab:1,fe:1}, d=Number(b.dataset.d); aplicar(T.ab+(b.dataset.v241==='ab'?d:0),T.fe+(b.dataset.v241==='fe'?d:0)); return; }
+    const t=e.target.closest?.('[data-v241-turno]'); if(t){ definirModoLideranca(t.dataset.v241Turno==='1'?'turno':'varias'); }
+  });
+  document.addEventListener('change',e=>{ if(e.target.dataset?.v241Comp){ const T=liderTurno()||{ab:1,fe:1}; definirLiderTurno(true,T.ab,T.fe,e.target.value); window.v45Persist?.(); try{ renderLiderancaDomingo(); }catch(_){} return; } const k=e.target.dataset?.v241N; if(!k) return; const T=liderTurno()||{ab:1,fe:1}, v=parseInt(e.target.value,10)||0; aplicar(k==='ab'?v:T.ab,k==='fe'?v:T.fe); });
 })();
 </script>
 </body>

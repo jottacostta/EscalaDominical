@@ -543,6 +543,8 @@ async function testarPorCargo(browser, app){
   await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
   await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800);
   await p.evaluate(() => { v45GotoStep(3, false); const s = $('modoCobertura'); s.value = 'funcao'; s.dispatchEvent(new Event('change', { bubbles: true })); }); await p.waitForTimeout(600);
+  // V241: a Frente de Loja começa “Por turno”; aqui o teste é da linha única (modo Várias)
+  await p.evaluate(() => { if(window.liderTurno && liderTurno()) definirModoLideranca('varias'); }); await p.waitForTimeout(300);
   const ler = () => p.evaluate(() => ({ n: document.querySelector('.v240-lider [data-v240-n]')?.value, modo: modoLideranca(), total: document.querySelector('#configFuncao .alert.info')?.textContent || '' }));
   const a = await ler();
   ok(!!a.n && /liderança/.test(a.total), `o quadro do “Por cargo” tem a linha ⭐ Lideranças (${a.n}) e o total conta as lideranças`);
@@ -554,6 +556,40 @@ async function testarPorCargo(browser, app){
   await p.selectOption('#v208Qtd', '5'); await p.waitForTimeout(300);
   ok((await ler()).n === '5', 'mudando a meta no ③ “Quem lidera”, o quadro do “Por cargo” acompanha');
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+}
+
+async function testarLiderTurno(browser, app){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 241) return;
+  console.log('\n▶ Setores — liderança por turno (Frente de Loja e CPD)');
+  const abrir = async (setor, dados) => { const { p, erros } = await novaPagina(browser);
+    await p.goto('file://' + app); await p.waitForTimeout(1200);
+    await p.click('#comeceFechar').catch(() => {}); await p.click(`[data-home-setor="${setor}"]`); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoTxt', path.join(DADOS, dados)); await p.waitForTimeout(1800);
+    await p.evaluate(() => v45GotoStep(3, false)); await p.waitForTimeout(300); return { p, erros }; };
+  const porDomingo = p => p.evaluate(() => { const doms = domingosDoMes(+$('ano').value, +$('mes').value), bal = balancoDoMes(+$('ano').value, +$('mes').value);
+    return doms.filter(d => d !== bal).map(d => { const ls = lideresSelecionadosDomingo(d), todos = [...new Set([...ls, ...(trabalhoDomingo[d] || [])])];
+      return { d, lA: ls.filter(i => turnoLider(i) === 'ABERTURA').length, lF: ls.filter(i => turnoLider(i) === 'FECHAMENTO').length,
+        A: todos.filter(i => turnoLider(i) === 'ABERTURA').length, F: todos.filter(i => turnoLider(i) === 'FECHAMENTO').length }; }); });
+  // Frente de Loja: começa em “Por turno” (1 + 1) e o 🤖 Sugerir põe 1 liderança em cada turno, de qualquer cargo
+  { const { p, erros } = await abrir('Frente de Loja', 'setores_frente_de_loja_50.txt');
+    const modo = await p.evaluate(() => modoLideranca());
+    await p.click('#btnSugerirLideranca'); await p.waitForTimeout(500);
+    const r = await porDomingo(p);
+    ok(modo === 'turno' && r.every(x => x.lA === 1 && x.lF === 1), `Frente de Loja: modo “Por turno” e 1 liderança na abertura + 1 no fechamento em todo domingo (${r.map(x => x.lA + '+' + x.lF).join(' ')})`);
+    ok(!(await p.evaluate(() => conflitosLideranca())).length, 'sugestão por turno sem 3 domingos seguidos');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
+  // CPD: falta liderança no turno → entra Preparador de dados; sempre 1 na abertura e 1 no fechamento
+  { const { p, erros } = await abrir('CPD', 'setores_cpd_6.txt');
+    const T = await p.evaluate(() => { const s = $('modoCobertura'); s.value = 'funcao'; s.dispatchEvent(new Event('change', { bubbles: true })); const T = liderTurno(); coberturaFuncao.base[T.comp] = 0; salvarCfgFuncao(); return T; });
+    await p.click('#btnSugerirLideranca'); await p.waitForTimeout(500);
+    // um domingo sem o Sub (fechamento) → Encarregado + Preparador
+    await p.evaluate(() => { const d = domingosDoMes(+$('ano').value, +$('mes').value)[0]; liderancaManualDomingo[String(d)] = { mais: lideresSelecionadosDomingo(d).filter(i => turnoLider(i) === 'ABERTURA') }; renderLiderancaDomingo(); });
+    await p.evaluate(() => { const s = $('modoGeracao'); if(s){ s.value = 'motor'; s.dispatchEvent(new Event('change', { bubbles: true })); } v45GotoStep(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(3000);
+    const r = await porDomingo(p);
+    ok(/preparador/.test(T.comp || ''), `CPD: “Se faltar liderança no turno, entra: Preparador de dados” já vem marcado (${T.comp})`);
+    ok(r.every(x => x.A === 1 && x.F === 1), `CPD: todo domingo com 1 na abertura e 1 no fechamento (${r.map(x => `${x.d}:${x.lA + x.lF}lid ${x.A}+${x.F}`).join(' ')})`);
+    ok(r[0].lA === 1 && r[0].lF === 0 && r.some(x => x.lA + x.lF === 0), 'CPD: Encarregado + Preparador e 2 Preparadores acontecem');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
 }
 
 (async () => {
@@ -581,7 +617,7 @@ async function testarPorCargo(browser, app){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
