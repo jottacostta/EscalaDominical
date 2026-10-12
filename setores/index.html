@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V232</title>
+<title>Escala de Setores — V233</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V233 [ChatGPT] — SUGESTÕES NA ESCALA MANUAL: cada card de domingo pode sugerir funcionários elegíveis, ordenar pela menor carga recente de domingos, permitir aceitar apenas os selecionados e rejeitar sem alterar a escala. O aceite revalida as regras e mantém a auditoria ao vivo.
 V232 [ChatGPT] — VERSÃO VISÍVEL E TESTADA: alinha o título HTML e a versão do rodapé ao nome do arquivo; acrescenta teste automático para conferir título, rodapé e primeira entrada do histórico de versões.
 V231 [ChatGPT] — EMPRÉSTIMO ENTRE SETORES: o funcionário EP permanece cadastrado no setor de origem como registro visível e bloqueado; o destino do empréstimo fica explícito no editor. A escala de destino recebe uma visão operacional do mesmo cadastro, sem duplicar matrícula, e a contagem disponível diminui na origem e aumenta no destino. Destino persistido no Equipe.txt e no histórico JSON.
 V230 [ChatGPT] — LISTA MANUAL SÓ COM OPERACIONAIS ATIVOS: na escala manual/mista, lideranças já definidas na área própria, afastados (AF) e emprestados (EP) deixam de aparecer na lista de seleção. Operacionais ativos continuam visíveis, inclusive quem tem folga fixa no domingo.
@@ -2081,6 +2082,19 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
 @keyframes v227Pisca{0%,100%{box-shadow:0 0 0 0 rgba(229,35,32,0)}40%{box-shadow:0 0 0 4px rgba(229,35,32,.55)}}
 .v227-pisca{animation:v227Pisca 1s ease 2}
 </style>
+
+<style id="v233-sugestoes-manual">
+.v233-sug-box{margin:10px 0;padding:10px;border:1px solid #c7d7f5;border-radius:10px;background:rgba(0,71,186,.035)}
+.v233-sug-actions{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0}
+.v233-sug-actions .mini-btn{min-height:36px}
+.v233-sug-list{display:grid;gap:6px;margin-top:8px}
+.v233-sug-item{display:flex;align-items:flex-start;gap:8px;padding:8px;border:1px solid var(--border,#d8deea);border-radius:8px;background:var(--card,#fff)}
+.v233-sug-item input{margin-top:3px;flex:0 0 auto}
+.v233-sug-item small{display:block;color:var(--muted,#667085);margin-top:2px}
+.v233-sug-msg{font-size:12px;color:var(--muted,#667085);margin:6px 0}
+.v233-sug-title{font-size:13px;font-weight:800;margin:2px 0 6px}
+@media(max-width:600px){.v233-sug-actions button{flex:1 1 100%}}
+</style>
 </head>
 <body>
 <script>
@@ -2176,7 +2190,7 @@ html[data-runtime="desktop"] #selecaoDomingosManual .dom-funcs,html[data-runtime
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V232 · versão visível alinhada e conferida automaticamente</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V233 · sugestões seguras na escala manual</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12395,6 +12409,125 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   // Garante que as opções de destino apareçam também ao adicionar uma linha manualmente.
   const add=document.getElementById('btnAdicionarFuncionario');
   if(add&&!add.dataset.loanBound){add.addEventListener('click',()=>setTimeout(garantirCamposEmprestimo,0));add.dataset.loanBound='1';}
+})();
+</script>
+
+<script id="v233-sugestoes-manual-js">
+/* ═════ V233 — sugestões seguras por cartão na escala manual/mista ═════ */
+(function(){
+  'use strict';
+  const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const operacionais=(d)=>new Set((selecaoManualDomingo[String(d)]||[]).map(Number));
+  const elegivel=(i,d)=>{const f=equipe?.[i];return !!f&&String(f.situacao||'A').trim().toUpperCase()==='A'&&!ehLiderancaDomingo(f)&&!foraDom(f)&&!operacionais(d).has(Number(i));};
+  const errosRelevantes=lista=>(lista||[]).filter(x=>!/(selecione\s+\d+\s+funcionário\(s\) operacionais|selecionados\s+\d+|máximo\s+\d+ incluindo liderança)/i.test(String(x)));
+  function pontuacao(i){
+    let n=0;
+    Object.values(selecaoManualDomingo||{}).forEach(a=>{if((a||[]).map(Number).includes(Number(i)))n++;});
+    try{const h=historicoManual(i);if(h?.ultimo)n++;if(h?.penultimo)n++;}catch(e){}
+    return n;
+  }
+  function grupoProposto(i,modo){
+    let ids=[Number(i)];
+    if(modo==='manual'&&$('modoCobertura')?.value==='grupos'){
+      const g=(grupos||[]).find(x=>x.some(v=>Number(v)===Number(i)));
+      if(g?.length)ids=[...new Set(g.map(Number))];
+    }
+    return ids;
+  }
+  function vagas(d,modo){
+    const sel=[...(selecaoManualDomingo[String(d)]||[])].map(Number);
+    const oper=sel.filter(i=>equipe[i]&&!ehLiderancaDomingo(equipe[i])).length;
+    return Math.max(0,Number(alvoCoberturaAtual())-oper);
+  }
+  function testarInclusao(d,ids,modo){
+    const chave=String(d),anterior=(selecaoManualDomingo[chave]||[]).map(Number),antHoras={...(horariosManuaisDomingo?.[chave]||{})};
+    const adicionados=ids.filter(i=>!anterior.includes(Number(i)));
+    if(!adicionados.length)return {ok:false,motivo:'Já está escalado.'};
+    const max=vagas(d,modo);
+    if(adicionados.length>max)return {ok:false,motivo:'O grupo ultrapassaria as vagas restantes.'};
+    const antes=errosRelevantes(auditarSelecaoAntesDaGeracao(modo));
+    try{
+      selecaoManualDomingo[chave]=[...anterior,...adicionados];
+      if(!horariosManuaisDomingo[chave])horariosManuaisDomingo[chave]={};
+      adicionados.forEach(i=>{const h=horarioManualSelecionado(d,i);if(h)horariosManuaisDomingo[chave][String(i)]=h;});
+      const depois=errosRelevantes(auditarSelecaoAntesDaGeracao(modo));
+      const novas=depois.filter(e=>!antes.includes(e));
+      return novas.length?{ok:false,motivo:novas[0]}:{ok:true};
+    }catch(e){return {ok:false,motivo:'Não foi possível confirmar todas as regras.'};}
+    finally{selecaoManualDomingo[chave]=anterior;if(Object.keys(antHoras).length)horariosManuaisDomingo[chave]=antHoras;else delete horariosManuaisDomingo[chave];}
+  }
+  function candidatos(d,modo){
+    const ja=operacionais(d),limite=vagas(d,modo);
+    if(limite<=0)return [];
+    return equipe.map((f,i)=>({f,i,p:pontuacao(i)}))
+      .filter(({i})=>elegivel(i,d)&&!ja.has(i))
+      .sort((a,b)=>a.p-b.p||String(a.f.nome||'').localeCompare(String(b.f.nome||''),'pt-BR'))
+      .reduce((out,x)=>{
+        if(out.length>=limite)return out;
+        const ids=grupoProposto(x.i,modo).filter(i=>elegivel(i,d)||ja.has(i));
+        if(!ids.length||ids.length>limite-out.length)return out;
+        const val=testarInclusao(d,ids,modo);
+        if(val.ok){out.push({i:x.i,ids,p:x.p});}
+        return out;
+      },[]);
+  }
+  function mostrarSugestoes(card,d,modo){
+    const host=card.querySelector('.v233-sug-list');
+    if(!host)return;
+    const list=candidatos(d,modo);
+    host.dataset.candidates=JSON.stringify(list);
+    host.innerHTML=list.length?list.map((x,k)=>{
+      const f=equipe[x.i];
+      return '<label class="v233-sug-item"><input type="checkbox" data-v233-pick="'+k+'" checked><span><b>'+esc(f.nome)+'</b><small>'+esc(f.cargo||'')+' · '+esc(f.setor||'')+' · carga recente: '+x.p+' domingo(s)</small></span></label>';
+    }).join(''):'<p class="v233-sug-msg">Não há candidatos elegíveis para as vagas restantes deste domingo.</p>';
+    const msg=card.querySelector('.v233-sug-msg-status');if(msg)msg.textContent=list.length?'Confira as sugestões e aceite todas ou desmarque quem não deseja incluir.':'';
+  }
+  function enhance(){
+    const modo=$('modoGeracao')?.value||'motor';
+    document.querySelectorAll('#selecaoDomingosManual .dom-card[data-geracao-dom],#selecaoDomingosMista .dom-card[data-geracao-dom]').forEach(card=>{
+      if(card.dataset.v233Bound==='1')return;
+      const d=Number(card.dataset.geracaoDom),bal=balancoDoMes(+$('ano').value,+$('mes').value);
+      if(!['manual','mista'].includes(modo)||d===Number(bal))return;
+      const box=document.createElement('section');box.className='v233-sug-box';
+      box.innerHTML='<div class="v233-sug-title">💡 Sugestão de funcionários</div><div class="v233-sug-msg">O sistema prioriza quem trabalhou menos domingos recentemente. Você decide quem entra.</div><div class="v233-sug-actions"><button type="button" class="mini-btn" data-v233-action="suggest">Sugerir funcionários</button><button type="button" class="mini-btn" data-v233-action="accept" disabled>Aceitar selecionados</button><button type="button" class="mini-btn" data-v233-action="reject">Rejeitar sugestões</button></div><div class="v233-sug-list"></div><div class="v233-sug-msg v233-sug-msg-status" aria-live="polite"></div>';
+      const ref=card.querySelector('.dom-funcs');if(ref)ref.before(box);else card.appendChild(box);
+      card.dataset.v233Bound='1';
+      const list=box.querySelector('.v233-sug-list'),accept=box.querySelector('[data-v233-action="accept"]');
+      box.querySelector('[data-v233-action="suggest"]').addEventListener('click',()=>{mostrarSugestoes(card,d,modo);accept.disabled=!list.querySelector('input[type=checkbox]');});
+      list.addEventListener('change',()=>{accept.disabled=!list.querySelector('input[type=checkbox]:checked');});
+      box.querySelector('[data-v233-action="reject"]').addEventListener('click',()=>{list.innerHTML='<p class="v233-sug-msg">Sugestões rejeitadas. A escala existente não foi alterada.</p>';list.dataset.candidates='[]';accept.disabled=true;const m=box.querySelector('.v233-sug-msg-status');if(m)m.textContent='';});
+      accept.addEventListener('click',()=>{
+        const escolhidas=[...list.querySelectorAll('input[type=checkbox]:checked')].map(ch=>Number(ch.dataset.v233Pick));
+        let dados=[];try{dados=JSON.parse(list.dataset.candidates||'[]');}catch(e){}
+        if(!escolhidas.length){window.showToast?.('Marque pelo menos uma sugestão para aceitar.','warning');return;}
+        let incluidas=0,recusadas=[];
+        escolhidas.forEach(k=>{
+          const item=dados[k];if(!item)return;
+          const atual=(selecaoManualDomingo[String(d)]||[]).map(Number);
+          const ids=item.ids.filter(i=>!atual.includes(Number(i))&&elegivel(i,d));
+          const valid=testarInclusao(d,ids,modo);
+          if(!ids.length||!valid.ok){recusadas.push((equipe[item.i]?.nome||'Funcionário')+': '+(valid.motivo||'não está mais elegível'));return;}
+          selecaoManualDomingo[String(d)]=[...atual,...ids];
+          if(!horariosManuaisDomingo[String(d)])horariosManuaisDomingo[String(d)]={};
+          ids.forEach(i=>{const h=horarioManualSelecionado(d,i);if(h)horariosManuaisDomingo[String(d)][String(i)]=h;});
+          incluidas+=ids.length;
+        });
+        try{window.v45Persist?.();}catch(e){}
+        renderSelecaoDomingosGeracao();
+        try{window.v227Auditar?.();}catch(e){}
+        if(incluidas)window.showToast?.(incluidas+' funcionário(s) adicionado(s) à escala; auditoria atualizada.','success',true);
+        if(recusadas.length)window.showToast?.('Algumas sugestões não foram incluídas: '+recusadas.slice(0,2).join('; '),'warning',true);
+      });
+    });
+  }
+  const original=window.renderSelecaoDomingosGeracao;
+  if(typeof original==='function'){
+    window.renderSelecaoDomingosGeracao=function(){const r=original.apply(this,arguments);enhance();return r;};
+  }
+  const obs=new MutationObserver(()=>enhance());
+  function iniciar(){['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{const e=document.getElementById(id);if(e)obs.observe(e,{childList:true,subtree:true});});enhance();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,500),{once:true});else setTimeout(iniciar,500);
+  window.v233Sugestoes={candidatos, testarInclusao};
 })();
 </script>
 </body>
