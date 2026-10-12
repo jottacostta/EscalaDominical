@@ -18,12 +18,12 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
 | Escala de Setores | `Escala_de_Setores_V237.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V169.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V170.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Encarregados V169 (domingos antes dos feriados). Depois do merge: nenhum.
+- **PRs abertos:** o PR #36 do Claude com a Encarregados V169 (domingos antes dos feriados) + V170 (mês passado antes dos domingos). Depois do merge: nenhum.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V238**, Encarregados **V170**.
+- **Próximo número de versão:** Setores **V238**, Encarregados **V171**.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
 
 ---
@@ -72,7 +72,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~7,7 mil linhas)
 
 - Mesmo padrão de camadas.
-- **Passos (V169):** 1 Equipe · 2 Mês · 3 Domingos · 4 Feriados · 5 Mês passado · 6 Gerar. Os **índices internos** não mudaram (`v80GotoStep(0…5)`): o índice 2, que era o “Grupos” escondido da V162, agora é o passo **Domingos** (`#domingosEtapa`, área `#v169DomArea`); `#coberturaCard` (grupos) continua no HTML, escondido. Feriados = índice 3, Mês passado = 4, Gerar = 5.
+- **Passos (V170):** 1 Equipe · 2 Mês · 3 Mês passado · 4 Domingos · 5 Feriados · 6 Gerar. O **índice interno** (`v80GotoStep(n)`, `ir:n`, `data-step`) é a **posição do botão**: Equipe 0, Mês 1, **Mês passado 2**, **Domingos 3** (`#domingosEtapa`, área `#v169DomArea`), **Feriados 4**, Gerar 5. `#coberturaCard` (grupos da V162) continua no HTML, escondido. Mudou de novo a ordem? Troque também os `ir:` de `destinoConformidade`/“O que falta”/marcos do Início e os `v80GotoStep` das camadas (procure por `v80GotoStep?.(` e `ir:`).
 - `gerar()`: gera o mês. Ela chama `autoGrupos()` sozinha (os grupos não mudam a escala desde a V162).
 - `montarEscalaFeriados()` começa com `aplicarBloqueioFolgaFeriado()`. `bloqueioFolgaFeriado(i, dt)`: folga fixa/DSR no dia do feriado impede trabalhar, com a exceção da segunda-feira.
 - Ganchos: `v156CopiarFeriado`, `v159SyncPrazo` (prazo 20/30 dias), `v161MarcarGuardado`, `v163AbrirCard` (cartões clicáveis).
@@ -108,6 +108,11 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-12 — Encarregados V170 — mês passado antes dos domingos — Claude
+- **O que mudou e por quê:** o dono pediu a ordem “Equipe – Mês – Mês passado – Domingo – Feriados – Gerar”. Faz sentido: quem trabalhou nos 2 últimos domingos do mês passado decide quem pode trabalhar no 1º domingo (3 domingos seguidos), então ele vem antes de montar os domingos.
+- **Onde no código:** os botões do passo e os painéis foram reordenados; o índice interno é a posição (Mês passado 2, Domingos 3, Feriados 4, Gerar 5). Atualizados os `ir:` (Conformidade, “O que falta”, marcos do Início) e os `v80GotoStep` (busca do Mês passado, atalhos da escala à mão). Números nos textos: 3→4 (Domingos), 4→5 (Feriados), 5→3 (Mês passado), fora do comentário de histórico.
+- **Como foi testado:** `testes/rodar.js` confere a ordem nova e acha o passo Domingos pelo painel (não pelo número). Suítes rápida e completa ✅.
 
 ### 2026-10-12 — Encarregados V169 — domingos antes dos feriados — Claude
 - **O que mudou e por quê:** o dono pediu que “a escala de domingo venha antes do feriado” na versão Encarregados. Agora os passos são 1 Equipe · 2 Mês · **3 Domingos** · 4 Feriados · 5 Mês passado · 6 Gerar (a mesma ordem do Setores: Domingos antes de Feriados). O passo 3 tem o “① Quem monta os domingos?” e os cartões da escala à mão (antes no Gerar). No Automático, ele explica que o app monta ao gerar e, depois de gerar, lista quem trabalha em cada domingo. No Gerar fica um resumo com o atalho “Ver ou mudar no passo 3”.

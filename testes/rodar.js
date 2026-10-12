@@ -374,11 +374,11 @@ async function testarEncManual(browser){
   await p.evaluate(a => { datasBalanco.push({ d: 21, m: 10, a }); }, ANO);
   for(const m of [9, 10, 11]){
     await mudarMes(p, m, ANO); await p.waitForTimeout(900);
-    await p.evaluate(() => window.v80GotoStep(document.querySelector('.step[data-step="2"]')?.dataset.panel === 'domingosEtapa' ? 2 : 5, false)); await p.waitForTimeout(400);   // V169: os domingos ficam no passo 3, antes dos feriados
+    await p.evaluate(() => { const k = [...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'domingosEtapa'); window.v80GotoStep(k >= 0 ? k : 5, false); }); await p.waitForTimeout(400);   // V169+: os domingos têm passo próprio
     if(m === 9){
       if(await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
         const ordem = await p.$$eval('.stepper .step', b => b.filter(x => x.offsetParent !== null).map(x => x.querySelector('b').textContent.trim()));
-        ok(ordem.join(' → ') === 'Equipe → Mês → Domingos → Feriados → Mês passado → Gerar', 'passos na ordem: ' + ordem.join(' → '));
+        ok(ordem.join(' → ') === 'Equipe → Mês → Mês passado → Domingos → Feriados → Gerar', 'passos na ordem: ' + ordem.join(' → '));   // V170: mês passado antes dos domingos
       }
       await p.click('[data-modo="manual"]'); await p.waitForTimeout(300);
       ok(await p.$$eval('.v167-card', c => c.length) === await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).length), 'escala à mão: um cartão por domingo');
