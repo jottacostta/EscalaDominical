@@ -767,6 +767,36 @@ async function testarEncManual(browser){
 }
 
 /* V237/V168 — APK do ApkForja (modo site): os downloads vão para Android.salvarArquivo; sem a ponte, o app avisa e não finge que salvou */
+async function testarTurnoEditor(browser, app){   // V254: turno vazio vem do horário; aviso com o nome; ficha marcada e aberta
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 254) return;
+  console.log('\n▶ Setores — Editar equipe: turno pelo horário e aviso com o nome');
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } }); const p = await ctx.newPage(); const erros = []; p.on('pageerror', e => erros.push(e.message)); p.on('dialog', d => d.accept());
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800);
+  await p.evaluate(() => { abrirEditorEquipe(true); }); await p.waitForTimeout(700);
+  const r = await p.evaluate(async () => {
+    const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+    let msg = ''; const t = window.showToast; window.showToast = (m, ...a) => { msg += String(m) + '\n'; return t?.(m, ...a); };
+    const rows = [...document.querySelectorAll('#equipeEditorRows .editor-row')];
+    const a = rows[10], b = rows[12], nomeA = a.querySelector('.ed-nome').value, nomeB = b.querySelector('.ed-nome').value;
+    a.querySelector('.ed-turno').value = ''; a.querySelector('.ed-horario').value = '2ª4ª5ª6ªe3ªcurso 13:00as 17:00';
+    b.querySelector('.ed-turno').value = ''; b.querySelector('.ed-horario').value = '';
+    document.getElementById('btnSalvarEquipe').click(); await w(700);
+    out.nome = msg.includes(nomeB + ': escolha o turno') && !/Linha \d+:/.test(msg) && !msg.includes(nomeA + ':');
+    out.marcada = b.classList.contains('v254-erro') && (!b.classList.contains('emp-card') || b.classList.contains('open')) && !a.classList.contains('v254-erro');
+    out.turnoA = a.querySelector('.ed-turno').value;
+    b.querySelector('.ed-horario').value = '08:00-12:00'; msg = '';
+    document.getElementById('btnSalvarEquipe').click(); await w(700);
+    const l = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe);
+    out.salvou = l.find(f => f.nome === nomeA)?.turno === 'FECHAMENTO' && l.find(f => f.nome === nomeB)?.turno === 'ABERTURA';
+    window.showToast = t; return out;
+  });
+  ok(r.turnoA === 'FECHAMENTO' && r.salvou, `turno vazio vem do horário escrito diferente (“curso 13:00 as 17:00” → ${r.turnoA}) e fica guardado (${r.salvou})`);
+  ok(r.nome && r.marcada, `o aviso traz o nome da pessoa (${r.nome}) e a ficha dela fica marcada e aberta (${r.marcada})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await ctx.close();
+}
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1012,7 +1042,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }

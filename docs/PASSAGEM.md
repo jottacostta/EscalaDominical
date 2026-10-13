@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V253.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V254.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V253 (operadoras em 3 horários). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V254 (turno sozinho e aviso com o nome). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V254**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V255**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,11 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V254 — turno sozinho e aviso com o nome no Editar equipe — Claude
+- **O que mudou e por quê:** print do dono: “Salvar equipe” recusava com “Linha 8…Linha 12: selecione o turno”. Com a V251 (equipe por função) a “linha N” (ordem do DOM) não é a ordem da tela — impossível achar. Na planilha real há horários como “2ª4ª5ª6ªe3ªcurso 13:00as 17:00” (aprendizes), que o `^\d` do Equipe.txt e do salvar não reconhecia.
+- **Onde no código:** `coletarEquipeEditor` (marcado `// V254`): `turno` vazio → pela 1ª hora do texto do horário (<12 Abertura, senão Fechamento) e o select é atualizado; avisos usam o nome (`rot`); ficha com erro ganha `.v254-erro`. Regex sem `^` na importação do Equipe.txt (`turnoCalculado`) e no salvar (`turnoNovo`). Bloco `/* ═════ V254 … ═════ */`: depois do clique em `#btnSalvarEquipe`, `window.v254IrParaErro()` abre o grupo (V252) e a ficha (`.emp-card` do V45) e rola até ela. Obs.: `btnSalvarEquipe.onclick` guarda a função original — embrulhar `salvarEquipeEditor` não pega o botão.
+- **Teste:** `testarTurnoEditor` em `testes/rodar.js` (horário “curso 13:00as 17:00” → Fechamento e guarda; sem horário → aviso com o nome, ficha marcada e aberta).
 
 ### 2026-10-13 — Setores V253 — operadoras em 3 horários na sugestão (Frente de Loja) — Claude
 - **O que mudou e por quê:** pedido do dono: na escala à mão da Frente de Loja, com “Por cargo”, a quantidade de operadoras é sempre dividida por 3 — abertura, intermediária (quem entra às 10h) e fechamento (60 → 20/20/20). Na planilha real as operadoras começam 06:50/07:40 (abertura), 10:00 (intermediária) e 13:40/15:40 (fechamento).
