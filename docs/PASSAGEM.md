@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V247.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V248.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida). Depois do merge: nenhum.
+- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V248**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V249**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,11 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V248 — folga da liderança também em feriado — Claude
+- **O que mudou e por quê:** print do dono (escala à mão, liderança do domingo 01/11/2026, folga fixa TER): escolheu a folga antes na segunda 26/10 e a depois devia ser a segunda 02/11, que não aparecia. `opcoesDsrLider` pulava feriados (02/11 = Finados). Para os outros funcionários a folga da semana (`dataDescansoPosterior`) nunca pulou feriado — a liderança agora segue a mesma regra.
+- **Onde no código:** `opcoesDsrLider` (sem o `continue` do feriado), rótulo “· feriado” no `<option>` de `htmlDsrLider`, e o bloco `/* ═════ V248 … ═════ */`: embrulho de `aplicarFolgasFixasNosFeriados` tira de `trabalhoFeriado[d]` quem tem a folga da liderança (`liderancaManualDomingo[*].dsr[i].ant|pos`) naquele feriado (`window.v248DsrLiderNaData`). Sem isso, `statusDiaSet` mostraria o feriado trabalhado e a folga se perderia.
+- **Como foi testado:** teste V248 em `testes/rodar.js` (02/11 na lista; quem folga no feriado sai de `trabalhoFeriado`); reprodução com dados fictícios (escolher seg 26/10 e seg 02/11 · feriado fica gravado). Suítes verdes.
 
 ### 2026-10-13 — Setores V247 — mais rápido em setores grandes — Claude
 - **O que mudou e por quê:** o dono disse que o app travava muito e mandou a planilha real (412 pessoas; Frente de Loja = 168). A planilha ficou só na pasta temporária da conversa. Medição no celular simulado (CPU 4× mais lenta), etapa por etapa, com o Profiler do Chrome. Achados: no Gerar, 7,4 milhões de `folgaFixaAtivaNaData`, 8,9 milhões de `normalizeStr`, 1 milhão de `chaveFuncaoDistribuicao`, 913 mil `historicoManual`, 60 mil `feriados` (Páscoa recalculada); `candidatoPodeReceberDSRPorTurno` sempre dava true mas varria a equipe 2× por chamada; `planoTransicao` refeito por candidato; a prévia de folgas de feriado (168 × 35 células) redesenhada várias vezes por Gerar, inclusive escondida; rotinas de fundo (troca toque→clique, glossário, cartões recolhíveis) varrendo a tela inteira a cada 1–1,5 s e salvamento automático montando o histórico inteiro a cada 2 s.

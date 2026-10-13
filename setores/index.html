@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V247</title>
+<title>Escala de Setores — V248</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V248 [Claude] — FOLGA DA LIDERANÇA TAMBÉM EM FERIADO (pedido do dono, escala à mão): com a folga antes antecipada para
+       a segunda 26/10, a folga depois devia ser a segunda 02/11, mas ela não aparecia — as listas “Semana antes” e
+       “Semana depois” da liderança escondiam os feriados (02/11 = Finados). Agora os feriados aparecem, marcados
+       “· feriado” (igual aos outros funcionários, cuja folga da semana já podia cair em feriado). Se a folga da
+       liderança cai num feriado, ela fica de folga nesse feriado (sai da lista de quem trabalha nele).
 V247 [Claude] — MAIS RÁPIDO EM SETORES GRANDES (pedido do dono: o app travava muito). Auditoria com a planilha real
        (Frente de Loja com 168 pessoas, celular simulado): o “Gerar” fazia milhões de contas repetidas (7,4 milhões
        de conferências de folga fixa, 60 mil cálculos dos feriados do mês, 1 milhão de leituras do cargo) e rotinas
@@ -2333,7 +2338,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V247 · mais rápido em setores grandes</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V248 · folga da liderança também em feriado</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5651,7 +5656,7 @@ function dsrLiderPendente(d,i){ const f=equipe[i]; if(!f) return false; const x=
 function opcoesDsrLider(d,lado){
   const ano=+$('ano').value, mes=+$('mes').value, dom=new Date(ano,mes,d), out=[];
   for(let k=1;k<=6;k++){ const dt=new Date(dom); dt.setDate(dom.getDate()+(lado==='ant'?-(7-k):k));
-    if(feriados(dt.getFullYear(),dt.getMonth())[dt.getDate()]) continue; out.push(dt); }
+    out.push(dt); }   // V248: feriado também pode (ex.: folga antes na segunda 26/10 → depois na segunda 02/11, Finados)
   return out;
 }
 function htmlDsrLider(d){
@@ -5659,7 +5664,7 @@ function htmlDsrLider(d){
   const bal=balancoDoMes(+$('ano').value,+$('mes').value); if(d===bal) return '';
   const fmt=dt=>`${['dom','seg','ter','qua','qui','sex','sáb'][dt.getDay()]} ${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`;
   return ls.map(i=>{ const x=dsrLiderManual(d,i), f=equipe[i], fixa=Number(f.folgaFixa);
-    const sel=lado=>{ const v=x[lado]||''; return `<select class="lider-dsr" data-lider-dia="${d}" data-lider-func="${i}" data-lado="${lado}" style="padding:7px 8px;font-size:12.5px"><option value="">${lado==='ant'?(fixa===6?'Antes: sábado fixo':'Folga antes — escolha'):'Folga depois — escolha'}</option>${opcoesDsrLider(d,lado).map(dt=>{ const k=chaveData(dt); return `<option value="${k}" ${v===k?'selected':''}>${fmt(dt)}${dt.getDay()===fixa?' ★':''}</option>`; }).join('')}</select>`; };
+    const sel=lado=>{ const v=x[lado]||''; return `<select class="lider-dsr" data-lider-dia="${d}" data-lider-func="${i}" data-lado="${lado}" style="padding:7px 8px;font-size:12.5px"><option value="">${lado==='ant'?(fixa===6?'Antes: sábado fixo':'Folga antes — escolha'):'Folga depois — escolha'}</option>${opcoesDsrLider(d,lado).map(dt=>{ const k=chaveData(dt); return `<option value="${k}" ${v===k?'selected':''}>${fmt(dt)}${dt.getDay()===fixa?' ★':''}${feriados(dt.getFullYear(),dt.getMonth())[dt.getDate()]?' · feriado':''}</option>`; }).join('')}</select>`; };
     const pend=dsrLiderPendente(d,i);
     const horaMan=(($('modoGeracao')?.value||'motor')==='manual')?`<label class="v209-hora">⏰ Horário de ${htmlEsc(String(f.nome).split(' ')[0])} no domingo<select class="v209-lider-hora" data-d="${d}" data-i="${i}">${opcoesHorarioManual(horarioManualSelecionado(d,i)||horarioPadraoLideranca(d,i),d)}</select></label>`:'';
     return `<div class="lider-dsr-box" style="border:1px dashed ${pend?'#E7C22A':'var(--border)'};border-radius:10px;padding:8px;background:${pend?'#FFF9E6':'var(--surface-2)'}">${horaMan}
@@ -13144,6 +13149,25 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   // os ganchos window.v234Sugestoes / v227Auditar usam as funções acima por nome — nada mais a ligar
 })();
 </script>
-
+<script>
+/* ═════ V248 — FOLGA DA LIDERANÇA TAMBÉM EM FERIADO ═════
+   opcoesDsrLider não esconde mais feriado (rótulo “· feriado” nas listas). Quem tem a folga (DSR) da liderança num
+   feriado fica de folga nele: aplicarFolgasFixasNosFeriados tira a pessoa de trabalhoFeriado daquele dia. */
+(function(){
+  function dsrLiderNaData(i,chave){
+    const m=liderancaManualDomingo||{};
+    return Object.keys(m).some(k=>{ if(k==='__ref') return false; const x=(m[k]?.dsr||{})[String(i)]; return !!x&&(x.ant===chave||x.pos===chave); });
+  }
+  const orig=window.aplicarFolgasFixasNosFeriados;
+  if(typeof orig==='function') window.aplicarFolgasFixasNosFeriados=function(){
+    const r=orig.apply(this,arguments);
+    try{ const mes=+$('mes').value, ano=+$('ano').value, f=feriados(ano,mes);
+      Object.keys(f).map(Number).forEach(d=>{ const dt=new Date(ano,mes,d); if(dt.getDay()===0||!trabalhoFeriado[d]) return; const ch=chaveData(dt);
+        trabalhoFeriado[d]=trabalhoFeriado[d].filter(i=>!dsrLiderNaData(i,ch)); }); }catch(e){}
+    return r;
+  };
+  window.v248DsrLiderNaData=dsrLiderNaData;
+})();
+</script>
 </body>
 </html>

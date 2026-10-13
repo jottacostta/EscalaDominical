@@ -316,6 +316,24 @@ async function testarSetores(browser){
     ok(r.audit, `V247: auditoria 6×1 da escala à mão igual à conta antiga, inclusive com ${r.nAud} avisos forçados`);
     ok(r.fundo, 'V247: rotinas de fundo só rodam de novo quando a tela muda');
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 248){   // V248: folga da liderança também em feriado (ex.: antes seg 26/10 → depois seg 02/11 Finados)
+    const r = await p.evaluate(() => {
+      const bk = { a: $('ano').value, m: $('mes').value, lm: JSON.stringify(liderancaManualDomingo || {}), tf: JSON.stringify(trabalhoFeriado || {}) };
+      const out = {};
+      try{
+        $('ano').value = '2026'; $('mes').value = '10';
+        const pos = opcoesDsrLider(1, 'pos').map(chaveData);
+        out.temFeriado = pos.includes('2026-11-02') && pos.length === 6;
+        const i = equipe.findIndex(f => ehLiderancaDomingo(f));
+        liderancaManualDomingo = { '1': { mais: [i], dsr: { [String(i)]: { ant: '2026-10-26', pos: '2026-11-02' } } } };
+        trabalhoFeriado = { 2: equipe.map((f, k) => k) };
+        aplicarFolgasFixasNosFeriados();
+        out.folgaNoFeriado = !trabalhoFeriado[2].includes(i) && trabalhoFeriado[2].length > 0;
+      } finally { $('ano').value = bk.a; $('mes').value = bk.m; liderancaManualDomingo = JSON.parse(bk.lm); trabalhoFeriado = JSON.parse(bk.tf); }
+      return out;
+    });
+    ok(r.temFeriado && r.folgaNoFeriado, `V248: folga da liderança pode cair em feriado (02/11 na lista: ${r.temFeriado ? 'sim' : 'não'}) e quem folga no feriado sai da lista de quem trabalha nele (${r.folgaNoFeriado ? 'sim' : 'não'})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
