@@ -306,7 +306,9 @@ async function testarSetores(browser){
       const sel = JSON.parse(JSON.stringify(trabalhoDomingo || {})), mapa = JSON.parse(JSON.stringify(descansosDomingo || {}));
       const a1 = JSON.stringify(auditarProtecao6x1Simulada(sel, mapa)), b1 = JSON.stringify(antiga(sel, mapa));
       const mapa2 = {}; const sel2 = {}; domingosDoMes(ano, mes).forEach(d => sel2[d] = equipe.map((f, i) => i));   // todos em todos os domingos e sem DSR → muitos 7 dias
-      const a2 = auditarProtecao6x1Simulada(sel2, mapa2), b2 = antiga(sel2, mapa2);
+      const forc = equipe.filter(f => !ehLiderancaDomingo(f)).slice(0, 3), bkFF = forc.map(f => [f.folgaFixa, f.folgaPendente]);   // 3 pessoas com folga fixa no domingo e escaladas em todos → 7 dias com certeza (antes dependia do estado deixado por outros testes)
+      let a2, b2; try{ forc.forEach(f => { f.folgaFixa = 0; f.folgaPendente = false; }); a2 = auditarProtecao6x1Simulada(sel2, mapa2); b2 = antiga(sel2, mapa2); }
+      finally{ forc.forEach((f, k) => { f.folgaFixa = bkFF[k][0]; if(bkFF[k][1] === undefined) delete f.folgaPendente; else f.folgaPendente = bkFF[k][1]; }); }
       out.audit = a1 === b1 && JSON.stringify(a2) === JSON.stringify(b2) && a2.length > 0; out.nAud = a2.length;
       out.fundo = window.v247DomMudou('teste-v247') === true && window.v247DomMudou('teste-v247') === false;   // sem mudança na tela, a rotina de fundo não roda de novo
       return out;
