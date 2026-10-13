@@ -171,3 +171,8 @@ O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compar
   4. se criou função/gancho novo (`window.vNNN…`) ou variável global nova, acrescente no **mapa técnico** (seções 2–3).
 - A descrição do PR termina com a parte **“Para quem continuar”**: o que ficou pronto, o que falta e os cuidados.
 - O teste automático confere se o `docs/PASSAGEM.md` cita a versão atual de cada app.
+- **Pergunte antes de atualizar a documentação** (pedido do dono, 13/10/2026 — vale para Claude e ChatGPT): antes de
+  mexer no diário/pendências do `docs/PASSAGEM.md`, no `CHANGELOG.md`, no `docs/INICIO_NOVA_CONVERSA.txt` ou nos
+  manuais, pergunte ao dono: “Quer que eu atualize a documentação agora ou no próximo PR?” e só faça depois da resposta.
+  Sem perguntar, só o nome do arquivo da versão atual no `README.md` e no `docs/PASSAGEM.md` (o teste exige). Esta regra
+  vale acima dos itens desta seção que mandam atualizar “em toda mudança”.
