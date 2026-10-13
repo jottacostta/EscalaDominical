@@ -420,6 +420,8 @@ async function testarSetores(browser){
         renderSelecaoDomingosGeracao(); await w(200);
         const c2 = document.querySelector('#selecaoDomingosManual .dom-card'); out.lembra = c2.classList.contains('v252-rec');
         c2.querySelector('.v252-seta').click(); out.abre = !c2.classList.contains('v252-rec');
+        await w(120); const hf = c2.querySelector('.dom-funcs > .v226-fn');   // função dentro do domingo
+        if(hf){ hf.click(); await w(30); const n1 = c2.querySelectorAll('.dom-func.v252-oculto').length; hf.click(); await w(30); out.abre = out.abre && n1 > 0 && c2.querySelectorAll('.dom-func.v252-oculto').length === 0; }
         renderEquipe(); await w(150);
         const cab = document.querySelector('#equipeLista .v251-cab'); cab.querySelector('.v252-seta').click(); await w(30);
         const fechados = document.querySelectorAll('#equipeLista .person.v252-oculto').length; cab.click(); await w(30);

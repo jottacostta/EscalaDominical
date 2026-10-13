@@ -13,7 +13,7 @@
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
 V252 [Claude] — TRIÂNGULO PARA FECHAR AS LISTAS + LIDERANÇA EM DUPLA (pedidos do dono):
        (1) os cartões com listas grandes ganharam o triângulo ▾/▸ para fechar e abrir: cada domingo da escala à
-       mão e da mista, cada feriado, e cada função da equipe (passo Equipe, Mês passado e ✏️ Editar equipe — o Mês
+       mão e da mista (e cada função dentro do domingo), cada feriado, e cada função da equipe (passo Equipe, Mês passado e ✏️ Editar equipe — o Mês
        passado agora também vem separado por função). Em cima de cada lista: “▾ Abrir todos” e “▸ Fechar todos”.
        O app lembra o que ficou fechado (por setor e mês) neste aparelho.
        (2) ao escolher uma liderança num domingo, o app já coloca a mesma pessoa no domingo seguinte (dupla de
@@ -2299,6 +2299,10 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .feriado-box.v252-rec>:not(.v252-cab){display:none!important}
 .feriado-box>.v252-cab{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .v252-oculto{display:none!important}
+.dom-head>.v252-seta{order:-1;margin-right:-2px}
+.v226-fn.v252-fn{cursor:pointer;min-height:36px;display:flex;align-items:center;-webkit-tap-highlight-color:transparent}
+.v226-fn.v252-fn::before{content:'▾';display:inline-block;width:1.4em;font-size:14px}
+.v226-fn.v252-fn[data-v252-rec="1"]::before{content:'▸'}
 .v252-barra{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .v252-barra button{min-height:40px;padding:8px 14px;border-radius:10px;border:1px solid var(--border,#D5DCE6);background:var(--surface,#fff);font:inherit;font-size:13px;font-weight:700;color:var(--ink-2,#334155);cursor:pointer}
 .v252-barra button:hover{border-color:var(--brand,#0047BA)}
@@ -13438,7 +13442,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(b){ b.textContent=rec?'▸':'▾'; b.setAttribute('aria-expanded',String(!rec)); b.setAttribute('aria-label',(rec?'Abrir':'Fechar')+' a lista'); b.title=rec?'Abrir a lista':'Fechar a lista'; } }
   function cartao(card,head,k){
     head.classList.add('v252-cab'); card.dataset.v252=k;
-    if(!head.querySelector(':scope > .v252-seta')){ const b=document.createElement('button'); b.type='button'; b.className='v252-seta'; head.appendChild(b); }
+    if(!head.querySelector(':scope > .v252-seta')){ const b=document.createElement('button'); b.type='button'; b.className='v252-seta'; head.prepend(b); }   // ao lado do título
     if(!head.dataset.v252){ head.dataset.v252='1'; head.addEventListener('click',e=>{ if(e.target.closest('input,select,a')||(e.target.closest('button')&&!e.target.closest('.v252-seta'))) return; e.preventDefault(); const rec=!card.classList.contains('v252-rec'); window.v252Rec.set(card.dataset.v252,rec); pintar(card,rec); }); }
     pintar(card,window.v252Rec.get(k));
   }
@@ -13453,12 +13457,30 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       [...area.querySelectorAll(':scope > '+sel+', :scope '+sel)].forEach(c=>{ const k=chave(c); if(!k) return; window.v252Rec.set(k,rec); pintarItem(c,rec); }); }));
     area.parentNode.insertBefore(b,area);
   };
+  /* grupos de função dentro do domingo (títulos .v226-fn do V226): o título não ganha filho (o V222 reescreve o
+     textContent) — a seta é CSS (::before) pelo atributo data-v252-rec; as linhas do grupo têm order g*10000+… */
+  function chaveFn(card,hd){ return 'domfn|'+card.dataset.geracaoDom+'|'+hd.dataset.fn; }
+  function pintarFn(card,hd,rec){
+    if(hd.dataset.v252Rec!==(rec?'1':'0')) hd.dataset.v252Rec=rec?'1':'0';
+    if(hd.getAttribute('aria-expanded')!==String(!rec)) hd.setAttribute('aria-expanded',String(!rec));
+    const g=Math.floor(Number(hd.style.order||0)/10000);
+    card.querySelectorAll('.dom-funcs > .dom-func').forEach(r=>{ if(Math.floor(Number(r.style.order||0)/10000)===g) r.classList.toggle('v252-oculto',rec); });
+  }
+  function funcoesDoDomingo(card){
+    card.querySelectorAll('.dom-funcs > .v226-fn').forEach(hd=>{
+      if(!hd.classList.contains('v252-fn')){ hd.classList.add('v252-fn'); hd.setAttribute('role','button'); hd.tabIndex=0; hd.title='Toque para fechar ou abrir esta função'; }
+      pintarFn(card,hd,window.v252Rec.get(chaveFn(card,hd)));
+    });
+  }
+  const trocarFn=hd=>{ const card=hd.closest('.dom-card'); if(!card) return; const rec=hd.dataset.v252Rec!=='1'; window.v252Rec.set(chaveFn(card,hd),rec); pintarFn(card,hd,rec); };
+  document.addEventListener('click',e=>{ const hd=e.target.closest?.('.v226-fn.v252-fn'); if(hd){ e.preventDefault(); trocarFn(hd); } });
+  document.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('.v226-fn.v252-fn')){ e.preventDefault(); trocarFn(e.target); } });
   let aplicando=false, ag=0;
   function varrer(){
     ag=0; aplicando=true;
     try{
       ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const a=$id(id); if(!a) return;
-        a.querySelectorAll('.dom-card[data-geracao-dom]').forEach(c=>{ const h=c.querySelector(':scope > .dom-head'); if(h) cartao(c,h,'dom|'+c.dataset.geracaoDom); });
+        a.querySelectorAll('.dom-card[data-geracao-dom]').forEach(c=>{ const h=c.querySelector(':scope > .dom-head'); if(h) cartao(c,h,'dom|'+c.dataset.geracaoDom); funcoesDoDomingo(c); });
         window.v252Barra(a,'.dom-card[data-geracao-dom]',c=>c.dataset.v252,pintar); });
       const F=$id('feriadosArea');
       if(F){ F.querySelectorAll('.feriado-box').forEach(c=>{ let h=c.querySelector(':scope > .v252-cab')||c.querySelector(':scope > h3'); if(!h) return;
