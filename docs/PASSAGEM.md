@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V252.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V253.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo + V250 folga da liderança respeita o 6×1 + V251 equipe por função + V252 triângulo nas listas e liderança em dupla). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V253 (operadoras em 3 horários). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V253**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V254**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,11 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V253 — operadoras em 3 horários na sugestão (Frente de Loja) — Claude
+- **O que mudou e por quê:** pedido do dono: na escala à mão da Frente de Loja, com “Por cargo”, a quantidade de operadoras é sempre dividida por 3 — abertura, intermediária (quem entra às 10h) e fechamento (60 → 20/20/20). Na planilha real as operadoras começam 06:50/07:40 (abertura), 10:00 (intermediária) e 13:40/15:40 (fechamento).
+- **Onde no código:** bloco `/* ═════ V253 … ═════ */` (só com setor Frente de Loja e `modoCobertura='funcao'`): `window.v253Faixa(i,d)` (início do horário de domingo já escolhido, senão o de sempre: <10:00 abertura, 10:00–11:59 intermediária, ≥12:00 fechamento), `window.v253Metas(d)` (meta de cada cargo = `qtdFuncao`; operador(a) de caixa dividida em 3, sobra → abertura e depois fechamento; memo de 1,5 s porque a sugestão chama uma vez por candidato), `window.v253Falta(sel,d)` e `window.v253Resumo(d)`. No núcleo do V233: `falta` do `candidatosDoDia` soma `v253Falta` (quem diminui a falta entra primeiro) e o painel da sugestão mostra o resumo. Antes, no “Por cargo” à mão, a sugestão ignorava as quantidades de cada cargo (`coberturaOperacional` devolve ok no modo função).
+- **Teste:** V253 em `testes/rodar.js` (9 operadoras, 6 com horário das 10h nos dados fictícios → 3/3/3). Real: 60 → 20/20/20 em 0,3 s.
 
 ### 2026-10-13 — Setores V252 — triângulo para fechar listas + liderança em dupla — Claude
 - **O que mudou e por quê:** o dono pediu “∆” (triângulo de abrir/fechar) nos cartões de domingo da escala à mão e em todos os cartões com listas grandes; e que a liderança escolhida no 1º domingo já vá para o 2º (dupla), ou que o app diga por que não pode.

@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V252</title>
+<title>Escala de Setores — V253</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V253 [Claude] — OPERADORAS EM 3 HORÁRIOS NA SUGESTÃO (pedido do dono, Frente de Loja, escala à mão “Por cargo”):
+       quando a encarregada escolhe quantas operadoras de caixa trabalham no domingo, a “💡 Sugestão de
+       funcionários” divide em 3 partes iguais: abertura, intermediária (quem entra às 10h) e fechamento (ex.: 60 →
+       20 + 20 + 20). Se o número não divide por 3, a sobra vai primeiro para a abertura e depois para o fechamento.
+       A sugestão também passa a respeitar a quantidade de cada cargo escolhida no “Por cargo” (antes escolhia
+       qualquer pessoa). O cartão da sugestão mostra quantas faltam em cada horário.
 V252 [Claude] — TRIÂNGULO PARA FECHAR AS LISTAS + LIDERANÇA EM DUPLA (pedidos do dono):
        (1) os cartões com listas grandes ganharam o triângulo ▾/▸ para fechar e abrir: cada domingo da escala à
        mão e da mista (e cada função dentro do domingo), cada feriado, e cada função da equipe (passo Equipe, Mês passado e ✏️ Editar equipe — o Mês
@@ -2314,6 +2320,12 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 :root[data-theme="dark"] .v252-lid-msg{background:#13301A;color:#C8F2CF}
 :root[data-theme="dark"] .v252-lid-msg.warn{background:#3A3000;color:#FFF3C2}
 </style>
+<style id="v253-faixas">
+.v253-faixas{margin:6px 0 8px;padding:8px 10px;border-radius:10px;background:var(--brand-lt,#E8F0FF);border:1px solid var(--blue-200,#C5D7F5);font-size:13px;line-height:1.45;color:var(--ink,#0f172a)}
+.v253-faixas b{font-weight:800}
+.v253-faixas .ok{color:#1B5E20;font-weight:800}
+.v253-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--surface-2,#EEF2F7);font-size:11px;font-weight:800;color:var(--ink-2,#334155)}
+</style>
 </head>
 <body>
 <script>
@@ -2409,7 +2421,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V252 · triângulo para fechar listas · liderança em dupla</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V253 · operadoras em 3 horários na sugestão</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12751,8 +12763,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     // V235: se o domingo tem composição por função a completar (ex.: Açougue — açougueiros e balconistas por turno),
     // escolhe primeiro quem completa o que falta; o resto segue a ordem de menos domingos
     const base=(selecaoManualDomingo[String(d)]||[]).map(Number);
-    const falta=sel=>{ try{ const c=coberturaOperacional(sel,d); if(c.ok) return 0;
-      return (c.faltas||[]).filter(t=>!/^Operacionais:/i.test(t)).reduce((n,t)=>{ const m=String(t).match(/(\d+)\/(\d+)/); return n+(m?Math.max(0,+m[2]-+m[1]):0); },0); }catch(e){ return 0; } };
+    const falta=sel=>{ let n=0; try{ n=window.v253Falta?.(sel,d)||0; }catch(e){}   // V253: operadoras por horário e cargos do “Por cargo”
+      try{ const c=coberturaOperacional(sel,d); if(c.ok) return n;
+      return n+(c.faltas||[]).filter(t=>!/^Operacionais:/i.test(t)).reduce((n,t)=>{ const m=String(t).match(/(\d+)\/(\d+)/); return n+(m?Math.max(0,+m[2]-+m[1]):0); },0); }catch(e){ return n; } };
     let restantes=[...ordem], atual=[...base];
     while(out.length<lim && restantes.length){
       const f0=falta(atual); let k=-1;
@@ -12779,7 +12792,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(vagas<1){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não há vagas restantes neste domingo.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Dispensar sugestões</button></div>';return;}
     if(!candidatos.length){area.innerHTML='<h4>💡 Sugestão de funcionários</h4><div class="v233-vazio">Não encontrei funcionários elegíveis para as vagas restantes. Confira a equipe e o histórico.</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Fechar</button></div>';return;}
     const lista=candidatos.slice(0,limite);
-    area.innerHTML='<h4>💡 Sugestões para '+String(d).padStart(2,'0')+'/'+String(+$('mes').value+1).padStart(2,'0')+'</h4><p>Vagas restantes: '+vagas+'. Marcamos inicialmente os candidatos com menor carga de domingos. Confira a lista antes de aceitar.</p><div class="v233-lista">'+lista.map((x,k)=>'<label class="v233-candidato"><input type="checkbox" data-v233-candidato="'+x.i+'" data-v233-dia="'+d+'" '+(k<vagas?'checked':'')+'><span><b>'+esc(x.f.nome)+'</b><small>'+esc(x.f.cargo||'Cargo não informado')+' · '+esc(x.f.turno||'Turno não informado')+' · '+x.score+' domingo(s) no histórico considerado'+(x.f.folgaPendente?' · folga fixa a definir':'')+'</small></span></label>').join('')+'</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-aceitar="'+d+'">Aceitar selecionados</button><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Rejeitar sugestões</button></div>';
+    area.innerHTML='<h4>💡 Sugestões para '+String(d).padStart(2,'0')+'/'+String(+$('mes').value+1).padStart(2,'0')+'</h4><p>Vagas restantes: '+vagas+'. Marcamos inicialmente os candidatos com menor carga de domingos. Confira a lista antes de aceitar.</p>'+(window.v253Resumo?.(d)||'')+'<div class="v233-lista">'+lista.map((x,k)=>'<label class="v233-candidato"><input type="checkbox" data-v233-candidato="'+x.i+'" data-v233-dia="'+d+'" '+(k<vagas?'checked':'')+'><span><b>'+esc(x.f.nome)+'</b><small>'+esc(x.f.cargo||'Cargo não informado')+' · '+esc(x.f.turno||'Turno não informado')+' · '+x.score+' domingo(s) no histórico considerado'+(x.f.folgaPendente?' · folga fixa a definir':'')+'</small></span></label>').join('')+'</div><div class="v233-acoes"><button type="button" class="mini-btn" data-v233-aceitar="'+d+'">Aceitar selecionados</button><button type="button" class="mini-btn" data-v233-rejeitar="'+d+'">Rejeitar sugestões</button></div>';
   }
   function persistir(){try{window.v45Persist?.();}catch(e){}try{window.v227Auditar?.();}catch(e){}}
   document.addEventListener('click',e=>{
@@ -13553,6 +13566,54 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   window.v252Varrer=varrer;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
+})();
+</script>
+<script>
+/* ═════ V253 — OPERADORAS EM 3 HORÁRIOS NA SUGESTÃO (Frente de Loja, escala à mão “Por cargo”) ═════
+   Só vale com setor Frente de Loja e modoCobertura='funcao'. Metas do domingo = qtdFuncao(chave, iso) de cada cargo.
+   Operador(a) de caixa: a meta é dividida em 3 faixas pelo horário de início (o de domingo já escolhido, senão o
+   de sempre): abertura < 10:00 ≤ intermediária < 12:00 ≤ fechamento; sobra → abertura, depois fechamento.
+   window.v253Falta(sel,d) = quantas faltam (faixas das operadoras + total dos outros cargos) — usado no
+   candidatosDoDia do V233 (quem diminui a falta entra primeiro). window.v253Resumo(d) = linha do cartão. */
+(function(){
+  const ativo=()=>/frente de loja/.test(norm($('setorSelecionado')?.value||''))&&($('modoCobertura')?.value||'')==='funcao';
+  const ehOperadora=k=>/operador/.test(k)&&/caixa/.test(k)&&!/geral/.test(k);
+  const FX=[['ab','abertura'],['in','intermediária (10h)'],['fe','fechamento']];
+  function faixa(i,d){
+    const hs=horarioManualSelecionado(d,i), ini=horaMinutos(String(hs||'').split(/[-–]/)[0])??horaMinutos(String(equipe[i]?.horario||''));
+    if(Number.isFinite(ini)) return ini<600?'ab':ini<720?'in':'fe';
+    return turnoPeso(equipe[i]?.turno)==='FECHAMENTO'?'fe':'ab';
+  }
+  let memo={t:0,d:null,v:null};   // a sugestão chama várias vezes seguidas (uma por candidato)
+  function metas(d){
+    if(memo.d===d&&Date.now()-memo.t<1500) return memo.v;
+    const iso=isoDomingo(+$('ano').value,+$('mes').value,d), out=[];
+    funcoesDoSetor().forEach(fn=>{ const q=qtdFuncao(fn.chave,iso);
+      if(ehOperadora(fn.chave)){ const b=Math.floor(q/3), r=q-3*b; out.push({chave:fn.chave,rotulo:fn.rotulo,q,faixas:{ab:b+(r>=1?1:0),in:b,fe:b+(r>=2?1:0)}}); }
+      else out.push({chave:fn.chave,rotulo:fn.rotulo,q}); });
+    memo={t:Date.now(),d,v:out}; return out;
+  }
+  function contar(sel,d){
+    const c={}; sel.forEach(i=>{ const f=equipe[i]; if(!f||ehLiderancaDomingo(f)) return; const k=chaveFuncaoDistribuicao(i); if(!k) return;
+      c[k]=c[k]||{n:0,ab:0,in:0,fe:0}; c[k].n++; if(ehOperadora(k)) c[k][faixa(i,d)]++; });
+    return c;
+  }
+  window.v253Falta=function(sel,d){
+    if(!ativo()) return 0;
+    const c=contar(sel,d); let n=0;
+    metas(d).forEach(m=>{ const x=c[m.chave]||{n:0,ab:0,in:0,fe:0};
+      if(m.faixas) FX.forEach(([k])=>{ n+=Math.max(0,m.faixas[k]-x[k]); });
+      else n+=Math.max(0,m.q-x.n); });
+    return n;
+  };
+  window.v253Resumo=function(d){
+    if(!ativo()) return '';
+    const m=metas(d).find(x=>x.faixas); if(!m||!m.q) return '';
+    const c=contar((selecaoManualDomingo[String(d)]||[]).map(Number),d)[m.chave]||{ab:0,in:0,fe:0};
+    const partes=FX.map(([k,nome])=>{ const falta=Math.max(0,m.faixas[k]-c[k]); return `<b>${m.faixas[k]}</b> ${nome}${falta?` (faltam ${falta})`:' <span class="ok">✔</span>'}`; });
+    return `<div class="v253-faixas">🧾 <b>${htmlEsc(m.rotulo||'Operadoras')}: ${m.q}</b> neste domingo = ${partes.join(' + ')}. A sugestão escolhe primeiro quem completa o que falta.</div>`;
+  };
+  window.v253Faixa=faixa; window.v253Metas=metas;
 })();
 </script>
 </body>
