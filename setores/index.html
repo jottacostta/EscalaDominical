@@ -7,10 +7,22 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V253</title>
+<title>Escala de Setores — V255</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V255 [Claude] — FUNÇÃO SEM “A” OU “B” E GRUPO JOVEM APRENDIZ (pedido do dono): (1) a equipe é agrupada pela FUNÇÃO,
+       sem olhar a letra do fim do cargo — “PROMOTOR DE VENDAS A” e “PROMOTOR DE VENDAS B” ficam juntos em
+       “PROMOTOR DE VENDAS” (o mesmo para Conferente A/B etc.), na lista da equipe, no Mês passado, no Editar
+       equipe e no quadro “Quantos de cada cargo por domingo”; (2) os aprendizes (“APRENDIZ EM SERV…”, “APRENDIZ EM
+       SERVIÇOS DE VENDAS”…) ficam num grupo só, “JOVEM APRENDIZ”, no fim da lista. O cargo de cada pessoa não muda.
+       Obs.: uma quantidade já escolhida no “Por cargo” para um cargo com A/B volta ao padrão (agora é uma função só).
+V254 [Claude] — TURNO SOZINHO E AVISO COM O NOME NO EDITAR EQUIPE (print do dono): ao salvar, o app dizia
+       “Linha 8: selecione o turno…” para várias pessoas — e, com a equipe separada por função, a “linha 8” não é a 8ª
+       da tela, então não dava para achar ninguém. Agora (1) quando o turno está vazio e o horário tem uma hora
+       (mesmo escrito diferente, ex.: “2ª4ª5ª curso 13:00 as 17:00”), o app escolhe o turno sozinho: antes do
+       meio-dia = Abertura, depois = Fechamento; (2) os avisos trazem o NOME da pessoa; (3) a ficha com problema
+       fica marcada em vermelho, aberta, e a tela vai até ela. Também na importação do Equipe.txt e ao salvar.
 V253 [Claude] — OPERADORAS EM 3 HORÁRIOS NA SUGESTÃO (pedido do dono, Frente de Loja, escala à mão “Por cargo”):
        quando a encarregada escolhe quantas operadoras de caixa trabalham no domingo, a “💡 Sugestão de
        funcionários” divide em 3 partes iguais: abertura, intermediária (quem entra às 10h) e fechamento (ex.: 60 →
@@ -2326,6 +2338,10 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v253-faixas .ok{color:#1B5E20;font-weight:800}
 .v253-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--surface-2,#EEF2F7);font-size:11px;font-weight:800;color:var(--ink-2,#334155)}
 </style>
+<style id="v254-ficha-erro">
+#equipeEditorRows .editor-row.v254-erro{outline:3px solid #E52320;outline-offset:2px;border-radius:14px}
+#equipeEditorRows .editor-row.v254-erro .emp-summary b::after{content:"  ⚠️ confira";color:#C62828;font-size:12px}
+</style>
 </head>
 <body>
 <script>
@@ -2421,7 +2437,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V253 · operadoras em 3 horários na sugestão</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V255 · função sem A/B e grupo Jovem aprendiz</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2988,7 +3004,7 @@ function parseEquipe(txt){
    const subsetorCanonico=norm(setorCanonico)==='mercearia' ? String(sub||'').trim().toUpperCase() : '';
    const situacaoCanonica = situacao || 'A';
    // Turno é derivado do horário e nunca tratado como dado cadastral autoritativo.
-   const mh=String(horario||'').match(/^(\d{1,2}):\d{2}/); const turnoCalculado=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):'';
+   const mh=String(horario||'').match(/(\d{1,2}):\d{2}/); const turnoCalculado=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):'';
    const aptoPorSituacao = !['AF','EP'].includes(situacaoCanonica);
    const aptoFinal = aptoPorSituacao && aptoDomingo!==false;
    const aptidaoNovoId=`func-${todasEquipes.length}`;
@@ -3699,25 +3715,30 @@ function coletarEquipeEditor(){
     const nome=row.querySelector('.ed-nome')?.value.trim().toUpperCase()||'';
     const cargo=row.querySelector('.ed-cargo')?.value.trim().toUpperCase()||'';
     const setorSelecionado=row.querySelector('.ed-setor')?.value.trim()||'';
-    const turno=String(row.querySelector('.ed-turno')?.value||'').trim().toUpperCase();
+    let turno=String(row.querySelector('.ed-turno')?.value||'').trim().toUpperCase();
+    if(!turno){ const mh0=String(row.querySelector('.ed-horario')?.value||'').match(/(\d{1,2}):\d{2}/);   // V254: turno vazio → pelo horário (antes do meio-dia = Abertura)
+      if(mh0){ turno=+mh0[1]<12?'ABERTURA':'FECHAMENTO'; const st=row.querySelector('.ed-turno'); if(st) st.value=turno; } }
+    const rot=nome?nome:'Linha '+(i+1), n0=erros.length;   // V254: o aviso traz o nome (com a equipe separada por função, a “linha” não é a da tela)
     const situacao=String(row.querySelector('.ed-situacao')?.value||'A').trim().toUpperCase();
     const setorEmprestimo=String(row.querySelector('.ed-setor-emprestimo')?.value||'').trim();
     const folgaTxt=row.querySelector('.ed-folga')?.value, pendente=folgaTxt===''||folgaTxt==null;   // V221
     const folga=pendente?2:normalizarFolgaFixa(folgaTxt,2);
     if(!matricula&&!nome&&!cargo)return;
-    if(!matricula)erros.push('Linha '+(i+1)+': informe a matrícula.');
-    else if(!nome)erros.push('Linha '+(i+1)+': informe o nome.');
-    else if(!cargo)erros.push('Linha '+(i+1)+': informe o cargo.');
-    else if(!setorSelecionado)erros.push('Linha '+(i+1)+': selecione o setor.');
-    else if(situacao==='EP'&&!setorEmprestimo)erros.push('Linha '+(i+1)+': informe o setor de destino do empréstimo.');
-    else if(situacao==='EP'&&norm(setorEmprestimo)===norm(grupoDoSetor(setorSelecionado)?.id||setorSelecionado))erros.push('Linha '+(i+1)+': o setor de destino deve ser diferente do setor de origem.');
-    else if(!turno)erros.push('Linha '+(i+1)+': selecione o turno (Abertura ou Fechamento).');
-    else if(admissaoISO(row.querySelector('.ed-admissao')?.value)===null)erros.push('Linha '+(i+1)+' ('+nome+'): a data de admissão não é válida. Use dia/mês/ano, ex.: 01/02/2015.');   // V239
+    if(!matricula)erros.push(rot+': informe a matrícula.');
+    else if(!nome)erros.push(rot+': informe o nome.');
+    else if(!cargo)erros.push(rot+': informe o cargo.');
+    else if(!setorSelecionado)erros.push(rot+': selecione o setor.');
+    else if(situacao==='EP'&&!setorEmprestimo)erros.push(rot+': informe o setor de destino do empréstimo.');
+    else if(situacao==='EP'&&norm(setorEmprestimo)===norm(grupoDoSetor(setorSelecionado)?.id||setorSelecionado))erros.push(rot+': o setor de destino deve ser diferente do setor de origem.');
+    else if(!turno)erros.push(rot+': escolha o turno (Abertura ou Fechamento) — ou escreva o horário, que o app escolhe sozinho.');
+    else if(admissaoISO(row.querySelector('.ed-admissao')?.value)===null)erros.push(rot+': a data de admissão não é válida. Use dia/mês/ano, ex.: 01/02/2015.');   // V239
     else {
+      row.classList.remove('v254-erro');
       const naoAptoDomingo=false;   // V221: quem não está afastado é apto ao domingo
       const subsetor=(norm(setorSelecionado)==='mercearia') ? String(row.querySelector('.ed-subsetor')?.value||'').toUpperCase() : '';
     dados.push({aptidaoId:row.dataset.aptidaoId||'',matricula,nome,cargo,horario:row.querySelector('.ed-horario')?.value?.trim()||'',setor:setorSelecionado,setorEmprestimo:situacao==='EP'?setorEmprestimo:'',subsetor,turno,folga,pendente,situacao,naoAptoDomingo,admissao:admissaoISO(row.querySelector('.ed-admissao')?.value)||''});   // V239: admissao
     }
+    if(erros.length>n0) row.classList.add('v254-erro');   // V254: ficha com problema fica em vermelho
   });
   // Uma matrícula não pode representar dois funcionários no cadastro.
   const matriculas=new Map();
@@ -3783,7 +3804,7 @@ function salvarEquipeEditor(){
     if(existente){existente.nome=d.nome;existente.cargo=d.cargo;existente.horario=d.horario||existente.horario||'';existente.setor=d.setor;existente.setorEmprestimo=d.setorEmprestimo||'';existente.subsetor=d.subsetor||existente.subsetor||'';const mh=String(existente.horario||'').match(/^(\d{1,2}):\d{2}/); existente.turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno;existente.folgaFixa=d.folga;existente.situacao=d.situacao||existente.situacao||'A';if(d.admissao!==undefined)existente.admissao=d.admissao;   /* V239 */
       const chave=chaveFuncionario(existente); if(d.naoAptoDomingo) naoAptosDomingo.add(chave); else naoAptosDomingo.delete(chave);
       existente.aptoDomingo=!d.naoAptoDomingo;}
-    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/^(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:d.admissao||'',aptidaoId,tipo:tipo(d.cargo)}); }
+    else { const mat=String(d.matricula); const aptidaoId=`func-${Date.now()}-${dados.indexOf(d)}`; if(d.naoAptoDomingo) naoAptosDomingo.add(aptidaoId); else naoAptosDomingo.delete(aptidaoId); const mh=String(d.horario||'').match(/(\d{1,2}):\d{2}/); const turnoNovo=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):d.turno; todasEquipes.push({matricula:d.matricula,nome:d.nome,cargo:d.cargo,horario:d.horario||'',setor:d.setor,setorEmprestimo:d.setorEmprestimo||'',subsetor:d.subsetor||'',turno:turnoNovo,folgaFixa:d.folga,aptoDomingo:!d.naoAptoDomingo,situacao:d.situacao||'A',statusErp:'',situacaoDetalhe:'',admissao:d.admissao||'',aptidaoId,tipo:tipo(d.cargo)}); }
   });
   // V154: no navegador, só a ÁREA editada muda. Antes, parseEquipe() recriava o quadro inteiro só com as pessoas desta área (os outros setores sumiam).
   if(!(window.Android && typeof Android.salvarEquipe==='function')){
@@ -7129,7 +7150,7 @@ function auditarResultadoFinal(dom,alvo){
  */
 function chaveFuncaoDistribuicao(i){
   if(!equipe[i] || ehLiderancaDomingo(equipe[i])) return '';
-  return normalizeStr(equipe[i].cargo||'').replace(/\s+/g,' ');
+  return normalizeStr(equipe[i].cargo||'').replace(/\s+/g,' ').replace(/\s*-?\s*\b[a-c]$/,'').trim();   // V255: sem a letra do fim (“promotor de vendas a/b” = uma função)
 }
 function distribuirQuantidadeEquilibrada(total, slots, preferirPrimeiro=false){
   const out=Array.from({length:Math.max(0,slots)},()=>0);
@@ -7381,7 +7402,7 @@ function isoDomingo(ano,mes,d){ return chaveDataLocal(new Date(ano,mes,d)); }
 function funcoesDoSetor(){
   const m=new Map();
   equipe.forEach((f,i)=>{ if(foraDom(f)||ehLiderancaDomingo(f)) return; const k=chaveFuncaoDistribuicao(i); if(!k) return;
-    if(!m.has(k)) m.set(k,{chave:k,rotulo:String(f.cargo||'').trim(),ids:[]}); m.get(k).ids.push(i); });
+    if(!m.has(k)) m.set(k,{chave:k,rotulo:String(f.cargo||'').trim().replace(/\s*-?\s*\b[A-Ca-c]$/,'').trim(),ids:[]}); m.get(k).ids.push(i); });
   return [...m.values()].map(x=>({...x,ab:x.ids.filter(i=>turnoPeso(equipe[i].turno)==='ABERTURA').length,fe:x.ids.filter(i=>turnoPeso(equipe[i].turno)==='FECHAMENTO').length}))
     .sort((a,b)=>b.ids.length-a.ids.length||a.rotulo.localeCompare(b.rotulo));
 }
@@ -13390,13 +13411,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const $id=id=>document.getElementById(id);
   const chave=c=>String(c||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
   const lider=c=>{ try{ return !!classificacaoLideranca({cargo:c}); }catch(e){ return false; } };
+  const funcaoDe=c=>{ try{ return window.v199Graf?.funcaoDoCargo?.(c)||String(c).replace(/\s*-?\s*\b[A-C]$/i,''); }catch(e){ return String(c); } };   // V255
+  window.v251Funcao=funcaoDe;
   const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   function agrupar(area,linhas,cargoDe){
     area.querySelectorAll(':scope > .v251-cab').forEach(x=>x.remove());
     if(linhas.length<2){ linhas.forEach(r=>{ r.style.order=''; delete r.dataset.v251; r.classList.remove('v252-oculto'); }); area.previousElementSibling?.classList.contains('v252-barra')&&area.previousElementSibling.remove(); return; }
     const grupos=new Map();
-    linhas.forEach(r=>{ const c=String(cargoDe(r)||'').trim(), k=chave(c)||'~'; if(!grupos.has(k)) grupos.set(k,{k,nome:c?c.toUpperCase():'SEM FUNÇÃO',lid:!!c&&lider(c),rows:[]}); grupos.get(k).rows.push(r); });
-    const ord=[...grupos.values()].sort((a,b)=>(a.k==='~')-(b.k==='~')||(b.lid-a.lid)||a.k.localeCompare(b.k,'pt-BR'));
+    linhas.forEach(r=>{ const c0=String(cargoDe(r)||'').trim(), c=c0?funcaoDe(c0):'', k=chave(c)||'~'; if(!grupos.has(k)) grupos.set(k,{k,nome:c?c.toUpperCase():'SEM FUNÇÃO',lid:false,apr:/APRENDIZ/.test(k),rows:[]}); const g=grupos.get(k); g.rows.push(r); if(c0&&lider(c0)) g.lid=true; });   // V255: pela função (sem A/B; aprendizes juntos)
+    const ord=[...grupos.values()].sort((a,b)=>(a.k==='~')-(b.k==='~')||(a.apr-b.apr)||(b.lid-a.lid)||a.k.localeCompare(b.k,'pt-BR'));   // V255: Jovem aprendiz no fim
     ord.forEach((g,n)=>{ const base=(n+1)*2;
       const cab=document.createElement('div'); cab.className='v251-cab'; cab.style.order=String(base-1); cab.setAttribute('role','heading'); cab.setAttribute('aria-level','4');
       const kRec='grp|'+area.id+'|'+g.k, rec=!!window.v252Rec?.get(kRec);   // V252: triângulo para fechar o grupo
@@ -13614,6 +13637,23 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return `<div class="v253-faixas">🧾 <b>${htmlEsc(m.rotulo||'Operadoras')}: ${m.q}</b> neste domingo = ${partes.join(' + ')}. A sugestão escolhe primeiro quem completa o que falta.</div>`;
   };
   window.v253Faixa=faixa; window.v253Metas=metas;
+})();
+</script>
+<script>
+/* ═════ V254 — TURNO SOZINHO E AVISO COM O NOME NO EDITAR EQUIPE ═════
+   Núcleo (coletarEquipeEditor, marcado // V254): turno vazio → pelo horário (1ª hora que aparecer no texto);
+   avisos com o nome; ficha com erro ganha .v254-erro. Importação do Equipe.txt e salvar: hora em qualquer lugar.
+   Aqui: depois do “Salvar equipe”, abre a 1ª ficha com erro (e o grupo de função dela, se fechado) e rola até ela. */
+(function(){
+  function irParaErro(){
+    const row=document.querySelector('#equipeEditorRows .editor-row.v254-erro'); if(!row) return;
+    if(row.classList.contains('v252-oculto')){ row.classList.remove('v252-oculto'); const k='grp|equipeEditorRows|'+(row.dataset.v251||''); try{ window.v252Rec?.set(k,false); window.v251Agrupar?.(); }catch(e){} }
+    if(row.classList.contains('emp-card')&&!row.classList.contains('open')) row.querySelector('.emp-summary .toggle')?.click();
+    row.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>{ const t=row.querySelector('.ed-turno'); if(t&&!t.value) t.focus({preventScroll:true}); },400);
+  }
+  document.addEventListener('click',e=>{ if(e.target.closest?.('#btnSalvarEquipe')) setTimeout(irParaErro,60); });
+  window.v254IrParaErro=irParaErro;
 })();
 </script>
 </body>

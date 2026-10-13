@@ -397,10 +397,11 @@ async function testarSetores(browser){
       renderEquipe(); await new Promise(o => setTimeout(o, 150)); window.v251Agrupar?.();   // espera dentro da página (no computador ocupado a espera de fora chegava antes da arrumação)
       const L = document.getElementById('equipeLista');
       const cabs = [...L.querySelectorAll(':scope > .v251-cab')], rows = [...L.querySelectorAll(':scope > .person')];
-      const funcoes = new Set(equipe.map(f => String(f.cargo || '').trim().toUpperCase()));
+      const fnDe = f => String(window.v251Funcao ? window.v251Funcao(f.cargo) : f.cargo || '').trim().toUpperCase();   // V255: agrupa pela função (sem A/B)
+      const funcoes = new Set(equipe.map(fnDe));
       const soma = cabs.reduce((t, c) => t + Number((c.querySelector('span')?.textContent.match(/\d+/) || [0])[0]), 0);
       const ordemIgual = rows.every((r, k) => r.querySelector('b')?.textContent.trim() === String(equipe[k].nome || '').toUpperCase());
-      const juntos = rows.every((r, k) => Number(r.style.order) > 0 && String(equipe[k].cargo || '').trim().toUpperCase() === String(equipe[rows.findIndex(x => x.style.order === r.style.order)].cargo || '').trim().toUpperCase());
+      const juntos = rows.every((r, k) => Number(r.style.order) > 0 && fnDe(equipe[k]) === fnDe(equipe[rows.findIndex(x => x.style.order === r.style.order)]));
       const visual = [...L.children].sort((a, b) => Number(a.style.order) - Number(b.style.order));
       const liderPrimeiro = ehLiderancaDomingo(equipe[rows.indexOf(visual.find(x => x.classList.contains('person')))]);
       return { cabs: cabs.length, funcoes: funcoes.size, soma, n: equipe.length, ordemIgual, juntos, liderPrimeiro };
@@ -464,6 +465,23 @@ async function testarSetores(browser){
       return out;
     });
     ok(r.vagas === 9 && r.n.ab === 3 && r.n.in === 3 && r.n.fe === 3 && !r.n.outro && r.resumo, `V253: Frente de Loja “Por cargo” com 9 operadoras → a sugestão traz 3 abertura + 3 intermediária (10h) + 3 fechamento (${JSON.stringify(r.n)}; vagas ${r.vagas}; resumo no cartão: ${r.resumo}${r.n.outro ? '; metas ' + r.metas + '; outros ' + r.outros : ''})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 255){   // V255: função sem A/B e grupo Jovem aprendiz
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+      const ops = equipe.map((f, i) => i).filter(i => /OPERADOR/.test(equipe[i].cargo)).slice(-3), bk = ops.map(i => equipe[i].cargo);
+      try{
+        equipe[ops[0]].cargo = 'PROMOTOR DE VENDAS A'; equipe[ops[1]].cargo = 'PROMOTOR DE VENDAS B'; equipe[ops[2]].cargo = 'APRENDIZ EM SERV SUPERMERCADOS';
+        renderEquipe(); await w(150); window.v251Agrupar?.();
+        const cabs = [...document.querySelectorAll('#equipeLista > .v251-cab')].sort((a, b) => Number(a.style.order) - Number(b.style.order)).map(c => c.querySelector('b').textContent.trim());
+        out.cabs = cabs.join(' | ');
+        out.promotor = cabs.filter(t => /PROMOTOR/.test(t)).length === 1 && document.querySelector('#equipeLista > .v251-cab[data-v252-grupo*="PROMOTOR"]')?.textContent.includes('2 pessoas');
+        out.aprendizFim = /JOVEM APRENDIZ/.test(cabs[cabs.length - 1] || '');
+        out.chave = chaveFuncaoDistribuicao(ops[0]) === chaveFuncaoDistribuicao(ops[1]) && !/ [ab]$/.test(chaveFuncaoDistribuicao(ops[0]));
+      } finally { ops.forEach((i, k) => { equipe[i].cargo = bk[k]; }); renderEquipe(); }
+      return out;
+    });
+    ok(r.promotor && r.aprendizFim && r.chave, `V255: Promotor de vendas A e B no mesmo grupo (${r.promotor}) e na mesma função do “Por cargo” (${r.chave}); Jovem aprendiz num grupo no fim (${r.aprendizFim}) — ${r.cabs}`);
   }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
@@ -767,6 +785,36 @@ async function testarEncManual(browser){
 }
 
 /* V237/V168 — APK do ApkForja (modo site): os downloads vão para Android.salvarArquivo; sem a ponte, o app avisa e não finge que salvou */
+async function testarTurnoEditor(browser, app){   // V254: turno vazio vem do horário; aviso com o nome; ficha marcada e aberta
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 254) return;
+  console.log('\n▶ Setores — Editar equipe: turno pelo horário e aviso com o nome');
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } }); const p = await ctx.newPage(); const erros = []; p.on('pageerror', e => erros.push(e.message)); p.on('dialog', d => d.accept());
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800);
+  await p.evaluate(() => { abrirEditorEquipe(true); }); await p.waitForTimeout(700);
+  const r = await p.evaluate(async () => {
+    const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+    let msg = ''; const t = window.showToast; window.showToast = (m, ...a) => { msg += String(m) + '\n'; return t?.(m, ...a); };
+    const rows = [...document.querySelectorAll('#equipeEditorRows .editor-row')];
+    const a = rows[10], b = rows[12], nomeA = a.querySelector('.ed-nome').value, nomeB = b.querySelector('.ed-nome').value;
+    a.querySelector('.ed-turno').value = ''; a.querySelector('.ed-horario').value = '2ª4ª5ª6ªe3ªcurso 13:00as 17:00';
+    b.querySelector('.ed-turno').value = ''; b.querySelector('.ed-horario').value = '';
+    document.getElementById('btnSalvarEquipe').click(); await w(700);
+    out.nome = msg.includes(nomeB + ': escolha o turno') && !/Linha \d+:/.test(msg) && !msg.includes(nomeA + ':');
+    out.marcada = b.classList.contains('v254-erro') && (!b.classList.contains('emp-card') || b.classList.contains('open')) && !a.classList.contains('v254-erro');
+    out.turnoA = a.querySelector('.ed-turno').value;
+    b.querySelector('.ed-horario').value = '08:00-12:00'; msg = '';
+    document.getElementById('btnSalvarEquipe').click(); await w(700);
+    const l = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe);
+    out.salvou = l.find(f => f.nome === nomeA)?.turno === 'FECHAMENTO' && l.find(f => f.nome === nomeB)?.turno === 'ABERTURA';
+    window.showToast = t; return out;
+  });
+  ok(r.turnoA === 'FECHAMENTO' && r.salvou, `turno vazio vem do horário escrito diferente (“curso 13:00 as 17:00” → ${r.turnoA}) e fica guardado (${r.salvou})`);
+  ok(r.nome && r.marcada, `o aviso traz o nome da pessoa (${r.nome}) e a ficha dela fica marcada e aberta (${r.marcada})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await ctx.close();
+}
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1012,7 +1060,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
