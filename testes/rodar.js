@@ -397,10 +397,11 @@ async function testarSetores(browser){
       renderEquipe(); await new Promise(o => setTimeout(o, 150)); window.v251Agrupar?.();   // espera dentro da página (no computador ocupado a espera de fora chegava antes da arrumação)
       const L = document.getElementById('equipeLista');
       const cabs = [...L.querySelectorAll(':scope > .v251-cab')], rows = [...L.querySelectorAll(':scope > .person')];
-      const funcoes = new Set(equipe.map(f => String(f.cargo || '').trim().toUpperCase()));
+      const fnDe = f => String(window.v251Funcao ? window.v251Funcao(f.cargo) : f.cargo || '').trim().toUpperCase();   // V255: agrupa pela função (sem A/B)
+      const funcoes = new Set(equipe.map(fnDe));
       const soma = cabs.reduce((t, c) => t + Number((c.querySelector('span')?.textContent.match(/\d+/) || [0])[0]), 0);
       const ordemIgual = rows.every((r, k) => r.querySelector('b')?.textContent.trim() === String(equipe[k].nome || '').toUpperCase());
-      const juntos = rows.every((r, k) => Number(r.style.order) > 0 && String(equipe[k].cargo || '').trim().toUpperCase() === String(equipe[rows.findIndex(x => x.style.order === r.style.order)].cargo || '').trim().toUpperCase());
+      const juntos = rows.every((r, k) => Number(r.style.order) > 0 && fnDe(equipe[k]) === fnDe(equipe[rows.findIndex(x => x.style.order === r.style.order)]));
       const visual = [...L.children].sort((a, b) => Number(a.style.order) - Number(b.style.order));
       const liderPrimeiro = ehLiderancaDomingo(equipe[rows.indexOf(visual.find(x => x.classList.contains('person')))]);
       return { cabs: cabs.length, funcoes: funcoes.size, soma, n: equipe.length, ordemIgual, juntos, liderPrimeiro };
@@ -464,6 +465,23 @@ async function testarSetores(browser){
       return out;
     });
     ok(r.vagas === 9 && r.n.ab === 3 && r.n.in === 3 && r.n.fe === 3 && !r.n.outro && r.resumo, `V253: Frente de Loja “Por cargo” com 9 operadoras → a sugestão traz 3 abertura + 3 intermediária (10h) + 3 fechamento (${JSON.stringify(r.n)}; vagas ${r.vagas}; resumo no cartão: ${r.resumo}${r.n.outro ? '; metas ' + r.metas + '; outros ' + r.outros : ''})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 255){   // V255: função sem A/B e grupo Jovem aprendiz
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+      const ops = equipe.map((f, i) => i).filter(i => /OPERADOR/.test(equipe[i].cargo)).slice(-3), bk = ops.map(i => equipe[i].cargo);
+      try{
+        equipe[ops[0]].cargo = 'PROMOTOR DE VENDAS A'; equipe[ops[1]].cargo = 'PROMOTOR DE VENDAS B'; equipe[ops[2]].cargo = 'APRENDIZ EM SERV SUPERMERCADOS';
+        renderEquipe(); await w(150); window.v251Agrupar?.();
+        const cabs = [...document.querySelectorAll('#equipeLista > .v251-cab')].sort((a, b) => Number(a.style.order) - Number(b.style.order)).map(c => c.querySelector('b').textContent.trim());
+        out.cabs = cabs.join(' | ');
+        out.promotor = cabs.filter(t => /PROMOTOR/.test(t)).length === 1 && document.querySelector('#equipeLista > .v251-cab[data-v252-grupo*="PROMOTOR"]')?.textContent.includes('2 pessoas');
+        out.aprendizFim = /JOVEM APRENDIZ/.test(cabs[cabs.length - 1] || '');
+        out.chave = chaveFuncaoDistribuicao(ops[0]) === chaveFuncaoDistribuicao(ops[1]) && !/ [ab]$/.test(chaveFuncaoDistribuicao(ops[0]));
+      } finally { ops.forEach((i, k) => { equipe[i].cargo = bk[k]; }); renderEquipe(); }
+      return out;
+    });
+    ok(r.promotor && r.aprendizFim && r.chave, `V255: Promotor de vendas A e B no mesmo grupo (${r.promotor}) e na mesma função do “Por cargo” (${r.chave}); Jovem aprendiz num grupo no fim (${r.aprendizFim}) — ${r.cabs}`);
   }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }

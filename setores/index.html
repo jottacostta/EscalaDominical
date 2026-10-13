@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V254</title>
+<title>Escala de Setores — V255</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V255 [Claude] — FUNÇÃO SEM “A” OU “B” E GRUPO JOVEM APRENDIZ (pedido do dono): (1) a equipe é agrupada pela FUNÇÃO,
+       sem olhar a letra do fim do cargo — “PROMOTOR DE VENDAS A” e “PROMOTOR DE VENDAS B” ficam juntos em
+       “PROMOTOR DE VENDAS” (o mesmo para Conferente A/B etc.), na lista da equipe, no Mês passado, no Editar
+       equipe e no quadro “Quantos de cada cargo por domingo”; (2) os aprendizes (“APRENDIZ EM SERV…”, “APRENDIZ EM
+       SERVIÇOS DE VENDAS”…) ficam num grupo só, “JOVEM APRENDIZ”, no fim da lista. O cargo de cada pessoa não muda.
+       Obs.: uma quantidade já escolhida no “Por cargo” para um cargo com A/B volta ao padrão (agora é uma função só).
 V254 [Claude] — TURNO SOZINHO E AVISO COM O NOME NO EDITAR EQUIPE (print do dono): ao salvar, o app dizia
        “Linha 8: selecione o turno…” para várias pessoas — e, com a equipe separada por função, a “linha 8” não é a 8ª
        da tela, então não dava para achar ninguém. Agora (1) quando o turno está vazio e o horário tem uma hora
@@ -2431,7 +2437,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V254 · turno sozinho e aviso com o nome no Editar equipe</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V255 · função sem A/B e grupo Jovem aprendiz</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -7144,7 +7150,7 @@ function auditarResultadoFinal(dom,alvo){
  */
 function chaveFuncaoDistribuicao(i){
   if(!equipe[i] || ehLiderancaDomingo(equipe[i])) return '';
-  return normalizeStr(equipe[i].cargo||'').replace(/\s+/g,' ');
+  return normalizeStr(equipe[i].cargo||'').replace(/\s+/g,' ').replace(/\s*-?\s*\b[a-c]$/,'').trim();   // V255: sem a letra do fim (“promotor de vendas a/b” = uma função)
 }
 function distribuirQuantidadeEquilibrada(total, slots, preferirPrimeiro=false){
   const out=Array.from({length:Math.max(0,slots)},()=>0);
@@ -7396,7 +7402,7 @@ function isoDomingo(ano,mes,d){ return chaveDataLocal(new Date(ano,mes,d)); }
 function funcoesDoSetor(){
   const m=new Map();
   equipe.forEach((f,i)=>{ if(foraDom(f)||ehLiderancaDomingo(f)) return; const k=chaveFuncaoDistribuicao(i); if(!k) return;
-    if(!m.has(k)) m.set(k,{chave:k,rotulo:String(f.cargo||'').trim(),ids:[]}); m.get(k).ids.push(i); });
+    if(!m.has(k)) m.set(k,{chave:k,rotulo:String(f.cargo||'').trim().replace(/\s*-?\s*\b[A-Ca-c]$/,'').trim(),ids:[]}); m.get(k).ids.push(i); });
   return [...m.values()].map(x=>({...x,ab:x.ids.filter(i=>turnoPeso(equipe[i].turno)==='ABERTURA').length,fe:x.ids.filter(i=>turnoPeso(equipe[i].turno)==='FECHAMENTO').length}))
     .sort((a,b)=>b.ids.length-a.ids.length||a.rotulo.localeCompare(b.rotulo));
 }
@@ -13405,13 +13411,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const $id=id=>document.getElementById(id);
   const chave=c=>String(c||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
   const lider=c=>{ try{ return !!classificacaoLideranca({cargo:c}); }catch(e){ return false; } };
+  const funcaoDe=c=>{ try{ return window.v199Graf?.funcaoDoCargo?.(c)||String(c).replace(/\s*-?\s*\b[A-C]$/i,''); }catch(e){ return String(c); } };   // V255
+  window.v251Funcao=funcaoDe;
   const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   function agrupar(area,linhas,cargoDe){
     area.querySelectorAll(':scope > .v251-cab').forEach(x=>x.remove());
     if(linhas.length<2){ linhas.forEach(r=>{ r.style.order=''; delete r.dataset.v251; r.classList.remove('v252-oculto'); }); area.previousElementSibling?.classList.contains('v252-barra')&&area.previousElementSibling.remove(); return; }
     const grupos=new Map();
-    linhas.forEach(r=>{ const c=String(cargoDe(r)||'').trim(), k=chave(c)||'~'; if(!grupos.has(k)) grupos.set(k,{k,nome:c?c.toUpperCase():'SEM FUNÇÃO',lid:!!c&&lider(c),rows:[]}); grupos.get(k).rows.push(r); });
-    const ord=[...grupos.values()].sort((a,b)=>(a.k==='~')-(b.k==='~')||(b.lid-a.lid)||a.k.localeCompare(b.k,'pt-BR'));
+    linhas.forEach(r=>{ const c0=String(cargoDe(r)||'').trim(), c=c0?funcaoDe(c0):'', k=chave(c)||'~'; if(!grupos.has(k)) grupos.set(k,{k,nome:c?c.toUpperCase():'SEM FUNÇÃO',lid:false,apr:/APRENDIZ/.test(k),rows:[]}); const g=grupos.get(k); g.rows.push(r); if(c0&&lider(c0)) g.lid=true; });   // V255: pela função (sem A/B; aprendizes juntos)
+    const ord=[...grupos.values()].sort((a,b)=>(a.k==='~')-(b.k==='~')||(a.apr-b.apr)||(b.lid-a.lid)||a.k.localeCompare(b.k,'pt-BR'));   // V255: Jovem aprendiz no fim
     ord.forEach((g,n)=>{ const base=(n+1)*2;
       const cab=document.createElement('div'); cab.className='v251-cab'; cab.style.order=String(base-1); cab.setAttribute('role','heading'); cab.setAttribute('aria-level','4');
       const kRec='grp|'+area.id+'|'+g.k, rec=!!window.v252Rec?.get(kRec);   // V252: triângulo para fechar o grupo
