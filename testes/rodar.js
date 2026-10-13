@@ -440,6 +440,31 @@ async function testarSetores(browser){
     ok(r.temSeta && r.fecha && r.lembra && r.abre && r.grupo, `V252: triângulo fecha e abre o domingo da escala à mão (${r.fecha}/${r.abre}), lembra depois de redesenhar (${r.lembra}) e fecha o grupo de função (${r.grupo})`);
     ok(r.dupla && r.terceiro, `V252: liderança escolhida vai junto para o domingo seguinte (${r.dupla}) e o app diz o motivo quando não pode (3º domingo seguido: ${r.terceiro})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 253){   // V253: Frente de Loja “Por cargo” — operadoras em 3 horários na sugestão
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+      const bk = { mc: $('modoCobertura').value, mg: $('modoGeracao').value, cf: JSON.stringify(coberturaFuncao || {}), sel: JSON.stringify(selecaoManualDomingo || {}), eq: equipe.map(f => [f.horario, f.turno]) };
+      try{
+        const fns = funcoesDoSetor(), op = fns.find(f => /operador/.test(f.chave) && /caixa/.test(f.chave));
+        op.ids.slice(0, 6).forEach(i => { equipe[i].horario = '10:00 AS 18:20'; equipe[i].turno = 'ABERTURA'; });   // 6 intermediárias (10h) nos dados fictícios
+        $('modoCobertura').value = 'funcao'; $('modoCobertura').dispatchEvent(new Event('change', { bubbles: true })); await w(100);
+        await w(300); coberturaFuncao.base = {}; funcoesDoSetor().forEach(f => coberturaFuncao.base[f.chave] = 0); coberturaFuncao.base[op.chave] = 9; coberturaFuncao.dom = {};   // as funções de agora (depois da troca de modo)
+        $('modoGeracao').value = 'manual'; selecaoManualDomingo = {};
+        const d = domingosDoMes(+$('ano').value, +$('mes').value).find(x => x !== balancoDoMes(+$('ano').value, +$('mes').value));
+        const vagas = window.v234Sugestoes.vagasDoDia(d), c = window.v234Sugestoes.candidatosDoDia(d, vagas).slice(0, vagas).map(x => x.i);
+        const n = { ab: 0, in: 0, fe: 0, outro: 0 }; c.forEach(i => { if(chaveFuncaoDistribuicao(i) !== op.chave) n.outro++; else n[window.v253Faixa(i, d)]++; });
+        out.n = n; out.vagas = vagas; out.metas = funcoesDoSetor().map(f => f.chave + ':' + qtdFuncao(f.chave, isoDomingo(+$('ano').value, +$('mes').value, d))).join(', ');
+        out.outros = c.filter(i => chaveFuncaoDistribuicao(i) !== op.chave).map(i => chaveFuncaoDistribuicao(i) || '(sem função)').join(', ');
+        out.resumo = /9 neste domingo = 3 abertura .* \+ 3 intermediária \(10h\) .* \+ 3 fechamento/.test((window.v253Resumo(d) || '').replace(/<[^>]+>/g, ''));
+      } finally {
+        bk.eq.forEach(([h, t], k) => { equipe[k].horario = h; equipe[k].turno = t; });
+        coberturaFuncao = JSON.parse(bk.cf); selecaoManualDomingo = JSON.parse(bk.sel); $('modoGeracao').value = bk.mg;
+        $('modoCobertura').value = bk.mc; $('modoCobertura').dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return out;
+    });
+    ok(r.vagas === 9 && r.n.ab === 3 && r.n.in === 3 && r.n.fe === 3 && !r.n.outro && r.resumo, `V253: Frente de Loja “Por cargo” com 9 operadoras → a sugestão traz 3 abertura + 3 intermediária (10h) + 3 fechamento (${JSON.stringify(r.n)}; vagas ${r.vagas}; resumo no cartão: ${r.resumo}${r.n.outro ? '; metas ' + r.metas + '; outros ' + r.outros : ''})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
