@@ -281,6 +281,165 @@ async function testarSetores(browser){
     const logo = await p.evaluate(() => { const i = document.querySelector('img.brand-logo'); return i ? { w: i.naturalWidth, h: i.naturalHeight } : null; });
     ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 247){   // V247: otimizações têm que dar exatamente o mesmo resultado
+    const r = await p.evaluate(() => {
+      const out = { dom: 0, fer: 0, difDom: 0, difFer: 0, copia: true, chave: 0, difChave: 0, pode: 0, difPode: 0 };
+      for(let a = 2025; a <= 2030; a++) for(let m = 0; m < 12; m++){
+        const x = domingosDoMes(a, m), y = domingosDoMes.__v247orig(a, m); out.dom++; if(JSON.stringify(x) !== JSON.stringify(y)) out.difDom++;
+        const f = feriados(a, m), g = feriados.__v247orig(a, m); out.fer++; if(JSON.stringify(f) !== JSON.stringify(g)) out.difFer++;
+      }
+      { const x = domingosDoMes(2027, 9); x.push(99); const f = feriados(2027, 9); f[31] = 'teste'; if(domingosDoMes(2027, 9).includes(99) || feriados(2027, 9)[31]) out.copia = false; }   // mexer no resultado não estraga a cópia guardada
+      const ano = +$('ano').value, mes = +$('mes').value;
+      equipe.forEach((f, i) => { out.chave++; const c = ehLiderancaDomingo(f) ? '' : normalizeStr(f.cargo || '').replace(/\s+/g, ' '); if(chaveFuncaoDistribuicao(i) !== c) out.difChave++; });
+      for(let d = 1; d <= 28; d += 3){ const dt = new Date(ano, mes, d); equipe.forEach((f, i) => { out.pode++;   // regra antiga: já folga no dia → true; senão “limite respeitado” → true
+        const ex = folgasDetalhadasNaData(dt, ''), antigo = ex.some(x => x.i === i) ? true : limiteFolgaRespeitadoNaData(i, dt, '');
+        if(candidatoPodeReceberDSRPorTurno(i, dt, '') !== antigo) out.difPode++; }); }
+      // auditoria 6×1 da escala à mão: comparada com a conta antiga (V246), com um 7º dia forçado
+      const antiga = (sel, mapa) => { const erros = []; const inicio = new Date(ano, mes, 1); inicio.setDate(inicio.getDate() - 7); const fim = new Date(ano, mes + 1, 0); fim.setDate(fim.getDate() + 7);
+        equipe.forEach((f, i) => { let seq = 0, ini = null; for(let dt = new Date(inicio); dt <= fim; dt.setDate(dt.getDate() + 1)){ let t;
+          if(dt.getDay() === 0){ if(dt.getMonth() !== mes || dt.getFullYear() !== ano) t = domingoForaDoMesTrabalhado(i, dt); else t = (sel[dt.getDate()] || []).includes(i); }
+          else if((mapa[chaveData(dt)] || []).some(x => x.i === i)) t = false;
+          else if(dt.getMonth() === mes && dt.getFullYear() === ano && feriados(ano, mes)[dt.getDate()]) t = (trabalhoFeriado[dt.getDate()] || []).includes(i);
+          else t = !folgaFixaAtivaNaData(i, dt);
+          if(t){ if(!seq) ini = new Date(dt); seq++; if(seq >= 7){ erros.push(`${f.nome}: sequência de 7 dias trabalhados de ${ini.toLocaleDateString('pt-BR')} a ${dt.toLocaleDateString('pt-BR')}; escala incompatível com a proteção 6×1.`); break; } } else seq = 0; } });
+        return erros; };
+      const sel = JSON.parse(JSON.stringify(trabalhoDomingo || {})), mapa = JSON.parse(JSON.stringify(descansosDomingo || {}));
+      const a1 = JSON.stringify(auditarProtecao6x1Simulada(sel, mapa)), b1 = JSON.stringify(antiga(sel, mapa));
+      const mapa2 = {}; const sel2 = {}; domingosDoMes(ano, mes).forEach(d => sel2[d] = equipe.map((f, i) => i));   // todos em todos os domingos e sem DSR → muitos 7 dias
+      const forc = equipe.filter(f => !ehLiderancaDomingo(f)).slice(0, 3), bkFF = forc.map(f => [f.folgaFixa, f.folgaPendente]);   // 3 pessoas com folga fixa no domingo e escaladas em todos → 7 dias com certeza (antes dependia do estado deixado por outros testes)
+      let a2, b2; try{ forc.forEach(f => { f.folgaFixa = 0; f.folgaPendente = false; }); a2 = auditarProtecao6x1Simulada(sel2, mapa2); b2 = antiga(sel2, mapa2); }
+      finally{ forc.forEach((f, k) => { f.folgaFixa = bkFF[k][0]; if(bkFF[k][1] === undefined) delete f.folgaPendente; else f.folgaPendente = bkFF[k][1]; }); }
+      out.audit = a1 === b1 && JSON.stringify(a2) === JSON.stringify(b2) && a2.length > 0; out.nAud = a2.length;
+      out.fundo = window.v247DomMudou('teste-v247') === true && window.v247DomMudou('teste-v247') === false;   // sem mudança na tela, a rotina de fundo não roda de novo
+      return out;
+    });
+    ok(!r.difDom && !r.difFer && r.copia, `V247: domingos e feriados guardados = conta original (${r.dom} meses; diferenças: ${r.difDom + r.difFer}; cópia protegida: ${r.copia ? 'sim' : 'não'})`);
+    ok(!r.difChave && !r.difPode, `V247: chave do cargo (${r.chave}) e “pode receber folga no dia” (${r.pode}) iguais à conta antiga (diferenças: ${r.difChave + r.difPode})`);
+    ok(r.audit, `V247: auditoria 6×1 da escala à mão igual à conta antiga, inclusive com ${r.nAud} avisos forçados`);
+    ok(r.fundo, 'V247: rotinas de fundo só rodam de novo quando a tela muda');
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 248){   // V248: folga da liderança também em feriado (ex.: antes seg 26/10 → depois seg 02/11 Finados)
+    const r = await p.evaluate(() => {
+      const bk = { a: $('ano').value, m: $('mes').value, lm: JSON.stringify(liderancaManualDomingo || {}), tf: JSON.stringify(trabalhoFeriado || {}) };
+      const out = {};
+      try{
+        $('ano').value = '2026'; $('mes').value = '10';
+        const pos = opcoesDsrLider(1, 'pos').map(chaveData);
+        out.temFeriado = pos.includes('2026-11-02') && pos.length === 6;
+        const i = equipe.findIndex(f => ehLiderancaDomingo(f));
+        liderancaManualDomingo = { '1': { mais: [i], dsr: { [String(i)]: { ant: '2026-10-26', pos: '2026-11-02' } } } };
+        trabalhoFeriado = { 2: equipe.map((f, k) => k) };
+        aplicarFolgasFixasNosFeriados();
+        out.folgaNoFeriado = !trabalhoFeriado[2].includes(i) && trabalhoFeriado[2].length > 0;
+      } finally { $('ano').value = bk.a; $('mes').value = bk.m; liderancaManualDomingo = JSON.parse(bk.lm); trabalhoFeriado = JSON.parse(bk.tf); }
+      return out;
+    });
+    ok(r.temFeriado && r.folgaNoFeriado, `V248: folga da liderança pode cair em feriado (02/11 na lista: ${r.temFeriado ? 'sim' : 'não'}) e quem folga no feriado sai da lista de quem trabalha nele (${r.folgaNoFeriado ? 'sim' : 'não'})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 249){   // V249: desfazer folga no domingo escolhida por engano na escala à mão
+    const r = await p.evaluate(async () => {
+      const espera = ms => new Promise(ok => setTimeout(ok, ms));
+      const bk = { modo: $('modoGeracao').value, eq: JSON.stringify(equipe.map(f => [f.folgaFixa, !!f.folgaPendente, !!f.folgaDefinida])) };
+      const out = {};
+      const i = equipe.findIndex(f => String(f.situacao || 'A').toUpperCase() === 'A' && !ehLiderancaDomingo(f) && !window.v157Regras?.bloqueioDomingo?.(f));
+      const f = equipe[i];
+      try{
+        $('modoGeracao').value = 'manual';
+        window.v225DefinirFolga(i, '0');   // escolheu domingo (por engano)
+        renderSelecaoDomingosGeracao(); await espera(150);
+        const ch = document.querySelector(`#selecaoDomingosManual input[type=checkbox][data-func="${i}"]`);
+        out.apagado = !!ch && ch.disabled;
+        const sel = ch?.closest('.dom-func')?.querySelector('.v249-dom select');
+        out.temLista = !!sel;
+        sel.value = '3'; sel.dispatchEvent(new Event('change', { bubbles: true })); await espera(150);
+        const ch2 = document.querySelector(`#selecaoDomingosManual input[type=checkbox][data-func="${i}"]`);
+        out.trocou = Number(f.folgaFixa) === 3 && !f.folgaPendente && !!ch2 && !ch2.disabled && !window.v222DomManual.tem(f);
+        out.semCaixa = !ch2?.closest('.dom-func')?.querySelector('.v249-dom');
+        window.v225DefinirFolga(i, '0'); renderSelecaoDomingosGeracao(); await espera(150);
+        const sel3 = document.querySelector(`#selecaoDomingosManual input[data-func="${i}"]`)?.closest('.dom-func')?.querySelector('.v249-dom select');
+        sel3.value = ''; sel3.dispatchEvent(new Event('change', { bubbles: true })); await espera(150);
+        window.v221Normalizar?.();
+        out.aDefinir = !!f.folgaPendente && Number(f.folgaFixa) !== 0 && !window.v222DomManual.tem(f);
+      } finally {
+        window.v222DomManual.marcar(f, false);
+        JSON.parse(bk.eq).forEach(([ff, pend, def], k) => { const x = equipe[k]; x.folgaFixa = ff; if(pend) x.folgaPendente = true; else delete x.folgaPendente; if(def) x.folgaDefinida = true; else delete x.folgaDefinida; });
+        $('modoGeracao').value = bk.modo; renderSelecaoDomingosGeracao();
+      }
+      return out;
+    });
+    ok(r.apagado && r.temLista && r.trocou && r.semCaixa && r.aDefinir, `V249: folga no domingo por engano pode ser desfeita na escala à mão (apagada: ${r.apagado}, lista: ${r.temLista}, trocou para quarta: ${r.trocou}, caixa some: ${r.semCaixa}, “a definir”: ${r.aDefinir})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 250){   // V250: folga da liderança no lugar da folga fixa e sem 7 dias seguidos
+    const r = await p.evaluate(() => {
+      const bk = { a: $('ano').value, m: $('mes').value, lm: JSON.stringify(liderancaManualDomingo || {}), tf: JSON.stringify(trabalhoFeriado || {}) };
+      const i = equipe.findIndex(f => ehLiderancaDomingo(f)), f = equipe[i], bkF = [f.folgaFixa, f.folgaPendente];
+      const out = {};
+      try{
+        $('ano').value = '2026'; $('mes').value = '10'; trabalhoFeriado = {}; f.folgaFixa = 2; f.folgaPendente = false;
+        liderancaManualDomingo = { '1': { mais: [i], dsr: { [String(i)]: { ant: '2026-10-28', pos: '2026-11-05' } } } };   // caso do print do dono
+        out.substitui = !folgaFixaAtivaNaData(i, new Date(2026, 9, 27)) && !folgaFixaAtivaNaData(i, new Date(2026, 10, 3)) && folgaFixaAtivaNaData(i, new Date(2026, 10, 10));
+        const h = htmlDsrLider(1);
+        out.aviso = h.includes('v250-aviso') && h.includes('7 dias seguidos (de qui 29/10 a qua 04/11)');
+        const box = document.createElement('div'); box.innerHTML = h;
+        const op = (lado, v) => box.querySelector(`select[data-lado="${lado}"] option[value="${v}"]`);
+        out.bloqueia = op('pos', '2026-11-06').disabled && op('pos', '2026-11-07').disabled && !op('pos', '2026-11-04').disabled && !op('ant', '2026-10-30').disabled;
+        liderancaManualDomingo['1'].dsr[String(i)] = { ant: '2026-10-27', pos: '2026-11-03' };   // “Usar a folga fixa”
+        out.fixaOk = !htmlDsrLider(1).includes('v250-aviso') && v250Sequencia(i, 1, '', '').n < 7;
+        liderancaManualDomingo['1'].dsr[String(i)] = { ant: '2026-10-28', pos: '2026-11-05' };
+        out.semMexer = JSON.stringify(liderancaManualDomingo['1'].dsr[String(i)]) === JSON.stringify({ ant: '2026-10-28', pos: '2026-11-05' });
+      } finally { $('ano').value = bk.a; $('mes').value = bk.m; liderancaManualDomingo = JSON.parse(bk.lm); trabalhoFeriado = JSON.parse(bk.tf); f.folgaFixa = bkF[0]; if(bkF[1] === undefined) delete f.folgaPendente; else f.folgaPendente = bkF[1]; }
+      return out;
+    });
+    ok(r.substitui && r.aviso && r.bloqueia && r.fixaOk && r.semMexer, `V250: folga da liderança no lugar da folga fixa (${r.substitui}), aviso dos 7 dias seguidos (${r.aviso}), dias proibidos bloqueados (${r.bloqueia}), folga fixa sem aviso (${r.fixaOk}), conferir não muda a escolha (${r.semMexer})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 251){   // V251: equipe separada por função (só arrumação na tela)
+    const r = await p.evaluate(async () => {
+      renderEquipe(); await new Promise(o => setTimeout(o, 150)); window.v251Agrupar?.();   // espera dentro da página (no computador ocupado a espera de fora chegava antes da arrumação)
+      const L = document.getElementById('equipeLista');
+      const cabs = [...L.querySelectorAll(':scope > .v251-cab')], rows = [...L.querySelectorAll(':scope > .person')];
+      const funcoes = new Set(equipe.map(f => String(f.cargo || '').trim().toUpperCase()));
+      const soma = cabs.reduce((t, c) => t + Number((c.querySelector('span')?.textContent.match(/\d+/) || [0])[0]), 0);
+      const ordemIgual = rows.every((r, k) => r.querySelector('b')?.textContent.trim() === String(equipe[k].nome || '').toUpperCase());
+      const juntos = rows.every((r, k) => Number(r.style.order) > 0 && String(equipe[k].cargo || '').trim().toUpperCase() === String(equipe[rows.findIndex(x => x.style.order === r.style.order)].cargo || '').trim().toUpperCase());
+      const visual = [...L.children].sort((a, b) => Number(a.style.order) - Number(b.style.order));
+      const liderPrimeiro = ehLiderancaDomingo(equipe[rows.indexOf(visual.find(x => x.classList.contains('person')))]);
+      return { cabs: cabs.length, funcoes: funcoes.size, soma, n: equipe.length, ordemIgual, juntos, liderPrimeiro };
+    });
+    ok(r.cabs === r.funcoes && r.soma === r.n && r.ordemIgual && r.juntos && r.liderPrimeiro, `V251: equipe separada por função (${r.cabs} títulos para ${r.funcoes} funções, ${r.soma} de ${r.n} pessoas, lideranças primeiro: ${r.liderPrimeiro}, ordem guardada igual: ${r.ordemIgual})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 252){   // V252: triângulo para fechar as listas + liderança em dupla
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+      const bk = { modo: $('modoGeracao').value, lm: JSON.stringify(liderancaManualDomingo || {}), hm: JSON.stringify(horariosManuaisDomingo || {}) };
+      try{
+        $('modoGeracao').value = 'manual'; renderSelecaoDomingosGeracao(); await w(200);
+        const c = document.querySelector('#selecaoDomingosManual .dom-card');
+        out.temSeta = !!c.querySelector('.dom-head .v252-seta') && !!document.getElementById('selecaoDomingosManual').previousElementSibling?.classList.contains('v252-barra');
+        c.querySelector('.v252-seta').click(); await w(30);
+        out.fecha = c.classList.contains('v252-rec') && getComputedStyle(c.querySelector('.dom-funcs')).display === 'none';
+        renderSelecaoDomingosGeracao(); await w(200);
+        const c2 = document.querySelector('#selecaoDomingosManual .dom-card'); out.lembra = c2.classList.contains('v252-rec');
+        c2.querySelector('.v252-seta').click(); out.abre = !c2.classList.contains('v252-rec');
+        await w(120); const hf = c2.querySelector('.dom-funcs > .v226-fn');   // função dentro do domingo
+        if(hf){ hf.click(); await w(30); const n1 = c2.querySelectorAll('.dom-func.v252-oculto').length; hf.click(); await w(30); out.abre = out.abre && n1 > 0 && c2.querySelectorAll('.dom-func.v252-oculto').length === 0; }
+        renderEquipe(); await w(150);
+        const cab = document.querySelector('#equipeLista .v251-cab'); cab.querySelector('.v252-seta').click(); await w(30);
+        const fechados = document.querySelectorAll('#equipeLista .person.v252-oculto').length; cab.click(); await w(30);
+        out.grupo = fechados > 0 && fechados < equipe.length && document.querySelectorAll('#equipeLista .v252-oculto').length === 0;
+        liderancaManualDomingo = { __ref: refLideranca() }; renderLiderancaDomingo(); await w(100);
+        const doms = domingosDoMes(+$('ano').value, +$('mes').value), bal = balancoDoMes(+$('ano').value, +$('mes').value);
+        const k = doms.findIndex((d, n) => d !== bal && doms[n + 1] !== undefined && doms[n + 1] !== bal);
+        const inp = document.querySelector(`[data-v208-busca="${doms[k]}"]`);
+        if(inp){ inp.focus(); inp.dispatchEvent(new Event('input')); await w(50); inp.closest('.lider-row').querySelector('.v208-op')?.click(); await w(100); }
+        const i0 = lideresSelecionadosDomingo(doms[k])[0];
+        out.dupla = i0 !== undefined && lideresSelecionadosDomingo(doms[k + 1]).includes(i0) && /também foi colocado/.test(document.querySelector('.v252-lid-msg')?.textContent || '');
+        const m = window.v252Copiar(doms[k + 1], i0); out.terceiro = !!m && !m.ok && /3º domingo seguido/.test(m.t);
+      } finally { $('modoGeracao').value = bk.modo; liderancaManualDomingo = JSON.parse(bk.lm); horariosManuaisDomingo = JSON.parse(bk.hm); renderSelecaoDomingosGeracao(); renderLiderancaDomingo(); }
+      return out;
+    });
+    ok(r.temSeta && r.fecha && r.lembra && r.abre && r.grupo, `V252: triângulo fecha e abre o domingo da escala à mão (${r.fecha}/${r.abre}), lembra depois de redesenhar (${r.lembra}) e fecha o grupo de função (${r.grupo})`);
+    ok(r.dupla && r.terceiro, `V252: liderança escolhida vai junto para o domingo seguinte (${r.dupla}) e o app diz o motivo quando não pode (3º domingo seguido: ${r.terceiro})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
@@ -630,7 +789,11 @@ async function testarAdmissao(browser, app, nome, dados){
     campo.value = ''; campo.focus(); for(const c of '05031998'){ campo.value += c; campo.dispatchEvent(new Event('input', { bubbles: true })); }
     const mascara = campo.value;
     const mat = campo.closest('.editor-row').querySelector('.ed-matricula').value;
+    const lista0 = () => (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe);
+    const folgas0 = JSON.stringify(lista0().map(x => [x.matricula, Number(x.folgaFixa), !!x.folgaPendente]));
+    const mostraFolga = [...document.querySelectorAll('#equipeEditorRows .editor-row')].every((row, k) => { const x = equipe[k], v = row.querySelector('.ed-folga')?.value; return !x || (x.folgaPendente ? v === '' : Number(v) === Number(x.folgaFixa)); });
     salvarEquipeEditor(); await new Promise(z => setTimeout(z, 800));
+    const folgasIguais = folgas0 === JSON.stringify(lista0().map(x => [x.matricula, Number(x.folgaFixa), !!x.folgaPendente]));
     const f = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe).find(x => String(x.matricula) === String(mat));
     // data impossível é recusada
     abrirEditorEquipe(true); await new Promise(z => setTimeout(z, 600));
@@ -638,11 +801,13 @@ async function testarAdmissao(browser, app, nome, dados){
     let msg = ''; const a = window.alert; window.alert = m => { msg = String(m); }; const t = window.showToast; window.showToast = m => { msg = msg || String(m); };
     try{ salvarEquipeEditor(); }finally{ window.alert = a; window.showToast = t; }
     const f2 = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe).find(x => String(x.matricula) === String(mat));
-    return { mat, mostra, livre, mascara, salvo: f && f.admissao, volta, recusou: /não é válida/.test(msg), manteve: f2 && f2.admissao };
+    return { mat, mostra, livre, mascara, salvo: f && f.admissao, volta, recusou: /não é válida/.test(msg), manteve: f2 && f2.admissao, mostraFolga, folgasIguais };
   });
   ok(!r.semCampo && r.livre && /^\d{2}\/\d{2}\/\d{4}$|^$/.test(r.mostra), `o campo aceita digitação e mostra dd/mm/aaaa (${r.mostra || 'vazio'})`);
   ok(r.mascara === '05/03/1998' && r.salvo === '1998-03-05', `digitando 05031998 vira 05/03/1998 e fica guardada (${r.salvo})`);
   ok(r.volta === '05/03/1998' && r.recusou && r.manteve === '1998-03-05', 'ao abrir de novo mostra 05/03/1998; 31/02/2015 é recusada e a data certa continua');
+  if(nome !== 'Setores' || +path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 251)   // V251: o editor do Setores mostrava Terça para todos (desde a V231)
+    ok(r.mostraFolga && r.folgasIguais, `o editor mostra a folga fixa certa de cada pessoa (${r.mostraFolga}) e salvar sem mexer não troca nenhuma folga (${r.folgasIguais})`);
   // fechar e abrir o app de novo: a data continua lá (o Setores guardava a equipe sem a admissão — corrigido na V239)
   await p.waitForTimeout(1500);
   await p.reload(); await p.waitForTimeout(3000);
