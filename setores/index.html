@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V250</title>
+<title>Escala de Setores — V251</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V251 [Claude] — EQUIPE SEPARADA POR FUNÇÃO (pedido do dono): no passo Equipe e no ✏️ Editar equipe, as pessoas
+       aparecem agrupadas pela função (cargo), cada grupo com um título (ex.: “AÇOUGUEIRO · 12 pessoas”).
+       Lideranças primeiro; as outras funções em ordem alfabética. Só muda a arrumação na tela: a ordem guardada
+       da equipe, a escala e o histórico continuam iguais. Linha nova sem cargo no Editar equipe fica no fim
+       (“SEM FUNÇÃO”) até ter o cargo.
+       CONSERTO JUNTO (defeito desde a V231): o ✏️ Editar equipe mostrava a folga fixa de TODO MUNDO como
+       “Terça” (a camada do empréstimo passava a equipe sem o campo da folga). Quem salvasse o editor trocava a
+       folga de todos para terça. Agora cada pessoa aparece com a folga certa (e “a definir” quando for o caso).
 V250 [Claude] — FOLGA DA LIDERANÇA RESPEITA O 6×1 (pedido do dono): a folga (DSR) da liderança da “Semana antes” e
        da “Semana depois” deixava escolher dias que faziam a pessoa trabalhar 7 dias seguidos (ex.: folga fixa TER,
        antes qua 28/10 e depois qui 05/11 → de 29/10 a 04/11 sem folga). Agora (1) a folga escolhida FICA NO LUGAR da
@@ -2267,6 +2275,13 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .v250-aviso{background:#3A1212;border-color:#B33;color:#FFD7D7} }
 :root[data-theme="dark"] .v250-aviso{background:#3A1212;border-color:#B33;color:#FFD7D7}
 </style>
+<style id="v251-por-funcao">
+.v251-cab{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 2px;padding:10px 14px;border-radius:12px;background:var(--brand-lt,#E8F0FF);border:1px solid var(--blue-200,#C5D7F5);color:var(--brand-ink,#0B2E6F);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+.v251-cab:first-child{margin-top:0}
+.v251-cab b{font-weight:800}
+.v251-cab span{font-size:12px;font-weight:700;text-transform:none;color:var(--muted,#5B6575);white-space:nowrap}
+#equipeLista .person[data-v251],#equipeEditorRows .editor-row[data-v251]{border-left:4px solid var(--brand,#0047BA)}
+</style>
 </head>
 <body>
 <script>
@@ -2362,7 +2377,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V250 · folga da liderança respeita o 6×1</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V251 · equipe separada por função</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12622,7 +12637,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   const renderOriginal=renderEditorRows;
   renderEditorRows=function(rows){
-    const dados=rows||equipe.map(f=>({...f,setor:f.setorOrigemEmprestimo||f.setor,situacao:f.situacaoCadastro||f.situacao,setorEmprestimo:f.setorEmprestimo||''}));
+    const dados=rows||equipe.map(f=>({...f,folga:normalizarFolgaFixa(f.folgaFixa,2),pendente:!!f.folgaPendente,aptoDomingo:f.aptoDomingo!==false,setor:f.setorOrigemEmprestimo||f.setor,situacao:f.situacaoCadastro||f.situacao,setorEmprestimo:f.setorEmprestimo||''}));   // V251: folga/pendente faltavam (o editor mostrava Terça para todos e salvar trocava a folga de todo mundo)
     renderOriginal(dados);
     document.querySelectorAll('#equipeEditorRows .editor-row').forEach((row,i)=>{row.dataset.loanDestination=String(dados[i]?.setorEmprestimo||'');});
     setTimeout(garantirCamposEmprestimo,40);
@@ -13318,6 +13333,51 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         <button type="button" class="btn secondary sm" data-dsr-fixa="${d}_${i}" style="margin-top:6px;padding:5px 9px;font-size:11.5px">↺ Usar a folga fixa</button></div>`; }).join('');
   };
   window.v250Sequencia=sequencia; window.v250Substitui=substitui;
+})();
+</script>
+<script>
+/* ═════ V251 — EQUIPE SEPARADA POR FUNÇÃO ═════
+   Só arrumação visual: a ordem no DOM NÃO muda (equipe[] e índices continuam iguais; o Editar equipe salva na
+   mesma ordem). Cada linha recebe CSS `order` do grupo, e um título .v251-cab (grid-column 1/-1) é posto antes.
+   #equipeLista: linhas .person na ordem de equipe[] (cargo de equipe[i]); #equipeEditorRows: .editor-row (cargo
+   do campo .ed-cargo). Linhas sem cargo / novas vão para o fim. Refaz quando a lista é redesenhada (observer). */
+(function(){
+  const $id=id=>document.getElementById(id);
+  const chave=c=>String(c||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
+  const lider=c=>{ try{ return !!classificacaoLideranca({cargo:c}); }catch(e){ return false; } };
+  const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function agrupar(area,linhas,cargoDe){
+    area.querySelectorAll(':scope > .v251-cab').forEach(x=>x.remove());
+    if(linhas.length<2){ linhas.forEach(r=>{ r.style.order=''; delete r.dataset.v251; }); return; }
+    const grupos=new Map();
+    linhas.forEach(r=>{ const c=String(cargoDe(r)||'').trim(), k=chave(c)||'~'; if(!grupos.has(k)) grupos.set(k,{k,nome:c?c.toUpperCase():'SEM FUNÇÃO',lid:!!c&&lider(c),rows:[]}); grupos.get(k).rows.push(r); });
+    const ord=[...grupos.values()].sort((a,b)=>(a.k==='~')-(b.k==='~')||(b.lid-a.lid)||a.k.localeCompare(b.k,'pt-BR'));
+    ord.forEach((g,n)=>{ const base=(n+1)*2;
+      const cab=document.createElement('div'); cab.className='v251-cab'; cab.style.order=String(base-1); cab.setAttribute('role','heading'); cab.setAttribute('aria-level','4');
+      cab.innerHTML=`<b>${es(g.nome)}${g.lid?' ⭐':''}</b> <span>${g.rows.length} ${g.rows.length===1?'pessoa':'pessoas'}</span>`;
+      area.insertBefore(cab,g.rows[0]);
+      g.rows.forEach(r=>{ r.style.order=String(base); r.dataset.v251=g.k; }); });
+  }
+  let aplicando=false, ag=0;
+  function aplicar(){
+    ag=0; aplicando=true;
+    try{
+      const L=$id('equipeLista');
+      if(L){ const rows=[...L.querySelectorAll(':scope > .person')]; if(rows.length===(Array.isArray(equipe)?equipe.length:-1)) agrupar(L,rows,r=>equipe[rows.indexOf(r)]?.cargo); else agrupar(L,[],()=>''); }
+      const E=$id('equipeEditorRows');
+      if(E){ const rows=[...E.querySelectorAll(':scope > .editor-row')]; agrupar(E,rows,r=>r.querySelector('.ed-cargo')?.value||''); }
+    }catch(e){ console.warn('[V251]',e); }
+    finally{ obs.takeRecords(); aplicando=false; }
+  }
+  const agendar=()=>{ if(aplicando||ag) return; ag=setTimeout(aplicar,30); };
+  const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
+  function iniciar(){
+    ['equipeLista','equipeEditorRows'].forEach(id=>{ const el=$id(id); if(el) obs.observe(el,{childList:true}); });
+    document.addEventListener('change',e=>{ if(e.target.matches?.('#equipeEditorRows .ed-cargo')) agendar(); });
+    agendar();
+  }
+  window.v251Agrupar=aplicar;
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
 })();
 </script>
 </body>

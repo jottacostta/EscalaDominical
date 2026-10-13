@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V250.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V251.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo + V250 folga da liderança respeita o 6×1). Depois do merge: nenhum.
+- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo + V250 folga da liderança respeita o 6×1 + V251 equipe por função). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V251**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V252**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V251 — equipe separada por função (+ folga certa no Editar equipe) — Claude
+- **O que mudou e por quê:** print do dono (Açougue, passo Equipe): pediu a equipe separada pelas funções, em grupos, e o mesmo no Editar equipe.
+- **Onde no código:** bloco `/* ═════ V251 — EQUIPE SEPARADA POR FUNÇÃO ═════ */` + `<style id="v251-por-funcao">`. **A ordem no DOM não muda** (o `equipe[]`, os índices e a ordem que o editor salva continuam iguais): cada linha ganha CSS `order` do grupo e um título `.v251-cab` (`grid-column:1/-1`) é inserido. Observer em `#equipeLista` e `#equipeEditorRows` (só `childList`); troca de `.ed-cargo` reagrupa. Lideranças (`classificacaoLideranca`) primeiro, depois ordem alfabética; sem cargo vai para o fim (“SEM FUNÇÃO”). `window.v251Agrupar()`.
+- **Defeito achado junto (desde a V231, ChatGPT):** o embrulho de `renderEditorRows` do empréstimo passava `{...f}` sem `folga`/`pendente` → `editorFolga(undefined)` = Terça para todos; salvar o editor trocava a folga de todo mundo. Agora o embrulho passa `folga`, `pendente` e `aptoDomingo` como o original.
+- **Teste:** V251 em `testes/rodar.js` (títulos = funções, soma = equipe, ordem guardada igual, lideranças primeiro) e, no teste da data de admissão, “o editor mostra a folga certa e salvar sem mexer não troca nenhuma folga” (nos dois apps).
 
 ### 2026-10-13 — Setores V250 — folga da liderança respeita o 6×1 — Claude
 - **O que mudou e por quê:** print do dono (liderança do domingo 01/11/2026, folga fixa TER): antes qua 28/10 e depois qui 05/11 (e outra com qui 29/10 → sáb 07/11) eram aceitos, mas deixam a pessoa 7+ dias seguidos trabalhando. O app não via porque a folga fixa da terça continuava valendo junto com a DSR escolhida (a DSR era somada, não trocada).

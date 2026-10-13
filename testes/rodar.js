@@ -392,6 +392,21 @@ async function testarSetores(browser){
     });
     ok(r.substitui && r.aviso && r.bloqueia && r.fixaOk && r.semMexer, `V250: folga da liderança no lugar da folga fixa (${r.substitui}), aviso dos 7 dias seguidos (${r.aviso}), dias proibidos bloqueados (${r.bloqueia}), folga fixa sem aviso (${r.fixaOk}), conferir não muda a escolha (${r.semMexer})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 251){   // V251: equipe separada por função (só arrumação na tela)
+    await p.evaluate(() => { renderEquipe(); }); await p.waitForTimeout(150);
+    const r = await p.evaluate(() => {
+      const L = document.getElementById('equipeLista');
+      const cabs = [...L.querySelectorAll(':scope > .v251-cab')], rows = [...L.querySelectorAll(':scope > .person')];
+      const funcoes = new Set(equipe.map(f => String(f.cargo || '').trim().toUpperCase()));
+      const soma = cabs.reduce((t, c) => t + Number((c.querySelector('span')?.textContent.match(/\d+/) || [0])[0]), 0);
+      const ordemIgual = rows.every((r, k) => r.querySelector('b')?.textContent.trim() === String(equipe[k].nome || '').toUpperCase());
+      const juntos = rows.every((r, k) => Number(r.style.order) > 0 && String(equipe[k].cargo || '').trim().toUpperCase() === String(equipe[rows.findIndex(x => x.style.order === r.style.order)].cargo || '').trim().toUpperCase());
+      const visual = [...L.children].sort((a, b) => Number(a.style.order) - Number(b.style.order));
+      const liderPrimeiro = ehLiderancaDomingo(equipe[rows.indexOf(visual.find(x => x.classList.contains('person')))]);
+      return { cabs: cabs.length, funcoes: funcoes.size, soma, n: equipe.length, ordemIgual, juntos, liderPrimeiro };
+    });
+    ok(r.cabs === r.funcoes && r.soma === r.n && r.ordemIgual && r.juntos && r.liderPrimeiro, `V251: equipe separada por função (${r.cabs} títulos para ${r.funcoes} funções, ${r.soma} de ${r.n} pessoas, lideranças primeiro: ${r.liderPrimeiro}, ordem guardada igual: ${r.ordemIgual})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
@@ -741,7 +756,11 @@ async function testarAdmissao(browser, app, nome, dados){
     campo.value = ''; campo.focus(); for(const c of '05031998'){ campo.value += c; campo.dispatchEvent(new Event('input', { bubbles: true })); }
     const mascara = campo.value;
     const mat = campo.closest('.editor-row').querySelector('.ed-matricula').value;
+    const lista0 = () => (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe);
+    const folgas0 = JSON.stringify(lista0().map(x => [x.matricula, Number(x.folgaFixa), !!x.folgaPendente]));
+    const mostraFolga = [...document.querySelectorAll('#equipeEditorRows .editor-row')].every((row, k) => { const x = equipe[k], v = row.querySelector('.ed-folga')?.value; return !x || (x.folgaPendente ? v === '' : Number(v) === Number(x.folgaFixa)); });
     salvarEquipeEditor(); await new Promise(z => setTimeout(z, 800));
+    const folgasIguais = folgas0 === JSON.stringify(lista0().map(x => [x.matricula, Number(x.folgaFixa), !!x.folgaPendente]));
     const f = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe).find(x => String(x.matricula) === String(mat));
     // data impossível é recusada
     abrirEditorEquipe(true); await new Promise(z => setTimeout(z, 600));
@@ -749,11 +768,13 @@ async function testarAdmissao(browser, app, nome, dados){
     let msg = ''; const a = window.alert; window.alert = m => { msg = String(m); }; const t = window.showToast; window.showToast = m => { msg = msg || String(m); };
     try{ salvarEquipeEditor(); }finally{ window.alert = a; window.showToast = t; }
     const f2 = (window.todasEquipes && todasEquipes.length ? todasEquipes : equipe).find(x => String(x.matricula) === String(mat));
-    return { mat, mostra, livre, mascara, salvo: f && f.admissao, volta, recusou: /não é válida/.test(msg), manteve: f2 && f2.admissao };
+    return { mat, mostra, livre, mascara, salvo: f && f.admissao, volta, recusou: /não é válida/.test(msg), manteve: f2 && f2.admissao, mostraFolga, folgasIguais };
   });
   ok(!r.semCampo && r.livre && /^\d{2}\/\d{2}\/\d{4}$|^$/.test(r.mostra), `o campo aceita digitação e mostra dd/mm/aaaa (${r.mostra || 'vazio'})`);
   ok(r.mascara === '05/03/1998' && r.salvo === '1998-03-05', `digitando 05031998 vira 05/03/1998 e fica guardada (${r.salvo})`);
   ok(r.volta === '05/03/1998' && r.recusou && r.manteve === '1998-03-05', 'ao abrir de novo mostra 05/03/1998; 31/02/2015 é recusada e a data certa continua');
+  if(nome !== 'Setores' || +path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 251)   // V251: o editor do Setores mostrava Terça para todos (desde a V231)
+    ok(r.mostraFolga && r.folgasIguais, `o editor mostra a folga fixa certa de cada pessoa (${r.mostraFolga}) e salvar sem mexer não troca nenhuma folga (${r.folgasIguais})`);
   // fechar e abrir o app de novo: a data continua lá (o Setores guardava a equipe sem a admissão — corrigido na V239)
   await p.waitForTimeout(1500);
   await p.reload(); await p.waitForTimeout(3000);
