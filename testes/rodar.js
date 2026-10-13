@@ -281,6 +281,41 @@ async function testarSetores(browser){
     const logo = await p.evaluate(() => { const i = document.querySelector('img.brand-logo'); return i ? { w: i.naturalWidth, h: i.naturalHeight } : null; });
     ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 247){   // V247: otimizações têm que dar exatamente o mesmo resultado
+    const r = await p.evaluate(() => {
+      const out = { dom: 0, fer: 0, difDom: 0, difFer: 0, copia: true, chave: 0, difChave: 0, pode: 0, difPode: 0 };
+      for(let a = 2025; a <= 2030; a++) for(let m = 0; m < 12; m++){
+        const x = domingosDoMes(a, m), y = domingosDoMes.__v247orig(a, m); out.dom++; if(JSON.stringify(x) !== JSON.stringify(y)) out.difDom++;
+        const f = feriados(a, m), g = feriados.__v247orig(a, m); out.fer++; if(JSON.stringify(f) !== JSON.stringify(g)) out.difFer++;
+      }
+      { const x = domingosDoMes(2027, 9); x.push(99); const f = feriados(2027, 9); f[31] = 'teste'; if(domingosDoMes(2027, 9).includes(99) || feriados(2027, 9)[31]) out.copia = false; }   // mexer no resultado não estraga a cópia guardada
+      const ano = +$('ano').value, mes = +$('mes').value;
+      equipe.forEach((f, i) => { out.chave++; const c = ehLiderancaDomingo(f) ? '' : normalizeStr(f.cargo || '').replace(/\s+/g, ' '); if(chaveFuncaoDistribuicao(i) !== c) out.difChave++; });
+      for(let d = 1; d <= 28; d += 3){ const dt = new Date(ano, mes, d); equipe.forEach((f, i) => { out.pode++;   // regra antiga: já folga no dia → true; senão “limite respeitado” → true
+        const ex = folgasDetalhadasNaData(dt, ''), antigo = ex.some(x => x.i === i) ? true : limiteFolgaRespeitadoNaData(i, dt, '');
+        if(candidatoPodeReceberDSRPorTurno(i, dt, '') !== antigo) out.difPode++; }); }
+      // auditoria 6×1 da escala à mão: comparada com a conta antiga (V246), com um 7º dia forçado
+      const antiga = (sel, mapa) => { const erros = []; const inicio = new Date(ano, mes, 1); inicio.setDate(inicio.getDate() - 7); const fim = new Date(ano, mes + 1, 0); fim.setDate(fim.getDate() + 7);
+        equipe.forEach((f, i) => { let seq = 0, ini = null; for(let dt = new Date(inicio); dt <= fim; dt.setDate(dt.getDate() + 1)){ let t;
+          if(dt.getDay() === 0){ if(dt.getMonth() !== mes || dt.getFullYear() !== ano) t = domingoForaDoMesTrabalhado(i, dt); else t = (sel[dt.getDate()] || []).includes(i); }
+          else if((mapa[chaveData(dt)] || []).some(x => x.i === i)) t = false;
+          else if(dt.getMonth() === mes && dt.getFullYear() === ano && feriados(ano, mes)[dt.getDate()]) t = (trabalhoFeriado[dt.getDate()] || []).includes(i);
+          else t = !folgaFixaAtivaNaData(i, dt);
+          if(t){ if(!seq) ini = new Date(dt); seq++; if(seq >= 7){ erros.push(`${f.nome}: sequência de 7 dias trabalhados de ${ini.toLocaleDateString('pt-BR')} a ${dt.toLocaleDateString('pt-BR')}; escala incompatível com a proteção 6×1.`); break; } } else seq = 0; } });
+        return erros; };
+      const sel = JSON.parse(JSON.stringify(trabalhoDomingo || {})), mapa = JSON.parse(JSON.stringify(descansosDomingo || {}));
+      const a1 = JSON.stringify(auditarProtecao6x1Simulada(sel, mapa)), b1 = JSON.stringify(antiga(sel, mapa));
+      const mapa2 = {}; const sel2 = {}; domingosDoMes(ano, mes).forEach(d => sel2[d] = equipe.map((f, i) => i));   // todos em todos os domingos e sem DSR → muitos 7 dias
+      const a2 = auditarProtecao6x1Simulada(sel2, mapa2), b2 = antiga(sel2, mapa2);
+      out.audit = a1 === b1 && JSON.stringify(a2) === JSON.stringify(b2) && a2.length > 0; out.nAud = a2.length;
+      out.fundo = window.v247DomMudou('teste-v247') === true && window.v247DomMudou('teste-v247') === false;   // sem mudança na tela, a rotina de fundo não roda de novo
+      return out;
+    });
+    ok(!r.difDom && !r.difFer && r.copia, `V247: domingos e feriados guardados = conta original (${r.dom} meses; diferenças: ${r.difDom + r.difFer}; cópia protegida: ${r.copia ? 'sim' : 'não'})`);
+    ok(!r.difChave && !r.difPode, `V247: chave do cargo (${r.chave}) e “pode receber folga no dia” (${r.pode}) iguais à conta antiga (diferenças: ${r.difChave + r.difPode})`);
+    ok(r.audit, `V247: auditoria 6×1 da escala à mão igual à conta antiga, inclusive com ${r.nAud} avisos forçados`);
+    ok(r.fundo, 'V247: rotinas de fundo só rodam de novo quando a tela muda');
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

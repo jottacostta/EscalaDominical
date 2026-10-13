@@ -7,10 +7,20 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V246</title>
+<title>Escala de Setores — V247</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V247 [Claude] — MAIS RÁPIDO EM SETORES GRANDES (pedido do dono: o app travava muito). Auditoria com a planilha real
+       (Frente de Loja com 168 pessoas, celular simulado): o “Gerar” fazia milhões de contas repetidas (7,4 milhões
+       de conferências de folga fixa, 60 mil cálculos dos feriados do mês, 1 milhão de leituras do cargo) e rotinas
+       de fundo varriam a tela inteira a cada 1–2 s mesmo sem nada mudar. Agora: (1) resultados que não mudam são
+       guardados (domingos e feriados do mês, chave do cargo, busca de pessoa, plano do rodízio A/B, dia da semana);
+       (2) a conferência “pode receber folga neste dia”, que sempre respondia sim, responde na hora; (3) a auditoria
+       6×1 da escala à mão prepara o calendário uma vez; (4) a prévia das folgas de feriado é desenhada uma vez e só
+       com o passo Feriados na tela; (5) “toque→clique”, glossário e cartões recolhíveis só trabalham quando a tela
+       muda; (6) o salvamento de fundo passou de 2 s para 8 s (toques e digitação continuam salvando na hora);
+       (7) linhas da tela de feriados fora da tela não são desenhadas até aparecerem. A escala gerada é a mesma.
 V246 [Claude] — DATAS DE BALANÇO SEM ARQUIVO DE TEXTO (pedido do dono): em ⚙️ Configurações, o arquivo .txt de balanços
        deu lugar a um quadro “📦 Domingos de balanço” com janeiro, março, junho e setembro (só domingos na lista) e o
        ano. O app guarda sozinho neste aparelho e as datas vão no histórico do mês; ao abrir um histórico em outro
@@ -2223,6 +2233,11 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .balx-outras{margin-top:8px;font-size:13px}
 .balx-nota{margin:8px 0 0;font-size:13px;color:var(--muted,#475569)}
 </style>
+<style id="v247-desempenho">
+/* V247: linhas fora da tela não são desenhadas até aparecerem (setores com muita gente). Só nos feriados:
+   na escala à mão o texto das linhas escondidas sumia do innerText (o teste V230 pegou). */
+#feriadosArea .feriado-pessoa{content-visibility:auto;contain-intrinsic-size:auto 64px}
+</style>
 </head>
 <body>
 <script>
@@ -2318,7 +2333,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V246 · datas de balanço sem arquivo de texto</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V247 · mais rápido em setores grandes</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2728,6 +2743,7 @@ Object.defineProperties(window,{
   ultimaEscala:{configurable:true,get:()=>ultimaEscala}
 });
 
+window.__v247DiaSemana=(()=>{ const c=new Map(); return k=>{ let d=c.get(k); if(d===undefined){ d=new Date(`${k}T12:00:00`).getDay(); c.set(k,d); } return d; }; })();   // V247
 const $=id=>document.getElementById(id);
 
 function atualizarTituloEscala(){
@@ -4247,10 +4263,9 @@ function turnoFolgaValidoNaData(dt,ignorarChave=''){
   return true;
 }
 function candidatoPodeReceberDSRPorTurno(i,dt,ignorarChave=''){
-  const f=equipe[i]; if(!f)return false;
-  const existentes=folgasDetalhadasNaData(dt,ignorarChave);
-  if(existentes.some(x=>x.i===i)) return true;
-  return limiteFolgaRespeitadoNaData(i,dt,ignorarChave);
+  // V247: a capacidade por turno virou meta (não trava) — se a pessoa já folga no dia, true; se não folga,
+  // limiteFolgaRespeitadoNaData também dá true. Antes a função varria a equipe 2 vezes para chegar sempre em true.
+  return !!equipe[i];
 }
 function conflitoEstruturalDeFolgaPorTurno(){
   // Folga fixa é uma regra cadastrada pelo encarregado/empresa.
@@ -6855,22 +6870,30 @@ function auditarDescansosSimulados(mapa){
   });
   return erros;
 }
-function auditarProtecao6x1Simulada(sel,mapa){
+function auditarProtecao6x1Simulada(sel,mapa){   // V247: mesma regra; o calendário é preparado uma vez (era refeito para cada pessoa)
   const erros=[];
   const mes=+$('mes').value,ano=+$('ano').value;
   const inicio=new Date(ano,mes,1);inicio.setDate(inicio.getDate()-7);
   const fim=new Date(ano,mes+1,0);fim.setDate(fim.getDate()+7);
+  const fer=feriados(ano,mes), dias=[];
+  for(let dt=new Date(inicio);dt<=fim;dt.setDate(dt.getDate()+1)){
+    const x=new Date(dt), noMes=x.getMonth()===mes&&x.getFullYear()===ano, dom=x.getDay()===0;
+    dias.push({dt:x,dom,noMes,dia:x.getDate(),fer:noMes&&!dom&&!!fer[x.getDate()],
+      sel:dom&&noMes?new Set(sel[x.getDate()]||[]):null,
+      dsr:dom?null:new Set((mapa[chaveData(x)]||[]).map(y=>y.i)),
+      tf:noMes&&!dom&&fer[x.getDate()]?(trabalhoFeriado[x.getDate()]||[]):null});
+  }
   equipe.forEach((f,i)=>{
     let seq=0,ini=null;
-    for(let dt=new Date(inicio);dt<=fim;dt.setDate(dt.getDate()+1)){
+    for(const D of dias){
       let trabalha;
-      if(dt.getDay()===0){
-        if(dt.getMonth()!==mes || dt.getFullYear()!==ano) trabalha=domingoForaDoMesTrabalhado(i,dt);   // V229
-        else trabalha=(sel[dt.getDate()]||[]).includes(i);
-      }else if((mapa[chaveData(dt)]||[]).some(x=>x.i===i)) trabalha=false;
-      else if(dt.getMonth()===mes && dt.getFullYear()===ano && feriados(ano,mes)[dt.getDate()]) trabalha=(trabalhoFeriado[dt.getDate()]||[]).includes(i);
-      else trabalha=!folgaFixaAtivaNaData(i,dt);
-      if(trabalha){if(!seq)ini=new Date(dt);seq++;if(seq>=7){erros.push(`${f.nome}: sequência de 7 dias trabalhados de ${ini.toLocaleDateString('pt-BR')} a ${dt.toLocaleDateString('pt-BR')}; escala incompatível com a proteção 6×1.`);break;}}   // V228: período, para ligar ao domingo
+      if(D.dom){
+        if(!D.noMes) trabalha=domingoForaDoMesTrabalhado(i,D.dt);   // V229
+        else trabalha=D.sel.has(i);
+      }else if(D.dsr.has(i)) trabalha=false;
+      else if(D.fer) trabalha=D.tf.includes(i);
+      else trabalha=!folgaFixaAtivaNaData(i,D.dt);
+      if(trabalha){if(!seq)ini=new Date(D.dt);seq++;if(seq>=7){erros.push(`${f.nome}: sequência de 7 dias trabalhados de ${ini.toLocaleDateString('pt-BR')} a ${D.dt.toLocaleDateString('pt-BR')}; escala incompatível com a proteção 6×1.`);break;}}   // V228: período no aviso
       else seq=0;
     }
   });
@@ -7635,8 +7658,11 @@ function gerarSetoresCore(){
     const atual=scores.indexOf(max);
     return scores[atual]>=2 ? (atual+1)%2 : 0;
   })();
-  const unidadeDoFuncionario=i=>unidadesTransicao.findIndex(u=>u.includes(i));
-  function planoTransicao(idx){
+  const __v247Unid=new Map(); unidadesTransicao.forEach((u,k)=>u.forEach(i=>{ if(!__v247Unid.has(i)) __v247Unid.set(i,k); }));   // V247
+  const unidadeDoFuncionario=i=>__v247Unid.has(i)?__v247Unid.get(i):-1;
+  const __v247Plano=new Map();   // V247: o plano só depende do domingo (idx) e de dados que não mudam durante o Gerar
+  function planoTransicao(idx){ if(!__v247Plano.has(idx)) __v247Plano.set(idx,planoTransicaoCalc(idx)); return __v247Plano.get(idx); }
+  function planoTransicaoCalc(idx){
     if(unidadesTransicao.length!==2) return null;
     const base=(inicioUnidade+Math.floor(idx/2))%2;
     let u1=base,u2=(base+1)%2,ponte=false;
@@ -7680,7 +7706,7 @@ function gerarSetoresCore(){
       // TER zeradas em alguns domingos, como ocorreu em outubro/2026.
       const cargaDsrPorDia={1:0,2:0,3:0,4:0,5:0,6:0};
       Object.entries(descansosDomingo||{}).forEach(([k,arr])=>{
-        const dt=new Date(`${k}T12:00:00`),dia=dt.getDay();
+        const dia=window.__v247DiaSemana(k);   // V247: dia da semana guardado por data (era um new Date por candidato)
         if(cargaDsrPorDia[dia]!==undefined)
           cargaDsrPorDia[dia]+=(arr||[]).length;
       });
@@ -9339,7 +9365,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   document.addEventListener('input',agendar,true);
   document.addEventListener('change',agendar,true);
   document.addEventListener('click',agendar,true);
-  setInterval(salvar,2000);
+  setInterval(salvar,8000);   // V247: era 2 s e montava o histórico inteiro; toques e digitação continuam salvando na hora
   document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') salvar(); });
   window.addEventListener('pagehide',salvar);
   window.addEventListener('beforeunload',salvar);
@@ -9395,7 +9421,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   posicionarBarra(); resumo(); palavras();
   window.addEventListener('resize',()=>{ posicionarBarra(); resumo(); });
-  setInterval(()=>{ try{ posicionarBarra(); resumo(); palavras(); }catch(e){} },1000);
+  setInterval(()=>{ try{ posicionarBarra(); resumo(); if(window.v247DomMudou?.('palavras')!==false) palavras(); }catch(e){} },1000);   // V247: só varre o texto quando a tela mudou
   document.addEventListener('click',()=>setTimeout(palavras,120),true);
 })();
 </script>
@@ -10663,7 +10689,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     alvo.parentNode.insertBefore(b,alvo);
   }
   ['painelMes','domingosArea'].forEach(id=>{ const el=document.getElementById(id); if(el) new MutationObserver(()=>varrer()).observe(el,{childList:true}); });
-  setInterval(varrer,1500); setTimeout(varrer,500);
+  setInterval(()=>{ if(window.v247DomMudou?.('v186')!==false) varrer(); },1500); setTimeout(varrer,500);   // V247
   window.v186Varrer=varrer;
 })();
 </script>
@@ -10988,7 +11014,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   document.addEventListener('focusout',esconder);
   document.addEventListener('click',e=>{ const g=e.target.closest?.('.gl'); if(g){ e.stopPropagation(); mostrar(g); setTimeout(esconder,5000); } else esconder(); },true);
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') esconder(); });
-  setInterval(()=>{ try{ marcarGlossario(); }catch(e){} },1300); setTimeout(marcarGlossario,700);
+  setInterval(()=>{ try{ if(window.v247DomMudou?.('glossario')!==false) marcarGlossario(); }catch(e){} },1300);   // V247 setTimeout(marcarGlossario,700);
 
   // dicas nos botões do topo (computador: passar o mouse)
   const dica=(id,t)=>{ const b=$$(id); if(b){ b.title=t; b.setAttribute('aria-label',t); } };
@@ -13072,5 +13098,52 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(montar,400)); else setTimeout(montar,400);
 })();
 </script>
+<script>
+/* ═════ V247 — MAIS RÁPIDO EM SETORES GRANDES (auditoria com a planilha real) ═════
+   Guardar o resultado de contas que não mudam (memo) — a escala gerada continua exatamente a mesma:
+   • domingosDoMes(ano,mes) e feriados(ano,mes) [chave inclui os “Feriados extras”] → cópia do resultado guardado;
+   • chaveFuncaoDistribuicao(i) → por cargo (o resultado só depende do cargo);
+   • statusHistoricoPorFuncionario → índice por matrícula e nome do histórico aberto (era uma busca na lista inteira);
+   • idxPessoaPrevista → índice da equipe, só durante uma conta grande (lote: Gerar, sugestões, auditoria).
+   • v247DomMudou(chave): rotinas de fundo só rodam quando a tela mudou (MutationObserver). */
+(function(){
+  let ver=1; const vistos={};
+  try{ new MutationObserver(()=>{ ver++; }).observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){ ver=-1; }
+  window.v247DomMudou=chave=>{ if(ver<0) return true; if(vistos[chave]===ver) return false; vistos[chave]=ver; return true; };
+
+  const memo=(nome,chave,copia)=>{ const orig=window[nome]; if(typeof orig!=='function') return; const c=new Map();
+    const f=function(){ const k=chave.apply(this,arguments); if(k===null) return orig.apply(this,arguments); let r=c.get(k); if(r===undefined){ r=orig.apply(this,arguments); if(c.size>500) c.clear(); c.set(k,r); } return copia(r); };
+    f.__v247orig=orig; window[nome]=f; };
+  // nomes globais de função: trocar window[nome] troca a função usada por todo o app
+  memo('domingosDoMes',(a,m)=>(+a)+'-'+(+m),r=>r.slice());
+  memo('feriados',(a,m)=>(+a)+'-'+(+m)+'|'+(document.getElementById('feriadosExtras')?.value||''),r=>Object.assign({},r));
+  { const orig=window.chaveFuncaoDistribuicao; if(typeof orig==='function'){ const c=new Map();
+      window.chaveFuncaoDistribuicao=function(i){ const f=equipe[i]; if(!f) return orig(i); const k=String(f.cargo||''); let r=c.get(k); if(r===undefined){ r=orig(i); if(c.size>2000) c.clear(); c.set(k,r); } return r; }; } }
+  { const orig=window.statusHistoricoPorFuncionario; const idx=new WeakMap();
+    if(typeof orig==='function') window.statusHistoricoPorFuncionario=function(f,i){
+      const arr=historico?.funcionarios; if(!f||!Array.isArray(arr)) return orig(f,i);
+      let ix=idx.get(arr); if(!ix||ix.n!==arr.length){ ix={n:arr.length,mat:new Map(),nome:new Map()};
+        arr.forEach(x=>{ if(!x) return; if(x.matricula&&!ix.mat.has(String(x.matricula))) ix.mat.set(String(x.matricula),x); const k=norm(x.nome); if(!ix.nome.has(k)) ix.nome.set(k,x); }); idx.set(arr,ix); }
+      if(f.matricula){ const e=ix.mat.get(String(f.matricula)); if(e) return e; }
+      return ix.nome.get(norm(f.nome))||{};
+    }; }
+  // lote: enquanto uma conta grande roda, a equipe não muda → índice da equipe para idxPessoaPrevista
+  let lote=0, eqIdx=null, previaPendente=false;
+  const emLote=nome=>{ const orig=window[nome]; if(typeof orig!=='function') return;
+    window[nome]=function(){ if(!lote++) eqIdx=null; try{ return orig.apply(this,arguments); } finally{ if(!--lote){ eqIdx=null; if(previaPendente){ previaPendente=false; try{ window.renderPreviaFolgasFeriado(true); }catch(e){} } } } }; };
+  // a prévia das folgas de feriado (tabela de todos × todos os dias) era redesenhada várias vezes no mesmo Gerar: agora uma vez, no fim
+  { const orig=window.renderPreviaFolgasFeriado; if(typeof orig==='function') window.renderPreviaFolgasFeriado=function(force){ if(lote){ previaPendente=true; return; } const pn=document.getElementById('previaFolgasConteudo')?.closest('.step-panel'); if(pn&&!pn.classList.contains('active')&&!window.__v247PreviaSempre) return;   /* fora da tela: a rotina de 1 s desenha quando o passo Feriados aparecer */ return orig.apply(this,arguments); }; }
+  ['gerarSetoresCore','gerarSugestoesFolgasFeriado','auditarSelecaoAntesDaGeracao','auditarProtecao6x1Simulada','renderSelecaoDomingosGeracao','preverPrimeiroDomingoSeguinteSetores','montarEscalaFeriados'].forEach(emLote);
+  { const orig=window.idxPessoaPrevista; if(typeof orig==='function') window.idxPessoaPrevista=function(p){
+      if(!lote||!p) return orig(p);
+      if(!eqIdx||eqIdx.ref!==equipe||eqIdx.n!==equipe.length){ eqIdx={ref:equipe,n:equipe.length,mat:new Map(),nome:new Map()};
+        equipe.forEach((f,i)=>{ if(f.matricula&&!eqIdx.mat.has(String(f.matricula))) eqIdx.mat.set(String(f.matricula),i); const k=norm(f.nome); if(!eqIdx.nome.has(k)) eqIdx.nome.set(k,i); }); }
+      const a=p.matricula?eqIdx.mat.get(String(p.matricula)):undefined, b=eqIdx.nome.get(norm(p.nome));
+      const c=[a,b].filter(x=>x!==undefined); return c.length?Math.min(...c):-1;
+    }; }
+  // os ganchos window.v234Sugestoes / v227Auditar usam as funções acima por nome — nada mais a ligar
+})();
+</script>
+
 </body>
 </html>
