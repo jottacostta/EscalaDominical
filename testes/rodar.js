@@ -305,6 +305,34 @@ async function testarSetores(browser){
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
+/* V246/V175 — datas de balanço sem arquivo de texto: quadro com janeiro, março, junho e setembro, guardado no aparelho e no histórico */
+async function testarBalancos(browser, app, nome, v, chave){
+  console.log(`\n▶ ${nome} — datas de balanço (📦 quadro de janeiro, março, junho e setembro)`);
+  const { p, erros, ctx } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1500);
+  const box = '#' + v + 'Balancos';
+  ok(await p.locator(box + ' [data-balmes]').count() === 4 && await p.evaluate(() => document.querySelector('[data-upload="arquivoBalanco"]')?.style.display === 'none'), 'o quadro tem janeiro, março, junho e setembro, e a caixa do arquivo .txt saiu da tela');
+  const ano = await p.evaluate(() => +document.getElementById('ano').value);
+  const doms = await p.evaluate(([a]) => [2, 5].map(m => domingosDoMes(a, m)), [ano]);
+  const escolher = (m, d) => p.evaluate(([box, m, d]) => { const s = document.querySelector(box + ` [data-balmes="${m}"]`); s.value = String(d || ''); s.dispatchEvent(new Event('change', { bubbles: true })); }, [box, m, d]);
+  const estado = () => p.evaluate(([ch, a]) => ({ db: datasBalanco.map(b => `${b.d}/${b.m + 1}/${b.a}`), st: JSON.parse(localStorage.getItem(ch) || '[]').map(b => `${b.d}/${b.m + 1}/${b.a}`), mar: balancoDoMes(a, 2), jun: balancoDoMes(a, 5),
+    proj: (window.v147MontarProjeto?.()?.planejamento?.datasBalanco || null) }), [chave, ano]);
+  await escolher(2, doms[0][1]); await p.waitForTimeout(300);
+  let e = await estado();
+  ok(e.mar === doms[0][1] && e.st.includes(`${doms[0][1]}/3/${ano}`) && (!e.proj || e.proj.some(b => b.d === doms[0][1] && b.m === 2 && b.a === ano)), `escolher o domingo ${doms[0][1]}/03 guarda no aparelho e no histórico do mês (balanço de março: ${e.mar})`);
+  await escolher(2, ''); await p.waitForTimeout(300); e = await estado();
+  ok(!e.mar && !e.db.length, `“Sem balanço” tira a data (balanço de março: ${e.mar || 'nenhum'})`);
+  // histórico aberto (outro aparelho): traz junho; março “sem balanço”, escolhido aqui, continua valendo
+  await p.evaluate(([a, dj, dm]) => { datasBalanco = [{ d: dj, m: 5, a }, { d: dm, m: 2, a }]; }, [ano, doms[1][0], doms[0][2]]); await p.waitForTimeout(2200);
+  e = await estado();
+  ok(e.jun === doms[1][0] && !e.mar && e.st.includes(`${doms[1][0]}/6/${ano}`), `histórico aberto traz a data de junho (${e.jun}) e não desfaz o “sem balanço” de março escolhido no aparelho (${e.mar || 'nenhum'})`);
+  await p.reload(); await p.waitForTimeout(2200);
+  const depois = await p.evaluate(([box, a]) => ({ jun: balancoDoMes(a, 5), sel: document.querySelector(box + ' [data-balmes="5"]')?.value }), [box, ano]);
+  ok(depois.jun === doms[1][0] && +depois.sel === doms[1][0], `depois de recarregar, a data de junho continua (${depois.jun}) e aparece no quadro`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await ctx.close();
+}
+
 /* ───────────────────────── Escala de Encarregados ───────────────────────── */
 /* verificador independente das regras dos Encarregados (domingos, feriados e folgas de feriado) */
 async function verificarEnc(p){
@@ -761,7 +789,9 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
+       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);

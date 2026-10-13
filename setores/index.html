@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V245</title>
+<title>Escala de Setores — V246</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V246 [Claude] — DATAS DE BALANÇO SEM ARQUIVO DE TEXTO (pedido do dono): em ⚙️ Configurações, o arquivo .txt de balanços
+       deu lugar a um quadro “📦 Domingos de balanço” com janeiro, março, junho e setembro (só domingos na lista) e o
+       ano. O app guarda sozinho neste aparelho e as datas vão no histórico do mês; ao abrir um histórico em outro
+       aparelho, as datas dele entram no aparelho.
 V245 [Claude] — CONSERTOS DA INVESTIGAÇÃO DE ERROS (pedido do dono): (1) a sugestão da folga de feriado podia cair no
        DIA DA FOLGA FIXA da pessoa (ela perdia a folga do feriado) — visto em nov/2026 com domingo de balanço, quando o
        DSR do balanço sai do dia da folga fixa; agora o dia da folga fixa nunca é sugerido. (2) Em mês com balanço, o
@@ -2206,6 +2210,19 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v243-folgas-item b{display:block;font-size:13px}
 .v243-folgas-item small{display:block;margin-top:3px;line-height:1.4;color:#713F12}
 </style>
+<style id="v246-balancos">
+.balx{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--surface-2,#f8fafc)}
+.balx-topo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.balx-topo b{font-size:15px}
+.balx .balx-topo select{width:auto;min-width:96px}
+.balx select{min-height:44px;font:inherit;padding:6px 8px;border:1px solid var(--border-strong,#94a3b8);border-radius:8px;background:#fff;color:#0f172a}
+.balx-linhas{display:grid;gap:8px;margin-top:8px}
+.balx-linha{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:8px}
+.balx-linha span{font-weight:700}
+.balx-linha.ok select{border-color:var(--ok,#16a34a);background:var(--ok-lt,#ecfdf5)}
+.balx-outras{margin-top:8px;font-size:13px}
+.balx-nota{margin:8px 0 0;font-size:13px;color:var(--muted,#475569)}
+</style>
 </head>
 <body>
 <script>
@@ -2301,7 +2318,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V245 · folga de feriado fora da folga fixa e aviso de balanço certo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V246 · datas de balanço sem arquivo de texto</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12964,6 +12981,76 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   window.v243FolgasHorario={auditar,desenhar};
 })();
 </script>
-
+<script>
+/* ═════ v246 — DATAS DE BALANÇO SEM ARQUIVO DE TEXTO (pedido do dono) ═════
+   O balanço é em janeiro, março, junho e setembro. Um quadro com 4 listas (só domingos do mês) substitui o arquivo .txt
+   (a caixa antiga fica escondida). Cada escolha é guardada na hora:
+   • no aparelho: localStorage 'escalaSetores.v246Balancos' = [{d,m,a}] (d=0 quer dizer “sem balanço”: vale mais que um histórico antigo);
+   • na variável datasBalanco (que já vai para o histórico do mês: planejamento.datasBalanco).
+   Ao abrir um histórico guardado, as datas dele entram no aparelho (sincronia a cada 1,5 s — o que foi escolhido
+   no aparelho vale mais). */
+(function(){
+  const K='escalaSetores.v246Balancos', MESES=[[0,'Janeiro'],[2,'Março'],[5,'Junho'],[8,'Setembro']];
+  const NOMES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const $i=id=>document.getElementById(id), p2=n=>String(n).padStart(2,'0');
+  const valida=b=>b&&Number.isInteger(+b.d)&&Number.isInteger(+b.m)&&Number.isInteger(+b.a)&&+b.m>=0&&+b.m<=11&&+b.a>1900;
+  const ch=b=>(+b.a)+'-'+(+b.m);
+  const norm=b=>({d:+b.d,m:+b.m,a:+b.a});
+  function ler(){ try{ const x=JSON.parse(localStorage.getItem(K)||'[]'); return Array.isArray(x)?x.filter(valida).map(norm):[]; }catch(e){ return []; } }
+  function gravar(l){ try{ localStorage.setItem(K,JSON.stringify(l)); }catch(e){} }
+  function unir(prefere,outra){ const m=new Map(); outra.filter(valida).map(norm).forEach(b=>m.set(ch(b),b)); prefere.forEach(b=>m.set(ch(b),b)); return [...m.values()].sort((x,y)=>x.a-y.a||x.m-y.m); }
+  let ultimo='', anoCard=null;
+  function aplicar(lista){ datasBalanco=lista.filter(b=>b.d>0).map(norm); ultimo=JSON.stringify(datasBalanco); }
+  function aposMudar(){ try{ sincronizarFlagBalancoAutomatico(true); atualizarModoGeracao(); }catch(e){} }
+  function sync(){
+    let atual; try{ atual=JSON.stringify(datasBalanco||[]); }catch(e){ return; }
+    if(atual===ultimo) return;
+    const st=ler(), uni=unir(st,Array.isArray(datasBalanco)?datasBalanco:[]);
+    gravar(uni); aplicar(uni); render(); aposMudar();
+  }
+  function domingos(a,m){ const out=[]; for(let d=1;d<=31;d++){ const x=new Date(a,m,d); if(x.getMonth()!==m) break; if(x.getDay()===0) out.push(d); } return out; }
+  function escolher(a,m,d){
+    const st=ler().filter(b=>ch(b)!==a+'-'+m); st.push({d:+d||0,m,a});
+    const uni=unir(st,(datasBalanco||[]).filter(b=>ch(b)!==a+'-'+m));
+    gravar(uni); aplicar(uni); render(); aposMudar();
+    const nome=NOMES[m].toLowerCase();
+    window.showToast?.(d?`✅ Balanço de ${nome} guardado: domingo ${p2(d)}/${p2(m+1)}/${a}.`:`🗑️ ${NOMES[m]} de ${a} ficou sem balanço.`,'ok');
+    try{ if(typeof ultimaEscala!=='undefined'&&ultimaEscala&&+ultimaEscala.mes===m&&+ultimaEscala.ano===a) window.showToast?.('A escala deste mês já foi gerada. Toque em “Gerar” de novo para usar o balanço.','info',true); }catch(e){}
+  }
+  function render(){
+    const box=$i('v246Balancos'); if(!box) return;
+    const anoApp=+($i('ano')?.value)||new Date().getFullYear(); if(anoCard===null) anoCard=anoApp;
+    const a=anoCard, lista=(datasBalanco||[]).map(norm);
+    const anos=[]; for(let x=Math.min(anoApp,a)-1;x<=Math.max(anoApp,a)+2;x++) anos.push(x);
+    const linhas=MESES.map(([m,nome])=>{ const b=lista.find(x=>x.a===a&&x.m===m), ds=domingos(a,m);
+      return `<label class="balx-linha${b?' ok':''}"><span>${nome}</span><select data-balmes="${m}" aria-label="Domingo de balanço de ${nome} de ${a}"><option value="">Sem balanço</option>${ds.map(d=>`<option value="${d}"${b&&b.d===d?' selected':''}>Domingo ${p2(d)}/${p2(m+1)}/${a}</option>`).join('')}${b&&!ds.includes(b.d)?`<option value="${b.d}" selected>Dia ${p2(b.d)}/${p2(m+1)}/${a} (não é domingo)</option>`:''}</select></label>`; }).join('');
+    const outras=lista.filter(b=>!MESES.some(([m])=>m===b.m)).sort((x,y)=>x.a-y.a||x.m-y.m);
+    box.innerHTML=`<div class="balx">
+      <div class="balx-topo"><b>📦 Domingos de balanço de</b><select data-balano aria-label="Ano">${anos.map(x=>`<option value="${x}"${x===a?' selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="balx-nota" style="margin:0">O balanço é em janeiro, março, junho e setembro. Escolha o domingo de cada um. O app guarda sozinho.</div>
+      <div class="balx-linhas">${linhas}</div>
+      ${outras.length?`<div class="balx-outras alert info">Também guardado: ${outras.map(b=>`${p2(b.d)}/${p2(b.m+1)}/${b.a}`).join(', ')}. <button type="button" class="btn secondary sm" data-balapagar>🗑️ Apagar estas datas</button></div>`:''}
+      <p class="balx-nota">✅ Fica guardado neste aparelho e vai junto no histórico do mês (📦 Guardar histórico do mês).</p>
+    </div>`;
+    box.querySelector('[data-balano]').onchange=e=>{ anoCard=+e.target.value; render(); };
+    box.querySelectorAll('[data-balmes]').forEach(s=>s.onchange=()=>escolher(a,+s.dataset.balmes,+s.value||0));
+    const ap=box.querySelector('[data-balapagar]'); if(ap) ap.onclick=()=>{ if(!confirm('Apagar as datas de balanço fora de janeiro, março, junho e setembro?')) return;
+      const st=ler(); outras.forEach(b=>{ const k=st.findIndex(x=>ch(x)===ch(b)); if(k>=0) st[k]={d:0,m:b.m,a:b.a}; else st.push({d:0,m:b.m,a:b.a}); });
+      const uni=unir(st,datasBalanco||[]); gravar(uni); aplicar(uni); render(); aposMudar(); window.showToast?.('🗑️ Datas apagadas.','ok'); };
+  }
+  function montar(){
+    const up=document.querySelector('[data-upload="arquivoBalanco"]'); if(!up||$i('v246Balancos')) return;
+    up.style.display='none';
+    const dica=up.nextElementSibling; if(dica&&dica.matches('small.hint')) dica.style.display='none';
+    const lab=up.parentElement?.querySelector('label'); if(lab&&!lab.htmlFor) lab.textContent='Datas de balanço';
+    const box=document.createElement('div'); box.id='v246Balancos'; up.insertAdjacentElement('afterend',box);
+    $i('ano')?.addEventListener('change',()=>{ anoCard=+$i('ano').value||anoCard; render(); });
+    sync(); render();
+    setInterval(sync,1500);
+  }
+  window.v246Balancos={ler,escolher,sync,render};
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(montar,400)); else setTimeout(montar,400);
+})();
+</script>
 </body>
 </html>

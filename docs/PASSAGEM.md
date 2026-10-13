@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V245.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V174.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V246.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V245 + Encarregados V174 (consertos da investigação de erros). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V246 + Encarregados V175 (datas de balanço sem arquivo de texto). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V246**, Encarregados **V175**.
+- **Próximo número de versão:** Setores **V247**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V244): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -112,6 +112,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Conferência de teste que nunca falha:** nunca compare um valor com ele mesmo (ex.: `x.length === x.length`).
 - **Ícones (V236/V166):** se um bloco novo compara o texto de um elemento com emoji (`el.textContent!==txt`), ponha a classe dele na lista `FORA` do bloco de ícones. Senão o app e a troca de ícones se desfazem em ciclo.
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
+- **Datas de balanço (V246/V175):** a lista oficial é `datasBalanco` ([{d,m,a}], m de 0 a 11), mas quem manda é o aparelho: `localStorage` `escalaSetores.v246Balancos` / `enc.v175Balancos`, com `d:0` = “sem balanço” escolhido pelo usuário. A cada 1,5 s o bloco V246/V175 junta o que apareceu em `datasBalanco` (ex.: histórico aberto) com o aparelho — o aparelho vence. Para mudar uma data por código, use `window.v246Balancos.escolher(a,m,d)` / `window.v175Balancos.escolher(a,m,d)`; trocar `datasBalanco` direto também funciona, mas não desfaz um “sem balanço” guardado. O `#arquivoBalanco` (.txt) só ficou escondido.
 - **Folgas que atravessam a virada do mês (V174):** o “Gerar” zera `descansosDomingo` e só refaz as folgas dos domingos DESTE mês. A folga da semana de DEPOIS do último domingo do mês passado (cai nos primeiros dias deste mês) não está em `descansosDomingo`: nos Encarregados ela vem de `window.v174.dsrDoMesPassado`, ligada pelo embrulho de `ehDescansoAssociado`. Leia folgas sempre por `ehDescansoAssociado(i,dt)`, nunca direto de `descansosDomingo`. No Setores isso não pesa porque o DSR cai no dia da folga fixa, que continua valendo (`folgaFixaAtivaNaData`).
 - **Domingo de balanço é exceção na sequência de domingos:** não tire o balanço da lista (`doms.filter(d=>d!==bal)` junta domingos que não são seguidos). Deixe no lugar como “não trabalhado” (`d!==bal&&…`), igual ao verificador do `testes/rodar.js`.
 - **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
@@ -121,6 +122,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V246 + Encarregados V175 — datas de balanço sem arquivo de texto — Claude
+- **O que mudou e por quê:** pedido do dono — os balanços são em janeiro, março, junho e setembro; em vez do arquivo .txt, ele quer escolher as datas no app, que guarda e coloca no histórico JSON. Novo quadro “📦 Domingos de balanço de <ano>” (Setores: ⚙️ Configurações; Encarregados: 📅 Mês e opções → Mais opções) com 4 listas que só têm os domingos do mês, mais “Sem balanço”. Guardado na hora no aparelho e em `datasBalanco` (que já ia para `planejamento.datasBalanco` no histórico). Ao abrir um histórico, as datas dele entram no aparelho; o “sem balanço” escolhido no aparelho vale mais. Datas antigas de outros meses aparecem em “Também guardado” com 🗑️.
+- **Onde no código:** bloco `/* ═════ V246|V175 — DATAS DE BALANÇO SEM ARQUIVO DE TEXTO ═════ */` + `<style id="v246-balancos">`/`v175-balancos` (código igual nos dois apps; no Setores, depois de mudar, chama `sincronizarFlagBalancoAutomatico(true); atualizarModoGeracao();`). Funções: `ler`, `gravar`, `unir` (aparelho vence), `sync` (a cada 1,5 s), `escolher`, `render`. Exposto em `window.v246Balancos` / `window.v175Balancos`.
+- **Como foi testado:** `testes/rodar.js` → `testarBalancos` (quadro com 4 meses e .txt fora da tela; escolher guarda no aparelho e no histórico; “Sem balanço” tira; histórico aberto traz junho sem desfazer o “sem balanço” de março; recarregar mantém). Print no celular (390×844) conferido nos dois apps.
+- **Para continuar:** atualizar os manuais (Setores: Configurações; Encarregados: Mês e opções) com o print novo — dados fictícios.
 
 ### 2026-10-13 — Setores V245 + Encarregados V174 — consertos da investigação de erros — Claude
 - **O que mudou e por quê:** o dono pediu uma investigação minuciosa de erros. Além da suíte (`--completo`), o Claude escreveu conferências próprias (fora do repositório) que geram meses seguidos com os dados fictícios e conferem a grade dia a dia (`statusDiaSet`/`statusDiaEnc`): 6×1 atravessando a virada do mês, DSR de quem trabalha domingo, afastado/aprendiz, feriado com folga fixa, folga de feriado (prazo, domingo, cair em DSR/folga fixa/outro feriado), com e sem domingo de balanço. Achados e consertos:
