@@ -30,6 +30,8 @@ está pendente, e espere o meu pedido."
   GitHub (Checks) estão verdes no último commit do PR.
 - Regra de ouro (AGENTS.md 4.1): toda tela tem que ser entendida por uma criança de 10 anos aprendendo
   informática. Avisos curtos, detalhes fechados ("Ver os dias"), botão com verbo + emoji, cor sempre com texto.
+  A lista tem 16 itens; os itens 11–16 (um nome por ação, contraste, cores fixas, números alinhados, nada pula
+  no celular, conferir antes de mexer) vieram da Taste Skill — só esses itens, NÃO instalar a skill inteira.
 
 
 2. O PROJETO
@@ -203,5 +205,5 @@ Os dois
 - .gitignore: bloquear também Equipe*.txt, *.csv e backups com dados reais (fora de testes/dados).
 - Manual do Encarregado e Roteiro do Beta ainda na V171: atualizar (data de admissão, sem Equipe.txt).
 - Transformar docs/PROPOSTAS_ESTRESSE_SETORES.md em testes (feriados, 6×1, compensatórias).
-- Revisar a escala à mão com a regra de ouro; velocidade das sugestões em setores grandes.
+- Revisar a escala à mão com a regra de ouro (lista de 16 itens do AGENTS 4.1); velocidade das sugestões em setores grandes.
 - Dono pode apagar os branches antigos do ChatGPT no GitHub (lista no PASSAGEM).
