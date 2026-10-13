@@ -7,10 +7,17 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V173</title>
+<title>Escala 2×1 — Encarregados V174</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V174 [Claude] — CONSERTOS DA INVESTIGAÇÃO DE ERROS (pedido do dono): (1) VIRADA DO MÊS: quem trabalhava o último domingo
+       do mês tinha a folga da semana seguinte marcada já no mês novo, mas ao gerar o mês novo essa folga sumia (ex.: 10
+       dias seguidos de trabalho de 26/11 a 05/12/2026). Agora a folga volta sozinha no mês novo (pelo passo “Mês
+       passado”) e a conferência de 6×1 conta os domingos do mês passado (igual à Escala de Setores V229). (2) MÊS COM
+       BALANÇO: o motor decide os domingos a partir do balanço e esquecia o mês passado — podia sair 3 domingos seguidos
+       (ex.: 25/01, 01/02 e 08/02/2027). Agora o mês passado entra na conta. (3) O resumo do mês acusava “3 domingos
+       seguidos” falso em mês com balanço (o balanço era tirado da conta e juntava domingos que não são seguidos).
 V173 [Claude] — SEM EQUIPE.TXT NA TELA (pedido do dono): o “Guardar histórico do mês” já leva a equipe inteira, então o
        Equipe.txt virou repetição. Saíram a caixa “Equipe.txt / 📂 Escolher” e o botão “Baixar Equipe.txt”. A equipe entra
        pela planilha do RH, pelo “📂 Abrir histórico guardado” (agora também no passo Equipe) ou à mão no Editar equipe.
@@ -1861,7 +1868,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V173 · sem Equipe.txt na tela</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V174 · folga da virada do mês e balanço sem 3 domingos</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -4745,7 +4752,7 @@ function validarEscala(dom){
       let trabalha;
       if(domingo){
         const dia=dt.getDate();
-        trabalha=(dt.getMonth()===mes&&dt.getFullYear()===ano)?(trabalhoDomingo[dia]||[]).includes(i):false;
+        trabalha=(dt.getMonth()===mes&&dt.getFullYear()===ano)?(trabalhoDomingo[dia]||[]).includes(i):!!window.v174?.domingoForaDoMes(i,dt);   // V174: domingo do mês passado (passo “Mês passado”)
       }else if(ehDescansoAssociado(i,dt)){
         trabalha=false;
       }else if(dt.getMonth()===mes&&dt.getFullYear()===ano&&feriados(ano,mes)[dt.getDate()]){
@@ -5252,7 +5259,7 @@ function conformidadeMes(mes,ano,bal){
   // 1) máx. 2 domingos seguidos (2×1) — e, por consequência, domingo de folga a cada 3 semanas (Lei 10.101/2000, art. 6º)
   const tres=[];
   equipe.forEach((f,i)=>{ if(foraDom(f))return; const h=historicoManual(i)||{};
-    const seq=[!!h.penultimo,!!h.ultimo,...doms.filter(d=>d!==bal).map(d=>(trabalhoDomingo[d]||[]).includes(i))];
+    const seq=[!!h.penultimo,!!h.ultimo,...doms.map(d=>d!==bal&&(trabalhoDomingo[d]||[]).includes(i))];   // V174: o balanço fica no lugar (é exceção e interrompe a sequência)
     for(let k=2;k<seq.length;k++) if(seq[k]&&seq[k-1]&&seq[k-2]){ tres.push(f.nome); break; } });
   itens.push(tres.length?{st:'bad',t:'No máximo 2 domingos seguidos',d:`3 domingos seguidos: ${tres.join(', ')}.`}
                         :{st:'ok',t:'No máximo 2 domingos seguidos',d:'Ninguém trabalha 3 domingos em sequência (conta também o mês passado).'});
@@ -8494,6 +8501,52 @@ function perguntarOrientacaoImpressao(cb){
     i.value='';
   },true);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(aceitarTxt,300)); else setTimeout(aceitarTxt,300);
+})();
+</script>
+<script>
+/* ═════ V174 — virada do mês e mês com balanço (investigação de erros) ═════
+   (1) domingoForaDoMes(i,dt): último/penúltimo domingo do mês passado, lidos do passo “Mês passado” (historicoManual).
+   (2) dsrDoMesPassado(i,dt): a folga da semana (DSR “depois”) do ÚLTIMO domingo do mês passado cai nos primeiros dias
+       deste mês; o “Gerar” zera os descansos e só refazia os dos domingos deste mês. Vale também para a última semana
+       do mês passado (a conferência de 6×1 começa 7 dias antes do mês). ehDescansoAssociado passa a vê-la
+       (tabela, painel, 6×1, limite de folgas por dia e sugestões de folga de feriado).
+   (3) todosNormaisRespeitamTresConsecutivos: no mês com balanço os domingos são decididos fora de ordem e a conta não
+       olhava o mês passado; agora olha (o balanço continua exceção). */
+(function(){
+  function domingoForaDoMes(i,dt){
+    const mes=+$('mes').value, ano=+$('ano').value;
+    if(!dt||dt.getDay()!==0||new Date(dt.getFullYear(),dt.getMonth(),dt.getDate())>=new Date(ano,mes,1)) return false;
+    const ult=new Date(ano,mes,0); ult.setDate(ult.getDate()-ult.getDay());
+    const dias=Math.round((ult-new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()))/864e5);
+    if(dias!==0&&dias!==7) return false;
+    if(Number(equipe[i]?.folgaFixa)===0) return false;   // folga fixa no domingo: só trabalha no balanço, com folgas próprias (não conta aqui)
+    const h=historicoManual(i)||{}; return dias===0?!!h.ultimo:!!h.penultimo;
+  }
+  function dsrDoMesPassado(i,dt){
+    /* folgas da semana ligadas aos domingos do mês passado: a de DEPOIS do último domingo (cai neste mês) e a da
+       semana entre o penúltimo e o último (a conferência de 6×1 olha 7 dias antes do mês). Mesmo dia da semana do DSR. */
+    const mes=+$('mes').value, ano=+$('ano').value, f=equipe[i];
+    const ff=Number(f&&f.folgaFixa); if(!dt||!(ff>=1&&ff<=6)) return false;
+    const L=new Date(ano,mes,0); L.setDate(L.getDate()-L.getDay());
+    const off=Math.round((new Date(dt.getFullYear(),dt.getMonth(),dt.getDate())-L)/864e5);
+    if(off<=-7||off>=7||off===0||dt.getDay()!==diaDsrDe(f)) return false;
+    const h=historicoManual(i)||{};
+    return off>0?!!h.ultimo:!!(h.ultimo||h.penultimo);
+  }
+  const origDsr=ehDescansoAssociado;
+  ehDescansoAssociado=function(i,dt){ return origDsr(i,dt)||dsrDoMesPassado(i,dt); };
+  const origTres=todosNormaisRespeitamTresConsecutivos;
+  todosNormaisRespeitamTresConsecutivos=function(doms,bal,parcial){
+    if(!origTres(doms,bal,parcial)) return false;
+    const t=d=>d!==undefined&&d!==bal;
+    for(let i=0;i<equipe.length;i++){
+      const h=historicoManual(i)||{}, a=t(doms[0])&&(parcial[doms[0]]||[]).includes(i), b=t(doms[1])&&(parcial[doms[1]]||[]).includes(i);
+      if(h.penultimo&&h.ultimo&&a) return false;
+      if(h.ultimo&&a&&b) return false;
+    }
+    return true;
+  };
+  window.v174={domingoForaDoMes,dsrDoMesPassado};
 })();
 </script>
 </body>
