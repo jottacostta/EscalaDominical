@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V244</title>
+<title>Escala de Setores — V245</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V245 [Claude] — CONSERTOS DA INVESTIGAÇÃO DE ERROS (pedido do dono): (1) a sugestão da folga de feriado podia cair no
+       DIA DA FOLGA FIXA da pessoa (ela perdia a folga do feriado) — visto em nov/2026 com domingo de balanço, quando o
+       DSR do balanço sai do dia da folga fixa; agora o dia da folga fixa nunca é sugerido. (2) Em mês com balanço, o
+       resumo do mês acusava “3 domingos seguidos” falso para quem NÃO trabalha o balanço (ex.: 04, 11 e 25/01 viravam
+       “seguidos” porque o balanço 18/01 era tirado da conta); agora o balanço fica no lugar e é exceção, como na regra.
 V244 [Claude] — ALERTA DE FOLGAS POR HORÁRIO MAIS ENXUTO (pedido do dono, revisão da V243 do ChatGPT): na V243 uma Frente
        de Loja de 50 pessoas recebia 61 avisos (o cartão ocupava umas 12 telas). Agora (1) a “folga no feriado” não entra
        na conta; (2) só avisa quando MAIS DA METADE das pessoas daquele horário está de folga no dia (inclui o caso de
@@ -2296,7 +2301,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V244 · alerta de folgas por horário enxuto</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V245 · folga de feriado fora da folga fixa e aviso de balanço certo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -4312,6 +4317,7 @@ function candidatosFolgaFeriado(i,d){
     if(dt.getDay()===0)continue;
     if(ehOutroFeriadoNaData(dt,d))continue;
     if(ehDescansoAssociado(i,dt))continue;
+    if(temFolgaNormalNoDia(i,dt))continue;   // V245: nunca no dia da folga fixa (a pessoa perderia a folga do feriado)
     if(diasDescansoProibidos(f,dt))continue;
     { const ex=extraFolgasDaPessoa(i,`${d}_${i}`); if(ex.has(chaveData(dt)) || sequenciaDeFolgaCom(i,dt,ex)>MAX_FOLGA_SEGUIDA_COMP) continue; }   // V147: nunca 3+ dias seguidos de folga
     const chave=`${d}_${i}`;
@@ -6080,7 +6086,7 @@ function conformidadeMesSet(mes,ano,bal){
   const doms=domingosDoMes(ano,mes), fer=feriados(ano,mes), itens=[];
   const tres=[];
   equipe.forEach((f,i)=>{ if(foraDom(f))return; const h=historicoManual(i)||{};
-    const seq=[!!h.penultimo,!!h.ultimo,...doms.filter(d=>d!==bal).map(d=>(trabalhoDomingo[d]||[]).includes(i))];
+    const seq=[!!h.penultimo,!!h.ultimo,...doms.map(d=>d!==bal&&(trabalhoDomingo[d]||[]).includes(i))];   // V245: o balanço fica no lugar (é exceção e interrompe a sequência); antes ele era tirado e juntava domingos que não são seguidos
     for(let k=2;k<seq.length;k++) if(seq[k]&&seq[k-1]&&seq[k-2]){ tres.push(f.nome); break; } });
   itens.push(tres.length?{st:'bad',t:'No máximo 2 domingos seguidos',d:`3 domingos seguidos: ${tres.join(', ')}.`}:{st:'ok',t:'No máximo 2 domingos seguidos',d:'Ninguém trabalha 3 domingos em sequência (conta o histórico do mês anterior).'});
   itens.push(tres.length?{st:'bad',t:'Folga no domingo a cada 3 semanas',d:'Lei 10.101/2000, art. 6º: o repouso deve cair no domingo ao menos 1 vez a cada 3 semanas.'}:{st:'ok',t:'Folga no domingo a cada 3 semanas',d:'Quem trabalha 2 domingos folga no terceiro (Lei 10.101/2000, art. 6º).'});

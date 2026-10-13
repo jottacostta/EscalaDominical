@@ -283,6 +283,25 @@ async function testarSetores(browser){
   }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
+    const r = await p.evaluate(() => {
+      const ano = +$('ano').value, mes = +$('mes').value, fer = feriados(ano, mes), out = { cand: 0, naFixa: 0 };
+      // (1) a folga de feriado nunca é sugerida no dia da folga fixa (a pessoa perderia a folga do feriado)
+      Object.keys(fer).map(Number).forEach(d => equipe.forEach((f, i) => candidatosFolgaFeriado(i, d).forEach(c => { out.cand++; if(temFolgaNormalNoDia(i, c.data)) out.naFixa++; })));
+      // (2) resumo do mês: o balanço é exceção e fica no lugar — 1º, 2º e 4º domingos com o 3º de balanço (sem trabalhar nele) NÃO são “3 seguidos”
+      const doms = domingosDoMes(ano, mes), bk = JSON.stringify(trabalhoDomingo), item = bal => conformidadeMesSet(mes, ano, bal).itens.find(x => /2 domingos seguidos/.test(x.t))?.d || '';
+      const i = equipe.findIndex((f, k) => !foraDom(f) && !ehLiderancaDomingo(f) && !historicoManual(k).ultimo && !historicoManual(k).penultimo), nome = equipe[i].nome;
+      try{
+        trabalhoDomingo = {}; doms.forEach(d => trabalhoDomingo[d] = []); [0, 1, 3].forEach(k => trabalhoDomingo[doms[k]].push(i));
+        out.falso = item(doms[2]).includes(nome);
+        trabalhoDomingo = {}; doms.forEach(d => trabalhoDomingo[d] = []); [0, 1, 2].forEach(k => trabalhoDomingo[doms[k]].push(i));
+        out.real = item(0).includes(nome);   // sem balanço no meio continua acusado
+      } finally { trabalhoDomingo = JSON.parse(bk); }
+      return out;
+    });
+    ok(r.cand > 0 && r.naFixa === 0, `V245: folga de feriado nunca no dia da folga fixa (${r.cand} datas possíveis, ${r.naFixa} na folga fixa)`);
+    ok(!r.falso && r.real, `V245: resumo do mês — balanço no meio interrompe a sequência (aviso falso: ${r.falso ? 'sim' : 'não'}); 3 domingos seguidos de verdade continua acusado (${r.real ? 'sim' : 'não'})`);
+  }
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
@@ -356,6 +375,42 @@ async function testarEncarregados(browser){
     ok(ic.n > 10 && ic.vazios === 0, `ícones coloridos (Noto) na tela: ${ic.n} figuras, ${ic.vazios} quebradas`);
     const logo = await p.evaluate(() => { const i = document.querySelector('img.brand-logo'); return i ? { w: i.naturalWidth, h: i.naturalHeight } : null; });
     ok(logo && logo.h / logo.w > 0.6, `logo do Guanabara completo, com a ponta do triângulo (${logo ? logo.w + '×' + logo.h : 'sem logo'})`);   // a imagem antiga era cortada embaixo (420×214)
+  }
+  if(+path.basename(APP_ENC).match(/V(\d+)\.html$/)[1] >= 174){   // V174: consertos da investigação de erros
+    const r = await p.evaluate(() => {
+      const ano = +$('ano').value, mes = +$('mes').value, bal = balancoDoMes(ano, mes), out = {};
+      // (1) virada do mês: a folga da semana do ÚLTIMO domingo do mês passado (cai neste mês) aparece e conta no 6×1
+      const L = new Date(ano, mes, 0); L.setDate(L.getDate() - L.getDay());
+      const pos = f => { const x = new Date(L); x.setDate(L.getDate() + diaDsrDe(f)); return x; };
+      const i = equipe.findIndex(f => !inativo(f) && Number(f.folgaFixa) >= 1 && Number(f.folgaFixa) <= 6 && pos(f).getMonth() === mes);
+      const dt = pos(equipe[i]), cu = $('hist_ult_' + i), era = cu.checked;
+      try{
+        cu.checked = true; out.com = ehDescansoAssociado(i, dt) && statusDiaEnc(i, dt, mes, ano, bal) === 'dsr' && window.v174.domingoForaDoMes(i, L);
+        cu.checked = false; out.sem = window.v174.dsrDoMesPassado(i, dt) || window.v174.domingoForaDoMes(i, L);
+      } finally { cu.checked = era; }
+      out.dia = chaveData(dt);
+      // (2) mês com balanço: a busca do motor olha o mês passado (último domingo + 1º + 2º = 3 seguidos), o balanço continua exceção
+      const doms = domingosDoMes(ano, mes), cp = $('hist_pen_' + i), bk = [cp.checked, cu.checked];
+      try{
+        cp.checked = false; cu.checked = true;
+        const parc = {}; doms.forEach(d => parc[d] = []); parc[doms[0]] = [i]; parc[doms[1]] = [i];
+        out.barra = !todosNormaisRespeitamTresConsecutivos(doms, 0, parc);
+        out.excecao = todosNormaisRespeitamTresConsecutivos(doms, doms[1], parc);
+      } finally { cp.checked = bk[0]; cu.checked = bk[1]; }
+      // (3) resumo do mês: 1º, 2º e 4º domingos com o 3º de balanço (sem trabalhar nele) não são “3 seguidos”
+      const bkT = JSON.stringify(trabalhoDomingo), k = equipe.findIndex((f, j) => !foraDom(f) && !historicoManual(j).ultimo && !historicoManual(j).penultimo), nome = equipe[k].nome;
+      const item = b => conformidadeMes(mes, ano, b).itens.find(x => /2 domingos seguidos/.test(x.t))?.d || '';
+      try{
+        trabalhoDomingo = {}; doms.forEach(d => trabalhoDomingo[d] = []); [0, 1, 3].forEach(n => trabalhoDomingo[doms[n]].push(k));
+        out.falso = item(doms[2]).includes(nome);
+        trabalhoDomingo = {}; doms.forEach(d => trabalhoDomingo[d] = []); [0, 1, 2].forEach(n => trabalhoDomingo[doms[n]].push(k));
+        out.real = item(0).includes(nome);
+      } finally { trabalhoDomingo = JSON.parse(bkT); }
+      return out;
+    });
+    ok(r.com && !r.sem, `V174: virada do mês — quem trabalhou o último domingo do mês passado tem a folga da semana em ${r.dia} (com: ${r.com ? 'sim' : 'não'}; sem ter trabalhado: ${r.sem ? 'sim' : 'não'})`);
+    ok(r.barra && r.excecao, `V174: mês com balanço — o motor barra último domingo do mês passado + 1º + 2º (${r.barra ? 'barra' : 'deixa'}); com o 2º sendo balanço é exceção (${r.excecao ? 'deixa' : 'barra'})`);
+    ok(!r.falso && r.real, `V174: resumo do mês — balanço no meio interrompe a sequência (aviso falso: ${r.falso ? 'sim' : 'não'}); 3 seguidos de verdade continua acusado (${r.real ? 'sim' : 'não'})`);
   }
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }

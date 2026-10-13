@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V244.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V173.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V245.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V174.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR de documentação do Claude (regra de ouro com 16 itens). Depois do merge: nenhum.
+- **PRs abertos:** o PR do Claude com a Setores V245 + Encarregados V174 (consertos da investigação de erros). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V245**, Encarregados **V174**.
+- **Próximo número de versão:** Setores **V246**, Encarregados **V175**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V244): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -112,6 +112,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Conferência de teste que nunca falha:** nunca compare um valor com ele mesmo (ex.: `x.length === x.length`).
 - **Ícones (V236/V166):** se um bloco novo compara o texto de um elemento com emoji (`el.textContent!==txt`), ponha a classe dele na lista `FORA` do bloco de ícones. Senão o app e a troca de ícones se desfazem em ciclo.
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
+- **Folgas que atravessam a virada do mês (V174):** o “Gerar” zera `descansosDomingo` e só refaz as folgas dos domingos DESTE mês. A folga da semana de DEPOIS do último domingo do mês passado (cai nos primeiros dias deste mês) não está em `descansosDomingo`: nos Encarregados ela vem de `window.v174.dsrDoMesPassado`, ligada pelo embrulho de `ehDescansoAssociado`. Leia folgas sempre por `ehDescansoAssociado(i,dt)`, nunca direto de `descansosDomingo`. No Setores isso não pesa porque o DSR cai no dia da folga fixa, que continua valendo (`folgaFixaAtivaNaData`).
+- **Domingo de balanço é exceção na sequência de domingos:** não tire o balanço da lista (`doms.filter(d=>d!==bal)` junta domingos que não são seguidos). Deixe no lugar como “não trabalhado” (`d!==bal&&…`), igual ao verificador do `testes/rodar.js`.
 - **Virada do mês:** `trabalhoDomingo[dia]` só tem os domingos DESTE mês. Nunca use `trabalhoDomingo[outraData.getDate()]` para um dia de outro mês (lê o dia de mesmo número deste mês). Use `domingoForaDoMesTrabalhado` (V229).
 - **Downloads dentro do APK (V237/V168):** o APK do ApkForja em **modo site** é um WebView que abre o link; ele **não baixa `blob:`** (o Android mostra “Nenhum aplicativo para abrir: blob:…”), e o script de ponte do ApkForja que conserta `<a download>` só é injetado em HTML empacotado, não no site. Por isso cada app tem a camada `/* ═════ V237 (V168) — SALVAR ARQUIVOS DENTRO DO APK ═════ */`: embrulha `HTMLAnchorElement.prototype.click` e `URL.createObjectURL` (guarda o Blob) e, se existir `Android.salvarArquivo(nome, base64, tipo)` (ApkForja → “🔌 Permitir que o site use os recursos do Android”), entrega o arquivo para ele; num WebView sem ponte (`; wv)` no userAgent) avisa em vermelho e impede o lembrete de ficar “guardado”. **Todo download novo tem que ser `<a download>` + `.click()`** (como `baixarJSON`), senão não passa por essa camada. Não use `dispatchEvent(new MouseEvent…)` nem `window.open(blob)`.
 - **`auditarDescansosSimulados` vazia de propósito:** a capacidade de folgas por dia/turno é META, não trava (comentários em `limiteFolgaRespeitadoNaData` e `turnoFolgaValidoNaData`). Não “conserte” fazendo ela acusar erro sem o dono pedir.
@@ -119,6 +121,16 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V245 + Encarregados V174 — consertos da investigação de erros — Claude
+- **O que mudou e por quê:** o dono pediu uma investigação minuciosa de erros. Além da suíte (`--completo`), o Claude escreveu conferências próprias (fora do repositório) que geram meses seguidos com os dados fictícios e conferem a grade dia a dia (`statusDiaSet`/`statusDiaEnc`): 6×1 atravessando a virada do mês, DSR de quem trabalha domingo, afastado/aprendiz, feriado com folga fixa, folga de feriado (prazo, domingo, cair em DSR/folga fixa/outro feriado), com e sem domingo de balanço. Achados e consertos:
+  1. **Encarregados — virada do mês (grave):** a folga da semana de depois do último domingo do mês passado sumia ao gerar o mês novo → até 10 dias seguidos de trabalho, sem aviso (11 casos em 24 meses). A conferência de 6×1 também tratava o domingo do mês passado como folga (a V229 só tinha consertado no Setores). Conserto: bloco V174 (`dsrDoMesPassado`, `domingoForaDoMes`, embrulho de `ehDescansoAssociado`) e a linha do 6×1 em `validarEscala`.
+  2. **Encarregados — mês com balanço:** `gerarDomingosAncorados` decide os domingos fora de ordem; `podeDomingo` lê `trabalhoDomingo` (vazio durante a busca) e `todosNormaisRespeitamTresConsecutivos` não olhava o mês passado → 3 domingos seguidos (ex.: 25/01, 01/02, 08/02/2026). Conserto: embrulho de `todosNormaisRespeitamTresConsecutivos` com o histórico (balanço continua exceção).
+  3. **Setores — folga de feriado no dia da folga fixa:** `candidatosFolgaFeriado` evitava o DSR mas não a folga fixa; no mês com balanço (DSR do balanço fora do dia fixo) a folga caía no dia fixo e a pessoa perdia a folga do feriado. Conserto: `if(temFolgaNormalNoDia(i,dt))continue;`.
+  4. **Os dois — aviso falso de 3 domingos seguidos em mês com balanço:** `conformidadeMesSet`/`conformidadeMes` tiravam o balanço da lista e juntavam domingos não seguidos. Conserto: o balanço fica no lugar como exceção.
+- **Testes novos (`testes/rodar.js`, gate V245/V174):** folga de feriado nunca na folga fixa; resumo do mês com balanço no meio (sem aviso falso, e 3 seguidos de verdade continua acusado); folga da virada do mês aparece (e não aparece para quem não trabalhou); a busca do mês com balanço barra último domingo + 1º + 2º.
+- **Como foi testado:** suíte rápida e completa; conferências próprias depois do conserto: Encarregados 24 meses (prazo 20) e 12 meses com balanço (prazo 30), Setores Frente de Loja e CPD 12 meses com balanço — 0 problemas, 0 erro de JavaScript, e sem alarme falso de 6×1.
+- **Para continuar:** ver pendências novas na seção 6 (balanços seguidos a 2 semanas; transformar as conferências dia a dia em teste fixo).
 
 ### 2026-10-12 — Documentação — regra de ouro com 16 itens (ideias da Taste Skill) — Claude
 - **O que mudou e por quê:** o dono mostrou vídeos com ferramentas para o Claude e pediu para ficar só com o que o projeto precisa. Da *Taste Skill* (github.com/Leonxlnx/taste-skill, MIT) foram adaptados 6 itens para a lista da seção 4.1 do `AGENTS.md` (itens 11–16): um nome só para cada ação, contraste forte, cores fixas, números alinhados (`tabular-nums`), nada pula no celular (`100dvh`) e conferir antes de mexer. O resto da skill **não** serve (é para sites de propaganda; proíbe emoji em botão, pede React/Tailwind e fontes da internet) — **não instale a skill inteira**. Também avaliadas e descartadas: OmniRoute (manda o trabalho para robôs desconhecidos e mais fracos; o reserva do projeto é o ChatGPT), Claude Mem e Task Observer (o PASSAGEM e o `INICIO_NOVA_CONVERSA.txt` já fazem isso para os dois assistentes), Headroom, Awesome Design e Image to Code. Playwright já é usado nos testes.
@@ -429,6 +441,8 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
+- **Encarregados — dois balanços com 2 semanas de diferença** (ex.: último domingo de fev e 2º domingo de mar): quem trabalha o 1º domingo do mês fica com balanço + domingo + balanço e o “Gerar” pede revisão. O balanço é exceção, então o aviso é exagerado; cenário raro (achado na investigação de 13/10/2026). Se o dono usar balanços assim, ajustar `validarEscala` para não contar sequência com balanço.
+- **Transformar as conferências dia a dia da investigação de 13/10/2026 em teste fixo** (6×1 com a virada do mês, folgas de feriado no DSR/folga fixa, meses com balanço) — hoje os testes cobrem os 4 consertos de forma pontual. Cuidado com o tempo da suíte.
 - **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md, lista de 16 itens):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Encarregados — escala à mão (V167), ideias:** (1) a sugestão segue o motor, que prefere a dupla 2×1 (quem trabalhou o domingo anterior) — por isso um mês usa ~6–8 pessoas diferentes, igual ao automático; se o dono quiser “espalhar mais”, a mudança é no `escolherDomingo` (vale para os dois modos). (2) Revisar a tela da escala à mão com o checklist da seção 4.1 do `AGENTS.md` junto com o dono.
