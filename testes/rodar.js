@@ -483,6 +483,17 @@ async function testarSetores(browser){
     });
     ok(r.promotor && r.aprendizFim && r.chave, `V255: Promotor de vendas A e B no mesmo grupo (${r.promotor}) e na mesma função do “Por cargo” (${r.chave}); Jovem aprendiz num grupo no fim (${r.aprendizFim}) — ${r.cabs}`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 256){   // V256: cartão Jovem Aprendiz (aprendizes saem do ADM Geral)
+    const r = await p.evaluate(() => {
+      const ap = { matricula: '99901', nome: 'TESTE APRENDIZ', cargo: 'APRENDIZ EM SERV SUPERMERCADOS', setor: 'ADM Geral', situacao: 'A', turno: 'ABERTURA', horario: '08:00-12:00', folgaFixa: 0 };
+      const ot = { matricula: '99902', nome: 'TESTE PROMOTOR', cargo: 'PROMOTOR DE VENDAS A', setor: 'ADM Geral', situacao: 'A', turno: 'ABERTURA', horario: '08:00-16:20', folgaFixa: 2 };
+      const out = { card: !!GRUPOS_SETOR.find(g => g.id === 'Jovem Aprendiz'), opcao: [...$('setorSelecionado').options].some(o => o.value === 'Jovem Aprendiz') };
+      out.ap = pertenceAoGrupo(ap, 'Jovem Aprendiz') && !pertenceAoGrupo(ap, 'ADM Geral');
+      out.ot = pertenceAoGrupo(ot, 'ADM Geral') && !pertenceAoGrupo(ot, 'Jovem Aprendiz');
+      return out;
+    });
+    ok(r.card && r.opcao && r.ap && r.ot, `V256: cartão “Jovem Aprendiz” (${r.card}/${r.opcao}); o aprendiz sai do ADM Geral e entra nele (${r.ap}); o promotor continua no ADM Geral (${r.ot})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

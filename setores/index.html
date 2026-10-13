@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V255</title>
+<title>Escala de Setores — V256</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V256 [Claude] — CARTÃO “JOVEM APRENDIZ” (pedido do dono): os jovens aprendizes (cargo “APRENDIZ …”) saem do ADM Geral
+       (e de qualquer outra área) e ganham um cartão próprio na tela inicial, “🎓 Jovem Aprendiz — só de segunda a
+       sexta”. O cadastro de cada pessoa não muda (o setor do ERP continua o mesmo): o app só mostra cada um no lugar
+       certo. As contas do ADM Geral (quantos por domingo etc.) deixam de contar os aprendizes.
 V255 [Claude] — FUNÇÃO SEM “A” OU “B” E GRUPO JOVEM APRENDIZ (pedido do dono): (1) a equipe é agrupada pela FUNÇÃO,
        sem olhar a letra do fim do cargo — “PROMOTOR DE VENDAS A” e “PROMOTOR DE VENDAS B” ficam juntos em
        “PROMOTOR DE VENDAS” (o mesmo para Conferente A/B etc.), na lista da equipe, no Mês passado, no Editar
@@ -2437,7 +2441,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V255 · função sem A/B e grupo Jovem aprendiz</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V256 · cartão Jovem Aprendiz</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2568,7 +2572,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
     <div class="field">
       <label for="setorSelecionado">Setor</label>
       <select id="setorSelecionado">
-        <option value="Mercearia" selected>Mercearia (Limpeza, Perfumaria, Saudáveis)</option><option value="Açougue">Açougue</option><option value="Frente de Loja">Frente de Loja (Guanabara Card)</option><option value="Manutenção">Manutenção</option><option value="Patrimônio">Patrimônio (CFTV)</option><option value="CPD">CPD</option><option value="Tesouraria">Tesouraria</option><option value="Laticínios">Laticínios</option><option value="Salgado">Salgados</option><option value="Padaria">Padaria</option><option value="FLV">FLV</option><option value="ADM Geral">ADM Geral</option><option value="Depósito">Depósito</option><option value="Cozinha">Cozinha</option>
+        <option value="Mercearia" selected>Mercearia (Limpeza, Perfumaria, Saudáveis)</option><option value="Açougue">Açougue</option><option value="Frente de Loja">Frente de Loja (Guanabara Card)</option><option value="Manutenção">Manutenção</option><option value="Patrimônio">Patrimônio (CFTV)</option><option value="CPD">CPD</option><option value="Tesouraria">Tesouraria</option><option value="Laticínios">Laticínios</option><option value="Salgado">Salgados</option><option value="Padaria">Padaria</option><option value="FLV">FLV</option><option value="ADM Geral">ADM Geral</option><option value="Jovem Aprendiz">Jovem Aprendiz</option><option value="Depósito">Depósito</option><option value="Cozinha">Cozinha</option>
       </select>
       <small id="subsetorInfo" class="hint" style="margin-top:6px;display:block">Mercearia: Limpeza, Perfumaria e Saudáveis.</small>
     </div>
@@ -3083,10 +3087,15 @@ const GRUPOS_SETOR=[
   {id:'Padaria',nome:'Padaria',ic:'🥖',inclui:['Padaria']},
   {id:'FLV',nome:'FLV',ic:'🥬',inclui:['FLV']},
   {id:'ADM Geral',nome:'ADM Geral',ic:'🏢',inclui:['ADM Geral','ADM']},
+  {id:'Jovem Aprendiz',nome:'Jovem Aprendiz',ic:'🎓',inclui:['Jovem Aprendiz'],desc:'Só de segunda a sexta (sem domingo)'},   // V256: pelo cargo, de qualquer área
   {id:'Depósito',nome:'Depósito',ic:'📦',inclui:['Depósito']},
   {id:'Cozinha',nome:'Cozinha',ic:'🍳',inclui:['Cozinha']}];
 function grupoDoSetor(nome){ const n=norm(nome||''); return GRUPOS_SETOR.find(g=>norm(g.id)===n || g.inclui.some(x=>norm(x)===n))||null; }
-function pertenceAoGrupo(f,grupoId){ const g=grupoDoSetor(grupoId); const n=norm(f?.setor||''); return g ? g.inclui.some(x=>norm(x)===n) : n===norm(grupoId||''); }
+function ehCargoAprendiz(f){ return /\baprendiz\b/.test(norm(f?.cargo||'')); }   // V256
+function pertenceAoGrupo(f,grupoId){ const g=grupoDoSetor(grupoId);
+  if(g&&g.id==='Jovem Aprendiz') return ehCargoAprendiz(f)||norm(f?.setor||'')===norm('Jovem Aprendiz');   // V256: o cartão Jovem Aprendiz junta os aprendizes de todas as áreas
+  if(g&&ehCargoAprendiz(f)) return false;                                                                       // e eles saem da área de origem (ex.: ADM Geral)
+  const n=norm(f?.setor||''); return g ? g.inclui.some(x=>norm(x)===n) : n===norm(grupoId||''); }
 function equipeDoSetor(grupoId){
   const grupo=grupoDoSetor(grupoId); if(!grupo||!Array.isArray(todasEquipes))return [];
   const origem=todasEquipes.filter(f=>pertenceAoGrupo(f,grupo.id)).map(f=>String(f.situacao||'A').toUpperCase()==='EP'&&f.setorEmprestimo?{...f,emprestadoPara:f.setorEmprestimo}:f);
