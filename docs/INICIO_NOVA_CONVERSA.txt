@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 13/10/2026, com a Setores V245 · Encarregados V174 (consertos da investigação de erros). Assinado: Claude
+Atualizado em 13/10/2026, com a Setores V246 · Encarregados V175 (datas de balanço sem arquivo de texto). Assinado: Claude
 
 COMO USAR ESTE ARQUIVO
 ----------------------
@@ -53,8 +53,8 @@ está pendente, e espere o meu pedido."
 
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
-- Setores: V245 (próxima: V246).  Encarregados: V174 (próxima: V175).
-- PRs abertos: o do Claude com a Setores V245 + Encarregados V174. Depois do merge: nenhum.
+- Setores: V246 (próxima: V247).  Encarregados: V175 (próxima: V176).
+- PRs abertos: o do Claude com a Setores V246 + Encarregados V175. Depois do merge: nenhum.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
   (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
 - Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
@@ -67,10 +67,10 @@ está pendente, e espere o meu pedido."
     Mercearia, CPD; "Se faltar liderança no turno, entra: Preparador de dados") · V242 sem Equipe.txt na tela
     · V243 (ChatGPT) alerta de folgas no mesmo horário · V244 alerta enxuto (sem feriado, só quando mais da
     metade do horário folga, resumo curto depois dos números do mês) · V245 folga de feriado nunca no dia da folga
-    fixa + aviso de 3 domingos certo no mês com balanço.
+    fixa + aviso de 3 domingos certo no mês com balanço · V246 datas de balanço num quadro (sem .txt).
   · Encarregados V167 escala à mão · V168 downloads no APK · V169–V171 ordem dos passos · V172 data de
     admissão dd/mm/aaaa · V173 sem Equipe.txt na tela · V174 folga da virada do mês (10 dias seguidos!), mês com
-    balanço sem 3 domingos seguidos, aviso de 3 domingos certo.
+    balanço sem 3 domingos seguidos, aviso de 3 domingos certo · V175 datas de balanço num quadro (sem .txt).
 
 
 4. ROTINA OBRIGATÓRIA ANTES DE MEXER
@@ -197,6 +197,8 @@ Os dois
 - Folga que atravessa a virada do mês: o "Gerar" só refaz as folgas dos domingos deste mês. Leia folgas sempre por
   ehDescansoAssociado(i,dt) (nos Encarregados ela inclui a folga do último domingo do mês passado — V174).
 - Domingo de balanço é exceção na sequência de domingos: deixe no lugar, não tire da lista.
+- Balanços são em janeiro, março, junho e setembro (quadro "📦 Domingos de balanço", V246/V175). O aparelho manda
+  (localStorage); o histórico do mês leva as datas (planejamento.datasBalanco).
 - Sempre gerar uma escala de verdade e OLHAR a tela no celular antes de aprovar uma tela nova
   (foi assim que se viu que a V243 mostrava 61 avisos).
 

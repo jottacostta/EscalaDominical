@@ -305,6 +305,67 @@ async function testarSetores(browser){
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros.slice(0, 2).join(' | ') : ''));
 }
 
+/* V246/V175 — datas de balanço sem arquivo de texto: quadro com janeiro, março, junho e setembro, guardado no aparelho e no histórico.
+   Fluxo real: escolhe o domingo no quadro → gera a escala de março → 📦 Guardar histórico do mês (arquivo JSON de verdade) →
+   abre esse arquivo em um aparelho novo (contexto limpo) e confere; e num aparelho onde março está “Sem balanço”, o arquivo não desfaz. */
+async function testarBalancos(browser, app, nome, v, chave){
+  console.log(`\n▶ ${nome} — datas de balanço (📦 quadro de janeiro, março, junho e setembro)`);
+  const setores = nome === 'Setores', box = '#' + v + 'Balancos';
+  const abrir = async p => { await p.goto('file://' + app); await p.waitForTimeout(1500);
+    if(setores){ await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); }
+    else { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); } };
+  const escolher = (p, m, d) => p.evaluate(([box, m, d]) => { const s = document.querySelector(box + ` [data-balmes="${m}"]`); s.value = String(d || ''); s.dispatchEvent(new Event('change', { bubbles: true })); }, [box, m, d]);
+  const estado = (p, a) => p.evaluate(([ch, a]) => ({ db: datasBalanco.map(b => `${b.d}/${b.m + 1}/${b.a}`), st: JSON.parse(localStorage.getItem(ch) || '[]'), mar: balancoDoMes(a, 2), jun: balancoDoMes(a, 5), set: balancoDoMes(a, 8) }), [chave, a]);
+  const { p, erros, ctx } = await novaPagina(browser);
+  await abrir(p);
+  ok(await p.locator(box + ' [data-balmes]').count() === 4 && await p.evaluate(() => document.querySelector('[data-upload="arquivoBalanco"]')?.style.display === 'none'), 'o quadro tem janeiro, março, junho e setembro, e a caixa do arquivo .txt saiu da tela');
+  const ano = await p.evaluate(() => +document.getElementById('ano').value);
+  const [dMar, dJun, dSet] = await p.evaluate(a => [2, 5, 8].map(m => domingosDoMes(a, m)), ano);
+  // (1) o .txt antigo ainda abre pelo quadro e as datas entram no aparelho (setembro; outubro aparece em “Também guardado”)
+  const txt = path.join(require('os').tmpdir(), `balancos_${v}.txt`); fs.writeFileSync(txt, `${String(dSet[1]).padStart(2, '0')}/09/${ano}\n${String(domingosDoMes2(ano, 9)[0]).padStart(2, '0')}/10/${ano}\n`);
+  await p.setInputFiles('#arquivoBalanco', txt); await p.waitForTimeout(1200);
+  let e = await estado(p, ano);
+  const outras = await p.evaluate(box => document.querySelector(box + ' .balx-outras')?.textContent || '', box);
+  ok(e.set === dSet[1] && e.st.some(b => b.m === 8 && b.d === dSet[1]) && /10\//.test(outras), `arquivo .txt antigo: setembro (${e.set}) entra no quadro e fica guardado; outubro aparece em “Também guardado”`);
+  // (2) escolher e “Sem balanço”
+  await escolher(p, 2, dMar[1]); await p.waitForTimeout(300); e = await estado(p, ano);
+  ok(e.mar === dMar[1] && e.st.some(b => b.m === 2 && b.d === dMar[1]), `escolher o domingo ${dMar[1]}/03 guarda no aparelho (balanço de março: ${e.mar})`);
+  await escolher(p, 5, dJun[0]); await escolher(p, 5, ''); await p.waitForTimeout(300); e = await estado(p, ano);
+  ok(!e.jun && e.st.some(b => b.m === 5 && b.d === 0), `“Sem balanço” tira a data de junho (balanço de junho: ${e.jun || 'nenhum'})`);
+  // (3) gera março e guarda o histórico de verdade
+  if(setores) await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt'));
+  else await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt'));
+  await p.waitForTimeout(2500);
+  await mudarMes(p, 2, ano); await p.waitForTimeout(900);
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 240; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(a => a && a.length))) break; }
+  await p.waitForTimeout(800);
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.evaluate(() => document.getElementById('btnHistorico').click())]);
+  const arq = path.join(require('os').tmpdir(), `teste_bal_${v}_` + dl.suggestedFilename()); await dl.saveAs(arq);
+  const j = JSON.parse(fs.readFileSync(arq, 'utf8')), dbJ = j?.planejamento?.datasBalanco;
+  ok(Array.isArray(dbJ) && dbJ.some(b => b.d === dMar[1] && b.m === 2 && b.a === ano) && dbJ.some(b => b.d === dSet[1] && b.m === 8) && !dbJ.some(b => b.m === 5), `o histórico guardado (${dl.suggestedFilename()}) leva as datas de balanço: março ${dMar[1]} e setembro ${dSet[1]}, junho não`);
+  ok(Object.values(j?.resultado?.trabalhoDomingo || {}).some(a => a && a.length > 3) || !!j?.resultado?.trabalhoDomingo?.[dMar[1]], 'a escala de março guardada tem o domingo de balanço com a equipe');
+  await ctx.close();
+  // (4) aparelho novo: abrir o histórico traz as datas e grava no aparelho
+  { const { p, erros: er2, ctx } = await novaPagina(browser); await abrir(p);
+    await p.setInputFiles('#arquivoProjetoJSON', arq); await p.waitForTimeout(3000);
+    const e2 = await estado(p, ano), sel = await p.evaluate(box => document.querySelector(box + ' [data-balmes="2"]')?.value, box);
+    ok(e2.mar === dMar[1] && e2.set === dSet[1] && e2.st.some(b => b.m === 2 && b.d === dMar[1]) && +sel === dMar[1], `aparelho novo: abrir o histórico traz março (${e2.mar}) e setembro (${e2.set}), guarda no aparelho e mostra no quadro`);
+    await p.reload(); await p.waitForTimeout(2500);
+    ok((await estado(p, ano)).mar === dMar[1], 'aparelho novo: depois de recarregar, o balanço de março continua');
+    ok(!er2.length, 'aparelho novo: sem erro de JavaScript' + (er2.length ? ': ' + er2[0] : '')); await ctx.close(); }
+  // (5) aparelho onde março está “Sem balanço”: abrir o histórico não desfaz essa escolha
+  { const { p, ctx } = await novaPagina(browser); await abrir(p);
+    await escolher(p, 2, dMar[0]); await escolher(p, 2, ''); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoProjetoJSON', arq); await p.waitForTimeout(3000);
+    const e3 = await estado(p, ano);
+    ok(!e3.mar && e3.set === dSet[1], `aparelho com março “Sem balanço”: o histórico não desfaz (março: ${e3.mar || 'nenhum'}) e traz setembro (${e3.set})`);
+    await ctx.close(); }
+  fs.unlinkSync(arq); fs.unlinkSync(txt);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+}
+function domingosDoMes2(a, m){ const out = []; for(let d = 1; d <= 31; d++){ const x = new Date(a, m, d); if(x.getMonth() !== m) break; if(x.getDay() === 0) out.push(d); } return out; }
+
 /* ───────────────────────── Escala de Encarregados ───────────────────────── */
 /* verificador independente das regras dos Encarregados (domingos, feriados e folgas de feriado) */
 async function verificarEnc(p){
@@ -761,7 +822,9 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); }
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
+       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
