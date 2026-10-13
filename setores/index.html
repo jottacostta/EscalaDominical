@@ -7,10 +7,17 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V249</title>
+<title>Escala de Setores — V250</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V250 [Claude] — FOLGA DA LIDERANÇA RESPEITA O 6×1 (pedido do dono): a folga (DSR) da liderança da “Semana antes” e
+       da “Semana depois” deixava escolher dias que faziam a pessoa trabalhar 7 dias seguidos (ex.: folga fixa TER,
+       antes qua 28/10 e depois qui 05/11 → de 29/10 a 04/11 sem folga). Agora (1) a folga escolhida FICA NO LUGAR da
+       folga fixa daquela semana (antes as duas contavam, e o app não via os 7 dias); (2) os dias que deixariam a
+       pessoa 7 dias seguidos trabalhando aparecem com “✖ 7 dias seguidos” e não podem ser escolhidos; (3) se a
+       escolha já guardada quebra a regra, aparece um aviso vermelho. Feriado ainda não decidido conta como dia
+       trabalhado nessa conta (assim a escolha fica certa qualquer que seja a decisão do feriado).
 V249 [Claude] — DESFAZER FOLGA NO DOMINGO NA ESCALA À MÃO (pedido do dono): quem tinha a folga fixa no domingo
        escolhida por engano ficava apagado (“FOLGA FIXA NO DOMINGO”) na lista dos domingos, sem jeito de voltar
        atrás ali. Agora a linha dessa pessoa mostra “Escolheu folga no domingo por engano? Troque o dia da folga:”
@@ -2255,6 +2262,11 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .v249-dom{background:#3A3000;border-color:#8A6D00;color:#FFF3C2} }
 :root[data-theme="dark"] .v249-dom{background:#3A3000;border-color:#8A6D00;color:#FFF3C2}
 </style>
+<style id="v250-dsr-lider">
+.v250-aviso{margin-top:6px;padding:8px 10px;border-radius:10px;background:#FDECEC;border:1.5px solid #E52320;color:#8A1210;font-size:12.5px;font-weight:700;line-height:1.35}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .v250-aviso{background:#3A1212;border-color:#B33;color:#FFD7D7} }
+:root[data-theme="dark"] .v250-aviso{background:#3A1212;border-color:#B33;color:#FFD7D7}
+</style>
 </head>
 <body>
 <script>
@@ -2350,7 +2362,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V249 · desfazer folga no domingo na escala à mão</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V250 · folga da liderança respeita o 6×1</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -13233,6 +13245,79 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   window.v249Aplicar=aplicar; window.v249Trocar=trocar;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
+})();
+</script>
+<script>
+/* ═════ V250 — FOLGA DA LIDERANÇA RESPEITA O 6×1 ═════
+   (1) folgaFixaAtivaNaData: a folga (DSR) escolhida para a liderança SUBSTITUI a folga fixa da mesma semana
+       (ant = seg–sáb antes do domingo; pos = seg–sáb depois). Igual à antecipação manual dos funcionários.
+   (2) htmlDsrLider (reescrita): cada dia da lista é testado (v250Sequencia); se deixar a pessoa com 7+ dias
+       seguidos de trabalho perto daquele domingo, a opção fica desabilitada com “✖ 7 dias seguidos”.
+       Feriado sem decisão (trabalhoFeriado[d] vazio) conta como trabalhado — a escolha vale para qualquer decisão.
+   (3) aviso vermelho quando a escolha guardada já quebra a regra. */
+(function(){
+  const DIA=864e5;
+  const semHora=dt=>new Date(dt.getFullYear(),dt.getMonth(),dt.getDate());
+  function substitui(i,dt){
+    const m=liderancaManualDomingo; if(!m) return false;
+    for(const k in m){ if(k==='__ref') continue; const x=m[k]?.dsr?.[String(i)]; if(!x||(!x.ant&&!x.pos)) continue;
+      const dom=new Date(+$('ano').value,+$('mes').value,+k), diff=Math.round((semHora(dt)-dom)/DIA);
+      const lado=diff>=-6&&diff<=-1?'ant':diff>=1&&diff<=6?'pos':''; if(!lado||!x[lado]) continue;
+      if(x[lado]!==chaveData(dt)&&ehLiderDoDomingo(+k,i)) return true; }
+    return false;
+  }
+  const orig=window.folgaFixaAtivaNaData;
+  if(typeof orig==='function') window.folgaFixaAtivaNaData=function(i,dt){ if(!orig(i,dt)) return false; return !substitui(i,dt); };
+  function trabalha(i,dt){
+    const ano=+$('ano').value, mes=+$('mes').value, noMes=dt.getMonth()===mes&&dt.getFullYear()===ano;
+    if(dt.getDay()===0) return noMes?ehLiderDoDomingo(dt.getDate(),i):domingoForaDoMesTrabalhado(i,dt);
+    if(window.v248DsrLiderNaData?.(i,chaveData(dt))) return false;
+    if(noMes&&feriados(ano,mes)[dt.getDate()]){ const tf=trabalhoFeriado?.[dt.getDate()]; return Array.isArray(tf)&&tf.length?tf.map(Number).includes(i):true; }
+    if(temFolgaCompensatoria?.(i,dt)) return false;
+    return !folgaFixaAtivaNaData(i,dt);
+  }
+  /* maior sequência de dias trabalhados que passa pela semana antes / depois do domingo d, com (lado=valor) aplicado */
+  function sequencia(i,d,lado,valor){
+    const m=liderancaManualDomingo, k=String(d); m[k]=m[k]||{};
+    const tinhaDsr=!!m[k].dsr; m[k].dsr=m[k].dsr||{}; const tinhaReg=!!m[k].dsr[String(i)]; const reg=m[k].dsr[String(i)]=m[k].dsr[String(i)]||{};
+    const velho=reg[lado];
+    try{
+      if(lado){ if(valor) reg[lado]=valor; else delete reg[lado]; }
+      const dom=new Date(+$('ano').value,+$('mes').value,d); let run=0, ini=null, max={n:0};
+      for(let t=-20;t<=20;t++){ const dt=new Date(dom); dt.setDate(dom.getDate()+t);
+        if(trabalha(i,dt)){ if(!run) ini={t,dt}; run++; }
+        else run=0;
+        if(run>=7&&ini.t<=7&&t>=-7&&run>max.n) max={n:run,ini:ini.dt,fim:dt}; }
+      return max;
+    } finally {
+      if(lado){ if(velho===undefined) delete reg[lado]; else reg[lado]=velho; }
+      if(!tinhaReg&&!Object.keys(reg).length) delete m[k].dsr[String(i)];
+      if(!tinhaDsr&&!Object.keys(m[k].dsr).length) delete m[k].dsr;
+    }
+  }
+  const fmt=dt=>`${['dom','seg','ter','qua','qui','sex','sáb'][dt.getDay()]} ${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`;
+  window.htmlDsrLider=function(d){
+    const ls=lideresSelecionadosDomingo(d); if(!ls.length) return '';
+    const bal=balancoDoMes(+$('ano').value,+$('mes').value); if(d===bal) return '';
+    return ls.map(i=>{ const x=dsrLiderManual(d,i), f=equipe[i], fixa=Number(f.folgaFixa);
+      let algumBloq=false;
+      const sel=lado=>{ const v=x[lado]||''; return `<select class="lider-dsr" data-lider-dia="${d}" data-lider-func="${i}" data-lado="${lado}" style="padding:7px 8px;font-size:12.5px"><option value="">${lado==='ant'?(fixa===6?'Antes: sábado fixo':'Folga antes — escolha'):'Folga depois — escolha'}</option>${opcoesDsrLider(d,lado).map(dt=>{ const k=chaveData(dt);
+        let bloq=false; try{ bloq=v!==k&&sequencia(i,d,lado,k).n>=7; }catch(e){}
+        if(bloq) algumBloq=true;
+        return `<option value="${k}" ${v===k?'selected':''} ${bloq?'disabled':''}>${fmt(dt)}${dt.getDay()===fixa?' ★':''}${feriados(dt.getFullYear(),dt.getMonth())[dt.getDate()]?' · feriado':''}${bloq?' ✖ 7 dias seguidos':''}</option>`; }).join('')}</select>`; };
+      const sa=sel('ant'), sp=sel('pos');
+      let agora={n:0}; try{ agora=sequencia(i,d,'',''); }catch(e){}
+      const nome=htmlEsc(String(f.nome).split(' ')[0]);
+      const pend=dsrLiderPendente(d,i)||agora.n>=7;
+      const horaMan=(($('modoGeracao')?.value||'motor')==='manual')?`<label class="v209-hora">⏰ Horário de ${nome} no domingo<select class="v209-lider-hora" data-d="${d}" data-i="${i}">${opcoesHorarioManual(horarioManualSelecionado(d,i)||horarioPadraoLideranca(d,i),d)}</select></label>`:'';
+      const aviso=agora.n>=7?`<div class="v250-aviso" role="alert">⚠️ Assim ${nome} trabalha ${agora.n} dias seguidos (de ${fmt(agora.ini)} a ${fmt(agora.fim)}). A regra do 6×1 deixa no máximo 6. Troque a folga.</div>`:'';
+      return `<div class="lider-dsr-box" style="border:1px dashed ${agora.n>=7?'#E52320':pend?'#E7C22A':'var(--border)'};border-radius:10px;padding:8px;background:${agora.n>=7?'#FFF5F5':pend?'#FFF9E6':'var(--surface-2)'}">${horaMan}
+        <div style="font-size:12px;font-weight:800;margin-bottom:6px">🛌 Folga (DSR) de ${nome} <span style="font-weight:600;color:var(--muted)">• folga fixa ${nomeDiaFolga(fixa)}</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><label style="display:grid;gap:3px;font-size:11px;color:var(--muted);font-weight:700">Semana antes${sa}</label><label style="display:grid;gap:3px;font-size:11px;color:var(--muted);font-weight:700">Semana depois${sp}</label></div>
+        <small style="display:block;margin-top:4px;color:var(--muted);font-size:11px">★ = dia da folga fixa. A folga escolhida fica no lugar da folga fixa daquela semana.${algumBloq?' ✖ = esse dia deixaria '+nome+' 7 dias seguidos trabalhando (regra do 6×1).':''}</small>${aviso}
+        <button type="button" class="btn secondary sm" data-dsr-fixa="${d}_${i}" style="margin-top:6px;padding:5px 9px;font-size:11.5px">↺ Usar a folga fixa</button></div>`; }).join('');
+  };
+  window.v250Sequencia=sequencia; window.v250Substitui=substitui;
 })();
 </script>
 </body>

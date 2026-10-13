@@ -369,6 +369,29 @@ async function testarSetores(browser){
     });
     ok(r.apagado && r.temLista && r.trocou && r.semCaixa && r.aDefinir, `V249: folga no domingo por engano pode ser desfeita na escala à mão (apagada: ${r.apagado}, lista: ${r.temLista}, trocou para quarta: ${r.trocou}, caixa some: ${r.semCaixa}, “a definir”: ${r.aDefinir})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 250){   // V250: folga da liderança no lugar da folga fixa e sem 7 dias seguidos
+    const r = await p.evaluate(() => {
+      const bk = { a: $('ano').value, m: $('mes').value, lm: JSON.stringify(liderancaManualDomingo || {}), tf: JSON.stringify(trabalhoFeriado || {}) };
+      const i = equipe.findIndex(f => ehLiderancaDomingo(f)), f = equipe[i], bkF = [f.folgaFixa, f.folgaPendente];
+      const out = {};
+      try{
+        $('ano').value = '2026'; $('mes').value = '10'; trabalhoFeriado = {}; f.folgaFixa = 2; f.folgaPendente = false;
+        liderancaManualDomingo = { '1': { mais: [i], dsr: { [String(i)]: { ant: '2026-10-28', pos: '2026-11-05' } } } };   // caso do print do dono
+        out.substitui = !folgaFixaAtivaNaData(i, new Date(2026, 9, 27)) && !folgaFixaAtivaNaData(i, new Date(2026, 10, 3)) && folgaFixaAtivaNaData(i, new Date(2026, 10, 10));
+        const h = htmlDsrLider(1);
+        out.aviso = h.includes('v250-aviso') && h.includes('7 dias seguidos (de qui 29/10 a qua 04/11)');
+        const box = document.createElement('div'); box.innerHTML = h;
+        const op = (lado, v) => box.querySelector(`select[data-lado="${lado}"] option[value="${v}"]`);
+        out.bloqueia = op('pos', '2026-11-06').disabled && op('pos', '2026-11-07').disabled && !op('pos', '2026-11-04').disabled && !op('ant', '2026-10-30').disabled;
+        liderancaManualDomingo['1'].dsr[String(i)] = { ant: '2026-10-27', pos: '2026-11-03' };   // “Usar a folga fixa”
+        out.fixaOk = !htmlDsrLider(1).includes('v250-aviso') && v250Sequencia(i, 1, '', '').n < 7;
+        liderancaManualDomingo['1'].dsr[String(i)] = { ant: '2026-10-28', pos: '2026-11-05' };
+        out.semMexer = JSON.stringify(liderancaManualDomingo['1'].dsr[String(i)]) === JSON.stringify({ ant: '2026-10-28', pos: '2026-11-05' });
+      } finally { $('ano').value = bk.a; $('mes').value = bk.m; liderancaManualDomingo = JSON.parse(bk.lm); trabalhoFeriado = JSON.parse(bk.tf); f.folgaFixa = bkF[0]; if(bkF[1] === undefined) delete f.folgaPendente; else f.folgaPendente = bkF[1]; }
+      return out;
+    });
+    ok(r.substitui && r.aviso && r.bloqueia && r.fixaOk && r.semMexer, `V250: folga da liderança no lugar da folga fixa (${r.substitui}), aviso dos 7 dias seguidos (${r.aviso}), dias proibidos bloqueados (${r.bloqueia}), folga fixa sem aviso (${r.fixaOk}), conferir não muda a escolha (${r.semMexer})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

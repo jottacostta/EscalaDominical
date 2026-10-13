@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V249.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V250.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo). Depois do merge: nenhum.
+- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo + V250 folga da liderança respeita o 6×1). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V250**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V251**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V250 — folga da liderança respeita o 6×1 — Claude
+- **O que mudou e por quê:** print do dono (liderança do domingo 01/11/2026, folga fixa TER): antes qua 28/10 e depois qui 05/11 (e outra com qui 29/10 → sáb 07/11) eram aceitos, mas deixam a pessoa 7+ dias seguidos trabalhando. O app não via porque a folga fixa da terça continuava valendo junto com a DSR escolhida (a DSR era somada, não trocada).
+- **Regra nova (confirme com o dono se mudar):** a DSR da liderança (`liderancaManualDomingo[d].dsr[i].ant|pos`) **substitui** a folga fixa da mesma semana (ant = seg–sáb antes do domingo; pos = seg–sáb depois), igual à antecipação manual dos funcionários (`antecipacoesFolgaManual`). Sem escolha, a folga fixa continua.
+- **Onde no código:** bloco `/* ═════ V250 … ═════ */`: embrulho de `folgaFixaAtivaNaData` (`window.v250Substitui`), `htmlDsrLider` reescrita (opções `disabled` com “✖ 7 dias seguidos”, aviso `.v250-aviso`), `window.v250Sequencia(i,d,lado,valor)` = maior sequência de dias trabalhados que passa pelas semanas do domingo, com a escolha testada aplicada por um instante. Feriado sem decisão (`trabalhoFeriado[d]` vazio) conta como trabalhado.
+- **Teste:** V250 em `testes/rodar.js` (caso do print). Também: o teste V247 da auditoria 6×1 força 3 pessoas com folga no domingo (antes às vezes ficava com 0 avisos e falhava no GitHub).
 
 ### 2026-10-13 — Setores V249 — desfazer folga no domingo na escala à mão — Claude
 - **O que mudou e por quê:** print do dono (Mercearia, escala à mão): escolheu por engano a folga fixa no domingo para uma pessoa e ela ficou apagada (“FOLGA FIXA NO DOMINGO”, checkbox `disabled`) sem jeito de desfazer ali — a caixa de folga do V223/V225 (`select[data-v225-fixa]`) só aparece em quem está **marcado** no domingo, e quem tem folga no domingo não pode ser marcado.
