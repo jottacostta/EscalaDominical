@@ -334,6 +334,39 @@ async function testarSetores(browser){
     });
     ok(r.temFeriado && r.folgaNoFeriado, `V248: folga da liderança pode cair em feriado (02/11 na lista: ${r.temFeriado ? 'sim' : 'não'}) e quem folga no feriado sai da lista de quem trabalha nele (${r.folgaNoFeriado ? 'sim' : 'não'})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 249){   // V249: desfazer folga no domingo escolhida por engano na escala à mão
+    const r = await p.evaluate(async () => {
+      const espera = ms => new Promise(ok => setTimeout(ok, ms));
+      const bk = { modo: $('modoGeracao').value, eq: JSON.stringify(equipe.map(f => [f.folgaFixa, !!f.folgaPendente, !!f.folgaDefinida])) };
+      const out = {};
+      const i = equipe.findIndex(f => String(f.situacao || 'A').toUpperCase() === 'A' && !ehLiderancaDomingo(f) && !window.v157Regras?.bloqueioDomingo?.(f));
+      const f = equipe[i];
+      try{
+        $('modoGeracao').value = 'manual';
+        window.v225DefinirFolga(i, '0');   // escolheu domingo (por engano)
+        renderSelecaoDomingosGeracao(); await espera(150);
+        const ch = document.querySelector(`#selecaoDomingosManual input[type=checkbox][data-func="${i}"]`);
+        out.apagado = !!ch && ch.disabled;
+        const sel = ch?.closest('.dom-func')?.querySelector('.v249-dom select');
+        out.temLista = !!sel;
+        sel.value = '3'; sel.dispatchEvent(new Event('change', { bubbles: true })); await espera(150);
+        const ch2 = document.querySelector(`#selecaoDomingosManual input[type=checkbox][data-func="${i}"]`);
+        out.trocou = Number(f.folgaFixa) === 3 && !f.folgaPendente && !!ch2 && !ch2.disabled && !window.v222DomManual.tem(f);
+        out.semCaixa = !ch2?.closest('.dom-func')?.querySelector('.v249-dom');
+        window.v225DefinirFolga(i, '0'); renderSelecaoDomingosGeracao(); await espera(150);
+        const sel3 = document.querySelector(`#selecaoDomingosManual input[data-func="${i}"]`)?.closest('.dom-func')?.querySelector('.v249-dom select');
+        sel3.value = ''; sel3.dispatchEvent(new Event('change', { bubbles: true })); await espera(150);
+        window.v221Normalizar?.();
+        out.aDefinir = !!f.folgaPendente && Number(f.folgaFixa) !== 0 && !window.v222DomManual.tem(f);
+      } finally {
+        window.v222DomManual.marcar(f, false);
+        JSON.parse(bk.eq).forEach(([ff, pend, def], k) => { const x = equipe[k]; x.folgaFixa = ff; if(pend) x.folgaPendente = true; else delete x.folgaPendente; if(def) x.folgaDefinida = true; else delete x.folgaDefinida; });
+        $('modoGeracao').value = bk.modo; renderSelecaoDomingosGeracao();
+      }
+      return out;
+    });
+    ok(r.apagado && r.temLista && r.trocou && r.semCaixa && r.aDefinir, `V249: folga no domingo por engano pode ser desfeita na escala à mão (apagada: ${r.apagado}, lista: ${r.temLista}, trocou para quarta: ${r.trocou}, caixa some: ${r.semCaixa}, “a definir”: ${r.aDefinir})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

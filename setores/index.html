@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V248</title>
+<title>Escala de Setores — V249</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V249 [Claude] — DESFAZER FOLGA NO DOMINGO NA ESCALA À MÃO (pedido do dono): quem tinha a folga fixa no domingo
+       escolhida por engano ficava apagado (“FOLGA FIXA NO DOMINGO”) na lista dos domingos, sem jeito de voltar
+       atrás ali. Agora a linha dessa pessoa mostra “Escolheu folga no domingo por engano? Troque o dia da folga:”
+       com uma lista (Segunda…Sábado ou “a definir”). Ao trocar, a pessoa volta a poder ser escolhida no domingo.
 V248 [Claude] — FOLGA DA LIDERANÇA TAMBÉM EM FERIADO (pedido do dono, escala à mão): com a folga antes antecipada para
        a segunda 26/10, a folga depois devia ser a segunda 02/11, mas ela não aparecia — as listas “Semana antes” e
        “Semana depois” da liderança escondiam os feriados (02/11 = Finados). Agora os feriados aparecem, marcados
@@ -2243,6 +2247,14 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
    na escala à mão o texto das linhas escondidas sumia do innerText (o teste V230 pegou). */
 #feriadosArea .feriado-pessoa{content-visibility:auto;contain-intrinsic-size:auto 64px}
 </style>
+<style id="v249-desfazer-dom">
+.dom-func.disabled.v249-tem{opacity:1}
+.dom-func.disabled.v249-tem .dom-func-main>b,.dom-func.disabled.v249-tem .dom-func-main>small{opacity:.6}
+.v249-dom{margin-top:8px;padding:8px 10px;border:1.5px solid #E0B100;background:#FFF8DB;border-radius:10px;display:grid;gap:6px;font-size:13px;line-height:1.35;color:#3D3200;cursor:default}
+.v249-dom select{min-height:44px;padding:6px 10px;border:1.5px solid var(--border-strong,#CFD8E6);border-radius:10px;font:inherit;font-size:14px;font-weight:700;background:#fff;color:var(--ink,#111);max-width:100%;cursor:pointer}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .v249-dom{background:#3A3000;border-color:#8A6D00;color:#FFF3C2} }
+:root[data-theme="dark"] .v249-dom{background:#3A3000;border-color:#8A6D00;color:#FFF3C2}
+</style>
 </head>
 <body>
 <script>
@@ -2338,7 +2350,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V248 · folga da liderança também em feriado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V249 · desfazer folga no domingo na escala à mão</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -13167,6 +13179,60 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return r;
   };
   window.v248DsrLiderNaData=dsrLiderNaData;
+})();
+</script>
+<script>
+/* ═════ V249 — DESFAZER FOLGA NO DOMINGO NA ESCALA À MÃO ═════
+   Quem tem folga fixa no domingo fica apagado (disabled) na lista dos domingos e a caixa de folga do V223/V225 só
+   aparece em quem está marcado — não havia como voltar atrás ali. Esta camada põe, nessas linhas, uma lista para
+   trocar o dia da folga fixa (usa window.v225DefinirFolga). “A definir” tira o registro do V222 e deixa a folga
+   pendente (mesmo efeito do V221 normalizar). */
+(function(){
+  const $id=id=>document.getElementById(id);
+  const DIAS=[['Segunda',1],['Terça',2],['Quarta',3],['Quinta',4],['Sexta',5],['Sábado',6]];
+  const ativo=f=>String(f?.situacao||'A').trim().toUpperCase()==='A';
+  const aprendiz=f=>{ try{ return !!window.v157Regras?.bloqueioDomingo?.(f); }catch(e){ return false; } };
+  function trocar(i,valor){
+    const f=equipe[i]; if(!f) return;
+    if(valor===''){   // a definir: sai do registro do domingo e fica pendente
+      window.v222DomManual?.marcar(f,false);
+      [f,...(Array.isArray(todasEquipes)?todasEquipes.filter(x=>x!==f&&String(x.matricula||'')&&String(x.matricula)===String(f.matricula)):[])].forEach(x=>{ if(Number(x.folgaFixa)===0) x.folgaFixa=2; });
+    }
+    window.v225DefinirFolga?.(i,valor);
+  }
+  let aplicando=false, agendado=0;
+  function aplicar(){
+    agendado=0; aplicando=true;
+    try{
+      ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const area=$id(id); if(!area) return;
+        area.querySelectorAll('input[type=checkbox][data-func]').forEach(ch=>{
+          const row=ch.closest('.dom-func'), main=row?.querySelector('.dom-func-main'); if(!main) return;
+          const i=Number(ch.dataset.func), f=equipe[i];
+          let box=main.querySelector(':scope > .v249-dom');
+          const precisa=!!f&&ch.disabled&&ativo(f)&&!aprendiz(f)&&!ehLiderancaDomingo(f)&&Number(f.folgaFixa)===0;
+          if(!precisa){ box?.remove(); row.classList.remove('v249-tem'); return; }
+          if(box) return;
+          box=document.createElement('div'); box.className='v249-dom';
+          box.innerHTML=`<span>Escolheu folga no domingo por engano? <b>Troque o dia da folga:</b></span>`
+            +`<select data-v249="${i}" aria-label="Dia da folga fixa"><option value="0" selected>Domingo (não trabalha domingo)</option>${DIAS.map(([n,d])=>`<option value="${d}">${n}</option>`).join('')}<option value="">— a definir —</option></select>`;
+          main.appendChild(box); row.classList.add('v249-tem');
+          const sel=box.querySelector('select');
+          sel.addEventListener('click',e=>e.stopPropagation());
+          sel.addEventListener('change',e=>{ e.stopPropagation(); if(e.target.value==='0') return; try{ trocar(i,e.target.value); }catch(err){ console.warn('[V249]',err); } });
+        });
+      });
+    }catch(e){ console.warn('[V249]',e); }
+    finally{ obs.takeRecords(); aplicando=false; }
+  }
+  const agendar=()=>{ if(aplicando||agendado) return; agendado=setTimeout(aplicar,40); };
+  const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
+  document.addEventListener('click',e=>{ if(e.target.closest?.('.v249-dom')&&!e.target.closest('select')) e.preventDefault(); },true);
+  function iniciar(){
+    ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const el=$id(id); if(el) obs.observe(el,{childList:true,subtree:true}); });
+    agendar();
+  }
+  window.v249Aplicar=aplicar; window.v249Trocar=trocar;
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
 })();
 </script>
 </body>
