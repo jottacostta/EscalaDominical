@@ -393,8 +393,8 @@ async function testarSetores(browser){
     ok(r.substitui && r.aviso && r.bloqueia && r.fixaOk && r.semMexer, `V250: folga da liderança no lugar da folga fixa (${r.substitui}), aviso dos 7 dias seguidos (${r.aviso}), dias proibidos bloqueados (${r.bloqueia}), folga fixa sem aviso (${r.fixaOk}), conferir não muda a escolha (${r.semMexer})`);
   }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 251){   // V251: equipe separada por função (só arrumação na tela)
-    await p.evaluate(() => { renderEquipe(); }); await p.waitForTimeout(150);
-    const r = await p.evaluate(() => {
+    const r = await p.evaluate(async () => {
+      renderEquipe(); await new Promise(o => setTimeout(o, 150)); window.v251Agrupar?.();   // espera dentro da página (no computador ocupado a espera de fora chegava antes da arrumação)
       const L = document.getElementById('equipeLista');
       const cabs = [...L.querySelectorAll(':scope > .v251-cab')], rows = [...L.querySelectorAll(':scope > .person')];
       const funcoes = new Set(equipe.map(f => String(f.cargo || '').trim().toUpperCase()));
@@ -406,6 +406,37 @@ async function testarSetores(browser){
       return { cabs: cabs.length, funcoes: funcoes.size, soma, n: equipe.length, ordemIgual, juntos, liderPrimeiro };
     });
     ok(r.cabs === r.funcoes && r.soma === r.n && r.ordemIgual && r.juntos && r.liderPrimeiro, `V251: equipe separada por função (${r.cabs} títulos para ${r.funcoes} funções, ${r.soma} de ${r.n} pessoas, lideranças primeiro: ${r.liderPrimeiro}, ordem guardada igual: ${r.ordemIgual})`);
+  }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 252){   // V252: triângulo para fechar as listas + liderança em dupla
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {};
+      const bk = { modo: $('modoGeracao').value, lm: JSON.stringify(liderancaManualDomingo || {}), hm: JSON.stringify(horariosManuaisDomingo || {}) };
+      try{
+        $('modoGeracao').value = 'manual'; renderSelecaoDomingosGeracao(); await w(200);
+        const c = document.querySelector('#selecaoDomingosManual .dom-card');
+        out.temSeta = !!c.querySelector('.dom-head .v252-seta') && !!document.getElementById('selecaoDomingosManual').previousElementSibling?.classList.contains('v252-barra');
+        c.querySelector('.v252-seta').click(); await w(30);
+        out.fecha = c.classList.contains('v252-rec') && getComputedStyle(c.querySelector('.dom-funcs')).display === 'none';
+        renderSelecaoDomingosGeracao(); await w(200);
+        const c2 = document.querySelector('#selecaoDomingosManual .dom-card'); out.lembra = c2.classList.contains('v252-rec');
+        c2.querySelector('.v252-seta').click(); out.abre = !c2.classList.contains('v252-rec');
+        renderEquipe(); await w(150);
+        const cab = document.querySelector('#equipeLista .v251-cab'); cab.querySelector('.v252-seta').click(); await w(30);
+        const fechados = document.querySelectorAll('#equipeLista .person.v252-oculto').length; cab.click(); await w(30);
+        out.grupo = fechados > 0 && fechados < equipe.length && document.querySelectorAll('#equipeLista .v252-oculto').length === 0;
+        liderancaManualDomingo = { __ref: refLideranca() }; renderLiderancaDomingo(); await w(100);
+        const doms = domingosDoMes(+$('ano').value, +$('mes').value), bal = balancoDoMes(+$('ano').value, +$('mes').value);
+        const k = doms.findIndex((d, n) => d !== bal && doms[n + 1] !== undefined && doms[n + 1] !== bal);
+        const inp = document.querySelector(`[data-v208-busca="${doms[k]}"]`);
+        if(inp){ inp.focus(); inp.dispatchEvent(new Event('input')); await w(50); inp.closest('.lider-row').querySelector('.v208-op')?.click(); await w(100); }
+        const i0 = lideresSelecionadosDomingo(doms[k])[0];
+        out.dupla = i0 !== undefined && lideresSelecionadosDomingo(doms[k + 1]).includes(i0) && /também foi colocado/.test(document.querySelector('.v252-lid-msg')?.textContent || '');
+        const m = window.v252Copiar(doms[k + 1], i0); out.terceiro = !!m && !m.ok && /3º domingo seguido/.test(m.t);
+      } finally { $('modoGeracao').value = bk.modo; liderancaManualDomingo = JSON.parse(bk.lm); horariosManuaisDomingo = JSON.parse(bk.hm); renderSelecaoDomingosGeracao(); renderLiderancaDomingo(); }
+      return out;
+    });
+    ok(r.temSeta && r.fecha && r.lembra && r.abre && r.grupo, `V252: triângulo fecha e abre o domingo da escala à mão (${r.fecha}/${r.abre}), lembra depois de redesenhar (${r.lembra}) e fecha o grupo de função (${r.grupo})`);
+    ok(r.dupla && r.terceiro, `V252: liderança escolhida vai junto para o domingo seguinte (${r.dupla}) e o app diz o motivo quando não pode (3º domingo seguido: ${r.terceiro})`);
   }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }

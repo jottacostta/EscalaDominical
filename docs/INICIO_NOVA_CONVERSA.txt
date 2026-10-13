@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 13/10/2026, com a Setores V251 · Encarregados V175. Assinado: Claude
+Atualizado em 13/10/2026, com a Setores V252 · Encarregados V175. Assinado: Claude
 
 COMO USAR ESTE ARQUIVO
 ----------------------
@@ -53,8 +53,8 @@ está pendente, e espere o meu pedido."
 
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
-- Setores: V251 (próxima: V252).  Encarregados: V175 (próxima: V176).
-- PRs abertos: o #45 do Claude (manuais + Setores V247 mais rápida + V248 + V249 + V250 + V251). Depois do merge: nenhum.
+- Setores: V252 (próxima: V253).  Encarregados: V175 (próxima: V176).
+- PRs abertos: o #45 do Claude (manuais + Setores V247 mais rápida + V248 + V249 + V250 + V251 + V252). Depois do merge: nenhum.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
   (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
 - Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
@@ -71,7 +71,8 @@ está pendente, e espere o meu pedido."
     rápida em setores grandes (mesma escala) · V248 folga da liderança pode cair em feriado · V249 desfazer folga no
     domingo escolhida por engano (na lista da escala à mão) · V250 folga da liderança
     fica no lugar da folga fixa e não deixa 7 dias seguidos · V251 equipe separada por função (e o
-    Editar equipe volta a mostrar a folga certa — antes mostrava Terça para todos).
+    Editar equipe volta a mostrar a folga certa — antes mostrava Terça para todos) · V252 triângulo
+    ▾/▸ para fechar as listas grandes + liderança escolhida já vai para o domingo seguinte (dupla).
   · Encarregados V167 escala à mão · V168 downloads no APK · V169–V171 ordem dos passos · V172 data de
     admissão dd/mm/aaaa · V173 sem Equipe.txt na tela · V174 folga da virada do mês (10 dias seguidos!), mês com
     balanço sem 3 domingos seguidos, aviso de 3 domingos certo · V175 datas de balanço num quadro (sem .txt).

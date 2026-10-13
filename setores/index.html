@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V251</title>
+<title>Escala de Setores — V252</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V252 [Claude] — TRIÂNGULO PARA FECHAR AS LISTAS + LIDERANÇA EM DUPLA (pedidos do dono):
+       (1) os cartões com listas grandes ganharam o triângulo ▾/▸ para fechar e abrir: cada domingo da escala à
+       mão e da mista, cada feriado, e cada função da equipe (passo Equipe, Mês passado e ✏️ Editar equipe — o Mês
+       passado agora também vem separado por função). Em cima de cada lista: “▾ Abrir todos” e “▸ Fechar todos”.
+       O app lembra o que ficou fechado (por setor e mês) neste aparelho.
+       (2) ao escolher uma liderança num domingo, o app já coloca a mesma pessoa no domingo seguinte (dupla de
+       domingos). Se ela não puder ir, o app diz o motivo: 3º domingo seguido, domingo de balanço, ou o domingo
+       seguinte já está com a liderança completa. Vale quando a pessoa é escolhida à mão (o “Sugerir” continua igual).
 V251 [Claude] — EQUIPE SEPARADA POR FUNÇÃO (pedido do dono): no passo Equipe e no ✏️ Editar equipe, as pessoas
        aparecem agrupadas pela função (cargo), cada grupo com um título (ex.: “AÇOUGUEIRO · 12 pessoas”).
        Lideranças primeiro; as outras funções em ordem alfabética. Só muda a arrumação na tela: a ordem guardada
@@ -2282,6 +2290,26 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v251-cab span{font-size:12px;font-weight:700;text-transform:none;color:var(--muted,#5B6575);white-space:nowrap}
 #equipeLista .person[data-v251],#equipeEditorRows .editor-row[data-v251]{border-left:4px solid var(--brand,#0047BA)}
 </style>
+<style id="v252-triangulo">
+.v252-seta{flex:0 0 auto;min-width:40px;height:40px;border-radius:10px;border:1px solid var(--border,#D5DCE6);background:var(--surface,#fff);font-size:16px;line-height:1;cursor:pointer;color:var(--ink-2,#334155);padding:0 10px;font-weight:800}
+.v252-seta:hover{border-color:var(--brand,#0047BA)}
+.v252-cab{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dom-card.v252-rec>:not(.dom-head){display:none!important}
+.dom-card.v252-rec>.dom-head{border-bottom:0}
+.feriado-box.v252-rec>:not(.v252-cab){display:none!important}
+.feriado-box>.v252-cab{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v252-oculto{display:none!important}
+.v252-barra{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.v252-barra button{min-height:40px;padding:8px 14px;border-radius:10px;border:1px solid var(--border,#D5DCE6);background:var(--surface,#fff);font:inherit;font-size:13px;font-weight:700;color:var(--ink-2,#334155);cursor:pointer}
+.v252-barra button:hover{border-color:var(--brand,#0047BA)}
+.v251-cab .v252-seta{min-width:36px;height:36px}
+.v251-cab .v252-dir{display:flex;align-items:center;gap:8px}
+.v252-lid-msg{margin:0 0 10px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;line-height:1.4;border:1.5px solid #2E7D32;background:#EAF6EC;color:#1B5E20}
+.v252-lid-msg.warn{border-color:#E0B100;background:#FFF8DB;color:#5C4600}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .v252-lid-msg{background:#13301A;color:#C8F2CF} :root:not([data-theme="light"]) .v252-lid-msg.warn{background:#3A3000;color:#FFF3C2} }
+:root[data-theme="dark"] .v252-lid-msg{background:#13301A;color:#C8F2CF}
+:root[data-theme="dark"] .v252-lid-msg.warn{background:#3A3000;color:#FFF3C2}
+</style>
 </head>
 <body>
 <script>
@@ -2377,7 +2405,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V251 · equipe separada por função</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V252 · triângulo para fechar listas · liderança em dupla</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -13348,15 +13376,23 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   function agrupar(area,linhas,cargoDe){
     area.querySelectorAll(':scope > .v251-cab').forEach(x=>x.remove());
-    if(linhas.length<2){ linhas.forEach(r=>{ r.style.order=''; delete r.dataset.v251; }); return; }
+    if(linhas.length<2){ linhas.forEach(r=>{ r.style.order=''; delete r.dataset.v251; r.classList.remove('v252-oculto'); }); area.previousElementSibling?.classList.contains('v252-barra')&&area.previousElementSibling.remove(); return; }
     const grupos=new Map();
     linhas.forEach(r=>{ const c=String(cargoDe(r)||'').trim(), k=chave(c)||'~'; if(!grupos.has(k)) grupos.set(k,{k,nome:c?c.toUpperCase():'SEM FUNÇÃO',lid:!!c&&lider(c),rows:[]}); grupos.get(k).rows.push(r); });
     const ord=[...grupos.values()].sort((a,b)=>(a.k==='~')-(b.k==='~')||(b.lid-a.lid)||a.k.localeCompare(b.k,'pt-BR'));
     ord.forEach((g,n)=>{ const base=(n+1)*2;
       const cab=document.createElement('div'); cab.className='v251-cab'; cab.style.order=String(base-1); cab.setAttribute('role','heading'); cab.setAttribute('aria-level','4');
-      cab.innerHTML=`<b>${es(g.nome)}${g.lid?' ⭐':''}</b> <span>${g.rows.length} ${g.rows.length===1?'pessoa':'pessoas'}</span>`;
+      const kRec='grp|'+area.id+'|'+g.k, rec=!!window.v252Rec?.get(kRec);   // V252: triângulo para fechar o grupo
+      cab.innerHTML=`<b>${es(g.nome)}${g.lid?' ⭐':''}</b> <span class="v252-dir"><span>${g.rows.length} ${g.rows.length===1?'pessoa':'pessoas'}</span><button type="button" class="v252-seta" aria-expanded="${!rec}" aria-label="${rec?'Abrir':'Fechar'} a lista de ${es(g.nome)}">${rec?'▸':'▾'}</button></span>`;
+      cab.classList.add('v252-cab'); cab.dataset.v252Grupo=kRec;
+      cab.addEventListener('click',e=>{ if(e.target.closest('input,select,a')) return; e.preventDefault(); const r2=!window.v252Rec?.get(kRec); window.v252Rec?.set(kRec,r2); pintarGrupo(cab,g.rows,r2); });
       area.insertBefore(cab,g.rows[0]);
-      g.rows.forEach(r=>{ r.style.order=String(base); r.dataset.v251=g.k; }); });
+      g.rows.forEach(r=>{ r.style.order=String(base); r.dataset.v251=g.k; r.classList.toggle('v252-oculto',rec); }); });
+    window.v252Barra?.(area,'.v251-cab',c=>c.dataset.v252Grupo,(c,rec)=>{ const k=c.dataset.v252Grupo; pintarGrupo(c,[...area.children].filter(x=>x!==c&&x.style.order===String(Number(c.style.order)+1)),rec); });
+  }
+  function pintarGrupo(cab,rows,rec){   // V252
+    rows.forEach(r=>r.classList.toggle('v252-oculto',rec));
+    const b=cab.querySelector('.v252-seta'); if(b){ b.textContent=rec?'▸':'▾'; b.setAttribute('aria-expanded',String(!rec)); b.setAttribute('aria-label',(rec?'Abrir':'Fechar')+' a lista'); }
   }
   let aplicando=false, ag=0;
   function aplicar(){
@@ -13366,17 +13402,134 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       if(L){ const rows=[...L.querySelectorAll(':scope > .person')]; if(rows.length===(Array.isArray(equipe)?equipe.length:-1)) agrupar(L,rows,r=>equipe[rows.indexOf(r)]?.cargo); else agrupar(L,[],()=>''); }
       const E=$id('equipeEditorRows');
       if(E){ const rows=[...E.querySelectorAll(':scope > .editor-row')]; agrupar(E,rows,r=>r.querySelector('.ed-cargo')?.value||''); }
+      const H=$id('historicoLista');   // V252: Mês passado também separado por função
+      if(H){ const rows=[...H.querySelectorAll(':scope > .history-row')]; if(rows.length===(Array.isArray(equipe)?equipe.length:-1)) agrupar(H,rows,r=>equipe[Number(r.dataset.histRow)]?.cargo); else agrupar(H,[],()=>''); }
     }catch(e){ console.warn('[V251]',e); }
     finally{ obs.takeRecords(); aplicando=false; }
   }
   const agendar=()=>{ if(aplicando||ag) return; ag=setTimeout(aplicar,30); };
   const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
   function iniciar(){
-    ['equipeLista','equipeEditorRows'].forEach(id=>{ const el=$id(id); if(el) obs.observe(el,{childList:true}); });
+    ['equipeLista','equipeEditorRows','historicoLista'].forEach(id=>{ const el=$id(id); if(el) obs.observe(el,{childList:true}); });   // V252: + Mês passado
     document.addEventListener('change',e=>{ if(e.target.matches?.('#equipeEditorRows .ed-cargo')) agendar(); });
     agendar();
   }
   window.v251Agrupar=aplicar;
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
+})();
+</script>
+<script>
+/* ═════ V252 — TRIÂNGULO ▾/▸ PARA FECHAR LISTAS + LIDERANÇA EM DUPLA ═════
+   (1) window.v252Rec: guarda o que ficou fechado (localStorage escalaSetores.v252Recolhidos, chave setor|mês|ano|…).
+       Cartões: .dom-card (escala à mão/mista; chave dom|d) e .feriado-box (chave fer|título) ganham .v252-seta no
+       cabeçalho; fechado = classe .v252-rec (CSS esconde o resto — o DOM não muda). Grupos de função: no bloco V251.
+       window.v252Barra(area, seletor, chave, pintar) põe “▾ Abrir todos / ▸ Fechar todos” antes da lista.
+   (2) Liderança em dupla: escolha à mão (busca .v208-op / Enter, .lider-unica, .lider-select) marca o domingo; o
+       embrulho de renderLiderancaDomingo vê quem entrou e chama copiar(d,i) → coloca no domingo seguinte ou diz o
+       motivo (3º seguido, balanço, vaga cheia por modo/turno). O “Sugerir” não passa por aqui. */
+(function(){
+  const $id=id=>document.getElementById(id);
+  const LS='escalaSetores.v252Recolhidos';
+  let est={}; try{ est=JSON.parse(localStorage.getItem(LS)||'{}')||{}; }catch(e){ est={}; }
+  const pref=()=>[$id('setorSelecionado')?.value||'',$id('mes')?.value||'',$id('ano')?.value||''].join('|')+'|';
+  const gravar=()=>{ try{ const ks=Object.keys(est); if(ks.length>500) ks.slice(0,ks.length-500).forEach(k=>delete est[k]); localStorage.setItem(LS,JSON.stringify(est)); }catch(e){} };
+  window.v252Rec={ get:k=>!!est[pref()+k], set:(k,v)=>{ if(v) est[pref()+k]=1; else delete est[pref()+k]; gravar(); } };
+  function pintar(card,rec){ card.classList.toggle('v252-rec',rec); const b=card.querySelector(':scope > .v252-cab .v252-seta');
+    if(b){ b.textContent=rec?'▸':'▾'; b.setAttribute('aria-expanded',String(!rec)); b.setAttribute('aria-label',(rec?'Abrir':'Fechar')+' a lista'); b.title=rec?'Abrir a lista':'Fechar a lista'; } }
+  function cartao(card,head,k){
+    head.classList.add('v252-cab'); card.dataset.v252=k;
+    if(!head.querySelector(':scope > .v252-seta')){ const b=document.createElement('button'); b.type='button'; b.className='v252-seta'; head.appendChild(b); }
+    if(!head.dataset.v252){ head.dataset.v252='1'; head.addEventListener('click',e=>{ if(e.target.closest('input,select,a')||(e.target.closest('button')&&!e.target.closest('.v252-seta'))) return; e.preventDefault(); const rec=!card.classList.contains('v252-rec'); window.v252Rec.set(card.dataset.v252,rec); pintar(card,rec); }); }
+    pintar(card,window.v252Rec.get(k));
+  }
+  window.v252Barra=function(area,sel,chave,pintarItem){
+    const itens=[...area.querySelectorAll(':scope > '+sel+', :scope '+sel)].filter((x,n,a)=>a.indexOf(x)===n);
+    let b=area.previousElementSibling; const tem=b&&b.classList.contains('v252-barra');
+    if(itens.length<2){ if(tem) b.remove(); return; }
+    if(tem) return;
+    b=document.createElement('div'); b.className='v252-barra';
+    b.innerHTML='<button type="button" data-v252-todos="0">▾ Abrir todos</button><button type="button" data-v252-todos="1">▸ Fechar todos</button>';
+    b.querySelectorAll('button').forEach(x=>x.addEventListener('click',()=>{ const rec=x.dataset.v252Todos==='1';
+      [...area.querySelectorAll(':scope > '+sel+', :scope '+sel)].forEach(c=>{ const k=chave(c); if(!k) return; window.v252Rec.set(k,rec); pintarItem(c,rec); }); }));
+    area.parentNode.insertBefore(b,area);
+  };
+  let aplicando=false, ag=0;
+  function varrer(){
+    ag=0; aplicando=true;
+    try{
+      ['selecaoDomingosManual','selecaoDomingosMista'].forEach(id=>{ const a=$id(id); if(!a) return;
+        a.querySelectorAll('.dom-card[data-geracao-dom]').forEach(c=>{ const h=c.querySelector(':scope > .dom-head'); if(h) cartao(c,h,'dom|'+c.dataset.geracaoDom); });
+        window.v252Barra(a,'.dom-card[data-geracao-dom]',c=>c.dataset.v252,pintar); });
+      const F=$id('feriadosArea');
+      if(F){ F.querySelectorAll('.feriado-box').forEach(c=>{ let h=c.querySelector(':scope > .v252-cab')||c.querySelector(':scope > h3'); if(!h) return;
+          if(h.tagName==='H3'){ const w=document.createElement('div'); h.before(w); w.appendChild(h); h=w; }
+          cartao(c,h,'fer|'+(h.querySelector('h3')?.textContent||'').trim().slice(0,14)); });
+        window.v252Barra(F,'.feriado-box',c=>c.dataset.v252,pintar); }
+    }catch(e){ console.warn('[V252]',e); }
+    finally{ obs.takeRecords(); aplicando=false; }
+  }
+  const agendar=()=>{ if(aplicando||ag) return; ag=setTimeout(varrer,40); };
+  const obs=new MutationObserver(()=>{ if(!aplicando) agendar(); });
+
+  /* ── liderança em dupla ── */
+  let pend=null;
+  const marcar=d=>{ d=Number(d); if(!Number.isInteger(d)) return; try{ pend={d,antes:lideresSelecionadosDomingo(d)}; }catch(e){ pend=null; } };
+  document.addEventListener('click',e=>{ const op=e.target.closest?.('.v208-op'); if(!op) return; const inp=op.closest('.lider-row')?.querySelector('[data-v208-busca]'); if(inp) marcar(inp.dataset.v208Busca); },true);
+  document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.matches?.('[data-v208-busca]')) marcar(e.target.dataset.v208Busca); },true);
+  document.addEventListener('change',e=>{ if(e.target.matches?.('.lider-unica,.lider-select')&&e.target.value!=='') marcar(e.target.dataset.liderDia); },true);
+  const nomeDe=i=>String(equipe[i]?.nome||'').split(' ')[0];
+  const vazio=v=>v===null||v===undefined||v===''||!Number.isInteger(Number(v))||!equipe[Number(v)];
+  function copiar(d,i){
+    const ano=+$id('ano').value, mes=+$id('mes').value, doms=domingosDoMes(ano,mes), k=doms.indexOf(d), f=equipe[i];
+    if(k<0||!f) return null;
+    const prox=doms[k+1]; if(prox===undefined) return null;   // último domingo do mês
+    const bal=balancoDoMes(ano,mes); if(d===bal) return null;
+    if(lideresSelecionadosDomingo(prox).includes(i)) return null;
+    const fmt=x=>String(x).padStart(2,'0')+'/'+String(mes+1).padStart(2,'0'), nome=nomeDe(i);
+    const no=m=>({ok:false,t:`⚠️ ${nome} não foi colocado(a) também no domingo ${fmt(prox)}: ${m}.`});
+    const trab=x=>{ if(x<0){ const h=historicoManual(i)||{}; return x===-1?!!h.ultimo:!!h.penultimo; } return x<doms.length&&lideresSelecionadosDomingo(doms[x]).includes(i); };
+    if(prox===bal) return no('é o domingo de balanço (a liderança do balanço é escolhida à parte)');
+    if(foraDom(f)) return no('não está apto(a) ao domingo');
+    if(trab(k-1)) return no(`seria o 3º domingo seguido (já trabalha ${k>0?'o domingo '+fmt(doms[k-1]):'o último domingo do mês passado'} e o ${fmt(d)})`);
+    if(trab(k+2)) return no(`seria o 3º domingo seguido (já está no domingo ${fmt(doms[k+2])})`);
+    const key=String(prox), x=liderancaManualDomingo[key]||{}, ls=lideresSelecionadosDomingo(prox), tipo=tipoLiderancaDomingo(f)||'enc', modo=modoLideranca();
+    if(modo==='uma'){
+      if(ls.length) return no(`esse domingo já tem liderança (${nomeDe(ls[0])})`);
+      liderancaManualDomingo[key]={...(x.dsr?{dsr:x.dsr}:{}),[tipo]:i};
+    } else if(modo==='encsub'){
+      if(tipo==='lid'&&ls.length) return no('o Líder só entra em domingo sem Encarregado e sem Subencarregado');
+      if(ls.some(j=>tipoLiderancaDomingo(equipe[j])==='lid')) return no('esse domingo já tem Líder');
+      if(!vazio(x[tipo])) return no(`esse domingo já tem ${nomeTipoLider(tipo)} (${nomeDe(Number(x[tipo]))})`);
+      liderancaManualDomingo[key]={...x,[tipo]:i};
+    } else {
+      const T=liderTurno();
+      if(T){ const tu=turnoLider(i), cap=tu==='ABERTURA'?T.ab:tu==='FECHAMENTO'?T.fe:null;
+        if(cap!==null){ const n=ls.filter(j=>turnoLider(j)===tu).length; if(n>=cap) return no(`esse domingo já tem ${n} liderança${n===1?'':'s'} ${tu==='ABERTURA'?'na abertura':'no fechamento'} (o máximo é ${cap})`); } }
+      else if(ls.length>=qtdLiderVarias()) return no(`esse domingo já tem ${ls.length} lideranças (o máximo é ${qtdLiderVarias()})`);
+      liderancaManualDomingo[key]={mais:[...ls,i],...(x.dsr?{dsr:x.dsr}:{})};
+    }
+    try{ const h=horariosManuaisDomingo?.[String(d)]?.[String(i)]; if(h){ horariosManuaisDomingo[key]=horariosManuaisDomingo[key]||{}; if(!horariosManuaisDomingo[key][String(i)]) horariosManuaisDomingo[key][String(i)]=h; } }catch(e){}
+    window.v45Persist?.();
+    return {ok:true,t:`✅ ${nome} também foi colocado(a) no domingo ${fmt(prox)} (dupla de domingos). Se não quiser, toque no ✕ ao lado do nome.`};
+  }
+  const origR=window.renderLiderancaDomingo;
+  if(typeof origR==='function') window.renderLiderancaDomingo=function(){
+    let msgs=[], dMsg=null;
+    if(pend){ const p=pend; pend=null; dMsg=p.d; try{ lideresSelecionadosDomingo(p.d).filter(i=>!p.antes.includes(i)).forEach(i=>{ const m=copiar(p.d,i); if(m) msgs.push(m); }); }catch(e){ console.warn('[V252]',e); } }
+    const r=origR.apply(this,arguments);
+    if(msgs.length){ const area=$id('liderancaDomingoLista'), warn=msgs.some(m=>!m.ok);
+      if(area){ const div=document.createElement('div'); div.className='v252-lid-msg'+(warn?' warn':''); div.setAttribute('role','status'); div.textContent=msgs.map(m=>m.t).join(' ');
+        const row=area.querySelector(`[data-v208-busca="${dMsg}"],[data-lider-dia="${dMsg}"]`)?.closest('.lider-row');   // logo abaixo do domingo escolhido
+        if(row){ div.style.marginTop='-2px'; row.after(div); } else area.prepend(div); }
+      window.showToast?.(msgs.map(m=>m.t).join(' '),warn?'warn':'ok',warn); }
+    return r;
+  };
+  window.v252Copiar=copiar;
+  function iniciar(){
+    ['selecaoDomingosManual','selecaoDomingosMista','feriadosArea'].forEach(id=>{ const el=$id(id); if(el) obs.observe(el,{childList:true,subtree:true}); });
+    agendar();
+  }
+  window.v252Varrer=varrer;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true}); else iniciar();
 })();
 </script>

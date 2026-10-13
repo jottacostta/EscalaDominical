@@ -17,14 +17,14 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V251.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V252.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo + V250 folga da liderança respeita o 6×1 + V251 equipe por função). Depois do merge: nenhum.
+- **PRs abertos:** o PR #45 do Claude (manuais com o quadro de balanço + Setores V247 mais rápida + V248 folga da liderança em feriado + V249 desfazer folga no domingo + V250 folga da liderança respeita o 6×1 + V251 equipe por função + V252 triângulo nas listas e liderança em dupla). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V252**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V253**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,11 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Setores V252 — triângulo para fechar listas + liderança em dupla — Claude
+- **O que mudou e por quê:** o dono pediu “∆” (triângulo de abrir/fechar) nos cartões de domingo da escala à mão e em todos os cartões com listas grandes; e que a liderança escolhida no 1º domingo já vá para o 2º (dupla), ou que o app diga por que não pode.
+- **Onde no código:** bloco `/* ═════ V252 … ═════ */` + `<style id="v252-triangulo">`. `window.v252Rec` (localStorage `escalaSetores.v252Recolhidos`, chave `setor|mês|ano|tipo|id`), `.v252-seta` no cabeçalho de `.dom-card` (`.dom-head`) e `.feriado-box` (o `h3` ganha um `div.v252-cab` em volta); fechado = classe `.v252-rec` e o CSS esconde o resto (**o DOM não muda**). Grupos de função: no bloco V251 (linhas com `.v252-oculto`), agora também em `#historicoLista` (Mês passado). `window.v252Barra` = “Abrir todos / Fechar todos”. Liderança: escuta (captura) `.v208-op`, Enter na busca, `.lider-unica`/`.lider-select`; o embrulho de `renderLiderancaDomingo` chama `window.v252Copiar(d,i)` para quem entrou (respeita modo uma/encsub/várias/turno, 3 domingos seguidos com o Mês passado, balanço) e mostra `.v252-lid-msg` + aviso. O V186 (Gerar) continua com a seta dele.
+- **Teste:** V252 em `testes/rodar.js` (fechar/abrir/lembrar o domingo, fechar grupo, dupla e motivo do 3º seguido).
 
 ### 2026-10-13 — Setores V251 — equipe separada por função (+ folga certa no Editar equipe) — Claude
 - **O que mudou e por quê:** print do dono (Açougue, passo Equipe): pediu a equipe separada pelas funções, em grupos, e o mesmo no Editar equipe.
