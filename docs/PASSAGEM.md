@@ -21,13 +21,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR do Claude com a Setores V246 + Encarregados V175 (datas de balanço sem arquivo de texto). Depois do merge: nenhum.
+- **PRs abertos:** o PR de documentação do Claude (manuais com o quadro de balanço). Depois do merge: nenhum.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V247**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V244): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V171): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -122,6 +122,10 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Documentação — manuais com o quadro de balanço — Claude
+- **O que mudou e por quê:** pendência do PR #44 (combinada na revisão do ChatGPT). Manual da Escala de Setores: versão V246 e parágrafo “📦 Datas de balanço” + print do quadro, logo depois do parágrafo das Configurações. Manual do Encarregado: o item “Datas de balanço” (Mês e opções) explica o quadro e ganhou o print. Prints com dados fictícios (celular 390×844, escala 2).
+- **Como foi testado:** `testes/rodar.js` (os apps não mudaram).
 
 ### 2026-10-13 — Setores V246 + Encarregados V175 — datas de balanço sem arquivo de texto — Claude
 - **O que mudou e por quê:** pedido do dono — os balanços são em janeiro, março, junho e setembro; em vez do arquivo .txt, ele quer escolher as datas no app, que guarda e coloca no histórico JSON. Novo quadro “📦 Domingos de balanço de <ano>” (Setores: ⚙️ Configurações; Encarregados: 📅 Mês e opções → Mais opções) com 4 listas que só têm os domingos do mês, mais “Sem balanço”. Guardado na hora no aparelho e em `datasBalanco` (que já ia para `planejamento.datasBalanco` no histórico). Ao abrir um histórico, as datas dele entram no aparelho; o “sem balanço” escolhido no aparelho vale mais. Datas antigas de outros meses aparecem em “Também guardado” com 🗑️.
@@ -449,7 +453,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
   - Só crie versão nova do app se um teste achar um defeito.
 - ~~V233 — revisão das sugestões~~ — feita: escolhida a #31, melhorada na V234 (ver Diário).
-- **Manuais: quadro “📦 Domingos de balanço” (V246/V175)** — atualizar o print e o texto de Configurações (Setores) e Mês e opções (Encarregados). Responsável: Claude, logo depois do merge do PR #44.
+- ~~Manuais: quadro “📦 Domingos de balanço” (V246/V175)~~ — **feito em 13/10/2026** (texto + print fictício nos dois manuais; o Manual do Encarregado continua marcado V171 no resto — ver a pendência dele).
 - **Encarregados — dois balanços com 2 semanas de diferença** (ex.: último domingo de fev e 2º domingo de mar): quem trabalha o 1º domingo do mês fica com balanço + domingo + balanço e o “Gerar” pede revisão. O balanço é exceção, então o aviso é exagerado; cenário raro (achado na investigação de 13/10/2026). Se o dono usar balanços assim, ajustar `validarEscala` para não contar sequência com balanço.
 - **Transformar as conferências dia a dia da investigação de 13/10/2026 em teste fixo** (6×1 com a virada do mês, folgas de feriado no DSR/folga fixa, meses com balanço) — hoje os testes cobrem os 4 consertos de forma pontual. Cuidado com o tempo da suíte.
 - **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md, lista de 16 itens):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
