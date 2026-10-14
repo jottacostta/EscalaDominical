@@ -16,6 +16,9 @@ V263 [Claude] — PRÉVIA DAS FOLGAS COM OS DOMINGOS (pedido do dono): no passo 
        os domingos mostram quem já foi escolhido no passo Domingos (escala à mão/mista e as lideranças), com o
        horário quando já tem. Na escala à mão, quem não foi escolhido aparece “FOLGA DOM”; no automático e na mista,
        quem o app ainda vai escolher aparece “—” (decide ao gerar). Depois de gerar, mostra a escala gerada, como antes.
+       Junto, no 🤖 Assistente RH (testes de estresse do ChatGPT, PR #60): ao abrir um histórico, só junta dado no
+       formato certo (texto no lugar de número apagava a contagem; uma pessoa vazia parava a leitura) e grava na hora
+       ao fechar o app (antes, fechar logo depois de marcar alguém perdia a marcação).
 V262 [Claude] — 🤖 ASSISTENTE RH (pedido do dono, etapa 1): um botão flutuante no canto da tela abre um painel com
        dicas do passo em que o encarregado está. Ele APRENDE com o que o encarregado faz (quem escolhe nos domingos,
        quem recusa na sugestão, o horário de domingo de cada pessoa, quantos domingos cada um fez em cada mês) e com
@@ -13822,7 +13825,18 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const $i=id=>document.getElementById(id);
   const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   let D={v:1,setores:{}}; try{ const x=JSON.parse(localStorage.getItem(K)||'null'); if(x&&x.setores) D=x; }catch(e){}
-  let tGravar=0; const gravar=()=>{ clearTimeout(tGravar); tGravar=setTimeout(()=>{ try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} },300); };
+  let tGravar=0, pend=false; const gravar=()=>{ pend=true; clearTimeout(tGravar); tGravar=setTimeout(()=>{ pend=false; try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} },300); };   // V263: pend
+  /* V263/V177: grava na hora ao fechar ou esconder o app (teste ARH-10: fechar até 0,3 s depois de marcar perdia a marcação) */
+  const gravarJa=()=>{ if(!pend) return; pend=false; clearTimeout(tGravar); try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} };
+  window.addEventListener('pagehide',gravarJa); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') gravarJa(); });
+  /* V263/V177: a junção só aceita dado no formato certo (teste ARH-09 do ChatGPT): número ≥ 0, mês AAAA-MM, horário HH:MM-HH:MM;
+     pessoa vazia ou estragada é pulada (antes, texto virava NaN e apagava a contagem, e uma pessoa null parava a leitura). */
+  const numOk=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+  const num=v=>numOk(v)?v:0;
+  const ymOk=k=>/^\d{4}-(0[1-9]|1[0-2])$/.test(String(k));
+  const horOk=k=>/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(String(k));
+  const objOk=o=>!!o&&typeof o==='object'&&!Array.isArray(o);
+
   const setorK=()=>norm($i('setorSelecionado')?.value||'')||'setor';
   const ymK=(a,m)=>`${a}-${String(m+1).padStart(2,'0')}`;
   const ymAtual=()=>ymK(+$i('ano').value,+$i('mes').value);
@@ -13852,12 +13866,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function exportar(){ aprenderMes('guardado'); const s=D.setores[setorK()];   // o mês da escala na tela já vai aprendido no arquivo
   return s?{v:1,setor:setorK(),dados:JSON.parse(JSON.stringify(s))}:null; }
   function juntar(a){
-    if(!a||!a.dados||!a.dados.pessoas) return 0; const k=a.setor||setorK(), s=D.setores[k]=D.setores[k]||{pessoas:{},meses:{}}; let n=0;
-    Object.entries(a.dados.meses||{}).forEach(([ym,o])=>{ if(!s.meses[ym]){ s.meses[ym]=o; n++; } });
-    Object.entries(a.dados.pessoas).forEach(([pk,x])=>{ const p=s.pessoas[pk]=s.pessoas[pk]||{nome:x.nome||'',esc:0,rec:0,ace:0,hor:{},dm:{}};
-      ['esc','rec','ace'].forEach(c=>{ p[c]=Math.max(p[c]||0,x[c]||0); });
-      Object.entries(x.hor||{}).forEach(([h,v])=>{ p.hor[h]=Math.max(p.hor[h]||0,v); });
-      Object.entries(x.dm||{}).forEach(([ym,v])=>{ if(p.dm[ym]===undefined){ p.dm[ym]=v; n++; } }); });
+    if(!objOk(a)||!objOk(a.dados)||!objOk(a.dados.pessoas)) return 0; const k=(typeof a.setor==='string'&&a.setor)||setorK(), s=D.setores[k]=D.setores[k]||{pessoas:{},meses:{}}; let n=0;   // V263: valida
+    if(objOk(a.dados.meses)) Object.entries(a.dados.meses).forEach(([ym,o])=>{ if(ymOk(ym)&&!s.meses[ym]){ s.meses[ym]=typeof o==='string'?o:'historico'; n++; } });
+    Object.entries(a.dados.pessoas).forEach(([pk,x])=>{ if(!objOk(x)) return; const p=s.pessoas[pk]=s.pessoas[pk]||{nome:typeof x.nome==='string'?x.nome:'',esc:0,rec:0,ace:0,hor:{},dm:{}};
+      if(!objOk(p.hor)) p.hor={}; if(!objOk(p.dm)) p.dm={};
+      ['esc','rec','ace'].forEach(c=>{ p[c]=Math.max(num(p[c]),num(x[c])); });
+      if(objOk(x.hor)) Object.entries(x.hor).forEach(([h,v])=>{ if(horOk(h)&&numOk(v)&&v>0) p.hor[h]=Math.max(num(p.hor[h]),v); });
+      if(objOk(x.dm)) Object.entries(x.dm).forEach(([ym,v])=>{ if(ymOk(ym)&&numOk(v)&&p.dm[ym]===undefined){ p.dm[ym]=v; n++; } }); });
     gravar(); return n;
   }
   document.addEventListener('change',ev=>{
