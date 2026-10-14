@@ -517,6 +517,19 @@ async function testarSetores(browser){
     });
     ok(r.motor && r.porCargo && r.alvo && r.cartaz, `V258: promotor = 1 por domingo no automático (${r.motor}), no “Por cargo” (${r.porCargo}) e na conta da escala à mão (${r.alvo}); cartazista sem domingo (${r.cartaz})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 259){   // V259: aviso “Por grupos” só com 6 pessoas ou mais
+    const r = await p.evaluate(() => {
+      const mc = $('modoCobertura').value, bk = equipe, out = {};
+      try{
+        $('modoCobertura').value = 'grupos'; atualizarModoCobertura(); out.grande = !document.getElementById('v259AvisoGrupos');
+        equipe = bk.filter(f => !foraDom(f) && !ehLiderancaDomingo(f)).slice(0, 4); window.v259AvisoGrupos();
+        out.pequeno = /pelo menos 6 pessoas/.test(document.getElementById('v259AvisoGrupos')?.textContent || '') && /tem 4/.test(document.getElementById('v259AvisoGrupos').textContent);
+        equipe = bk; $('modoCobertura').value = '50'; atualizarModoCobertura(); out.some = !document.getElementById('v259AvisoGrupos');
+      } finally { equipe = bk; $('modoCobertura').value = mc; atualizarModoCobertura(); }
+      return out;
+    });
+    ok(r.grande && r.pequeno && r.some, `V259: “Por grupos” avisa quando o setor tem menos de 6 pessoas (setor grande sem aviso: ${r.grande}; com 4: ${r.pequeno}; some em outro modo: ${r.some})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

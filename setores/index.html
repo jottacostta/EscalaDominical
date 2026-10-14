@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V258</title>
+<title>Escala de Setores — V259</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V259 [Claude] — AVISO: “POR GRUPOS” SÓ COM 6 PESSOAS OU MAIS (pedido do dono): a opção agora diz “(setor com 6 pessoas ou
+       mais)” e, se o setor tiver menos de 6 pessoas que trabalham no domingo, aparece um aviso amarelo explicando que
+       os grupos precisam de pelo menos 6 (3 grupos de 2) e sugerindo “Metade da equipe” ou “Por cargo”.
 V258 [Claude] — PROMOTOR: 1 POR DOMINGO (pedido do dono): os promotores de vendas (normalmente 3 por loja) têm 1 por
        domingo — e esse 1 segue as regras de sempre (no máximo 2 domingos seguidos e 6×1 na semana). Antes o app
        contava os promotores na “metade da equipe” e cobrava 2 por domingo no ADM Geral. Agora: (1) escala automática:
@@ -2452,7 +2455,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V258 · promotor: 1 por domingo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V259 · aviso: grupos só com 6 pessoas ou mais</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2656,7 +2659,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
       <label for="modoCobertura">Como dividir o setor nos domingos</label>
       <select id="modoCobertura">
         <option value="50">Metade da equipe em cada domingo</option>
-        <option value="grupos">Grupos que eu mesmo monto</option>
+        <option value="grupos">Grupos que eu mesmo monto (setor com 6 pessoas ou mais)</option>
         <option value="funcao">Por cargo — eu escolho quantas lideranças e quantos de cada cargo</option>
       </select>
       <div id="coberturaResumo" class="alert info" style="margin-top:8px">50% do quadro elegível será escalado a cada domingo.</div>
@@ -13701,6 +13704,26 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const at=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i]));
       const p=at.filter(ehPromotorIdx).length; return p&&((at.length-p)%2===1)?1:0; }catch(e){ return 0; }
   };
+})();
+</script>
+<script>
+/* ═════ V259 — AVISO: “POR GRUPOS” SÓ COM 6 PESSOAS OU MAIS ═════
+   #v259AvisoGrupos depois do #coberturaResumo quando modoCobertura='grupos' e o setor tem < 6 pessoas aptas ao
+   domingo (sem liderança). Refeito ao trocar o modo (atualizarModoCobertura) e ao redesenhar a equipe (renderEquipe). */
+(function(){
+  const MIN=6;
+  function aviso(){
+    try{
+      const res=$('coberturaResumo'); if(!res) return;
+      let box=document.getElementById('v259AvisoGrupos');
+      const n=(Array.isArray(equipe)?equipe:[]).filter(f=>!foraDom(f)&&!ehLiderancaDomingo(f)).length;
+      if(($('modoCobertura')?.value||'')!=='grupos'||n>=MIN){ box?.remove(); return; }
+      if(!box){ box=document.createElement('div'); box.id='v259AvisoGrupos'; box.className='alert warn'; box.setAttribute('role','alert'); box.style.marginTop='8px'; res.after(box); }
+      box.innerHTML=`⚠️ <b>“Por grupos” precisa de pelo menos ${MIN} pessoas</b> que trabalham no domingo (3 grupos de 2). Este setor tem <b>${n}</b>. Escolha <b>“Metade da equipe”</b> ou <b>“Por cargo”</b>.`;
+    }catch(e){}
+  }
+  ['atualizarModoCobertura','renderEquipe'].forEach(nome=>{ const o=window[nome]; if(typeof o==='function') window[nome]=function(){ const r=o.apply(this,arguments); aviso(); return r; }; });
+  window.v259AvisoGrupos=aviso;
 })();
 </script>
 </body>
