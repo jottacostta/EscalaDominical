@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V265</title>
+<title>Escala de Setores — V266</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V266 [Claude] — ⏰ CONFIRMAR O HORÁRIO DE DOMINGO (pedido do dono): no modo Automático o app escolhia o horário de
+       domingo de cada pessoa sozinho e não perguntava. Agora, depois de gerar, aparece no passo 5 o quadro “⏰ Horário
+       de domingo de cada pessoa”: domingo a domingo, quem o app escalou, com o horário sugerido numa lista para trocar.
+       É obrigatório tocar em “✅ Confirmei os horários de domingo”: antes disso, “Baixar planilha Excel” e “Guardar
+       histórico do mês” avisam e levam até o quadro. Gerar de novo pede nova confirmação. Na Mista, só aparece quem o
+       app completou; na escala à mão o horário já é seu e o quadro não aparece.
 V265 [Claude] — 💬 PERGUNTE AO ASSISTENTE RH (pedido do dono): o painel do 🤖 Assistente RH ganhou duas abas,
        “💡 Dicas” (o que já tinha) e “💬 Perguntar”: um mini chat em que você escreve a dúvida e ele responde.
        Funciona SEM internet (nenhuma pergunta nem nome sai do aparelho). Responde sobre a escala aberta — quem
@@ -2437,6 +2443,28 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v265-form input{flex:1;min-width:0;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--v262-line);background:var(--v262-bg);color:var(--v262-ink);font:inherit;font-size:16px}
 .v265-form button{min-height:44px;padding:8px 16px;border-radius:12px;border:0;background:var(--v262-brand);color:var(--v265-on);font:inherit;font-weight:800;cursor:pointer}
 </style>
+<style id="v266-horarios">
+#v266Horarios{margin-top:10px}
+#v266Horarios[hidden]{display:none}
+.v266-status{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14px;line-height:1.45}
+.v266-status.pend{background:#fff6dc;color:#6b4a00;border:1px solid #f0d68a}
+.v266-status.ok{background:#e8f6ee;color:#14532d;border:1px solid #b7e2c6}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .v266-status.pend{background:#3a2e08;color:#ffd27a;border-color:#5a4610} :root:not([data-theme="light"]) .v266-status.ok{background:#0f2e1c;color:#a7f3c4;border-color:#1f5134} }
+:root[data-theme="dark"] .v266-status.pend{background:#3a2e08;color:#ffd27a;border-color:#5a4610}
+:root[data-theme="dark"] .v266-status.ok{background:#0f2e1c;color:#a7f3c4;border-color:#1f5134}
+.v266-dom{border:1px solid var(--line,#d5dce6);border-radius:12px;padding:6px 10px;margin:8px 0}
+.v266-dom>summary{cursor:pointer;font-size:15px;padding:6px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.v266-cont{font-size:12px;color:var(--muted,#5b6575);font-weight:600}
+.v266-p{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line,#e3e8ef)}
+.v266-p span{min-width:0;flex:1}
+.v266-p small{display:block;font-size:12px;color:var(--muted,#5b6575);overflow-wrap:anywhere}
+.v266-p select{min-height:44px;max-width:52%;font-size:15px;border-radius:10px;padding:6px 8px}
+#v266Confirmar{width:100%;min-height:48px;margin-top:8px}
+#v266Confirmar[hidden]{display:none}
+.v266-pisca{animation:v266pisca .5s ease 3}
+@keyframes v266pisca{50%{box-shadow:0 0 0 4px #FFCC00}}
+@media (prefers-reduced-motion: reduce){.v266-pisca{animation:none;outline:3px solid #FFCC00}}
+</style>
 </head>
 <body>
 <script>
@@ -2532,7 +2560,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V265 · 💬 Pergunte ao Assistente</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V266 · ⏰ Horário de domingo confirmado</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -14170,6 +14198,87 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   window.v265Chat={responder,perguntar,abrirChat:()=>{}};
   let n=0; const t=setInterval(()=>{ if(montar()||++n>60) clearInterval(t); },500);
+})();
+</script>
+
+<script>
+/* ═════ V266 — ⏰ CONFIRMAR O HORÁRIO DE DOMINGO DE CADA PESSOA (escala automática) ═════
+   Pedido do dono: no modo Automático o app escolhia o horário de domingo sozinho e não perguntava nada.
+   Decisões do dono (14/10/2026): perguntar DEPOIS de gerar, e é OBRIGATÓRIO confirmar.
+   - Depois de gerar, o quadro #v266Horarios (passo 5, antes da tabela) lista, domingo a domingo, quem o APP escalou
+     com horário sugerido (horariosGeradosDomingo) — quem você escolheu à mão (horariosManuaisDomingo) não aparece:
+     esse horário já foi você que deu. Vale para o Automático e para a parte que o app completa na Mista.
+   - Trocar o horário grava em horariosGeradosDomingo[d][i] = 'HH:MM-HH:MM' (e no estadoFinalMes), e a tabela, os
+     cartões dos domingos e a planilha usam o novo (todos leem horarioDomingoSelecionado).
+   - “✅ Confirmei os horários de domingo” grava estadoFinalMes.v266Confirmado = assinatura (setor, mês, quem trabalha
+     em cada domingo). Gerar de novo muda a assinatura → precisa confirmar de novo. Vai junto no histórico.
+   - Enquanto não confirmar: 📊 Baixar planilha Excel e 📦 Guardar histórico do mês ficam travados (clique barrado na
+     captura do document, inclusive atalhos e menu que chamam .click()), com aviso e rolagem até o quadro.
+   window.v266Horarios = {precisa, confirmado, confirmar, pendentes, render}. */
+(function(){
+  const $i=id=>document.getElementById(id);
+  const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const dd=d=>`${String(d).padStart(2,'0')}/${String(+$i('mes').value+1).padStart(2,'0')}`;
+  const gerado=()=>{ try{ return Object.values(trabalhoDomingo||{}).some(a=>a&&a.length); }catch(e){ return false; } };
+  const doms=()=>{ try{ return Object.keys(trabalhoDomingo||{}).map(Number).filter(d=>(trabalhoDomingo[d]||[]).length).sort((a,b)=>a-b); }catch(e){ return []; } };
+  const manual=(d,i)=>{ try{ return !!horarioManualSelecionado(d,i); }catch(e){ return false; } };
+  /* quem o app escalou com horário sugerido: {d:[i]} */
+  function pendentes(){ const out={}; if(!gerado()) return out;
+    doms().forEach(d=>{ const l=(trabalhoDomingo[d]||[]).map(Number).filter(i=>equipe[i]&&!manual(d,i)); if(l.length) out[d]=l; }); return out; }
+  const precisa=()=>Object.keys(pendentes()).length>0;
+  function assinatura(){ try{ return JSON.stringify([$i('setorSelecionado')?.value||'',+$i('mes').value,+$i('ano').value,doms().map(d=>[d,(trabalhoDomingo[d]||[]).map(Number).sort((a,b)=>a-b)])]); }catch(e){ return ''; } }
+  const confirmado=()=>{ try{ return !!estadoFinalMes&&estadoFinalMes.v266Confirmado===assinatura(); }catch(e){ return false; } };
+  const ini=(d,i)=>{ try{ return String(horarioDomingoSelecionado(d,i)||'').split('-')[0]; }catch(e){ return ''; } };
+  const faltaHorario=()=>{ const P=pendentes(); return Object.entries(P).reduce((n,[d,l])=>n+l.filter(i=>!ini(+d,i)).length,0); };
+  function confirmar(){ if(faltaHorario()) return false; try{ estadoFinalMes=estadoFinalMes||{}; estadoFinalMes.v266Confirmado=assinatura(); }catch(e){ return false; }
+    render(true); try{ window.showToast?.('✅ Horários de domingo confirmados. Já pode baixar a planilha e guardar o histórico.','ok',true); }catch(e){} return true; }
+  function trocar(d,i,h){
+    const lista=listaHorariosDomingoParaData(d), x=lista.find(o=>o[0]===h); if(!x) return;
+    window.horariosGeradosDomingo=window.horariosGeradosDomingo||{}; (horariosGeradosDomingo[String(d)]=horariosGeradosDomingo[String(d)]||{})[String(i)]=`${x[0]}-${x[1]}`;
+    try{ if(estadoFinalMes&&estadoFinalMes.horariosGeradosDomingo){ (estadoFinalMes.horariosGeradosDomingo[String(d)]=estadoFinalMes.horariosGeradosDomingo[String(d)]||{})[String(i)]=`${x[0]}-${x[1]}`; } }catch(e){}
+    clearTimeout(trocar.t); trocar.t=setTimeout(()=>{ try{ renderTabela(+$i('mes').value,+$i('ano').value,balancoDoMes(+$i('ano').value,+$i('mes').value)); }catch(e){} try{ if(ultimaEscala&&Array.isArray(ultimaEscala.doms)) renderDomingos(ultimaEscala.doms,ultimaEscala.bal); }catch(e){} },250);
+    contar(d); status();
+  }
+  function contar(d){ const box=document.querySelector(`#v266Horarios [data-v266-dom="${d}"] .v266-cont`); if(!box) return;
+    const l=(trabalhoDomingo[d]||[]).map(Number); let a=0,f=0; l.forEach(i=>{ const h=ini(d,i); if(!h) return; (horaMinutos(h)<720?a++:f++); });
+    box.textContent=`🌅 ${a} na abertura · 🌙 ${f} no fechamento`; }
+  function status(){ const s=$i('v266Status'), b=$i('v266Confirmar'); if(!s) return; const ok=confirmado(), falta=faltaHorario();
+    s.className='v266-status '+(ok?'ok':'pend');
+    s.innerHTML=ok?'✅ <b>Horários confirmados.</b> Se trocar algum, ele já vale na tabela e na planilha.'
+      :falta?`⚠️ Falta escolher o horário de <b>${falta}</b> pessoa(s). Escolha e toque em <b>✅ Confirmei</b>.`
+      :'⚠️ <b>Confira o horário de domingo de cada pessoa</b> e toque em <b>✅ Confirmei</b>. Sem isso não dá para baixar a planilha nem guardar o histórico.';
+    if(b){ b.hidden=ok; b.disabled=!!falta; } }
+  let ultima='';
+  function render(forcar){
+    let box=$i('v266Horarios'); const tc=$i('tabelaCard');
+    if(!precisa()){ if(box){ box.hidden=true; } ultima=''; return; }
+    if(!box){ if(!tc) return; box=document.createElement('section'); box.id='v266Horarios'; box.className='card'; tc.parentNode.insertBefore(box,tc); }
+    const P=pendentes(), assin=assinatura()+JSON.stringify(P)+confirmado();
+    box.hidden=false; if(!forcar&&assin===ultima) return; ultima=assin;
+    const bal=(()=>{ try{ return balancoDoMes(+$i('ano').value,+$i('mes').value); }catch(e){ return null; } })();
+    box.innerHTML=`<h2 class="section-title">⏰ Horário de domingo de cada pessoa</h2>
+      <p class="hint">O app escolheu quem trabalha e sugeriu um horário. Confira cada pessoa e troque se precisar.${Object.keys(P).length<doms().length?' Quem você escolheu à mão já está com o seu horário e não aparece aqui.':''}</p>
+      <div id="v266Status" class="v266-status"></div>
+      <p class="hint" style="margin:4px 0">Toque em cada domingo (▸) para abrir a lista.</p>
+      ${Object.entries(P).map(([d,l],k)=>{ d=+d; const lista=listaHorariosDomingoParaData(d);
+        return `<details class="v266-dom" data-v266-dom="${d}" ${k===0&&!confirmado()?'open':''}><summary><b>Domingo ${dd(d)}</b>${d===bal?' · 📦 balanço':''} · ${l.length} pessoa(s) <span class="v266-cont"></span></summary>
+          ${l.map(i=>{ const f=equipe[i], h=ini(d,i); return `<label class="v266-p"><span><b>${es(f.nome)}</b><small>${es(f.cargo||'')}${f.horario?' · costuma: '+es(f.horario):''}</small></span>
+            <select data-v266-d="${d}" data-v266-i="${i}" aria-label="Horário de domingo de ${es(f.nome)}">${h?'':'<option value="">Escolha o horário</option>'}${lista.map(([a,b])=>`<option value="${a}" ${a===h?'selected':''}>${a} às ${b}</option>`).join('')}</select></label>`; }).join('')}</details>`; }).join('')}
+      <button type="button" class="btn success" id="v266Confirmar">✅ Confirmei os horários de domingo</button>`;
+    box.querySelectorAll('select[data-v266-d]').forEach(s=>s.addEventListener('change',()=>trocar(+s.dataset.v266D,+s.dataset.v266I,s.value)));
+    $i('v266Confirmar')?.addEventListener('click',confirmar);
+    Object.keys(P).forEach(d=>contar(+d)); status();
+  }
+  /* trava: planilha e histórico só depois de confirmar */
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('#btnExcel,#btnHistorico'); if(!b) return;
+    if(!precisa()||confirmado()) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    render(true); const box=$i('v266Horarios'); box?.scrollIntoView({behavior:'smooth',block:'start'}); box?.classList.add('v266-pisca'); setTimeout(()=>box?.classList.remove('v266-pisca'),1600);
+    try{ window.showToast?.(`⏰ Antes de ${b.id==='btnExcel'?'baixar a planilha':'guardar o histórico'}, confira o horário de domingo de cada pessoa e toque em “✅ Confirmei”.`,'warn',true); }catch(err){}
+  },true);
+  window.v266Horarios={precisa,confirmado,confirmar,pendentes,render};
+  setInterval(()=>{ if(document.visibilityState==='visible') try{ render(); }catch(e){} },1000);
 })();
 </script>
 
