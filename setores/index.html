@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V261</title>
+<title>Escala de Setores — V262</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V262 [Claude] — 🤖 ASSISTENTE RH (pedido do dono, etapa 1): um botão flutuante no canto da tela abre um painel com
+       dicas do passo em que o encarregado está. Ele APRENDE com o que o encarregado faz (quem escolhe nos domingos,
+       quem recusa na sugestão, o horário de domingo de cada pessoa, quantos domingos cada um fez em cada mês) e com
+       cada histórico aberto. O que ele aprende fica no aparelho e vai junto no histórico do mês (o arquivo .json):
+       abrindo o histórico em outro aparelho, ele já sabe. Dicas: o que falta antes de gerar (com “Ir até lá”),
+       quem está com domingos demais comparado aos meses anteriores, o horário de costume de cada pessoa (com
+       “Usar o de costume”) e quem você costuma escolher. Só dá dicas: as regras (6×1, 2 domingos seguidos…)
+       continuam com o auditor, iguais.
 V261 [Claude] — CÓPIA DO APP PELA LOGO (pedido do dono): tocar na logo do Guanabara (no topo ou na tela inicial) baixa
        uma cópia do próprio app (“Escala_de_Setores_V261.html”), para abrir em outro computador ou guardar. Fica
        escondido: não há botão nem aviso na tela. Funciona aberto pelo link (site) e no APK; aberto direto do
@@ -2367,6 +2375,29 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 #equipeEditorRows .editor-row.v254-erro{outline:3px solid #E52320;outline-offset:2px;border-radius:14px}
 #equipeEditorRows .editor-row.v254-erro .emp-summary b::after{content:"  ⚠️ confira";color:#C62828;font-size:12px}
 </style>
+<style id="v262-assistente">
+:root{--v262-bg:#ffffff;--v262-ink:#0f172a;--v262-muted:#5b6575;--v262-line:#d5dce6;--v262-card:#f5f8fc;--v262-brand:#0047BA;--v262-warn:#8a5a00;--v262-warnbg:#fff6dc;--v262-bad:#a1121d;--v262-badbg:#fdecee}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--v262-bg:#111827;--v262-ink:#e5e7eb;--v262-muted:#9aa4b2;--v262-line:#2b3646;--v262-card:#172033;--v262-brand:#6ea0ff;--v262-warn:#ffd27a;--v262-warnbg:#3a2e08;--v262-bad:#ffb4bb;--v262-badbg:#3b1217} }
+:root[data-theme="dark"]{--v262-bg:#111827;--v262-ink:#e5e7eb;--v262-muted:#9aa4b2;--v262-line:#2b3646;--v262-card:#172033;--v262-brand:#6ea0ff;--v262-warn:#ffd27a;--v262-warnbg:#3a2e08;--v262-bad:#ffb4bb;--v262-badbg:#3b1217}
+#v262Botao{position:fixed;right:16px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:1300;width:58px;height:58px;border-radius:50%;border:0;background:var(--v262-brand);color:#fff;font-size:26px;box-shadow:0 8px 22px rgba(0,40,110,.35);cursor:pointer;display:flex;align-items:center;justify-content:center}
+#v262Botao .n{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#E52320;color:#fff;font:800 12px/22px system-ui,sans-serif;border:2px solid #fff}
+#v262Botao .n[hidden]{display:none}
+#v262Painel{position:fixed;right:16px;bottom:calc(164px + env(safe-area-inset-bottom,0px));z-index:1301;width:min(380px,calc(100vw - 32px));max-height:min(62vh,560px);display:flex;flex-direction:column;background:var(--v262-bg);color:var(--v262-ink);border:1px solid var(--v262-line);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden}
+#v262Painel[hidden]{display:none}
+#v262Painel .top{display:flex;align-items:center;gap:10px;padding:12px 12px 10px 16px;border-bottom:1px solid var(--v262-line)}
+#v262Painel .top b{font-size:16px;flex:1}
+#v262Painel .top small{display:block;font-size:12px;font-weight:600;color:var(--v262-muted)}
+#v262Painel .fechar{width:40px;height:40px;border-radius:10px;border:1px solid var(--v262-line);background:transparent;color:var(--v262-ink);font-size:20px;cursor:pointer}
+#v262Painel .lista{overflow:auto;padding:10px 12px 14px;display:grid;gap:8px}
+.v262-dica{padding:10px 12px;border-radius:12px;background:var(--v262-card);border:1px solid var(--v262-line);font-size:14px;line-height:1.45}
+.v262-dica.warn{background:var(--v262-warnbg);border-color:transparent;color:var(--v262-warn)}
+.v262-dica.bad{background:var(--v262-badbg);border-color:transparent;color:var(--v262-bad)}
+.v262-dica .acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.v262-dica .acoes button{min-height:40px;padding:8px 14px;border-radius:10px;border:1px solid var(--v262-line);background:var(--v262-bg);color:var(--v262-ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.v262-vazio{font-size:14px;color:var(--v262-muted);padding:6px 4px}
+.v262-rodape{font-size:12px;color:var(--v262-muted);padding:0 4px}
+@media print{#v262Botao,#v262Painel{display:none!important}}
+</style>
 </head>
 <body>
 <script>
@@ -2462,7 +2493,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V261 · cópia do app pela logo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V262 · 🤖 Assistente RH</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -9283,6 +9314,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     p.resultado={periodosSemFolgaFeriado:clone(periodosSemFolgaFeriado),previsoesDomingo:clone(previsoesDomingo),trabalhoDomingo:clone(trabalhoDomingo),trabalhoFeriado:clone(trabalhoFeriado),descansosDomingo:clone(descansosDomingo),alvosPorDomingo:clone(alvosPorDomingo),estadoFinalMes:clone(estadoFinalMes),ultimaEscala:clone(ultimaEscala),folgasCompensatorias:clone(folgasCompensatorias),sugestoesFolgasFeriado:clone(sugestoesFolgasFeriado)};
     p.historico=clone(historico);
     p.ui={step:typeof V45!=='undefined'?V45.step:null};
+    try{ const a=window.v262Assistente?.exportar?.(); if(a) p.assistente=a; }catch(e){}   // V262: o que o Assistente RH aprendeu vai no histórico
     return p;
   }
   function exportarProjeto(){
@@ -13760,6 +13792,124 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   document.addEventListener('click',e=>{ const l=e.target.closest?.('img.brand-logo,img.v202-logo'); if(!l) return; e.preventDefault(); baixarCopia(); },true);
   window.v261BaixarCopia=baixarCopia;
+})();
+</script>
+<script>
+/* ═════ V262 — 🤖 ASSISTENTE RH (etapa 1) ═════
+   Botão flutuante (#v262Botao, bolinha = nº de dicas) + painel (#v262Painel). Só dá DICAS; as regras continuam no auditor.
+   APRENDE (localStorage 'escalaSetores.v262Assistente' e no histórico .json, campo “assistente”):
+     setores[setor].pessoas[chave] = {nome, esc (vezes escolhida à mão), rec (recusada na 💡 sugestão), ace (aceita),
+                                      hor: {‘07:40-16:20’: n} (horário de domingo dado à mão), dm: {‘AAAA-MM’: domingos no mês}}
+     setores[setor].meses = {‘AAAA-MM’: origem}  (mês aprendido: ao guardar o histórico, ao gerar ou ao abrir um histórico)
+   chave da pessoa = matrícula (sem zeros à esquerda) ou “N:NOME”.  Juntar (histórico aberto): soma o que não havia.
+   Dicas: (1) o que falta antes de gerar (auditarSelecaoAntesDaGeracao, escala à mão/mista); (2) domingos acima do
+   costume (dm dos meses anteriores, ≥2 meses); (3) horário de costume (≥3 vezes e ≥60%); (4) quem você costuma escolher.
+   window.v262Assistente = {exportar, juntar, aprenderMes, dicas, abrir, dados}. */
+(function(){
+  const K='escalaSetores.v262Assistente';
+  const $i=id=>document.getElementById(id);
+  const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  let D={v:1,setores:{}}; try{ const x=JSON.parse(localStorage.getItem(K)||'null'); if(x&&x.setores) D=x; }catch(e){}
+  let tGravar=0; const gravar=()=>{ clearTimeout(tGravar); tGravar=setTimeout(()=>{ try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} },300); };
+  const setorK=()=>norm($i('setorSelecionado')?.value||'')||'setor';
+  const ymK=(a,m)=>`${a}-${String(m+1).padStart(2,'0')}`;
+  const ymAtual=()=>ymK(+$i('ano').value,+$i('mes').value);
+  const chaveP=f=>{ const m=String(f?.matricula||'').trim().replace(/^0+/,''); return m||('N:'+String(f?.nome||'').trim().toUpperCase()); };
+  const S=()=>{ const k=setorK(); return D.setores[k]=D.setores[k]||{pessoas:{},meses:{}}; };
+  const P=f=>{ const s=S(), k=chaveP(f); const p=s.pessoas[k]=s.pessoas[k]||{nome:'',esc:0,rec:0,ace:0,hor:{},dm:{}}; if(f?.nome) p.nome=String(f.nome); return p; };
+  const primeiro=n=>String(n||'').split(' ')[0];
+  /* ── aprender ── */
+  function aprenderMes(origem){
+    try{ const ano=+$i('ano').value, mes=+$i('mes').value, ym=ymK(ano,mes), doms=domingosDoMes(ano,mes);
+      if(!Object.keys(trabalhoDomingo||{}).length) return false;
+      const cont=new Map(); doms.forEach(d=>(trabalhoDomingo[d]||[]).forEach(i=>cont.set(i,(cont.get(i)||0)+1)));
+      equipe.forEach((f,i)=>{ if(!f||foraDom(f)) return; P(f).dm[ym]=cont.get(i)||0; });
+      S().meses[ym]=origem||'escala'; gravar(); return true; }catch(e){ return false; }
+  }
+  document.addEventListener('change',e=>{
+    const t=e.target; if(!t?.closest) return;
+    if(t.matches('input[type=checkbox][data-dom][data-func]')&&t.closest('#selecaoDomingosManual,#selecaoDomingosMista')&&t.checked){ const f=equipe[+t.dataset.func]; if(f){ P(f).esc++; gravar(); } }
+    if(t.matches('select.func-dom-hour[data-func]')&&t.value){ const f=equipe[+t.dataset.func]; if(f){ const h=P(f).hor; h[t.value]=(h[t.value]||0)+1; gravar(); } }
+  },true);
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('[data-v233-aceitar]'); if(b){ const area=b.closest('.v233-sugestoes');
+      area?.querySelectorAll('input[data-v233-candidato]').forEach(c=>{ const f=equipe[+c.dataset.v233Candidato]; if(!f) return; if(c.checked) P(f).ace++; else P(f).rec++; }); gravar(); }
+    if(e.target.closest?.('#btnHistorico,#btnGerar,[data-acao="historico"],[data-at="salvar"]')) setTimeout(()=>aprenderMes(e.target.closest('#btnGerar')?'gerado':'guardado'),2500);
+  },true);
+  /* ── histórico: exportar e juntar ── */
+  function exportar(){ aprenderMes('guardado'); const s=D.setores[setorK()];   // o mês da escala na tela já vai aprendido no arquivo
+  return s?{v:1,setor:setorK(),dados:JSON.parse(JSON.stringify(s))}:null; }
+  function juntar(a){
+    if(!a||!a.dados||!a.dados.pessoas) return 0; const k=a.setor||setorK(), s=D.setores[k]=D.setores[k]||{pessoas:{},meses:{}}; let n=0;
+    Object.entries(a.dados.meses||{}).forEach(([ym,o])=>{ if(!s.meses[ym]){ s.meses[ym]=o; n++; } });
+    Object.entries(a.dados.pessoas).forEach(([pk,x])=>{ const p=s.pessoas[pk]=s.pessoas[pk]||{nome:x.nome||'',esc:0,rec:0,ace:0,hor:{},dm:{}};
+      ['esc','rec','ace'].forEach(c=>{ p[c]=Math.max(p[c]||0,x[c]||0); });
+      Object.entries(x.hor||{}).forEach(([h,v])=>{ p.hor[h]=Math.max(p.hor[h]||0,v); });
+      Object.entries(x.dm||{}).forEach(([ym,v])=>{ if(p.dm[ym]===undefined){ p.dm[ym]=v; n++; } }); });
+    gravar(); return n;
+  }
+  document.addEventListener('change',ev=>{
+    const inp=ev.target; if(!inp||inp.id!=='arquivoProjetoJSON') return; const f=inp.files&&inp.files[0]; if(!f||!/\.json$/i.test(f.name||'')) return;
+    const rd=new FileReader(); rd.onload=()=>{ try{ const j=JSON.parse(String(rd.result||'').replace(/^﻿/,'')); setTimeout(()=>{ juntar(j.assistente); aprenderMes('historico'); atualizar(); },1800); }catch(e){} }; rd.readAsText(f);
+  },true);
+  /* ── dicas ── */
+  const naTelaDomingos=()=>!!($i('selecaoDomingosManual')||$i('selecaoDomingosMista'))?.closest('.step-panel')?.classList.contains('active');
+  const modoG=()=>$i('modoGeracao')?.value||'motor';
+  function irDomingos(){ try{ window.v45GotoStep?.(3,false); }catch(e){}   /* passo 3 = Domingos */ setTimeout(()=>($i('selecaoDomingosManual')||$i('selecaoDomingosMista'))?.scrollIntoView({behavior:'smooth',block:'start'}),200); }
+  function dicas(completo){   // completo: com a conferência do auditor (pesada) — só com o painel aberto
+    const out=[]; let s; try{ s=S(); }catch(e){ return out; }
+    const ano=+$i('ano').value, mes=+$i('mes').value, ym=ymK(ano,mes), doms=domingosDoMes(ano,mes), manual=['manual','mista'].includes(modoG());
+    const sel=manual?(selecaoManualDomingo||{}):(trabalhoDomingo||{});
+    /* 1. o que falta antes de gerar */
+    if(manual&&completo){ try{ const er=(auditarSelecaoAntesDaGeracao(modoG())||[]); if(er.length) out.push({tipo:'bad',txt:`🛠️ Faltam <b>${er.length}</b> coisa(s) para a escala ficar pronta. A primeira: ${es(String(er[0]).replace(/^\d{2}\/\d{2}(\/\d{4})?:\s*/,''))}`,acoes:[['Ir até lá',irDomingos]]}); }catch(e){} }
+    /* 2. domingos acima do costume */
+    const cont=new Map(); doms.forEach(d=>(sel[d]||sel[String(d)]||[]).map(Number).forEach(i=>cont.set(i,(cont.get(i)||0)+1)));
+    cont.forEach((n,i)=>{ const f=equipe[i]; if(!f) return; const p=s.pessoas[chaveP(f)]; if(!p) return;
+      const ant=Object.entries(p.dm||{}).filter(([k])=>k<ym).map(([,v])=>v); if(ant.length<2) return;
+      const media=ant.reduce((a,b)=>a+b,0)/ant.length; if(n>=media+1&&n>=2) out.push({tipo:'warn',txt:`📈 <b>${es(primeiro(f.nome))}</b> vai trabalhar <b>${n}</b> domingo(s) este mês. Nos últimos ${ant.length} meses a média foi <b>${media.toFixed(1).replace('.',',')}</b>.`}); });
+    /* 3. horário de costume (escala à mão) */
+    if(manual){ doms.forEach(d=>(selecaoManualDomingo[String(d)]||[]).map(Number).forEach(i=>{ const f=equipe[i]; if(!f) return; const p=s.pessoas[chaveP(f)]; if(!p) return;
+      const tot=Object.values(p.hor||{}).reduce((a,b)=>a+b,0); if(tot<3) return; const [hc,nc]=Object.entries(p.hor).sort((a,b)=>b[1]-a[1])[0]; if(nc/tot<0.6) return;
+      const atual=horariosManuaisDomingo?.[String(d)]?.[String(i)]||''; if(!atual||atual===hc) return;
+      out.push({tipo:'',txt:`⏰ No domingo ${String(d).padStart(2,'0')}, <b>${es(primeiro(f.nome))}</b> está com ${es(atual)}. Você costuma dar <b>${es(hc)}</b> para ${es(primeiro(f.nome))}.`,
+        acoes:[['Usar o de costume',()=>{ horariosManuaisDomingo[String(d)]=horariosManuaisDomingo[String(d)]||{}; horariosManuaisDomingo[String(d)][String(i)]=hc; try{ renderSelecaoDomingosGeracao(); window.v45Persist?.(); }catch(e){} atualizar(); }]]}); })); }
+    /* 4. quem você costuma escolher */
+    if(manual&&naTelaDomingos()){ const d0=doms.find(d=>(selecaoManualDomingo[String(d)]||[]).length<alvoCoberturaAtual()&&d!==balancoDoMes(ano,mes));
+      if(d0!==undefined){ const ja=new Set((selecaoManualDomingo[String(d0)]||[]).map(Number));
+        const top=equipe.map((f,i)=>({f,i,p:s.pessoas[chaveP(f)]})).filter(x=>x.p&&x.p.esc>=2&&!ja.has(x.i)&&!foraDom(x.f)&&!ehLiderancaDomingo(x.f)).sort((a,b)=>(b.p.esc-b.p.rec)-(a.p.esc-a.p.rec)).slice(0,3);
+        if(top.length) out.push({tipo:'',txt:`🙋 Para o domingo ${String(d0).padStart(2,'0')}, você costuma escolher: <b>${top.map(x=>es(primeiro(x.f.nome))).join(', ')}</b>. Confira se podem trabalhar.`}); } }
+    return out;
+  }
+  /* ── tela ── */
+  let painel, botao, abertoEm=0;
+  function montar(){
+    if($i('v262Botao')) return;
+    botao=document.createElement('button'); botao.type='button'; botao.id='v262Botao'; botao.setAttribute('aria-label','Abrir o Assistente RH'); botao.title='Assistente RH';
+    botao.innerHTML='🤖<span class="n" hidden>0</span>'; document.body.appendChild(botao);
+    painel=document.createElement('section'); painel.id='v262Painel'; painel.hidden=true; painel.setAttribute('role','dialog'); painel.setAttribute('aria-label','Assistente RH');
+    painel.innerHTML='<div class="top"><b>🤖 Assistente RH<small>Dicas do passo em que você está</small></b><button type="button" class="fechar" aria-label="Fechar">×</button></div><div class="lista"></div>';
+    document.body.appendChild(painel);
+    botao.addEventListener('click',()=>{ painel.hidden=!painel.hidden; if(!painel.hidden){ abertoEm=Date.now(); atualizar(true); } });
+    painel.querySelector('.fechar').addEventListener('click',()=>{ painel.hidden=true; botao.focus(); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!painel.hidden){ painel.hidden=true; } });
+  }
+  let ultimaAssin='';
+  function atualizar(forcar){
+    if(!botao) return; let L=[]; try{ L=dicas(!painel.hidden); }catch(e){ console.warn('[V262]',e); }
+    const n=botao.querySelector('.n'); n.textContent=String(L.length); n.hidden=!L.length;
+    botao.setAttribute('aria-label',L.length?`Abrir o Assistente RH: ${L.length} dica(s)`:'Abrir o Assistente RH');
+    if(painel.hidden) return;
+    const assin=JSON.stringify(L.map(x=>x.txt)); if(!forcar&&assin===ultimaAssin) return; ultimaAssin=assin;
+    const lista=painel.querySelector('.lista'); const s=D.setores[setorK()]||{pessoas:{},meses:{}};
+    const nEsc=Object.values(s.pessoas).reduce((a,p)=>a+(p.esc||0)+(p.rec||0)+(p.ace||0),0), nMes=Object.keys(s.meses||{}).length;
+    lista.innerHTML=(L.length?'':'<div class="v262-vazio">✅ Tudo certo por aqui. Continue: eu aviso se aparecer alguma coisa.</div>')
+      +L.map((x,k)=>`<div class="v262-dica ${x.tipo||''}" data-k="${k}">${x.txt}${x.acoes?`<div class="acoes">${x.acoes.map((a,j)=>`<button type="button" data-a="${j}">${es(a[0])}</button>`).join('')}</div>`:''}</div>`).join('')
+      +`<div class="v262-rodape">📚 Aprendi com ${nEsc} escolha(s) e ${nMes} mês(es) deste setor. O que aprendo vai junto no histórico do mês.</div>`;
+    lista.querySelectorAll('[data-a]').forEach(b=>b.addEventListener('click',()=>{ const x=L[+b.closest('[data-k]').dataset.k]; x?.acoes?.[+b.dataset.a]?.[1]?.(); }));
+  }
+  function iniciar(){ montar(); atualizar(); setInterval(()=>{ if(document.visibilityState==='visible'&&(painel.hidden||window.v247DomMudou?.('v262')!==false)) atualizar(); },4000); }
+  window.v262Assistente={exportar,juntar,aprenderMes,dicas,abrir:()=>{ montar(); painel.hidden=false; atualizar(true); },dados:()=>D,atualizar};
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,800),{once:true}); else setTimeout(iniciar,800);
 })();
 </script>
 </body>

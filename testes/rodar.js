@@ -534,6 +534,31 @@ async function testarSetores(browser){
     const html = require('fs').readFileSync(APP_SETORES, 'utf8');
     ok(!/Bloquear o domingo<\/b> de \$\{aprend\}/.test(html) && /aprendizes:!\$\$\('erpOpAprendiz'\)\|\|/.test(html), 'V260: a importação não mostra mais “Bloquear o domingo…” e continua bloqueando o domingo de aprendiz e cartazista');
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 262){   // V262: Assistente RH (aprende e dá dicas; vai no histórico)
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {}, A = window.v262Assistente;
+      const bk = { mg: $('modoGeracao').value, sel: JSON.stringify(selecaoManualDomingo || {}), hor: JSON.stringify(horariosManuaisDomingo || {}) };
+      try{
+        out.botao = !!document.getElementById('v262Botao');
+        $('modoGeracao').value = 'manual'; renderSelecaoDomingosGeracao(); await w(250);
+        const i = equipe.findIndex(f => /OPERADOR/.test(f.cargo) && !foraDom(f)), f = equipe[i], pk = String(f.matricula).replace(/^0+/, '');
+        const sk = norm($('setorSelecionado').value), antes = JSON.parse(JSON.stringify(A.dados().setores[sk]?.pessoas?.[pk] || { esc: 0, hor: {} }));
+        const ch = document.querySelector(`#selecaoDomingosManual input[type=checkbox][data-func="${i}"]`);
+        ch.checked = true; ch.dispatchEvent(new Event('change', { bubbles: true })); await w(100);
+        const p1 = A.dados().setores[sk].pessoas[pk]; out.aprendeEscolha = p1.esc === (antes.esc || 0) + 1;
+        p1.hor = { '07:20-16:00': 5 }; p1.dm = { '2000-01': 1, '2000-02': 1 };
+        const doms = domingosDoMes(+$('ano').value, +$('mes').value); selecaoManualDomingo = {}; doms.slice(0, 3).forEach(d => { selecaoManualDomingo[String(d)] = [i]; });
+        horariosManuaisDomingo[String(doms[0])] = { [String(i)]: '12:00-20:40' };
+        const L = A.dicas(false).map(x => x.txt).join(' | ');
+        out.dicaMedia = /3<\/b> domingo\(s\) este mês/.test(L); out.dicaHorario = /costuma dar <b>07:20-16:00/.test(L);
+        out.historico = !!window.v147MontarProjeto?.().assistente?.dados?.pessoas?.[pk];
+        const n = A.juntar({ setor: sk, dados: { meses: { '1999-12': 'historico' }, pessoas: { [pk]: { dm: { '1999-12': 2 } } } } });
+        out.junta = n >= 2 && A.dados().setores[sk].pessoas[pk].dm['1999-12'] === 2 && A.dados().setores[sk].meses['1999-12'] === 'historico';
+      } finally { $('modoGeracao').value = bk.mg; selecaoManualDomingo = JSON.parse(bk.sel); horariosManuaisDomingo = JSON.parse(bk.hor); renderSelecaoDomingosGeracao(); }
+      return out;
+    });
+    ok(r.botao && r.aprendeEscolha && r.dicaMedia && r.dicaHorario && r.historico && r.junta, `V262: Assistente RH — botão (${r.botao}), aprende a escolha (${r.aprendeEscolha}), dica de domingos acima da média (${r.dicaMedia}) e do horário de costume (${r.dicaHorario}), vai no histórico (${r.historico}) e junta o histórico aberto (${r.junta})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
@@ -882,6 +907,33 @@ async function testarCopiaLogo(browser, app){   // V261: tocar na logo baixa uma
     ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   } finally { await ctx.close(); srv.close(); }
 }
+async function testarEncAssistente(browser){   // V176: Assistente RH também nos Encarregados
+  if(+path.basename(APP_ENC).match(/V(\d+)\.html$/)[1] < 176) return;
+  console.log('\n▶ Encarregados — 🤖 Assistente RH');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + APP_ENC); await p.waitForTimeout(1200);
+  await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800);
+  const r = await p.evaluate(async () => {
+    const w = ms => new Promise(o => setTimeout(o, ms)), out = {}, A = window.v262Assistente;
+    out.botao = !!document.getElementById('v262Botao') && !!A && !!window.v167Api;
+    const i = equipe.findIndex(f => !foraDom(f)), f = equipe[i], pk = String(f.matricula || '').replace(/^0+/, '') || ('N:' + String(f.nome).trim().toUpperCase());
+    const s = A.dados().setores.encarregados = A.dados().setores.encarregados || { pessoas: {}, meses: {} };
+    s.pessoas[pk] = { nome: f.nome, esc: 0, rec: 0, ace: 0, hor: {}, dm: { '2000-01': 1, '2000-02': 1 } };
+    const doms = domingosDoMes(+$('ano').value, +$('mes').value), bk = JSON.stringify(trabalhoDomingo || {});
+    trabalhoDomingo = {}; doms.slice(0, 3).forEach(d => { trabalhoDomingo[d] = [i]; });
+    out.dicaMedia = A.dicas(false).some(x => /3<\/b> domingo\(s\) este mês/.test(x.txt));
+    out.aprendeMes = A.aprenderMes('teste') && s.pessoas[pk].dm[`${$('ano').value}-${String(+$('mes').value + 1).padStart(2, '0')}`] === 3;
+    trabalhoDomingo = JSON.parse(bk);
+    out.exporta = !!A.exportar()?.dados?.pessoas?.[pk];
+    out.junta = A.juntar({ setor: 'encarregados', dados: { meses: { '1999-12': 'historico' }, pessoas: { [pk]: { dm: { '1999-12': 2 } } } } }) >= 2;
+    document.getElementById('v262Botao').click(); await w(300); out.painel = !document.getElementById('v262Painel').hidden;
+    return out;
+  });
+  ok(r.botao && r.dicaMedia && r.aprendeMes && r.exporta && r.junta && r.painel, `Assistente RH nos Encarregados — botão (${r.botao}), painel (${r.painel}), dica de domingos acima da média (${r.dicaMedia}), aprende o mês (${r.aprendeMes}), vai no histórico (${r.exporta}) e junta o histórico aberto (${r.junta})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1127,7 +1179,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
