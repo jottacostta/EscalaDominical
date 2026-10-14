@@ -25,7 +25,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas, pois ela fica desatualizada quando uma PR é criada, fechada ou incorporada. Já incorporadas ao `main`: #54 (Setores V262 + Encarregados V176, Assistente RH) e #56 (AGENTS.md: hierarquia e seção 2.1). A #55 do ChatGPT (guia REA) foi fechada sem merge: as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V263**, Encarregados **V177**.
+- **Próximo número de versão:** Setores **V268**, Encarregados **V179**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
