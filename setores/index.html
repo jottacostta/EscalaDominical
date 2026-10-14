@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V263</title>
+<title>Escala de Setores — V264</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V264 [Claude] — 🤖 ASSISTENTE RH: HORÁRIO CONFERIDO DE VERDADE (teste ARH-20 do ChatGPT, PR #60): ao abrir um histórico,
+       o Assistente aceitava horários impossíveis como “24:00-25:00” ou “12:60-13:00” (só olhava se tinha números).
+       Agora só entra hora de 00 a 23 e minuto de 00 a 59. Junto, novos testes de estresse ARH-16 a ARH-24 nos dois apps.
 V263 [Claude] — PRÉVIA DAS FOLGAS COM OS DOMINGOS (pedido do dono): no passo Feriados, a “📅 Prévia das folgas
        (tabela do mês)” mostrava “FOLGA DOM” para todo mundo nos domingos até tocar em Gerar. Agora, antes de gerar,
        os domingos mostram quem já foi escolhido no passo Domingos (escala à mão/mista e as lideranças), com o
@@ -2501,7 +2504,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V263 · 📅 Prévia com os domingos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V264 · 🤖 Assistente RH conferido</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -13834,7 +13837,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const numOk=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
   const num=v=>numOk(v)?v:0;
   const ymOk=k=>/^\d{4}-(0[1-9]|1[0-2])$/.test(String(k));
-  const horOk=k=>/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(String(k));
+  const horOk=k=>/^([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d$/.test(String(k));   // V264: hora 00–23 e minuto 00–59 (teste ARH-20)
   const objOk=o=>!!o&&typeof o==='object'&&!Array.isArray(o);
 
   const setorK=()=>norm($i('setorSelecionado')?.value||'')||'setor';

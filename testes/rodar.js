@@ -1003,15 +1003,126 @@ async function testarAssistenteRobusto(browser, app, nome, abrir){   // V263/V17
     await p.close(); }
   { const { p } = await nova();
     await p.evaluate(LS => localStorage.removeItem(LS), LS); await p.waitForTimeout(400);
-    await p.evaluate(enc => { const i = equipe.findIndex(f => !foraDom(f)), inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = true;
+    const pk = await p.evaluate(enc => { const i = equipe.findIndex(f => !foraDom(f)), inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = true;
       if(enc){ inp.dataset.p = String(i); inp.dataset.d = '7'; document.body.appendChild(inp); }
       else { inp.dataset.dom = '7'; inp.dataset.func = String(i); document.getElementById('selecaoDomingosManual').appendChild(inp); }
-      inp.dispatchEvent(new Event('change', { bubbles: true })); inp.remove(); }, enc);
+      inp.dispatchEvent(new Event('change', { bubbles: true })); inp.remove();
+      const f = equipe[i]; return String(f.matricula || '').trim().replace(/^0+/, '') || ('N:' + String(f.nome || '').trim().toUpperCase()); }, enc);
     await p.waitForTimeout(30); await p.reload(); await p.waitForTimeout(600);
+    const exato = await p.evaluate(([LS, pk]) => { const x = JSON.parse(localStorage.getItem(LS) || 'null'); if(!x) return null; const out = { pk: null, outros: 0 };
+      Object.values(x.setores).forEach(s => Object.entries(s.pessoas).forEach(([k, q]) => { if(k === pk) out.pk = q.esc; else out.outros += q.esc || 0; })); return out; }, [LS, pk]);
+    ok(exato && exato.pk === 1 && exato.outros === 0, `ARH-10/16: a marcação guardada é da pessoa certa (dela: ${exato?.pk}; das outras: ${exato?.outros})`);
     const n = await p.evaluate(LS => { const x = JSON.parse(localStorage.getItem(LS) || 'null'); let n = 0; if(x) Object.values(x.setores).forEach(s => Object.values(s.pessoas).forEach(q => n += q.esc || 0)); return n; }, LS);
     ok(n === 1, `ARH-10: marcar e fechar o app logo em seguida (30 ms) não perde a marcação (guardado: ${n})`);
     await p.close(); }
 }
+/* ARH-16 a ARH-24 — cenários novos do parecer do ChatGPT no PR #60 (tarefa de testes separada, decisão do gerente).
+   Tudo com dados fictícios. Pessoas “Z…” ficam fora da equipe para o aprenderMes não interferir. */
+async function testarAssistenteEstresse(browser, app, nome, abrir){
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
+  if(v < (nome === 'Setores' ? 263 : 177)) return;
+  console.log(`\n▶ ${nome} — 🤖 Assistente RH: estresse ARH-16 a ARH-24`);
+  const enc = nome !== 'Setores', LS = enc ? 'enc.v176Assistente' : 'escalaSetores.v262Assistente';
+  const nova = async () => { const o = await novaPagina(browser); await o.p.goto('file://' + app); await o.p.waitForTimeout(1200); await abrir(o.p); return o; };
+  /* funções de apoio dentro da página: setor, chave da pessoa, marcar alguém pelo evento real, ler o que está gravado */
+  const APOIO = enc => { window.__enc = enc;
+    window.__sk = () => enc ? 'encarregados' : (norm(document.getElementById('setorSelecionado').value || '') || 'setor');
+    window.__pk = i => { const f = equipe[i]; return String(f.matricula || '').trim().replace(/^0+/, '') || ('N:' + String(f.nome || '').trim().toUpperCase()); };
+    window.__marcar = i => { const inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = true;
+      if(enc){ inp.dataset.p = String(i); inp.dataset.d = '7'; document.body.appendChild(inp); } else { inp.dataset.dom = '7'; inp.dataset.func = String(i); document.getElementById('selecaoDomingosManual').appendChild(inp); }
+      inp.dispatchEvent(new Event('change', { bubbles: true })); inp.remove(); };
+    window.__gravado = (LS, pk) => { const x = JSON.parse(localStorage.getItem(LS) || 'null'); return x?.setores?.[__sk()]?.pessoas?.[pk]?.esc ?? null; };
+    window.__mk = pes => ({ v: 1, setor: __sk(), dados: { meses: {}, pessoas: pes } });
+    window.__esconder = sim => { if(sim) Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); else delete document.visibilityState; };
+  };
+  const { p, erros } = await nova(); await p.evaluate(APOIO, enc);
+  // ARH-16 — a contagem vai para a pessoa exata; ninguém mais muda
+  { const r = await p.evaluate(async LS => { const w = ms => new Promise(o => setTimeout(o, ms)), A = window.v262Assistente, D = A.dados();
+      const ii = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i])), i = ii[1], pk = __pk(i);
+      const antes = {}; Object.entries(D.setores[__sk()]?.pessoas || {}).forEach(([k, q]) => { antes[k] = q.esc; });
+      __marcar(i); await w(450);
+      const pes = D.setores[__sk()].pessoas, mudou = Object.entries(pes).filter(([k, q]) => k !== pk && q.esc !== antes[k]).map(([k]) => k);
+      return { dela: pes[pk].esc - (antes[pk] || 0), mudou: mudou.length, gravado: __gravado(LS, pk) === pes[pk].esc }; }, LS);
+    ok(r.dela === 1 && !r.mudou && r.gravado, `ARH-16: marcar uma pessoa soma 1 só nela (dela: +${r.dela}; outras que mudaram: ${r.mudou}; gravado igual: ${r.gravado})`); }
+  // ARH-17 — cada evento de saída grava sozinho; repetir não aumenta contador
+  { const r = await p.evaluate(LS => { const A = window.v262Assistente, D = A.dados(), i = equipe.findIndex(f => !foraDom(f)), pk = __pk(i), out = {};
+      __marcar(i); const esperado = D.setores[__sk()].pessoas[pk].esc;
+      __esconder(true); document.dispatchEvent(new Event('visibilitychange')); __esconder(false); out.vis = __gravado(LS, pk) === esperado;
+      __marcar(i); const esp2 = D.setores[__sk()].pessoas[pk].esc;
+      window.dispatchEvent(new Event('pagehide')); out.page = __gravado(LS, pk) === esp2;
+      for(let k = 0; k < 5; k++){ __esconder(true); document.dispatchEvent(new Event('visibilitychange')); __esconder(false); window.dispatchEvent(new Event('pagehide')); }
+      out.repetido = __gravado(LS, pk) === esp2 && D.setores[__sk()].pessoas[pk].esc === esp2;
+      // “visível” não grava nada (só “escondido” grava)
+      __marcar(i); document.dispatchEvent(new Event('visibilitychange')); out.visivelNaoGrava = __gravado(LS, pk) === esp2;
+      return out; }, LS);
+    ok(r.vis && r.page && r.repetido && r.visivelNaoGrava, `ARH-17: só “visibilitychange” (escondido) grava na hora: ${r.vis}; só “pagehide” grava na hora: ${r.page}; 5 saídas seguidas não aumentam nada: ${r.repetido}; voltar a ficar visível não grava: ${r.visivelNaoGrava}`); }
+  // ARH-18 — gravar na hora perto do fim da espera (290 ms) e marcar de novo: fica o estado mais novo
+  { const r = await p.evaluate(async LS => { const w = ms => new Promise(o => setTimeout(o, ms)), D = window.v262Assistente.dados(), i = equipe.findIndex(f => !foraDom(f)), pk = __pk(i);
+      await w(400); __marcar(i); await w(290); window.dispatchEvent(new Event('pagehide')); const meio = __gravado(LS, pk);
+      __marcar(i); const novo = D.setores[__sk()].pessoas[pk].esc; await w(30); await w(400);
+      return { meio, novo, fim: __gravado(LS, pk) }; }, LS);
+    ok(r.fim === r.novo && r.meio === r.novo - 1, `ARH-18: gravar na hora aos 290 ms (${r.meio}) e marcar de novo: no fim fica o mais novo (${r.fim} = ${r.novo}), a espera antiga não volta atrás`); }
+  // ARH-19 — pessoa vazia no começo, no meio e no fim
+  { const r = await p.evaluate(() => { const A = window.v262Assistente, D = A.dados(); let erro = '';
+      try{ A.juntar(__mk({ Z0: null, ZA: { esc: 1 }, Z1: null, ZB: { esc: 2 }, Z2: 'texto', ZC: { esc: 3 }, Z3: [1], Z4: null })); }catch(e){ erro = e.message; }
+      const ps = D.setores[__sk()].pessoas; return { erro, a: ps.ZA?.esc, b: ps.ZB?.esc, c: ps.ZC?.esc, lixo: ['Z0', 'Z1', 'Z2', 'Z3', 'Z4'].filter(k => k in ps).length }; });
+    ok(!r.erro && r.a === 1 && r.b === 2 && r.c === 3 && !r.lixo, `ARH-19: pessoa vazia/estragada no começo, no meio e no fim é pulada e as válidas entram (erro: ${r.erro || 'nenhum'}; válidas ${r.a}/${r.b}/${r.c}; estragadas aceitas: ${r.lixo})`); }
+  // ARH-20 — limites de formato (mês, horário, número)
+  { const r = await p.evaluate(() => { const A = window.v262Assistente, D = A.dados();
+      A.juntar(__mk({ ZL: { esc: 3, rec: 1, ace: 2, hor: { '07:00-15:20': 2 }, dm: { '2026-05': 1 } } }));
+      A.juntar(__mk({ ZL: { esc: Infinity, rec: -1, ace: '9', hor: { '24:00-25:00': 5, '12:60-13:00': 5, '7:00-15:20': 5, '07:00-15:20': NaN, '23:00-07:00': 4 },
+        dm: { '2026-00': 1, '2026-13': 1, '2026-1': 1, '2026-12': 2, '2026-05': 9, '2026-06': Infinity } } }));
+      const q = D.setores[__sk()].pessoas.ZL; return { esc: q.esc, rec: q.rec, ace: q.ace, hor: Object.keys(q.hor).sort(), hor0700: q.hor['07:00-15:20'], dm: q.dm }; });
+    const horOk = enc ? true : JSON.stringify(r.hor) === JSON.stringify(['07:00-15:20', '23:00-07:00']) && r.hor0700 === 2;
+    const dmOk = JSON.stringify(Object.keys(r.dm).sort()) === JSON.stringify(['2026-05', '2026-12']) && r.dm['2026-05'] === 1 && r.dm['2026-12'] === 2;
+    ok(r.esc === 3 && r.rec === 1 && r.ace === 2 && horOk && dmOk, `ARH-20: limites — infinito, negativo e número em texto ignorados (esc ${r.esc}/3, rec ${r.rec}/1, ace ${r.ace}/2)` + (enc ? '' : `; horários aceitos: ${r.hor.join(', ')} (só 07:00-15:20 e 23:00-07:00)`) + `; meses aceitos: ${Object.keys(r.dm).sort().join(', ')} (só 2026-05 e 2026-12; o 2026-05 que já existia fica ${r.dm['2026-05']})`); }
+  // ARH-23 — histórico grande com lixo intercalado: todas as válidas entram; tempo de juntar + gravar
+  { const r = await p.evaluate(LS => { const A = window.v262Assistente, D = A.dados(), pes = {}, lixos = [null, 'x', [1], 7, { esc: 'abc' }];
+      for(let k = 0; k < 1000; k++) pes['ZG' + k] = k % 2 ? lixos[k % 5] : { esc: k % 9, ace: 1, dm: { '2026-01': k % 4 } };
+      const t = performance.now(); let erro = ''; try{ A.juntar(__mk(pes)); }catch(e){ erro = e.message; } window.dispatchEvent(new Event('pagehide')); const ms = performance.now() - t;
+      const ps = D.setores[__sk()].pessoas; let validas = 0, ruins = 0; for(let k = 0; k < 1000; k++){ const q = ps['ZG' + k]; if(k % 2 === 0){ if(q && q.esc === k % 9) validas++; } else if(q && !(q.esc === 0 && !q.ace)) ruins++; }
+      const x = JSON.parse(localStorage.getItem(LS) || 'null'); return { erro, validas, ruins, ms, gravou: !!x?.setores?.[__sk()]?.pessoas?.ZG998 }; }, LS);
+    ok(!r.erro && r.validas === 500 && !r.ruins && r.gravou && r.ms < 3000, `ARH-23: 1.000 pessoas com lixo intercalado — válidas que entraram: ${r.validas}/500; estragadas com valor: ${r.ruins}; juntar + gravar: ${r.ms.toFixed(0)} ms; gravado: ${r.gravou}`); }
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+  // ARH-21 — aparelho com o aprendizado gravado estragado
+  { const { p, erros } = await nova();
+    await p.evaluate(LS => localStorage.setItem(LS, '{"setores":{estragado'), LS); await p.reload(); await p.waitForTimeout(1200); await abrir(p); await p.evaluate(APOIO, enc);
+    const r = await p.evaluate(async LS => { const w = ms => new Promise(o => setTimeout(o, ms)), i = equipe.findIndex(f => !foraDom(f)), pk = __pk(i);
+      const vazio = !Object.values(window.v262Assistente.dados().setores).some(s => Object.keys(s.pessoas || {}).length);   /* a gaveta vazia do setor pode existir; pessoas não */ __marcar(i); await w(450);
+      let valido = false; try{ JSON.parse(localStorage.getItem(LS)); valido = true; }catch(e){} return { vazio, valido, esc: __gravado(LS, pk) }; }, LS);
+    ok(r.vazio && r.valido && r.esc === 1 && !erros.length, `ARH-21: aprendizado gravado estragado — o app abre sem erro (${!erros.length}), começa vazio (${r.vazio}) e volta a gravar certo (JSON válido: ${r.valido}; esc ${r.esc})`);
+    // ARH-24 — sair da página e voltar (cache do navegador ou recarga): nada se perde nem conta 2 vezes
+    const pessoas = d => { const out = {}; Object.entries((d && d.setores) || {}).forEach(([k, s]) => Object.entries(s.pessoas || {}).forEach(([pk, q]) => { out[k + '|' + pk] = JSON.stringify([q.esc, q.rec, q.ace, q.hor, q.dm]); })); return JSON.stringify(Object.keys(out).sort().map(k => [k, out[k]])); };
+    const antes = pessoas(await p.evaluate(LS => JSON.parse(localStorage.getItem(LS) || 'null'), LS));
+    await p.goto('about:blank'); await p.waitForTimeout(300); await p.goBack(); await p.waitForTimeout(1500);
+    const dep = await p.evaluate(LS => ({ ls: JSON.parse(localStorage.getItem(LS) || 'null'), d: window.v262Assistente ? JSON.parse(JSON.stringify(window.v262Assistente.dados())) : null }), LS);
+    const lsIgual = pessoas(dep.ls) === antes, dIgual = pessoas(dep.d) === antes;
+    ok(lsIgual && dIgual && antes !== '[]', `ARH-24: sair do app e voltar não perde nem dobra o aprendizado (pessoas e contagens gravadas iguais: ${lsIgual}; na memória iguais: ${dIgual})`);
+    await p.close(); }
+  // ARH-22 — ida e volta pelo histórico de verdade: gera → 📦 Guardar histórico → abre em aparelho limpo → guarda de novo → compara
+  { const { p, ctx } = await nova(); await p.evaluate(APOIO, enc);
+    await p.evaluate(() => window.v262Assistente.juntar(__mk({ ZR: { nome: 'TESTE IDA E VOLTA', esc: 7, rec: 2, ace: 3, hor: { '07:00-15:20': 4 }, dm: { '2026-02': 2 } } })));
+    const gerarEGuardar = async (p, rot) => {
+      await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); });
+      for(let w = 0; w < 240; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(a => a && a.length))) break; }
+      await p.waitForTimeout(800);
+      const [dl] = await Promise.all([p.waitForEvent('download'), p.evaluate(() => document.getElementById('btnHistorico').click())]);
+      const arq = path.join(require('os').tmpdir(), `teste_arh22_${nome}_${rot}_` + dl.suggestedFilename()); await dl.saveAs(arq); return arq; };
+    const arq1 = await gerarEGuardar(p, '1'); await ctx.close();
+    const j1 = JSON.parse(fs.readFileSync(arq1, 'utf8'));
+    const { p: p2, erros: er2, ctx: ctx2 } = await novaPagina(browser); await p2.goto('file://' + app); await p2.waitForTimeout(1200);
+    await p2.evaluate(LS => localStorage.removeItem(LS), LS); await abrir(p2); await p2.evaluate(APOIO, enc);
+    await p2.setInputFiles('#arquivoProjetoJSON', arq1); await p2.waitForTimeout(3500);
+    const arq2 = await gerarEGuardar(p2, '2'); const j2 = JSON.parse(fs.readFileSync(arq2, 'utf8'));
+    const z1 = j1?.assistente?.dados?.pessoas?.ZR, z2 = j2?.assistente?.dados?.pessoas?.ZR;
+    const igual = !!z1 && !!z2 && JSON.stringify(z1) === JSON.stringify(z2);
+    const pessoas1 = Object.keys(j1?.assistente?.dados?.pessoas || {}).length, pessoas2 = Object.keys(j2?.assistente?.dados?.pessoas || {}).length;
+    ok(igual && pessoas2 >= pessoas1 && !er2.length, `ARH-22: ida e volta pelo 📦 histórico — o arquivo leva o aprendizado (${!!z1}); aberto num aparelho limpo e guardado de novo, a pessoa de teste volta igual (${igual}) e ninguém some (${pessoas1} → ${pessoas2} pessoas)`);
+    await ctx2.close(); fs.unlinkSync(arq1); fs.unlinkSync(arq2); }
+}
+const abrirSetoresFL = async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); };
+const abrirEnc15 = async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); };
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1257,7 +1368,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
