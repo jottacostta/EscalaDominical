@@ -530,6 +530,10 @@ async function testarSetores(browser){
     });
     ok(r.grande && r.pequeno && r.some, `V259: “Por grupos” avisa quando o setor tem menos de 6 pessoas (setor grande sem aviso: ${r.grande}; com 4: ${r.pequeno}; some em outro modo: ${r.some})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 260){   // V260: sem a frase “Bloquear o domingo…” na importação
+    const html = require('fs').readFileSync(APP_SETORES, 'utf8');
+    ok(!/Bloquear o domingo<\/b> de \$\{aprend\}/.test(html) && /aprendizes:!\$\$\('erpOpAprendiz'\)\|\|/.test(html), 'V260: a importação não mostra mais “Bloquear o domingo…” e continua bloqueando o domingo de aprendiz e cartazista');
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

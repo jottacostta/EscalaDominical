@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V259</title>
+<title>Escala de Setores — V260</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V260 [Claude] — IMPORTAÇÃO SEM A OPÇÃO “BLOQUEAR O DOMINGO…” (pedido do dono): a caixinha “Bloquear o domingo de N
+       pessoa(s): jovens aprendizes e cartazista…” saiu da janela da planilha do RH. O app continua tirando do domingo,
+       sozinho, os jovens aprendizes e o cartazista (sem a caixinha, vale “sim”).
 V259 [Claude] — AVISO: “POR GRUPOS” SÓ COM 6 PESSOAS OU MAIS (pedido do dono): a opção agora diz “(setor com 6 pessoas ou
        mais)” e, se o setor tiver menos de 6 pessoas que trabalham no domingo, aparece um aviso amarelo explicando que
        os grupos precisam de pelo menos 6 (3 grupos de 2) e sugerindo “Metade da equipe” ou “Por cargo”.
@@ -2455,7 +2458,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V259 · aviso: grupos só com 6 pessoas ou mais</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V260 · importação sem a opção do domingo bloqueado</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -9762,7 +9765,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <h4>Opções</h4>
       <label class="erp-op"><input type="checkbox" id="erpOpSaidas" ${cmp.saidas.length?'checked':''}><span>Tirar do app quem <b>não aparece mais</b> na planilha (${cmp.saidas.length}).</span></label>
       <input type="checkbox" id="erpOpSegSab" hidden>
-      ${aprend?`<label class="erp-op"><input type="checkbox" id="erpOpAprendiz" checked><span><b>Bloquear o domingo</b> de ${aprend} pessoa(s): jovens aprendizes e cartazista (trabalham só de segunda a sábado / sexta).</span></label>`:''}
+      ${''/* V260: a opção “Bloquear o domingo…” saiu; sem ela, aprendizes:true (sempre bloqueia) */}
       <label class="erp-op"><input type="checkbox" id="erpOpAfastados" checked><span>Deixar <b>afastados e quem está de férias</b> fora da escala de domingo.</span></label>
       <details><summary>✏️ Alterados (${cmp.alterados.length})</summary>${lista(cmp.alterados,x=>`<b>${esc(x.p.nome)}</b>: ${esc(x.mud.join('; '))}`)}</details>
       <details><summary>➖ Saíram do quadro (${cmp.saidas.length})</summary>${lista(cmp.saidas,f=>`<b>${esc(f.nome)}</b> (${esc(f.setor||'')})`)}</details>
