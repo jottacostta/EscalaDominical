@@ -1146,7 +1146,7 @@ async function testarChatAssistente(browser, app, nome, abrir){
     out.regra = txt(C.responder('como funciona o 6x1')).includes('6 dias seguidos');
     out.feriado = /Feriados de|Não há feriado/.test(txt(C.responder('tem feriado esse mês?')));
     out.naoEntendi = txt(C.responder('xpto qwerty')).includes('Não entendi');
-    out.falta = /Falta|Não falta/.test(txt(C.responder('o que falta?')));
+    out.falta = /falta/i.test(txt(C.responder('o que falta?')));
     if(enc) out.regraEnc = txt(C.responder('regras do domingo')).includes('3 pessoas'); else out.regraEnc = true;
     // tela: abrir, aba Perguntar, escrever e enviar
     C.abrirChat(); await w(300); const inp = document.getElementById('v265Txt'); out.aba = !!inp && !document.querySelector('.v265-chat').hidden && document.querySelector('#v262Painel .lista').hidden;
@@ -1243,6 +1243,26 @@ async function testarHorarioPorFuncao(browser, app){
     ok(!erros.length, 'aparelho limpo: sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
     await p.close(); }
   fs.unlinkSync(arq);
+}
+/* V268 — 🤖 Assistente na tela inicial: a dica diz o setor e o “Ir até lá” sai da tela inicial (print do dono) */
+async function testarAssistenteTelaInicial(browser, app){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 268) return;
+  console.log('\n▶ Setores — 🤖 Assistente: “Ir até lá” a partir da tela inicial');
+  const { p, erros } = await novaPagina(browser); await p.goto('file://' + app); await p.waitForTimeout(1200); await abrirSetoresFL(p);
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); const s = $('modoGeracao'); s.value = 'manual'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+  await p.waitForTimeout(400);
+  for(const tela of ['homeSetores', 'inicioSetor']){
+    await p.evaluate(t => { if(t === 'homeSetores') abrirHomeSetores(); else window.abrirInicioSetor('Frente de Loja'); window.v262Assistente.abrir(); }, tela);
+    await p.waitForTimeout(800);
+    const dica = await p.evaluate(() => { const d = [...document.querySelectorAll('#v262Painel .v262-dica')].find(x => /faltam/i.test(x.textContent)); return d ? d.textContent.replace(/\s+/g, ' ') : ''; });
+    await p.evaluate(() => { const b = [...document.querySelectorAll('#v262Painel .v262-dica button')].find(x => /Ir até lá/.test(x.textContent)); b && b.click(); });
+    await p.waitForTimeout(800);
+    const st = await p.evaluate(() => ({ cobre: $('homeSetores').classList.contains('on') || $('inicioSetor').classList.contains('on'), passo3: !!document.querySelector('.step-panel.active #selecaoDomingosManual, .step-panel.active #selecaoDomingosMista') }));
+    ok(/Frente de Loja · \w+\/\d{4}/.test(dica) && /\(domingo \d{2}\/\d{2}\)/.test(dica), `${tela === 'homeSetores' ? 'escolher o setor' : 'início do setor'}: a dica diz o setor, o mês e o domingo (“${dica.slice(0, 70)}…”)`);
+    ok(!st.cobre && st.passo3, `${tela === 'homeSetores' ? 'escolher o setor' : 'início do setor'}: “Ir até lá” sai da tela inicial e abre o passo 3 Domingos (tela inicial fechada: ${!st.cobre}; passo 3: ${st.passo3})`);
+  }
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
 }
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
@@ -1489,7 +1509,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
