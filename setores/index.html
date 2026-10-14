@@ -7,10 +7,24 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V257</title>
+<title>Escala de Setores — V260</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V260 [Claude] — IMPORTAÇÃO SEM A OPÇÃO “BLOQUEAR O DOMINGO…” (pedido do dono): a caixinha “Bloquear o domingo de N
+       pessoa(s): jovens aprendizes e cartazista…” saiu da janela da planilha do RH. O app continua tirando do domingo,
+       sozinho, os jovens aprendizes e o cartazista (sem a caixinha, vale “sim”).
+V259 [Claude] — AVISO: “POR GRUPOS” SÓ COM 6 PESSOAS OU MAIS (pedido do dono): a opção agora diz “(setor com 6 pessoas ou
+       mais)” e, se o setor tiver menos de 6 pessoas que trabalham no domingo, aparece um aviso amarelo explicando que
+       os grupos precisam de pelo menos 6 (3 grupos de 2) e sugerindo “Metade da equipe” ou “Por cargo”.
+V258 [Claude] — PROMOTOR: 1 POR DOMINGO (pedido do dono): os promotores de vendas (normalmente 3 por loja) têm 1 por
+       domingo — e esse 1 segue as regras de sempre (no máximo 2 domingos seguidos e 6×1 na semana). Antes o app
+       contava os promotores na “metade da equipe” e cobrava 2 por domingo no ADM Geral. Agora: (1) escala automática:
+       1 promotor em cada domingo, em rodízio; (2) escala à mão: o promotor conta como 1 e o resto da equipe como a
+       metade, aceitando 1 a mais ou a menos quando a metade não é exata (ex.: ADM Geral com 1 cartazista: 1 ou 2 por
+       domingo); (3) “Por cargo”: o promotor já vem com 1 por domingo (dá para mudar).
+       CARTAZISTA NÃO TRABALHA DOMINGO (pedido do dono): fica “não apto ao domingo” sozinho (como o jovem aprendiz),
+       também em quadros já guardados. No ADM Geral, o domingo fica só com 1 promotor.
 V257 [Claude] — NOME DO SETOR NO ARQUIVO EXCEL (pedido do dono): a planilha baixada saía como “Escala_Novembro_2026.xlsx”
        para todos os setores (um arquivo apagava/confundia o outro). Agora sai com o setor: “Escala_Frente_de_Loja_
        Novembro_2026.xlsx”. O título de dentro da planilha já tinha o setor (“ESCALA DE SETORES - FRENTE DE LOJA”).
@@ -2444,7 +2458,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V257 · nome do setor no arquivo Excel</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V260 · importação sem a opção do domingo bloqueado</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2648,7 +2662,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
       <label for="modoCobertura">Como dividir o setor nos domingos</label>
       <select id="modoCobertura">
         <option value="50">Metade da equipe em cada domingo</option>
-        <option value="grupos">Grupos que eu mesmo monto</option>
+        <option value="grupos">Grupos que eu mesmo monto (setor com 6 pessoas ou mais)</option>
         <option value="funcao">Por cargo — eu escolho quantas lideranças e quantos de cada cargo</option>
       </select>
       <div id="coberturaResumo" class="alert info" style="margin-top:8px">50% do quadro elegível será escalado a cada domingo.</div>
@@ -7039,7 +7053,8 @@ function auditarSelecaoAntesDaGeracao(modoAtual){
       const arr=sel[d]||[];
       if(d===bal) return;   // V195: o balanço é montado automaticamente (todos os aptos)
       const vizinhoBal=bal && Math.abs(doms.indexOf(d)-doms.indexOf(bal))===1;   // V195: perto do balanço pode faltar gente (3 domingos seguidos)
-      if(vizinhoBal ? (arr.length<1 || arr.length>(alvo+lideresSelecionadosDomingo(d).length)) : arr.length!==(alvo+lideresSelecionadosDomingo(d).length)){
+      const folga258=window.v258Folga?.()||0;   // V258: com promotor e metade não exata, aceita 1 a menos
+      if(vizinhoBal ? (arr.length<1 || arr.length>(alvo+lideresSelecionadosDomingo(d).length)) : (arr.length>(alvo+lideresSelecionadosDomingo(d).length)||arr.length<(alvo-folga258+lideresSelecionadosDomingo(d).length))){
         erros.push(`${formatarDataDomingo(d)}: selecione ${alvo} funcionário(s) operacionais + ${lideresSelecionadosDomingo(d).length} liderança; selecionados ${arr.length}.`);
       }
       arr.forEach(i=>{
@@ -7199,6 +7214,12 @@ function calcularMetasDistribuicaoFuncoes(doms, indices){
     const qf=fe.length ? distribuirQuantidadeEquilibrada(fe.length*2,doms.length) : Array(doms.length).fill(0);
     const qo=semTurno.length ? distribuirQuantidadeEquilibrada(semTurno.length*2,doms.length) : Array(doms.length).fill(0);
     meta.porDomingo=doms.map((d,idx)=>({total:qa[idx]+qf[idx]+qo[idx],abertura:qa[idx],fechamento:qf[idx],outros:qo[idx]}));
+    if(/promotor/.test(chave)){   // V258: promotor = 1 por domingo (alterna abertura/fechamento quando há dos dois)
+      const tur=doms.map((d,idx)=>ab.length&&fe.length?(idx%2?'fe':'ab'):ab.length?'ab':fe.length?'fe':'ou');
+      tur.forEach((t,idx)=>{ qa[idx]=t==='ab'?1:0; qf[idx]=t==='fe'?1:0; qo[idx]=t==='ou'?1:0; });
+      meta.porDomingo=doms.map((d,idx)=>({total:1,abertura:qa[idx],fechamento:qf[idx],outros:qo[idx]}));
+      mapa[chave]=meta; return;
+    }
 
     // Piso operacional: se existem 4 ou mais pessoas daquela função naquele
     // turno, é possível manter pelo menos 2 em cada domingo. Como o total de
@@ -7422,7 +7443,8 @@ function funcoesDoSetor(){
   return [...m.values()].map(x=>({...x,ab:x.ids.filter(i=>turnoPeso(equipe[i].turno)==='ABERTURA').length,fe:x.ids.filter(i=>turnoPeso(equipe[i].turno)==='FECHAMENTO').length}))
     .sort((a,b)=>b.ids.length-a.ids.length||a.rotulo.localeCompare(b.rotulo));
 }
-function qtdFuncaoPadrao(fn){ return Math.round(fn.ids.length/2); }
+function ehPromotorIdx(i){ return /promotor/.test(chaveFuncaoDistribuicao(i)||''); }   // V258
+function qtdFuncaoPadrao(fn){ if(/promotor/.test(fn.chave||'')) return 1; return Math.round(fn.ids.length/2); }   // V258: promotor = 1 por domingo
 /* V141: quem cobre a função quando falta gente nela (ex.: sem Balconista → +1 Operador de Câmara Fria). */
 function substitutoFuncao(chave){
   const s=coberturaFuncao.subst||{};
@@ -7672,7 +7694,7 @@ function gerarSetoresCore(){
   const alvosCalculados=metasTotaisPorDomingo(metasFuncoesGlobal,doms);
   const somaMetas=alvosCalculados.reduce((a,b)=>a+b,0);
   const alvoCiclo=Math.max(1,Math.round(ativosOperacionais.length/2));
-  const alvosAjustados=garantirAlvoGlobal(alvosCalculados,alvoCiclo);
+  const alvosAjustados=ativosOperacionais.some(ehPromotorIdx)&&modo!=='funcao'?alvosCalculados.slice():garantirAlvoGlobal(alvosCalculados,alvoCiclo);   // V258: com promotor (1 por domingo) a soma das metas já é o alvo
   alvosPorDomingo={};
   doms.forEach((d,idx)=>alvosPorDomingo[d]=(modo==='grupos'?alvo:alvosAjustados[idx]||alvoCiclo));
 
@@ -8094,7 +8116,7 @@ function gerarSetoresCore(){
   const resumo=modo==='grupos'
     ?`grupos em blocos de 2 domingos: ${gruposValidos.map((g,i)=>`G${i+1}=${g.length}`).join(' • ')} • ${alvo} por domingo`
     :modo==='funcao'?`por função (${Object.values(metasFuncoesGlobal).filter(m=>m.porDomingo?.[0]?.total).map(m=>`${m.porDomingo[0].total} ${m.cargo}`).join(', ')||'—'})`
-    :`aproximadamente 50% (${alvo} por domingo) • horário dominical ajustável pela necessidade`;
+    :`${(()=>{ const at=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i])), np=at.filter(ehPromotorIdx).length; return !np?'aproximadamente 50% ('+alvo+' por domingo)':'1 promotor por domingo'+(at.length>np?' + metade do resto da equipe':''); })()} • horário dominical ajustável pela necessidade`;   // V258
   if(modoGeracaoAtual==='manual'){
     $('validacao').className=todos.length?'alert bad':'alert ok';
     $('validacao').textContent=(todos.length ?'⛔ Escala manual bloqueada na auditoria final: '+todos.join(' | ') :`✋ Escala manual de ${$('setorSelecionado').value} validada e gerada.`)
@@ -8321,7 +8343,8 @@ function alvoCoberturaAtual(){
   const ativosOperacionais=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i]));
   if($('modoCobertura')?.value==='grupos'){ const gs=grupos.filter(g=>g.length).map(g=>g.filter(i=>!ehLiderancaDomingo(equipe[i]))); return gs.length && gs[0].length ? gs[0].length : Math.max(1,Math.round(ativosOperacionais.length/2)); }
   if($('modoCobertura')?.value==='funcao'){ const ds=domingosDoMes(+$('ano').value,+$('mes').value); return Math.max(1,...ds.map(d=>funcoesDoSetor().reduce((n,fn)=>n+qtdFuncao(fn.chave,chaveDataLocal(new Date(+$('ano').value,+$('mes').value,d))),0))); }
-  const base=Math.max(1,Math.round(ativosOperacionais.length/2));
+  const nPromo=ativosOperacionais.filter(ehPromotorIdx).length;   // V258: promotor conta 1 por domingo
+  const base=nPromo?Math.max(1,1+Math.round((ativosOperacionais.length-nPromo)/2)):Math.max(1,Math.round(ativosOperacionais.length/2));
   if(['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''))&&($('modoCobertura')?.value||'50')==='50') return 11;   // V235: Açougue = 11 operacionais (regra V102 do motor e da cobertura do Açougue)
   const req=coberturaOperacional(ativosOperacionais);
   return Math.max(base, req.ok?0:4);
@@ -9619,8 +9642,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   /* regras que mandam a pessoa para outra área conforme o CARGO (o ERP junta tudo em ADM GERAL) */
   const REGRAS_CARGO_SETOR=[{de:'ADM Geral',cargo:/CAIXA\s+GERAL/i,para:'Tesouraria',rotulo:'CAIXA GERAL'}];
   /* regras que BLOQUEIAM o domingo conforme o cargo (jovem aprendiz só trabalha de segunda a sexta) */
-  const REGRAS_BLOQUEIO_DOMINGO=[{setor:'ADM Geral',cargo:/APRENDIZ/i,rotulo:'jovem aprendiz'}];
-  const bloqueioDomingoPorRegra=f=>!!f&&REGRAS_BLOQUEIO_DOMINGO.some(r=>nt(f.setor)===nt(r.setor)&&r.cargo.test(String(f.cargo||'')));
+  const REGRAS_BLOQUEIO_DOMINGO=[{setor:'ADM Geral',cargo:/APRENDIZ/i,rotulo:'jovem aprendiz'},{setor:'',cargo:/CARTAZ/i,rotulo:'cartazista'}];   // V258: cartazista não trabalha domingo (qualquer setor)
+  const bloqueioDomingoPorRegra=f=>!!f&&REGRAS_BLOQUEIO_DOMINGO.some(r=>(!r.setor||nt(f.setor)===nt(r.setor))&&r.cargo.test(String(f.cargo||'')));
   const marcarNaoAptoDomingo=f=>{ if(!f) return; naoAptosDomingo.add(chaveFuncionario(f)); f.aptoDomingo=false; };
   window.v157Regras={bloqueioDomingo:bloqueioDomingoPorRegra};
   /* situação detalhada do ERP (Férias, Suspensão de contrato, Auxílio-doença…) */
@@ -9733,7 +9756,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <p class="erp-sub">${esc(nomeArq)} — ${an.total} funcionário(s) lidos${an.filial?' — '+esc(an.filial):''}${an.emissao?' — emitido em '+esc(an.emissao):''}</p>
       <div class="erp-chips">
         ${chip('✚ '+cmp.novos.length+' novo(s)',cmp.novos.length?'ok':'')}${chip('✏️ '+cmp.alterados.length+' alterado(s)',cmp.alterados.length?'warn':'')}${chip('➖ '+cmp.saidas.length+' não estão mais na planilha',cmp.saidas.length?'bad':'')}${chip('= '+cmp.mantidos.length+' sem mudança','')}
-        ${redirec.length?chip('↪ '+redirec.length+' de '+esc(redirec[0].setorAntes)+' (CAIXA GERAL) → '+esc(redirec[0].setorApp),'ok'):''}${aprend?chip('🚫 '+aprend+' jovem(ns) aprendiz(es): sem domingo','ok'):''}${(()=>{ const n=an.pessoas.filter(p=>p.admissao).length; return n?chip('📅 '+n+' com data de admissão (tempo de serviço)','ok'):''; })()}${(()=>{ const n=an.pessoas.filter(p=>p.situacao==='AF'&&situacaoRotulo(p.statusErp)).length; return n?chip('🩺 '+n+' com situação detalhada (alimenta o gráfico de afastados)','ok'):''; })()}${chip('⚠️ '+af+' afastado(s)/férias',af?'warn':'')}${chip('❓ '+pend+' sem dia de folga fixa',pend?'warn':'')}${an.foraDasAreas.length?chip('🚫 '+an.foraDasAreas.length+' fora das áreas da escala','bad'):''}
+        ${redirec.length?chip('↪ '+redirec.length+' de '+esc(redirec[0].setorAntes)+' (CAIXA GERAL) → '+esc(redirec[0].setorApp),'ok'):''}${aprend?chip('🚫 '+aprend+' sem domingo (jovem aprendiz e cartazista)','ok'):''}${(()=>{ const n=an.pessoas.filter(p=>p.admissao).length; return n?chip('📅 '+n+' com data de admissão (tempo de serviço)','ok'):''; })()}${(()=>{ const n=an.pessoas.filter(p=>p.situacao==='AF'&&situacaoRotulo(p.statusErp)).length; return n?chip('🩺 '+n+' com situação detalhada (alimenta o gráfico de afastados)','ok'):''; })()}${chip('⚠️ '+af+' afastado(s)/férias',af?'warn':'')}${chip('❓ '+pend+' sem dia de folga fixa',pend?'warn':'')}${an.foraDasAreas.length?chip('🚫 '+an.foraDasAreas.length+' fora das áreas da escala','bad'):''}
       </div>
       <p class="erp-sub">Hoje o app tem ${cmp.atualTotal} funcionário(s). <b>Nada muda até você tocar em “Aplicar atualização”.</b></p>
       <h4>Por área da escala</h4>
@@ -9742,7 +9765,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <h4>Opções</h4>
       <label class="erp-op"><input type="checkbox" id="erpOpSaidas" ${cmp.saidas.length?'checked':''}><span>Tirar do app quem <b>não aparece mais</b> na planilha (${cmp.saidas.length}).</span></label>
       <input type="checkbox" id="erpOpSegSab" hidden>
-      ${aprend?`<label class="erp-op"><input type="checkbox" id="erpOpAprendiz" checked><span><b>Bloquear o domingo</b> dos ${aprend} jovem(ns) aprendiz(es) de ADM Geral (trabalham só de segunda a sexta).</span></label>`:''}
+      ${''/* V260: a opção “Bloquear o domingo…” saiu; sem ela, aprendizes:true (sempre bloqueia) */}
       <label class="erp-op"><input type="checkbox" id="erpOpAfastados" checked><span>Deixar <b>afastados e quem está de férias</b> fora da escala de domingo.</span></label>
       <details><summary>✏️ Alterados (${cmp.alterados.length})</summary>${lista(cmp.alterados,x=>`<b>${esc(x.p.nome)}</b>: ${esc(x.mud.join('; '))}`)}</details>
       <details><summary>➖ Saíram do quadro (${cmp.saidas.length})</summary>${lista(cmp.saidas,f=>`<b>${esc(f.nome)}</b> (${esc(f.setor||'')})`)}</details>
@@ -9995,7 +10018,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       try{ renderEquipe(); renderHomeSetores?.(); }catch(e){}
       window.showToast?.(`↪ ${n} pessoa(s) de ADM Geral com cargo CAIXA GERAL foram para a Tesouraria.`,'ok',true);
     }
-    if(nb) window.showToast?.(`🚫 ${nb} jovem(ns) aprendiz(es) de ADM Geral ficaram sem domingo (só trabalham de segunda a sexta).`,'ok',true);
+    if(nb) window.showToast?.(`🚫 ${nb} pessoa(s) ficaram sem domingo (jovem aprendiz e cartazista).`,'ok',true);   // V258
     if(n||nb){ window.v45Persist?.(); }
     if(mudou) salvarQuadro().catch(()=>{});
     return n+nb;
@@ -10028,7 +10051,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   let escopo='area', ordem='hora', comAprendiz=false, filtroP1='', filtroHome='', funcFiltro='', filtroSit='', assin='', assinHome='';
   const pad=n=>String(n).padStart(2,'0');
   const plural=(n,a,b)=>n===1?a:b;
-  const ehAprend=f=>!!(window.v157Regras&&window.v157Regras.bloqueioDomingo(f));
+  const ehAprend=f=>/APRENDIZ/i.test(String(f?.cargo||''));   // V258: só o cargo de aprendiz (o cartazista também fica sem domingo, mas não é aprendiz)
   const ativa=f=>String(f.situacao||'A').toUpperCase()==='A';
   const PALETA=['#2563EB','#F59E0B','#10B981','#EF4444','#8B5CF6','#06B6D4','#EC4899','#84CC16','#F97316','#0F766E','#0891B2','#C026D3','#65A30D','#DC2626','#7C3AED','#EA580C','#0D9488','#DB2777','#4F46E5','#CA8A04'];
   /* ---- função a partir do cargo ---- */
@@ -13670,6 +13693,40 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   document.addEventListener('click',e=>{ if(e.target.closest?.('#btnSalvarEquipe')) setTimeout(irParaErro,60); });
   window.v254IrParaErro=irParaErro;
+})();
+</script>
+<script>
+/* ═════ V258 — PROMOTOR: 1 POR DOMINGO ═════
+   ehPromotorIdx(i) = função “promotor…” (chaveFuncaoDistribuicao, sem A/B). Núcleo marcado // V258:
+   qtdFuncaoPadrao (Por cargo: 1), calcularMetasDistribuicaoFuncoes (motor 50%: 1 por domingo, alterna turno),
+   alvosAjustados sem garantirAlvoGlobal quando há promotor, alvoCoberturaAtual 50% = 1 + metade do resto.
+   window.v258Folga(): na escala à mão (modo 50%) com promotor e resto ímpar, aceita 1 a menos que o alvo. */
+(function(){
+  window.v258Folga=function(){
+    try{ if(($('modoCobertura')?.value||'50')!=='50') return 0;
+      const at=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i]));
+      const p=at.filter(ehPromotorIdx).length; return p&&((at.length-p)%2===1)?1:0; }catch(e){ return 0; }
+  };
+})();
+</script>
+<script>
+/* ═════ V259 — AVISO: “POR GRUPOS” SÓ COM 6 PESSOAS OU MAIS ═════
+   #v259AvisoGrupos depois do #coberturaResumo quando modoCobertura='grupos' e o setor tem < 6 pessoas aptas ao
+   domingo (sem liderança). Refeito ao trocar o modo (atualizarModoCobertura) e ao redesenhar a equipe (renderEquipe). */
+(function(){
+  const MIN=6;
+  function aviso(){
+    try{
+      const res=$('coberturaResumo'); if(!res) return;
+      let box=document.getElementById('v259AvisoGrupos');
+      const n=(Array.isArray(equipe)?equipe:[]).filter(f=>!foraDom(f)&&!ehLiderancaDomingo(f)).length;
+      if(($('modoCobertura')?.value||'')!=='grupos'||n>=MIN){ box?.remove(); return; }
+      if(!box){ box=document.createElement('div'); box.id='v259AvisoGrupos'; box.className='alert warn'; box.setAttribute('role','alert'); box.style.marginTop='8px'; res.after(box); }
+      box.innerHTML=`⚠️ <b>“Por grupos” precisa de pelo menos ${MIN} pessoas</b> que trabalham no domingo (3 grupos de 2). Este setor tem <b>${n}</b>. Escolha <b>“Metade da equipe”</b> ou <b>“Por cargo”</b>.`;
+    }catch(e){}
+  }
+  ['atualizarModoCobertura','renderEquipe'].forEach(nome=>{ const o=window[nome]; if(typeof o==='function') window[nome]=function(){ const r=o.apply(this,arguments); aviso(); return r; }; });
+  window.v259AvisoGrupos=aviso;
 })();
 </script>
 </body>
