@@ -21,10 +21,10 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** o PR #47 do Claude (Setores V254 turno sozinho + V255 função sem A/B e Jovem aprendiz). Depois do merge: nenhum.
+- **PRs abertos:** nenhum no momento da atualização. As PRs #47 (V254–V255), #48 (V256) e #49 (V257) já foram incorporadas ao `main`.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V256**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V258**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,22 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Documentação atualizada após as PRs #46–#49 — ChatGPT
+- **O que mudou:** documentação alinhada ao estado atual do `main`: Setores V257 e Encarregados V175; sem PR aberta no momento da conferência.
+- **Arquivos:** `CHANGELOG.md` agora registra V256 e V257; `README.md`, `docs/INICIO_NOVA_CONVERSA.txt` e esta passagem refletem a versão atual, as funcionalidades recentes e o próximo número de versão.
+- **Escopo:** somente documentação. Nenhum HTML do aplicativo ou regra de negócio foi alterado.
+- **Referências:** PR #46 (V253), #47 (V254–V255), #48 (V256) e #49 (V257).
+
+### 2026-10-13 — Setores V257 — nome do setor no arquivo Excel — Claude
+- **O que mudou e por quê:** o arquivo Excel exportado passa a incluir o setor no nome, evitando arquivos iguais para setores diferentes. Exemplo: `Escala_Frente_de_Loja_Novembro_2026.xlsx`; acentos são normalizados (`Açougue` → `Acougue`).
+- **Onde no código:** função `nomeArquivoExcel()`; o título e o nome da aba dentro da planilha permanecem como antes.
+- **Teste:** nomes para Frente de Loja e Açougue, mês de março sem cedilha; download real com dados fictícios. Suítes rápida e completa aprovadas na PR #49.
+
+### 2026-10-13 — Setores V256 — cartão Jovem Aprendiz — Claude
+- **O que mudou e por quê:** pedido do dono: separar os jovens aprendizes do ADM Geral num cartão próprio, **🎓 Jovem Aprendiz**. A classificação considera a palavra “aprendiz” no cargo, sem alterar o setor gravado no ERP, no histórico ou no Equipe.txt.
+- **Efeito observado com a planilha real:** o ADM Geral passou de 24 para 4 pessoas, e o cartão Jovem Aprendiz ficou com 20.
+- **Teste:** cartão e opção presentes; aprendiz sai do ADM Geral e entra no cartão próprio; promotor permanece no ADM Geral. Suítes rápida e completa aprovadas na PR #48.
 
 ### 2026-10-13 — Setores V255 — função sem A/B e grupo Jovem aprendiz — Claude
 - **O que mudou e por quê:** pedido do dono: agrupar por função independente de A ou B, e separar os jovens aprendizes num grupo. Na planilha real: PROMOTOR DE VENDAS A (2) e B (1), CONFERENTE A/B, aprendizes “APRENDIZ EM SERV SUPERMERCADOS” e “APRENDIZ EM SERVICOS DE VENDAS”.
@@ -499,6 +515,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
 - ~~GitHub Actions com Node 20~~ — trocado para **Node 22** na limpeza de 12/10/2026.
 - ~~Investigar a auditoria ao vivo da V228~~ — **feito na V229** (resultado de cada item no Diário).
+- **Promotores e mínimo de dois por domingo (V256):** pendente de decisão do dono; a PR #48 registrou que ainda faltava confirmar essa regra.
 - **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.
