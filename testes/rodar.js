@@ -956,6 +956,34 @@ async function testarEncAssistente(browser){   // V176: Assistente RH também no
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
+async function testarEncPrevia(browser){   // V177: prévia das folgas mostra os domingos antes de gerar
+  if(+path.basename(APP_ENC).match(/V(\d+)\.html$/)[1] < 177) return;
+  console.log('\n▶ Encarregados — prévia das folgas com os domingos');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + APP_ENC); await p.waitForTimeout(1200);
+  await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800);
+  const r = await p.evaluate(() => {
+    const out = {}, card = $('feriadosCard'), V = window.v167; card.style.display = '';
+    const a = +$('ano').value, m = +$('mes').value, bal = balancoDoMes(a, m), d = domingosDoMes(a, m).find(x => x !== bal);
+    trabalhoDomingo = {};
+    const cel = i => { const t = $('previaTabelaFolgas'); const k = [...t.querySelectorAll('thead th')].findIndex(h => h.innerHTML.startsWith(d + '<br>')); return t.querySelectorAll('tbody tr')[i]?.children[k]?.textContent.trim(); };
+    V.definirModo('manual');
+    const livres = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]));
+    const x = livres.find(i => V.marcar(i, d, true) && (V.sel()[d] || []).includes(i));
+    const y = livres.find(i => i !== x && !(V.sel()[d] || []).includes(i));
+    out.marcou = x !== undefined && y !== undefined;
+    renderPreviaFolgasFeriado(true); out.manual = cel(x) === 'DOM' && cel(y) === 'FOLGA DOM';
+    V.definirModo('misto'); renderPreviaFolgasFeriado(true); out.misto = cel(x) === 'DOM' && cel(y) === '—';
+    V.definirModo('auto'); renderPreviaFolgasFeriado(true); out.auto = cel(x) === '—' && cel(y) === '—';
+    trabalhoDomingo = { [d]: [y] }; renderPreviaFolgasFeriado(true); out.gerado = cel(y) === 'DOM' && cel(x) === 'FOLGA DOM';
+    trabalhoDomingo = {};
+    return out;
+  });
+  ok(r.marcou && r.manual && r.misto && r.auto && r.gerado, `V177: prévia das folgas mostra os domingos antes de gerar (à mão: ${r.manual}; misto: ${r.misto}; automático “—”: ${r.auto}; depois de gerar: ${r.gerado})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1201,7 +1229,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
