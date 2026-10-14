@@ -21,10 +21,10 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertos:** nenhum no momento da atualização. As PRs #47 (V254–V255), #48 (V256) e #49 (V257) já foram incorporadas ao `main`.
+- **PRs abertas:** nenhuma no momento desta conferência. PRs #47–#52 já incorporadas ao `main`, incluindo #50 (documentação V257), #51 (Setores V258–V260) e #52 (Setores V261).
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V258**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V262**, Encarregados **V176**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -123,6 +123,31 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-13 — Documentação atualizada até Setores V261 — ChatGPT
+- **O que mudou:** documentação alinhada ao estado do `main`: Setores V261 e Encarregados V175; nenhuma PR aberta na conferência.
+- **Arquivos:** `CHANGELOG.md` registra V258–V261; `README.md` corrige o intervalo de versões arquivadas; esta passagem e `docs/INICIO_NOVA_CONVERSA.txt` atualizam versões, PRs, funcionalidades recentes e próxima versão.
+- **Decisão registrada:** V258 define 1 promotor por domingo no automático e no modo 50% da escala à mão; para 2, usar “Por cargo”. Cartazista não trabalha domingo.
+- **Escopo:** somente documentação; nenhum HTML ou regra do aplicativo foi alterado.
+- **Referências:** PR #50 (documentação V257), #51 (V258–V260) e #52 (V261).
+
+### 2026-10-13 — Setores V261 — cópia do app pela logo — Claude
+- **O que mudou:** tocar na logo do Guanabara baixa uma cópia do HTML atual, com o nome `Escala_de_Setores_V261.html`, idêntica byte a byte ao original. O atalho é invisível; o usuário não vê botão nem aviso.
+- **Limitação:** abrir o HTML diretamente com `file://` pode impedir a leitura; usar o app pelo link do site.
+- **Teste:** `testarCopiaLogo` verifica o nome e a igualdade do arquivo baixado; suítes rápida e completa aprovadas na PR #52.
+
+### 2026-10-13 — Setores V260 — importação do ERP sem “Bloquear o domingo” — Claude
+- **O que mudou:** removida a caixa de seleção da importação do RH. Jovens aprendizes e cartazista continuam excluídos dos domingos automaticamente.
+- **Conferência:** planilha real do ADM Geral manteve 1 promotor por domingo e nenhum cartazista na escala dominical.
+
+### 2026-10-13 — Setores V259 — aviso para grupos pequenos — Claude
+- **O que mudou:** “Por grupos” explicita o limite de 6 pessoas; setores com menos de 6 pessoas aptas a trabalhar no domingo recebem aviso amarelo.
+
+### 2026-10-13 — Setores V258 — promotor e cartazista — Claude
+- **O que mudou:** 1 promotor por domingo no automático, no modo 50% da escala à mão e em “Por cargo”; cartazista não trabalha domingo. A regra respeita 2×1 e 6×1.
+- **Decisão do dono registrada na PR #51:** no modo 50%, fica 1 promotor por domingo; para 2, usar “Por cargo”. A regra foi conferida no ADM Geral de novembro/2026 a janeiro/2027.
+
+
 
 ### 2026-10-13 — Documentação atualizada após as PRs #46–#49 — ChatGPT
 - **O que mudou:** documentação alinhada ao estado atual do `main`: Setores V257 e Encarregados V175; sem PR aberta no momento da conferência.
@@ -515,7 +540,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 - **Encarregados — folga de feriado "sem data"** com o prazo de 20 dias: em meses com muitos feriados (ex.: outubro), algumas folgas ficam sem data possível. O app avisa. Com 30 dias (CLT) não acontece. Uma ideia seria sugerir automaticamente a troca de prazo.
 - ~~GitHub Actions com Node 20~~ — trocado para **Node 22** na limpeza de 12/10/2026.
 - ~~Investigar a auditoria ao vivo da V228~~ — **feito na V229** (resultado de cada item no Diário).
-- **Promotores e mínimo de dois por domingo (V256):** pendente de decisão do dono; a PR #48 registrou que ainda faltava confirmar essa regra.
+- **Promotores (V258):** regra definida na PR #51: 1 promotor por domingo no automático e na escala à mão em modo 50%; para escalar 2, usar “Por cargo”. Cartazista não trabalha domingo.
 - **Transformar as propostas de `docs/PROPOSTAS_ESTRESSE_SETORES.md` em testes de verdade** em `testes/rodar.js`, uma prioridade por PR.
   - Comece pelos **testes de mutação**: quebrar uma regra de propósito (ex.: marcar o 3º domingo seguido direto nos dados) e conferir que o verificador acusa.
   - O `rodar.js` já tem um verificador independente das regras dos **domingos** (quem não pode trabalhar, liderança, pessoa repetida, 3 domingos seguidos) dentro de `testarSetores`/`testarEncarregados`. Os feriados, o 6×1 e as folgas compensatórias **ainda não** têm verificador próprio: são as lacunas de maior valor. Amplie o verificador existente, não crie outro.

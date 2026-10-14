@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 13/10/2026, com a Setores V257 · Encarregados V175. Assinado: ChatGPT
+Atualizado em 13/10/2026, com a Setores V261 · Encarregados V175. Assinado: ChatGPT
 
 COMO USAR ESTE ARQUIVO
 ----------------------
@@ -53,8 +53,8 @@ está pendente, e espere o meu pedido."
 
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
-- Setores: V257 (próxima: V258).  Encarregados: V175 (próxima: V176).
-- PRs abertos: nenhum no momento da atualização. As PRs #47 (V254–V255), #48 (V256) e #49 (V257) já foram incorporadas ao `main`.
+- Setores: V261 (próxima: V262).  Encarregados: V175 (próxima: V176).
+- PRs abertas: nenhuma no momento da conferência. PRs #47–#52 incorporadas ao `main`; #50 documentação, #51 Setores V258–V260 e #52 Setores V261.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
   (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
 - Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
@@ -75,7 +75,7 @@ está pendente, e espere o meu pedido."
     ▾/▸ para fechar as listas grandes + liderança escolhida já vai para o domingo seguinte (dupla) · V253 Frente de Loja “Por cargo”: a
     sugestão divide as operadoras em abertura, intermediária (10h) e fechamento · V254 Editar equipe:
     turno vazio vem do horário e o aviso traz o nome da pessoa · V255 função sem A/B (Promotor A e B
-    juntos) e grupo Jovem aprendiz · V256 cartão próprio 🎓 Jovem Aprendiz, separado do ADM Geral · V257 nome do setor no arquivo Excel.
+    juntos) e grupo Jovem aprendiz · V256 cartão próprio 🎓 Jovem Aprendiz, separado do ADM Geral · V257 nome do setor no arquivo Excel · V258 1 promotor por domingo e cartazista sem domingo · V259 aviso em “Por grupos” quando há menos de 6 pessoas · V260 importação do ERP sem opção de bloquear domingo (aprendizes e cartazista continuam bloqueados) · V261 cópia do app ao tocar na logo.
   · Encarregados V167 escala à mão · V168 downloads no APK · V169–V171 ordem dos passos · V172 data de
     admissão dd/mm/aaaa · V173 sem Equipe.txt na tela · V174 folga da virada do mês (10 dias seguidos!), mês com
     balanço sem 3 domingos seguidos, aviso de 3 domingos certo · V175 datas de balanço num quadro (sem .txt).
