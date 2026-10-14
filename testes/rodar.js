@@ -494,6 +494,10 @@ async function testarSetores(browser){
     });
     ok(r.card && r.opcao && r.ap && r.ot, `V256: cartão “Jovem Aprendiz” (${r.card}/${r.opcao}); o aprendiz sai do ADM Geral e entra nele (${r.ap}); o promotor continua no ADM Geral (${r.ot})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 257){   // V257: nome do setor no arquivo Excel
+    const r = await p.evaluate(() => { const bk = [$('mes').value, $('setorSelecionado').value]; try{ $('mes').value = '2'; $('setorSelecionado').value = 'Frente de Loja'; const a = nomeArquivoExcel(); $('setorSelecionado').value = 'Açougue'; return [a, nomeArquivoExcel()]; } finally { $('mes').value = bk[0]; $('setorSelecionado').value = bk[1]; } });
+    ok(/^Escala_Frente_de_Loja_Marco_\d{4}\.xlsx$/.test(r[0]) && /^Escala_Acougue_Marco_\d{4}\.xlsx$/.test(r[1]), `V257: o arquivo Excel leva o nome do setor (${r.join(', ')})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

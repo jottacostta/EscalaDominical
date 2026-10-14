@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V256</title>
+<title>Escala de Setores — V257</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V257 [Claude] — NOME DO SETOR NO ARQUIVO EXCEL (pedido do dono): a planilha baixada saía como “Escala_Novembro_2026.xlsx”
+       para todos os setores (um arquivo apagava/confundia o outro). Agora sai com o setor: “Escala_Frente_de_Loja_
+       Novembro_2026.xlsx”. O título de dentro da planilha já tinha o setor (“ESCALA DE SETORES - FRENTE DE LOJA”).
 V256 [Claude] — CARTÃO “JOVEM APRENDIZ” (pedido do dono): os jovens aprendizes (cargo “APRENDIZ …”) saem do ADM Geral
        (e de qualquer outra área) e ganham um cartão próprio na tela inicial, “🎓 Jovem Aprendiz — só de segunda a
        sexta”. O cadastro de cada pessoa não muda (o setor do ERP continua o mesmo): o app só mostra cada um no lugar
@@ -2441,7 +2444,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V256 · cartão Jovem Aprendiz</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V257 · nome do setor no arquivo Excel</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -6719,8 +6722,12 @@ function escalaGeradaParaPeriodo(){
 $('btnExcel').onclick=()=>{
   if(!escalaGeradaParaPeriodo())return;
   atualizarTituloEscala();
-  const nome=`Escala_${String($('mes').options[$('mes').selectedIndex].text).normalize('NFD').replace(/[\u0300-\u036f]/g,'')}_${$('ano').value}.xlsx`;
-  _makeEmpresaXlsx(nome);
+  _makeEmpresaXlsx(nomeArquivoExcel());   // V257: com o nome do setor
+};
+function nomeArquivoExcel(){   // V257: Escala_<Setor>_<Mês>_<Ano>.xlsx (sem acento nem símbolo: o Android/Windows aceitam)
+  const limpa=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  const g=grupoDoSetor($('setorSelecionado')?.value||''), setor=limpa(g?g.nome:($('setorSelecionado')?.value||''));
+  return `Escala_${setor?setor+'_':''}${limpa($('mes').options[$('mes').selectedIndex].text)}_${$('ano').value}.xlsx`;
 };
 
 $('btnHistorico').onclick=()=>{
