@@ -498,6 +498,25 @@ async function testarSetores(browser){
     const r = await p.evaluate(() => { const bk = [$('mes').value, $('setorSelecionado').value]; try{ $('mes').value = '2'; $('setorSelecionado').value = 'Frente de Loja'; const a = nomeArquivoExcel(); $('setorSelecionado').value = 'Açougue'; return [a, nomeArquivoExcel()]; } finally { $('mes').value = bk[0]; $('setorSelecionado').value = bk[1]; } });
     ok(/^Escala_Frente_de_Loja_Marco_\d{4}\.xlsx$/.test(r[0]) && /^Escala_Acougue_Marco_\d{4}\.xlsx$/.test(r[1]), `V257: o arquivo Excel leva o nome do setor (${r.join(', ')})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 258){   // V258: promotor = 1 por domingo
+    const r = await p.evaluate(() => {
+      const ops = equipe.map((f, i) => i).filter(i => /OPERADOR/.test(equipe[i].cargo)).slice(-3), bk = ops.map(i => equipe[i].cargo), out = {};
+      try{
+        ops.forEach((i, k) => { equipe[i].cargo = 'PROMOTOR DE VENDAS ' + (k ? 'B' : 'A'); });
+        const ativos = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !ehLiderancaDomingo(equipe[i]));
+        const doms = domingosDoMes(+$('ano').value, +$('mes').value);
+        const metas = calcularMetasDistribuicaoFuncoes(doms, ativos), mp = Object.entries(metas).find(([k]) => /promotor/.test(k))?.[1];
+        out.motor = !!mp && mp.porDomingo.every(q => q.total === 1);
+        const fn = funcoesDoSetor().find(f => /promotor/.test(f.chave)); out.porCargo = !!fn && qtdFuncaoPadrao(fn) === 1;
+        const mc = $('modoCobertura').value; $('modoCobertura').value = '50';
+        out.alvo = alvoCoberturaAtual() === Math.max(1, 1 + Math.round((ativos.length - 3) / 2)); $('modoCobertura').value = mc;
+        const c = ativos.find(i => !ops.includes(i)), bkc = equipe[c].cargo; equipe[c].cargo = 'CARTAZISTA';   // cartazista não trabalha domingo
+        out.cartaz = window.v157Regras.bloqueioDomingo(equipe[c]) && !/APRENDIZ/.test(equipe[c].cargo); equipe[c].cargo = bkc;
+      } finally { ops.forEach((i, k) => { equipe[i].cargo = bk[k]; }); }
+      return out;
+    });
+    ok(r.motor && r.porCargo && r.alvo && r.cartaz, `V258: promotor = 1 por domingo no automático (${r.motor}), no “Por cargo” (${r.porCargo}) e na conta da escala à mão (${r.alvo}); cartazista sem domingo (${r.cartaz})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
