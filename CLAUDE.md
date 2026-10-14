@@ -3,6 +3,8 @@
 Siga todas as regras de [`AGENTS.md`](AGENTS.md) (versionamento, padrão de código, regras de negócio, testes, privacidade e Git).
 
 Lembretes para o Claude:
+- **Hierarquia (pedido do dono, 14/10/2026):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o
+  **subencarregado** (subordinado do Claude). **Nada por iniciativa própria sem autorização do gerente** (topo do AGENTS.md).
 - O **ChatGPT (Codex) também faz atualizações** neste repositório (branches `chatgpt/…`). Antes de qualquer mudança,
   faça `git fetch origin main`, veja `git log origin/main` e o topo do `CHANGELOG.md`, e parta da versão mais nova que
   estiver lá — sem sobrescrever o trabalho dele.
