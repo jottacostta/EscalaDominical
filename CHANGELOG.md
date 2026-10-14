@@ -8,7 +8,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 ## Escala de Setores
 
 - **V267** — HORÁRIO DE DOMINGO POR FUNÇÃO NO “POR CARGO”: divide a quantidade de cada função entre horários oficiais; a quantidade vira a soma desses horários. A divisão fica guardada no aparelho e no histórico, e os horários gerados voltam ao abrir o histórico. Teste específico do Açougue ainda pendente. — *Claude*
-- **V266** — CONFIRMAR HORÁRIO DE DOMINGO: depois de gerar, o quadro mostra o horário sugerido de cada pessoa e permite trocar. É obrigatório confirmar antes de baixar a planilha ou guardar o histórico; gerar novamente pede nova confirmação. A escala à mão não usa esse quadro. — *Claude*
+- **V266** — CONFIRMAR HORÁRIO DE DOMINGO: depois de gerar, o quadro mostra o horário sugerido de cada pessoa e permite trocar. Na opção **Mista**, mostra somente as pessoas cujo horário foi completado pelo aplicativo. É obrigatório confirmar antes de baixar a planilha ou guardar o histórico; gerar novamente pede nova confirmação. A escala à mão não usa esse quadro. — *Claude*
 - **V265** — 💬 PERGUNTE AO ASSISTENTE RH: abas “Dicas” e “Perguntar”, com mini chat sem internet nos dois apps. Responde usando os dados da tela e orienta sobre regras e uso; não substitui o auditor. — *Claude*
 - **V264** — HORA CONFERIDA NO ASSISTENTE RH: recusa horários impossíveis, como `24:00-25:00` e `12:60-13:00`; aceita hora 00–23 e minuto 00–59. Os testes ARH-16 a ARH-24 reforçam gravação, validação, restauração e estresse. — *Claude*
 - **V263** — PRÉVIA DAS FOLGAS COM DOMINGOS + ASSISTENTE RH MAIS ROBUSTO: no passo Feriados, a prévia mostra os domingos antes de gerar. O Assistente RH valida os dados recebidos e grava o aprendizado ao sair do app. — *Claude*
