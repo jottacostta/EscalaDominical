@@ -57,8 +57,8 @@ está pendente, e espere o meu pedido."
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
 - Setores: V262 (próxima: V263).  Encarregados: V176 (próxima: V177).
-- PRs abertas: só a da documentação de 14/10. Já no `main`: #54 (Assistente RH, V262/V176) e #56 (hierarquia e
-  seção 2.1 do AGENTS.md). #55 (guia REA do ChatGPT) fechada sem merge: as ideias viraram a seção 2.1.
+- PRs abertas: consulte a aba Pull requests do GitHub; não registre uma contagem fixa neste arquivo, pois ela fica desatualizada após cada criação, fechamento ou merge.
+  Já no `main`: #54 (Assistente RH, V262/V176) e #56 (hierarquia e seção 2.1 do AGENTS.md). #55 (guia REA do ChatGPT) fechada sem merge: as ideias viraram a seção 2.1.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
   (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
 - Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
