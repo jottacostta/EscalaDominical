@@ -559,6 +559,28 @@ async function testarSetores(browser){
     });
     ok(r.botao && r.aprendeEscolha && r.dicaMedia && r.dicaHorario && r.historico && r.junta, `V262: Assistente RH — botão (${r.botao}), aprende a escolha (${r.aprendeEscolha}), dica de domingos acima da média (${r.dicaMedia}) e do horário de costume (${r.dicaHorario}), vai no histórico (${r.historico}) e junta o histórico aberto (${r.junta})`);
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 263){   // V263: prévia das folgas mostra os domingos antes de gerar
+    const r = await p.evaluate(() => {
+      const out = {}, card = $('feriadosCard');
+      const bk = { mg: $('modoGeracao').value, td: JSON.stringify(trabalhoDomingo || {}), sel: JSON.stringify(selecaoManualDomingo || {}), hor: JSON.stringify(horariosManuaisDomingo || {}), lid: JSON.stringify(liderancaManualDomingo || {}), disp: card.style.display, sempre: window.__v247PreviaSempre };
+      try{
+        window.__v247PreviaSempre = true; card.style.display = '';
+        const d = domingosDoMes(+$('ano').value, +$('mes').value)[0];
+        const livres = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !lideresDoRegistro(liderancaManualDomingo?.[String(d)]).includes(i));
+        const a = livres[0], b = livres[1];
+        const cel = i => { const t = $('previaTabelaFolgas'); const k = [...t.querySelectorAll('thead th')].findIndex(h => h.innerHTML.startsWith(d + '<br>')); return t.querySelectorAll('tbody tr')[i]?.children[k]?.textContent.trim(); };
+        trabalhoDomingo = {}; selecaoManualDomingo = { [String(d)]: [a] }; horariosManuaisDomingo = { [String(d)]: { [String(a)]: '07:00-15:20' } };
+        $('modoGeracao').value = 'manual'; renderPreviaFolgasFeriado(true);
+        out.manual = cel(a) === '07:00-15:20' && cel(b) === 'FOLGA DOM';
+        $('modoGeracao').value = 'motor'; renderPreviaFolgasFeriado(true);
+        out.auto = cel(a) === '—' && cel(b) === '—';
+        trabalhoDomingo = { [String(d)]: [a] }; renderPreviaFolgasFeriado(true);   // depois de gerar: vale a escala gerada
+        out.gerado = cel(a) !== 'FOLGA DOM' && cel(a) !== '—' && cel(b) === 'FOLGA DOM';
+      } finally { $('modoGeracao').value = bk.mg; trabalhoDomingo = JSON.parse(bk.td); selecaoManualDomingo = JSON.parse(bk.sel); horariosManuaisDomingo = JSON.parse(bk.hor); liderancaManualDomingo = JSON.parse(bk.lid); card.style.display = bk.disp; window.__v247PreviaSempre = bk.sempre; try{ renderPreviaFolgasFeriado(true); }catch(e){} }
+      return out;
+    });
+    ok(r.manual && r.auto && r.gerado, `V263: prévia das folgas mostra os domingos antes de gerar (à mão: escolhido com o horário e o resto “FOLGA DOM”: ${r.manual}; automático: “—”: ${r.auto}; depois de gerar, a escala gerada: ${r.gerado})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros

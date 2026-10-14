@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V262</title>
+<title>Escala de Setores — V263</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V263 [Claude] — PRÉVIA DAS FOLGAS COM OS DOMINGOS (pedido do dono): no passo Feriados, a “📅 Prévia das folgas
+       (tabela do mês)” mostrava “FOLGA DOM” para todo mundo nos domingos até tocar em Gerar. Agora, antes de gerar,
+       os domingos mostram quem já foi escolhido no passo Domingos (escala à mão/mista e as lideranças), com o
+       horário quando já tem. Na escala à mão, quem não foi escolhido aparece “FOLGA DOM”; no automático e na mista,
+       quem o app ainda vai escolher aparece “—” (decide ao gerar). Depois de gerar, mostra a escala gerada, como antes.
 V262 [Claude] — 🤖 ASSISTENTE RH (pedido do dono, etapa 1): um botão flutuante no canto da tela abre um painel com
        dicas do passo em que o encarregado está. Ele APRENDE com o que o encarregado faz (quem escolhe nos domingos,
        quem recusa na sugestão, o horário de domingo de cada pessoa, quantos domingos cada um fez em cada mês) e com
@@ -2493,7 +2498,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V262 · 🤖 Assistente RH</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V263 · 📅 Prévia com os domingos</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -4876,7 +4881,8 @@ function renderPreviaFolgasFeriado(force){
   const box=$('previaFolgasConteudo'), card=$('feriadosCard');
   if(!box||!card||card.style.display==='none'||!equipe.length) return;
   const mes=+$('mes').value, ano=+$('ano').value;
-  const assin=JSON.stringify([sugestoesFolgasFeriado,folgasCompensatorias,trabalhoFeriado,trabalhoDomingo,descansosDomingo,mes,ano,equipe.length,sugestoesPausadasFeriado,feriadosPausadosSugestao]);
+  const modoPv=$('modoGeracao')?.value||'motor';   // V263
+  const assin=JSON.stringify([sugestoesFolgasFeriado,folgasCompensatorias,trabalhoFeriado,trabalhoDomingo,descansosDomingo,mes,ano,equipe.length,sugestoesPausadasFeriado,feriadosPausadosSugestao,selecaoManualDomingo,liderancaManualDomingo,horariosManuaisDomingo,modoPv]);   // V263: + escolha dos domingos
   if(!force && assin===previaAssinatura) return; previaAssinatura=assin;
 
   const pend=new Set(sugestoesPendentesFeriado());
@@ -4891,6 +4897,12 @@ function renderPreviaFolgasFeriado(force){
   const bal=balancoDoMes(ano,mes), ferMes=feriados(ano,mes);
   const noMes=dt=>dt.getMonth()===mes&&dt.getFullYear()===ano;
   const ferDe=dt=>noMes(dt)?ferMes:feriados(dt.getFullYear(),dt.getMonth());
+  /* V263: antes de gerar, o domingo mostra a escolha do passo Domingos (escala à mão/mista + lideranças).
+     Na escala à mão, quem não foi escolhido folga; no automático/mista, “—” = o app escolhe ao gerar. */
+  const geradoPv=Object.keys(trabalhoDomingo||{}).some(k=>(trabalhoDomingo[k]||[]).length);
+  const escolhaPv={};
+  const domPv=d=>{ if(geradoPv) return trabalhoDomingo[d]||[]; if(!escolhaPv[d]){ let l=[]; try{ l=lideresDoRegistro(liderancaManualDomingo?.[String(d)]); }catch(e){} escolhaPv[d]=[...new Set([...(modoPv==='motor'?[]:(selecaoManualDomingo?.[String(d)]||[]).map(Number)),...l])]; } return escolhaPv[d]; };
+  const abertoPv=i=>!geradoPv && modoPv!=='manual' && !foraDom(equipe[i]);
 
   let h='<thead><tr><th>FUNCIONÁRIO</th><th>CARGO</th><th>SETOR</th>';
   datas.forEach(dt=>{
@@ -4906,7 +4918,7 @@ function renderPreviaFolgasFeriado(force){
       const d=dt.getDate(), ds=dt.getDay(), ck=chaveData(dt), fer=ferDe(dt);
       let status='', cl='t';
       if(noMes(dt)){
-        if(ds===0){ const w=(trabalhoDomingo[d]||[]).includes(i); status=w?(horarioDomingoSelecionado(d,i)||(d===bal?'BALANÇO':'DOM')):'FOLGA DOM'; cl=w?(d===bal?'bal':'dom'):'f'; }
+        if(ds===0){ const w=domPv(d).includes(i); status=w?(horarioDomingoSelecionado(d,i)||(d===bal?'BALANÇO':'DOM')):(abertoPv(i)?'—':'FOLGA DOM'); cl=w?(d===bal?'bal':'dom'):(abertoPv(i)?'t':'f'); }   // V263: domPv/abertoPv
         else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer'; }
       }
       if(!status){
@@ -4927,8 +4939,8 @@ function renderPreviaFolgasFeriado(force){
   const nSug=Object.values(sugPorData).reduce((n,l)=>n+l.length,0), nAce=Object.values(acePorData).reduce((n,l)=>n+l.length,0);
   const temDsr=Object.keys(descansosDomingo||{}).length>0;
   const velho=box.querySelector('.table-wrap'), sl=velho?velho.scrollLeft:0, st=velho?velho.scrollTop:0;
-  box.innerHTML=`<div class="pv-resumo"><span>💡 ${nSug} sugerida(s)</span><span>✅ ${nAce} aceita(s)</span><span>💤 DSR ${temDsr?'incluído':'aparece depois de gerar a escala'}</span></div>`
-    +'<div class="pv-leg"><span class="lp">🔴 DOM</span><span class="lp">🟡 FER</span><span class="lp">💡 Fxx = sugerida</span><span class="lp">Folga Fxx = aceita</span><span class="lp">💤 FOLGA = DSR</span></div>'
+  box.innerHTML=`<div class="pv-resumo"><span>💡 ${nSug} sugerida(s)</span><span>✅ ${nAce} aceita(s)</span><span>💤 DSR ${temDsr?'incluído':'aparece depois de gerar a escala'}</span><span>🔴 Domingos: ${geradoPv?'escala gerada':'o que você escolheu no passo Domingos'}</span></div>`   // V263
+    +`<div class="pv-leg"><span class="lp">🔴 DOM</span><span class="lp">🟡 FER</span><span class="lp">💡 Fxx = sugerida</span><span class="lp">Folga Fxx = aceita</span><span class="lp">💤 FOLGA = DSR</span>${!geradoPv&&modoPv!=='manual'?'<span class="lp">— = o app escolhe ao gerar</span>':''}</div>`   // V263
     +`<div class="table-wrap pv-wrap"><table id="previaTabelaFolgas">${h}</table></div>`;
   const novo=box.querySelector('.table-wrap'); if(novo){ novo.scrollLeft=sl; novo.scrollTop=st; }
 }
