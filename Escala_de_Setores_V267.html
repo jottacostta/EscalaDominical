@@ -16,6 +16,9 @@ V267 [Claude] — ⏰ HORÁRIO POR FUNÇÃO NO “POR CARGO” (pedido do dono):
        1 às 07:45 e 3 às 12:00). A quantidade da função vira a soma. Ao gerar, o app escolhe quem já trabalha naquele
        turno e dá a cada um o horário definido (quem começa mais cedo no dia a dia fica com o mais cedo). Os horários
        são os da lista oficial (⚙️ Configurações). Depois, o quadro ⏰ da V266 mostra tudo para conferir e confirmar.
+       Junto (pedido do dono: “guarde tudo no histórico”): o histórico do mês leva a divisão por horário e a
+       confirmação, e o horário de domingo que o app deu agora VOLTA ao abrir o histórico (antes voltava vazio e a
+       tabela mostrava só “DOM”).
 V266 [Claude] — ⏰ CONFIRMAR O HORÁRIO DE DOMINGO (pedido do dono): no modo Automático o app escolhia o horário de
        domingo de cada pessoa sozinho e não perguntava. Agora, depois de gerar, aparece no passo 5 o quadro “⏰ Horário
        de domingo de cada pessoa”: domingo a domingo, quem o app escalou, com o horário sugerido numa lista para trocar.
@@ -8214,7 +8217,7 @@ function gerarSetoresCore(){
     gruposEscala:modo==='grupos'?gruposValidos.map(g=>g.map(i=>equipe[i]?.matricula).filter(Boolean)):[],
     grupoProximo:modo==='grupos' ? grupoProximoFinal : 0,
     quantidadePorDomingo:alvo,
-    coberturaFuncao:modo==='funcao'?JSON.parse(JSON.stringify({base:coberturaFuncao.base,dom:coberturaFuncao.dom})):undefined,
+    coberturaFuncao:modo==='funcao'?JSON.parse(JSON.stringify({base:coberturaFuncao.base,dom:coberturaFuncao.dom,hor:coberturaFuncao.hor||{}})):undefined,   // V267: + hor
     mesGerado:mes+1,anoGerado:ano,
     tituloXlsx:(($('tituloXlsxEmpresa')?.value||'').trim()||`ESCALA DE SETORES - ${$('setorSelecionado').value.toUpperCase()}`),
     funcionarios:equipe.map((f,i)=>({matricula:f.matricula,nome:f.nome,cargo:f.cargo,setor:f.setor,subsetor:f.subsetor||'',aptoDomingo:!estaNaoAptoDomingo(f),naoAptoDomingo:estaNaoAptoDomingo(f),penultimo:(trabalhoDomingo[pen]||[]).includes(i),ultimo:(trabalhoDomingo[last]||[]).includes(i)})),
@@ -9435,7 +9438,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     naoAptosDomingo=new Set(Array.isArray(e.naoAptosDomingo)?e.naoAptosDomingo:[]);
     grupos=Array.isArray(pl.grupos)?clone(pl.grupos):[]; selecaoManualDomingo=clone(pl.selecaoManualDomingo)||{}; horariosManuaisDomingo=clone(pl.horariosManuaisDomingo)||{}; horariosManuaisFeriado=clone(pl.horariosManuaisFeriado)||{}; antecipacoesFolgaManual=clone(pl.antecipacoesFolgaManual)||{}; datasBalanco=Array.isArray(pl.datasBalanco)?clone(pl.datasBalanco):[];
     previsoesDomingo=clone(r.previsoesDomingo)||{};
-    periodosSemFolgaFeriado=Array.isArray(r.periodosSemFolgaFeriado)?clone(r.periodosSemFolgaFeriado):[]; try{ renderBloqueiosFolga(); }catch(e){} trabalhoDomingo=clone(r.trabalhoDomingo)||{}; trabalhoFeriado=clone(r.trabalhoFeriado)||{}; descansosDomingo=clone(r.descansosDomingo)||{}; alvosPorDomingo=clone(r.alvosPorDomingo)||{}; estadoFinalMes=clone(r.estadoFinalMes)||{}; ultimaEscala=clone(r.ultimaEscala)||null; folgasCompensatorias=clone(r.folgasCompensatorias)||{}; sugestoesFolgasFeriado=clone(r.sugestoesFolgasFeriado)||{}; historico=clone(p.historico);
+    periodosSemFolgaFeriado=Array.isArray(r.periodosSemFolgaFeriado)?clone(r.periodosSemFolgaFeriado):[]; try{ renderBloqueiosFolga(); }catch(e){} trabalhoDomingo=clone(r.trabalhoDomingo)||{}; trabalhoFeriado=clone(r.trabalhoFeriado)||{}; descansosDomingo=clone(r.descansosDomingo)||{}; alvosPorDomingo=clone(r.alvosPorDomingo)||{}; estadoFinalMes=clone(r.estadoFinalMes)||{}; window.horariosGeradosDomingo=clone(r.estadoFinalMes?.horariosGeradosDomingo)||{};   /* V267: o horário de domingo que o app deu volta com o histórico (antes voltava vazio) */ ultimaEscala=clone(r.ultimaEscala)||null; folgasCompensatorias=clone(r.folgasCompensatorias)||{}; sugestoesFolgasFeriado=clone(r.sugestoesFolgasFeriado)||{}; historico=clone(p.historico);
     setChecked('flagDomingoRegular',!!perfilHorarioDomingo.regular); setChecked('flagDomingoEspecial',!!perfilHorarioDomingo.especial); setChecked('flagDomingoBalanco',!!perfilHorarioDomingo.balanco);
     atualizarTituloEscala?.(); atualizarModoCobertura?.(); atualizarModoGeracao?.(); renderConfigDiasDsr?.(); renderConfiguracaoHorarios?.(); renderResumoPerfilDomingo?.(); renderEquipe?.(); montarListaManual?.(); renderGrupos?.(); montarHistoricoManual?.(); montarEscalaFeriados?.();
     try{ renderLiderancaDomingo(); }catch(e){}   // V209

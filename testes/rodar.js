@@ -1228,8 +1228,21 @@ async function testarHorarioPorFuncao(browser, app){
   const certos = r.filter(x => x.hs === '06:50,06:50,06:50,07:45,12:00,12:00,12:00');
   ok(r.length && certos.length === r.length, `ao gerar, cada domingo tem 3 às 06:50, 1 às 07:45 e 3 às 12:00 (${certos.length}/${r.length} domingos)` + (certos.length < r.length ? ' — ' + JSON.stringify(r.filter(x => !certos.includes(x))[0]) : ''));
   ok(r.every(x => x.ordem), 'quem começa mais cedo no dia a dia fica com o horário mais cedo');
+  // guardar tudo no histórico e abrir num aparelho limpo (pedido do dono)
+  const t = await p.evaluate(() => { const s = document.querySelector('#v266Horarios select'), d = +s.dataset.v266D, i = +s.dataset.v266I; s.value = [...s.options].find(o => o.value && o.value !== s.value).value; s.dispatchEvent(new Event('change', { bubbles: true }));
+    v266Horarios.confirmar(); return { d, mat: equipe[i].matricula, h: horarioDomingoSelecionado(d, i) }; });
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.evaluate(() => document.getElementById('btnHistorico').click())]);
+  const arq = path.join(require('os').tmpdir(), 'teste_v267_' + dl.suggestedFilename()); await dl.saveAs(arq);
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
+  { const { p, erros } = await novaPagina(browser); await p.goto('file://' + app); await p.waitForTimeout(1200); await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoProjetoJSON', arq); await p.waitForTimeout(4000);
+    const v = await p.evaluate(([k, t]) => { const i = equipe.findIndex(f => String(f.matricula) === String(t.mat));
+      return { hor: window.v267HorFuncao.slots(k).join(','), h: i >= 0 ? horarioDomingoSelecionado(t.d, i) : '', conf: v266Horarios.confirmado() }; }, [k, t]);
+    ok(v.hor === '06:50,06:50,06:50,07:45,12:00,12:00,12:00' && v.h === t.h && v.conf, `histórico guardado e aberto num aparelho limpo: volta a divisão por horário (${!!v.hor}), o horário de domingo de cada pessoa (${v.h} = ${t.h}) e a confirmação (${v.conf})`);
+    ok(!erros.length, 'aparelho limpo: sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+    await p.close(); }
+  fs.unlinkSync(arq);
 }
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
