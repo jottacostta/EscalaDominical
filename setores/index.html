@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V260</title>
+<title>Escala de Setores — V261</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V261 [Claude] — CÓPIA DO APP PELA LOGO (pedido do dono): tocar na logo do Guanabara (no topo ou na tela inicial) baixa
+       uma cópia do próprio app (“Escala_de_Setores_V261.html”), para abrir em outro computador ou guardar. Fica
+       escondido: não há botão nem aviso na tela. Funciona aberto pelo link (site) e no APK; aberto direto do
+       arquivo no computador, o navegador pode não deixar — aí o app avisa.
 V260 [Claude] — IMPORTAÇÃO SEM A OPÇÃO “BLOQUEAR O DOMINGO…” (pedido do dono): a caixinha “Bloquear o domingo de N
        pessoa(s): jovens aprendizes e cartazista…” saiu da janela da planilha do RH. O app continua tirando do domingo,
        sozinho, os jovens aprendizes e o cartazista (sem a caixinha, vale “sim”).
@@ -2458,7 +2462,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V260 · importação sem a opção do domingo bloqueado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V261 · cópia do app pela logo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -13727,6 +13731,35 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   ['atualizarModoCobertura','renderEquipe'].forEach(nome=>{ const o=window[nome]; if(typeof o==='function') window[nome]=function(){ const r=o.apply(this,arguments); aviso(); return r; }; });
   window.v259AvisoGrupos=aviso;
+})();
+</script>
+<script>
+/* ═════ V261 — CÓPIA DO APP PELA LOGO (link escondido) ═════
+   Clique em img.brand-logo (topo) ou img.v202-logo (telas iniciais) → busca o próprio arquivo (fetch, senão XHR)
+   e baixa como Escala_de_Setores_Vnnn.html por <a download> + .click() (passa pela ponte do APK, V237).
+   Aberto por file:// o navegador costuma bloquear a leitura: aí só avisa (não inventa uma cópia do DOM já mexido). */
+(function(){
+  const url=()=>location.href.split('#')[0].split('?')[0];
+  async function ler(){
+    try{ const r=await fetch(url(),{cache:'no-store'}); if(r.ok){ const t=await r.text(); if(/<html/i.test(t)) return t; } }catch(e){}
+    try{ return await new Promise((ok,no)=>{ const x=new XMLHttpRequest(); x.open('GET',url()); x.onload=()=>ok(/<html/i.test(x.responseText||'')?x.responseText:null); x.onerror=()=>no(new Error('xhr')); x.send(); }); }catch(e){}
+    return null;
+  }
+  let ocupado=false;
+  async function baixarCopia(){
+    if(ocupado) return; ocupado=true;
+    try{
+      const ver=(document.title.match(/V\d+/)||['V'])[0], nome=`Escala_de_Setores_${ver}.html`;
+      const txt=await ler();
+      if(!txt){ window.showToast?.('Não foi possível copiar o app aqui. Abra o app pelo link (site) e toque de novo na logo.','warn',true); return; }
+      const u=URL.createObjectURL(new Blob([txt],{type:'text/html;charset=utf-8'}));
+      const a=document.createElement('a'); a.href=u; a.download=nome; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(u); a.remove(); },1500);
+      window.showToast?.(`📥 Cópia do app baixada: ${nome}`,'ok');
+    } finally { ocupado=false; }
+  }
+  document.addEventListener('click',e=>{ const l=e.target.closest?.('img.brand-logo,img.v202-logo'); if(!l) return; e.preventDefault(); baixarCopia(); },true);
+  window.v261BaixarCopia=baixarCopia;
 })();
 </script>
 </body>
