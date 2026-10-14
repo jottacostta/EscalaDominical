@@ -7,10 +7,18 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V176</title>
+<title>Escala 2×1 — Encarregados V177</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V177 [Claude] — PRÉVIA DAS FOLGAS COM OS DOMINGOS (pedido do dono, igual à Escala de Setores V263): no passo
+       Feriados, a “📅 Prévia das folgas (tabela do mês)” mostrava “FOLGA DOM” para todos nos domingos até gerar.
+       Agora, antes de gerar, os domingos mostram quem foi marcado na escala à mão (passo Domingos) e, no domingo de
+       balanço, todos. Na escala à mão, quem não foi marcado aparece “FOLGA DOM”; no automático e no misto, quem o
+       app ainda vai escolher aparece “—” (decide ao gerar). Depois de gerar, mostra a escala gerada, como antes.
+       Junto, no 🤖 Assistente RH (testes de estresse do ChatGPT, PR #60): ao abrir um histórico, só junta dado no
+       formato certo (texto no lugar de número apagava a contagem; uma pessoa vazia parava a leitura) e grava na hora
+       ao fechar o app (antes, fechar logo depois de marcar alguém perdia a marcação).
 V176 [Claude] — 🤖 ASSISTENTE RH (pedido do dono, igual à Escala de Setores V262): botão flutuante com dicas do passo
        atual. Ele aprende com o que é feito (quem é marcado nos domingos da escala à mão, quem entra pela 💡 Sugestão,
        quantos domingos cada um fez em cada mês, também dos históricos abertos). O aprendizado fica no aparelho e vai
@@ -1912,7 +1920,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V176 · 🤖 Assistente RH</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V177 · 📅 Prévia com os domingos</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -3648,7 +3656,11 @@ function renderPreviaFolgasFeriado(force){
   const box=$('previaFolgasConteudo'), card=$('feriadosCard');
   if(!box||!card||card.style.display==='none'||!equipe.length) return;
   const mes=+$('mes').value, ano=+$('ano').value;
-  const assin=JSON.stringify([sugestoesFolgasFeriado,folgasCompensatorias,trabalhoFeriado,trabalhoDomingo,descansosDomingo,mes,ano,equipe.length,grupos,sugestoesPausadasFeriado,feriadosPausadosSugestao]);
+  /* V177: antes de gerar, o domingo mostra a escala à mão (passo Domingos) e o balanço (todos).
+     À mão: quem não foi marcado folga; automático/misto: “—” = o app escolhe ao gerar. */
+  const geradoPv=Object.keys(trabalhoDomingo||{}).some(k=>(trabalhoDomingo[k]||[]).length);
+  let modoPv='auto', selPv={}; try{ modoPv=window.v167Api?.modo?.()||'auto'; if(!geradoPv&&modoPv!=='auto') selPv=window.v167Api.sel()||{}; }catch(e){}
+  const assin=JSON.stringify([sugestoesFolgasFeriado,folgasCompensatorias,trabalhoFeriado,trabalhoDomingo,descansosDomingo,mes,ano,equipe.length,grupos,sugestoesPausadasFeriado,feriadosPausadosSugestao,modoPv,selPv]);   // V177: + escala à mão
   if(!force && assin===previaAssinatura) return; previaAssinatura=assin;
 
   const pend=new Set(sugestoesPendentesFeriado());
@@ -3663,6 +3675,9 @@ function renderPreviaFolgasFeriado(force){
   const bal=balancoDoMes(ano,mes), ferMes=feriados(ano,mes);
   const noMes=dt=>dt.getMonth()===mes&&dt.getFullYear()===ano;
   const ferDe=dt=>noMes(dt)?ferMes:feriados(dt.getFullYear(),dt.getMonth());
+  let balPv=null;   // V177
+  const domPv=d=>{ if(geradoPv) return trabalhoDomingo[d]||[]; if(d===bal){ if(!balPv){ try{ balPv=trabalhamNoBalanco(ano,mes)||[]; }catch(e){ balPv=[]; } } return balPv; } return selPv[d]||[]; };
+  const abertoPv=(i,d)=>!geradoPv && d!==bal && modoPv!=='manual' && !foraDom(equipe[i]);
 
   let h='<thead><tr><th>Funcionário</th><th>Cargo</th><th>Grupo</th>';
   datas.forEach(dt=>{
@@ -3679,7 +3694,7 @@ function renderPreviaFolgasFeriado(force){
       const d=dt.getDate(), ds=dt.getDay(), ck=chaveData(dt), fer=ferDe(dt);
       let status='', cl='t';
       if(noMes(dt)){
-        if(ds===0){ const w=(trabalhoDomingo[d]||[]).includes(i); status=w?(d===bal?'BALANÇO':'DOM'):'FOLGA DOM'; cl=w?(d===bal?'bal':'dom'):'f'; }
+        if(ds===0){ const w=domPv(d).includes(i), ab=!w&&abertoPv(i,d); status=w?(d===bal?'BALANÇO':'DOM'):(ab?'—':'FOLGA DOM'); cl=w?(d===bal?'bal':'dom'):(ab?'t':'f'); }   // V177: domPv/abertoPv
         else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer'; }
       }else if(ds===0){
         const pv=previsoesDomingo[ck];
@@ -3703,8 +3718,8 @@ function renderPreviaFolgasFeriado(force){
   const nSug=Object.values(sugPorData).reduce((n,l)=>n+l.length,0), nAce=Object.values(acePorData).reduce((n,l)=>n+l.length,0);
   const temDsr=Object.keys(descansosDomingo||{}).length>0;
   const velho=box.querySelector('.table-wrap'), sl=velho?velho.scrollLeft:0, st=velho?velho.scrollTop:0;
-  box.innerHTML=`<div class="pv-resumo"><span>💡 ${nSug} sugerida(s)</span><span>✅ ${nAce} aceita(s)</span><span>💤 DSR ${temDsr?'incluído':'aparece depois de gerar a escala'}</span></div>`
-    +'<div class="pv-leg"><span class="lp">🔴 DOM</span><span class="lp">🟡 FER</span><span class="lp">💡 Fxx = sugerida</span><span class="lp">⭐ Fxx = sábado do rodízio</span><span class="lp">Folga Fxx = aceita</span><span class="lp">💤 FOLGA = DSR</span></div>'
+  box.innerHTML=`<div class="pv-resumo"><span>💡 ${nSug} sugerida(s)</span><span>✅ ${nAce} aceita(s)</span><span>💤 DSR ${temDsr?'incluído':'aparece depois de gerar a escala'}</span><span>🔴 Domingos: ${geradoPv?'escala gerada':'o que você marcou no passo Domingos'}</span></div>`   // V177
+    +'<div class="pv-leg"><span class="lp">🔴 DOM</span><span class="lp">🟡 FER</span><span class="lp">💡 Fxx = sugerida</span><span class="lp">⭐ Fxx = sábado do rodízio</span><span class="lp">Folga Fxx = aceita</span><span class="lp">💤 FOLGA = DSR</span>'+(!geradoPv&&modoPv!=='manual'?'<span class="lp">— = o app escolhe ao gerar</span>':'')+'</div>'   // V177
     +`<div class="table-wrap pv-wrap"><table id="previaTabelaFolgas">${h}</table></div>`;
   const novo=box.querySelector('.table-wrap'); if(novo){ novo.scrollLeft=sl; novo.scrollTop=st; }
 }
@@ -8697,7 +8712,18 @@ function perguntarOrientacaoImpressao(cb){
   const $i=id=>document.getElementById(id);
   const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   let D={v:1,setores:{}}; try{ const x=JSON.parse(localStorage.getItem(K)||'null'); if(x&&x.setores) D=x; }catch(e){}
-  let tG=0; const gravar=()=>{ clearTimeout(tG); tG=setTimeout(()=>{ try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} },300); };
+  let tG=0, pend=false; const gravar=()=>{ pend=true; clearTimeout(tG); tG=setTimeout(()=>{ pend=false; try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} },300); };   // V177: pend
+  /* V263/V177: grava na hora ao fechar ou esconder o app (teste ARH-10: fechar até 0,3 s depois de marcar perdia a marcação) */
+  const gravarJa=()=>{ if(!pend) return; pend=false; clearTimeout(tG); try{ localStorage.setItem(K,JSON.stringify(D)); }catch(e){} };
+  window.addEventListener('pagehide',gravarJa); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') gravarJa(); });
+  /* V263/V177: a junção só aceita dado no formato certo (teste ARH-09 do ChatGPT): número ≥ 0, mês AAAA-MM, horário HH:MM-HH:MM;
+     pessoa vazia ou estragada é pulada (antes, texto virava NaN e apagava a contagem, e uma pessoa null parava a leitura). */
+  const numOk=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+  const num=v=>numOk(v)?v:0;
+  const ymOk=k=>/^\d{4}-(0[1-9]|1[0-2])$/.test(String(k));
+  const horOk=k=>/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(String(k));
+  const objOk=o=>!!o&&typeof o==='object'&&!Array.isArray(o);
+
   const setorK=()=>'encarregados';
   const ymK=(a,m)=>`${a}-${String(m+1).padStart(2,'0')}`;
   const chaveP=f=>{ const m=String(f?.matricula||'').trim().replace(/^0+/,''); return m||('N:'+String(f?.nome||'').trim().toUpperCase()); };
@@ -8723,11 +8749,12 @@ function perguntarOrientacaoImpressao(cb){
   function exportar(){ aprenderMes('guardado'); const s=D.setores[setorK()];   // o mês da escala na tela já vai aprendido no arquivo
   return s?{v:1,setor:setorK(),dados:JSON.parse(JSON.stringify(s))}:null; }
   function juntar(a){
-    if(!a||!a.dados||!a.dados.pessoas) return 0; const s=S(); let n=0;
-    Object.entries(a.dados.meses||{}).forEach(([ym,o])=>{ if(!s.meses[ym]){ s.meses[ym]=o; n++; } });
-    Object.entries(a.dados.pessoas).forEach(([pk,x])=>{ const p=s.pessoas[pk]=s.pessoas[pk]||{nome:x.nome||'',esc:0,rec:0,ace:0,hor:{},dm:{}};
-      ['esc','rec','ace'].forEach(c=>{ p[c]=Math.max(p[c]||0,x[c]||0); });
-      Object.entries(x.dm||{}).forEach(([ym,v])=>{ if(p.dm[ym]===undefined){ p.dm[ym]=v; n++; } }); });
+    if(!objOk(a)||!objOk(a.dados)||!objOk(a.dados.pessoas)) return 0; const s=S(); let n=0;   // V177: valida
+    if(objOk(a.dados.meses)) Object.entries(a.dados.meses).forEach(([ym,o])=>{ if(ymOk(ym)&&!s.meses[ym]){ s.meses[ym]=typeof o==='string'?o:'historico'; n++; } });
+    Object.entries(a.dados.pessoas).forEach(([pk,x])=>{ if(!objOk(x)) return; const p=s.pessoas[pk]=s.pessoas[pk]||{nome:typeof x.nome==='string'?x.nome:'',esc:0,rec:0,ace:0,hor:{},dm:{}};
+      if(!objOk(p.dm)) p.dm={};
+      ['esc','rec','ace'].forEach(c=>{ p[c]=Math.max(num(p[c]),num(x[c])); });
+      if(objOk(x.dm)) Object.entries(x.dm).forEach(([ym,v])=>{ if(ymOk(ym)&&numOk(v)&&p.dm[ym]===undefined){ p.dm[ym]=v; n++; } }); });
     gravar(); return n;
   }
   document.addEventListener('change',ev=>{
