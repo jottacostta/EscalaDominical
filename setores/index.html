@@ -13834,10 +13834,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   document.addEventListener('click',e=>{
     const b=e.target.closest?.('[data-v233-aceitar]'); if(b){ const area=b.closest('.v233-sugestoes');
       area?.querySelectorAll('input[data-v233-candidato]').forEach(c=>{ const f=equipe[+c.dataset.v233Candidato]; if(!f) return; if(c.checked) P(f).ace++; else P(f).rec++; }); gravar(); }
-    if(e.target.closest?.('#btnHistorico,#btnGerar,[data-acao="historico"]')) setTimeout(()=>aprenderMes(e.target.closest('#btnGerar')?'gerado':'guardado'),2500);
+    if(e.target.closest?.('#btnHistorico,#btnGerar,[data-acao="historico"],[data-at="salvar"]')) setTimeout(()=>aprenderMes(e.target.closest('#btnGerar')?'gerado':'guardado'),2500);
   },true);
   /* ── histórico: exportar e juntar ── */
-  function exportar(){ const s=D.setores[setorK()]; return s?{v:1,setor:setorK(),dados:JSON.parse(JSON.stringify(s))}:null; }
+  function exportar(){ aprenderMes('guardado'); const s=D.setores[setorK()];   // o mês da escala na tela já vai aprendido no arquivo
+  return s?{v:1,setor:setorK(),dados:JSON.parse(JSON.stringify(s))}:null; }
   function juntar(a){
     if(!a||!a.dados||!a.dados.pessoas) return 0; const k=a.setor||setorK(), s=D.setores[k]=D.setores[k]||{pessoas:{},meses:{}}; let n=0;
     Object.entries(a.dados.meses||{}).forEach(([ym,o])=>{ if(!s.meses[ym]){ s.meses[ym]=o; n++; } });

@@ -13,7 +13,7 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 | Arquivo | O que é |
 |---|---|
 | `Escala_de_Setores_V262.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V175.html` | **Versão atual** da Escala de Encarregados |
+| `Escala_2x1_encarregados_V176.html` | **Versão atual** da Escala de Encarregados |
 | [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V260 e V150–V174), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com o Claude ou o ChatGPT |

@@ -18,7 +18,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
 | Escala de Setores | `Escala_de_Setores_V262.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V175.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V176.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **PRs abertas:** nenhuma no momento desta conferência. PRs #47–#52 já incorporadas ao `main`, incluindo #50 (documentação V257), #51 (Setores V258–V260) e #52 (Setores V261).
