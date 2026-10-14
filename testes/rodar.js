@@ -1123,6 +1123,45 @@ async function testarAssistenteEstresse(browser, app, nome, abrir){
 }
 const abrirSetoresFL = async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); };
 const abrirEnc15 = async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); };
+/* V265/V178 — 💬 Pergunte ao Assistente RH: mini chat sem internet nos dois apps */
+async function testarChatAssistente(browser, app, nome, abrir){
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
+  if(v < (nome === 'Setores' ? 265 : 178)) return;
+  console.log(`\n▶ ${nome} — 💬 Pergunte ao Assistente RH (mini chat)`);
+  const enc = nome !== 'Setores';
+  const { p, erros } = await novaPagina(browser); await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1200);
+  const r = await p.evaluate(async enc => { const w = ms => new Promise(o => setTimeout(o, ms)), C = window.v265Chat, out = {};
+    let rede = 0; const f0 = window.fetch, x0 = XMLHttpRequest.prototype.open; window.fetch = (...a) => { rede++; return f0(...a); }; XMLHttpRequest.prototype.open = function(){ rede++; return x0.apply(this, arguments); };
+    const d = domingosDoMes(+$('ano').value, +$('mes').value), cont = {}; equipe.forEach(f => { const k = f.nome.split(' ')[0]; cont[k] = (cont[k] || 0) + 1; });
+    const livres = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && cont[equipe[i].nome.split(' ')[0]] === 1);
+    let x;
+    if(enc){ window.v167.definirModo('manual'); x = livres.find(i => window.v167.marcar(i, d[0], true) && (window.v167.sel()[d[0]] || []).includes(i)); if(x !== undefined) window.v167.marcar(x, d[1], true); }
+    else { const s = $('modoGeracao'); s.value = 'manual'; s.dispatchEvent(new Event('change', { bubbles: true })); await w(300);
+      x = livres.find(i => !ehLiderancaDomingo(equipe[i])); selecaoManualDomingo[String(d[0])] = [x]; selecaoManualDomingo[String(d[1])] = [x]; }
+    const pn = equipe[x].nome.split(' ')[0], cheio = equipe[x].nome.split(' ').slice(0, 2).join(' ');
+    const txt = h => String(h).replace(/<[^>]+>/g, '');
+    out.quem = txt(C.responder(`quem trabalha no domingo ${d[0]}?`)).includes(pn);
+    out.quantos = /: 2 domingo/.test(txt(C.responder(`quantos domingos ${cheio} fez?`)));
+    const pq = C.responder(`por que ${pn} não pode no domingo ${d[2]}?`); out.porque = pq.includes('❌'); out.porqueTxt = txt(pq).slice(0, 160);
+    out.regra = txt(C.responder('como funciona o 6x1')).includes('6 dias seguidos');
+    out.feriado = /Feriados de|Não há feriado/.test(txt(C.responder('tem feriado esse mês?')));
+    out.naoEntendi = txt(C.responder('xpto qwerty')).includes('Não entendi');
+    out.falta = /Falta|Não falta/.test(txt(C.responder('o que falta?')));
+    if(enc) out.regraEnc = txt(C.responder('regras do domingo')).includes('3 pessoas'); else out.regraEnc = true;
+    // tela: abrir, aba Perguntar, escrever e enviar
+    C.abrirChat(); await w(300); const inp = document.getElementById('v265Txt'); out.aba = !!inp && !document.querySelector('.v265-chat').hidden && document.querySelector('#v262Painel .lista').hidden;
+    inp.value = 'o que falta?'; inp.form.requestSubmit(); await w(200);
+    const msgs = [...document.querySelectorAll('#v265Msgs .v265-msg')]; out.tela = msgs.length >= 2 && msgs[msgs.length - 2].classList.contains('eu') && msgs[msgs.length - 1].classList.contains('bot');
+    document.querySelector('.v265-abas [data-aba="dicas"]').click(); await w(100); out.voltaDicas = !document.querySelector('#v262Painel .lista').hidden && document.querySelector('.v265-chat').hidden;
+    out.rede = rede; window.fetch = f0; XMLHttpRequest.prototype.open = x0;
+    return out; }, enc);
+  ok(r.quem && r.quantos && r.porque, `chat responde com os dados da tela: quem trabalha no domingo (${r.quem}), quantos domingos a pessoa fez (${r.quantos}), por que não pode no 3º domingo seguido (${r.porque}: “${r.porqueTxt}”)`);
+  ok(r.regra && r.feriado && r.falta && r.regraEnc && r.naoEntendi, `chat responde regras, feriados e o que falta, e avisa quando não entende (6×1: ${r.regra}; feriados: ${r.feriado}; o que falta: ${r.falta}${enc ? `; regras do domingo: ${r.regraEnc}` : ''}; não entendi: ${r.naoEntendi})`);
+  ok(r.aba && r.tela && r.voltaDicas, `tela: aba 💬 Perguntar abre o chat (${r.aba}), escrever e enviar mostra pergunta e resposta (${r.tela}), aba 💡 Dicas volta (${r.voltaDicas})`);
+  ok(r.rede === 0, `o chat não usa a internet (pedidos de rede: ${r.rede})`);
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1368,7 +1407,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }

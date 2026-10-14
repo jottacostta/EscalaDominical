@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V177</title>
+<title>Escala 2×1 — Encarregados V178</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V178 [Claude] — 💬 PERGUNTE AO ASSISTENTE RH (pedido do dono, igual à Escala de Setores V265): abas “💡 Dicas” e
+       “💬 Perguntar” no painel do 🤖 Assistente RH. Mini chat SEM internet: quem trabalha em cada domingo, por que
+       alguém não pode (mesma conferência da escala à mão), quantos domingos fez, folga fixa, o que falta, feriados,
+       balanço, regras (3 pessoas, Encarregado + Sub, setores diferentes, 2×1, 6×1) e como usar cada passo.
 V177 [Claude] — PRÉVIA DAS FOLGAS COM OS DOMINGOS (pedido do dono, igual à Escala de Setores V263): no passo
        Feriados, a “📅 Prévia das folgas (tabela do mês)” mostrava “FOLGA DOM” para todos nos domingos até gerar.
        Agora, antes de gerar, os domingos mostram quem foi marcado na escala à mão (passo Domingos) e, no domingo de
@@ -1866,6 +1870,29 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v262-rodape{font-size:12px;color:var(--v262-muted);padding:0 4px}
 @media print{#v262Botao,#v262Painel{display:none!important}}
 </style>
+<style id="v265-chat">
+:root{--v265-on:#ffffff}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--v265-on:#0b1220} }
+:root[data-theme="dark"]{--v265-on:#0b1220}
+#v262Painel{max-height:min(80vh,660px)}
+.v265-abas{display:flex;gap:6px;padding:8px 12px 0}
+.v265-abas button{flex:1;min-height:42px;border-radius:10px;border:1px solid var(--v262-line);background:transparent;color:var(--v262-ink);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.v265-abas button[aria-selected="true"]{background:var(--v262-brand);border-color:var(--v262-brand);color:var(--v265-on)}
+#v262Painel .lista[hidden]{display:none}
+.v265-chat{display:flex;flex-direction:column;min-height:0;flex:1}
+.v265-chat[hidden]{display:none}
+.v265-msgs{flex:1;min-height:180px;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.v265-msg{max-width:88%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.v265-msg.bot{align-self:flex-start;background:var(--v262-card);border:1px solid var(--v262-line)}
+.v265-msg.eu{align-self:flex-end;background:var(--v262-brand);color:var(--v265-on)}
+.v265-msg ul{margin:6px 0 0;padding-left:18px}
+.v265-msg small{color:var(--v262-muted)}
+.v265-sug{display:flex;gap:6px;overflow-x:auto;padding:4px 12px 6px}
+.v265-sug button{flex:0 0 auto;min-height:38px;padding:6px 12px;border-radius:999px;border:1px solid var(--v262-line);background:var(--v262-bg);color:var(--v262-brand);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.v265-form{display:flex;gap:8px;padding:8px 12px 12px;border-top:1px solid var(--v262-line)}
+.v265-form input{flex:1;min-width:0;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--v262-line);background:var(--v262-bg);color:var(--v262-ink);font:inherit;font-size:16px}
+.v265-form button{min-height:44px;padding:8px 16px;border-radius:12px;border:0;background:var(--v262-brand);color:var(--v265-on);font:inherit;font-weight:800;cursor:pointer}
+</style>
 </head>
 <body class="em-inicio">
 
@@ -1920,7 +1947,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V177 · 📅 Prévia com os domingos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V178 · 💬 Pergunte ao Assistente</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -8810,5 +8837,207 @@ function perguntarOrientacaoImpressao(cb){
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,800),{once:true}); else setTimeout(iniciar,800);
 })();
 </script>
+<script>
+/* ═════ V178 — 💬 PERGUNTE AO ASSISTENTE RH (mini chat, sem internet) ═════
+   Pedido do dono: no painel do 🤖 Assistente RH, o usuário escreve a dúvida e o assistente responde.
+   Funciona SEM internet: nenhuma pergunta nem nome sai do aparelho (regra de privacidade).
+   Como responde: procura na pergunta (sem acento, minúsculas) o nome de alguém da equipe, o número de um domingo e
+   palavras-chave. Perguntas sobre a escala aberta usam os dados da tela (quem trabalha no domingo, por que alguém
+   não pode, quantos domingos fez, folga, o que falta, feriados, balanço). As outras vêm da lista de respostas (RESP).
+   Abas no painel: “💡 Dicas” (o que já existia) e “💬 Perguntar”. A conversa fica só na memória (some ao recarregar).
+   window.v265Chat = {responder(texto) → html, perguntar(texto)} — usado pelos testes. */
+(function(){
+  const APP='enc';
+  const $i=id=>document.getElementById(id);
+  const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const sem=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const limpa=t=>' '+sem(t).replace(/[^a-z0-9]+/g,' ').trim()+' ';
+  const tem=(q,...p)=>p.some(x=>q.includes(' '+x+' ')||(x.endsWith('*')&&q.includes(' '+x.slice(0,-1))));
+  const DIA=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  const MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const ano=()=>+$i('ano').value, mes=()=>+$i('mes').value;
+  const doms=()=>{ try{ return domingosDoMes(ano(),mes()); }catch(e){ return []; } };
+  const dd=d=>`${String(d).padStart(2,'0')}/${String(mes()+1).padStart(2,'0')}`;
+  const nome=i=>String(equipe[i]?.nome||'?');
+  const curto=i=>nome(i).split(/\s+/)[0];
+  const lista=a=>a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+  const bal=()=>{ try{ return balancoDoMes(ano(),mes()); }catch(e){ return null; } };
+  const ativos=()=>equipe.map((f,i)=>i).filter(i=>equipe[i]&&!foraDom(equipe[i]));
+  const exemploNome=()=>{ const c={}; equipe.forEach(f=>{ const k=sem(String(f?.nome||'').split(/\s+/)[0]); c[k]=(c[k]||0)+1; }); const i=ativos().find(i=>c[sem(curto(i))]===1); return i===undefined?(equipe[0]?curto(0):'Ana'):curto(i); };
+
+  /* ── o que muda entre os apps ── */
+  const AP=APP==='setores'?{
+    passos:'1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar',
+    modo:()=>{ const m=$i('modoGeracao')?.value||'motor'; return m==='motor'?'auto':m; },
+    gerado:()=>Object.values(trabalhoDomingo||{}).some(a=>a&&a.length),
+    quem(d){ if(this.gerado()) return {l:(trabalhoDomingo[d]||[]).map(Number),f:'escala gerada'};
+      let lid=[]; try{ lid=lideresDoRegistro(liderancaManualDomingo?.[String(d)]); }catch(e){}
+      const m=this.modo(), sel=m==='auto'?[]:(selecaoManualDomingo?.[String(d)]||[]).map(Number);
+      return {l:[...new Set([...sel,...lid])],f:m==='manual'?'sua escala à mão':'o que você já escolheu (o resto o app escolhe ao gerar)',aberto:m!=='manual'}; },
+    motivo(i,d){ const f=equipe[i];
+      if(this.quem(d).l.includes(i)) return {ok:true,t:'já está escalado(a) nesse domingo'};
+      if(foraDom(f)) return {ok:false,t:Number(f.folgaFixa)===0?'tem folga fixa no domingo':'não pode trabalhar domingo (jovem aprendiz, cartazista, afastado ou bloqueado)'};
+      try{ if(ehLiderancaDomingo(f)) return {ok:null,t:'é liderança: quem decide é o quadro ③ Quem lidera, no passo 3 Domingos'}; }catch(e){}
+      if(this.modo()==='auto') return {ok:null,t:'no modo Automático quem escolhe é o app, ao gerar. Para escolher você mesmo, use À mão ou Mista no passo 3'};
+      try{ const r=window.v234Sugestoes.auditoriaCandidato(i,d); return r.ok?{ok:true,t:'pode trabalhar nesse domingo'}:{ok:false,t:String(r.motivo||'').replace(/\.$/,'')}; }catch(e){ return {ok:null,t:'não consegui conferir agora'}; } },
+    falta(){ const m=$i('modoGeracao')?.value||'motor'; if(!['manual','mista'].includes(m)) return null; try{ return (auditarSelecaoAntesDaGeracao(m)||[]).map(String); }catch(e){ return []; } },
+    sk:()=>{ try{ return norm($i('setorSelecionado')?.value||'')||'setor'; }catch(e){ return 'setor'; } },
+  }:{
+    passos:'1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar',
+    modo:()=>{ try{ return window.v167Api?.modo?.()||'auto'; }catch(e){ return 'auto'; } },
+    gerado:()=>Object.values(trabalhoDomingo||{}).some(a=>a&&a.length),
+    quem(d){ if(this.gerado()) return {l:(trabalhoDomingo[d]||[]).map(Number),f:'escala gerada'};
+      if(d===bal()){ try{ return {l:trabalhamNoBalanco(ano(),mes()),f:'domingo de balanço: todos trabalham'}; }catch(e){} }
+      const m=this.modo(); if(m==='auto') return {l:[],f:'o app escolhe ao gerar',aberto:true};
+      let s={}; try{ s=window.v167Api.sel()||{}; }catch(e){}
+      return {l:(s[d]||[]).map(Number),f:m==='manual'?'sua escala à mão':'o que você já marcou (o resto o app escolhe ao gerar)',aberto:m!=='manual'}; },
+    motivo(i,d){ const f=equipe[i];
+      if(this.quem(d).l.includes(i)) return {ok:true,t:'já está escalado(a) nesse domingo'};
+      if(foraDom(f)) return {ok:false,t:Number(f.folgaFixa)===0?'tem folga fixa no domingo':'está inativo(a)'};
+      if(this.modo()==='auto') return {ok:null,t:'no modo Automático quem escolhe é o app, ao gerar. Para escolher você mesmo, use À mão ou Misto no passo 3'};
+      try{ const t=window.v167.motivo(i,d,window.v167.sel()); return t?{ok:false,t:String(t).replace(/\.$/,'')}:{ok:true,t:'pode trabalhar nesse domingo'}; }catch(e){ return {ok:null,t:'não consegui conferir agora'}; } },
+    falta(){ if(this.modo()==='auto') return null; try{ const a=window.v167Api.auditar(); return [...(a.r||[]),...(a.y||[])].map(x=>String(x.t||x)); }catch(e){ return []; } },
+    sk:()=>'encarregados',
+  };
+
+  /* ── respostas prontas (regras e como usar) ── */
+  const RESP=[
+    {k:['6x1','6 x 1','7 dias','sete dias','seis dias','dias seguidos','dia seguido'],r:'📏 <b>Regra do 6×1:</b> ninguém trabalha mais de <b>6 dias seguidos</b>. Depois de 6 dias, tem que ter uma folga. O app confere sozinho e avisa em vermelho se alguém passar disso.'},
+    {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção.':'')},
+    {k:['dsr','folga da semana','descanso semanal','descanso'],r:'💤 <b>Folga da semana (DSR):</b> quem trabalha no domingo ganha uma folga durante a semana. O app calcula sozinho quando você toca em <b>Gerar</b>, e ela aparece como <b>FOLGA</b> na escala e na prévia.'},
+    {k:['feriado','feriados','compensa*','folga do feriado','folga de feriado'],r:'🎉 <b>Feriado:</b> no passo <b>4 Feriados</b>, marque quem vai trabalhar. Quem trabalha ganha <b>uma folga em outro dia</b>: o app sugere a data, e você toca em <b>✅ Aceitar</b> ou <b>🔄 Outra data</b>. A folga nunca cai no dia da folga fixa.'+(APP==='enc'?' O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções.':'')+' Para ver o mês inteiro, abra a <b>📅 Prévia das folgas</b>.'},
+    {k:['balanco'],r:APP==='setores'?'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>⚙️ Configurações → 📦 Domingos de balanço</b>. Ele é exceção na regra dos domingos seguidos.':'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>📅 Mês e opções → Mais opções → 📦 Domingos de balanço</b>. No balanço, <b>todos trabalham</b>.'},
+    {k:['passo','passos','comecar','como usar','como faco','como montar','montar a escala','fazer a escala','ordem'],r:`🧭 <b>Passo a passo:</b> ${AP.passos}. Em cada passo, siga a caixa azul do topo. No fim, toque em <b>Gerar</b>, confira e guarde o histórico do mês.`},
+    {k:['gerar','gera','gerei'],r:'▶️ <b>Gerar a escala:</b> vá ao passo <b>5 Gerar</b> e toque em <b>Gerar</b>. Se faltar alguma coisa, o app avisa o que é e onde arrumar. Pergunte aqui “<i>o que falta?</i>” para eu conferir.'},
+    {k:['a mao','manual','automatico','mista','misto','modo','modos'],r:`🧩 <b>Jeitos de montar os domingos</b> (passo 3 Domingos): <b>Automático</b> — o app escolhe quem trabalha; <b>À mão</b> — você escolhe todo mundo; <b>${APP==='setores'?'Mista':'Misto'}</b> — você escolhe alguns e o app completa. Na escala à mão, a <b>💡 Sugestão</b> mostra quem pode entrar.`},
+    {k:['sugest*','sugerir'],r:'💡 <b>Sugestão de funcionários:</b> na escala à mão, cada domingo tem a 💡 Sugestão, que mostra quem pode entrar sem quebrar regra. Marque quem você quer e toque em <b>Aceitar</b>.'},
+    {k:['historico','guardar','salvar','json','arquivo'],r:'📦 <b>Histórico do mês:</b> depois de gerar, toque em <b>📦 Guardar histórico do mês</b>. Ele baixa um arquivo .json com a escala, a equipe e o que eu aprendi. No mês seguinte (ou em outro aparelho), abra com <b>📂 Abrir histórico guardado</b>.'},
+    {k:['excel','planilha','xlsx','imprimir','pdf','whatsapp'],r:'📊 <b>Planilha, impressão e WhatsApp:</b> depois de gerar, no passo <b>5 Gerar</b>, use <b>📊 Baixar planilha Excel</b>, <b>🖨️ Imprimir / PDF</b> ou <b>📱 Copiar para WhatsApp</b>.'},
+    {k:['editar equipe','editar','cadastr*','adicionar','incluir','novo funcionario','turno','horario','admissao'],r:'✏️ <b>Equipe:</b> no passo <b>1 Equipe</b>, toque em <b>✏️ Editar equipe</b> para mudar nome, cargo, horário, turno, folga fixa ou data de admissão (dd/mm/aaaa). A equipe também entra pela planilha do RH ou pelo histórico guardado.'},
+    {k:['mes passado','ultimo domingo','ultimos domingos'],r:'↩️ <b>Mês passado:</b> no passo <b>2 Mês passado</b>, marque quem trabalhou nos <b>2 últimos domingos</b> do mês anterior. Isso evita 3 domingos seguidos na virada do mês. Se você abriu o histórico do mês passado, ele já vem preenchido.'},
+    {k:['previa'],r:'📅 <b>Prévia das folgas:</b> fica no passo <b>4 Feriados</b>. Mostra o mês inteiro como a tabela final: folgas de feriado sugeridas (💡) e aceitas, folgas da semana (FOLGA) e os domingos. Antes de gerar, os domingos mostram o que você já escolheu; “—” quer dizer que o app ainda vai escolher.'},
+    {k:['assistente','voce','quem e voce','aprende','aprendeu','dicas'],r:'🤖 Eu sou o <b>Assistente RH</b>. Olho o que você faz (quem escolhe, horários, quantos domingos cada um fez) e dou <b>dicas</b>. Não mudo nada sozinho, e as regras quem confere é o app. Tudo fica neste aparelho e vai junto no histórico do mês. Também respondo perguntas — sem internet.'},
+    ...(APP==='setores'?[
+      {k:['aprendiz','jovem aprendiz','jovens'],r:'🎓 <b>Jovem aprendiz</b> não trabalha domingo. Eles têm o cartão próprio <b>🎓 Jovem Aprendiz</b> na tela inicial.'},
+      {k:['cartaz*'],r:'🪧 <b>Cartazista</b> não trabalha domingo.'},
+      {k:['promotor','promotores','promotora'],r:'🛒 <b>Promotor:</b> 1 por domingo, seguindo o 2×1 dos domingos e o 6×1 da semana. Para escalar 2 num domingo, use o modo <b>Por cargo</b>.'},
+      {k:['lideranca','lider','lideres','encarregado','subencarregado','quem lidera'],r:'⭐ <b>Liderança:</b> no passo <b>3 Domingos</b>, quadro <b>③ Quem lidera</b>. Dá para escolher uma, várias ou por turno (abertura e fechamento). O botão <b>🤖 Sugerir liderança</b> escolhe em blocos de 2 domingos, sem 3 seguidos.'},
+      {k:['emprest*','ep'],r:'🔁 <b>Emprestado (EP):</b> no ✏️ Editar equipe, marque a situação EP e escolha o <b>setor de destino</b>. A pessoa continua cadastrada no setor de origem e aparece para trabalhar no setor de destino.'},
+      {k:['por cargo','quantos de cada','grupo','grupos','por grupos'],r:'👥 <b>Quantos trabalham por domingo</b> (passo 3): <b>Por cargo</b> — você escolhe quantos de cada função e de liderança; <b>Por grupos</b> — só para setor com 6 ou mais pessoas que trabalham domingo.'},
+      {k:['operadora','operadoras','caixa','intermediaria'],r:'🧾 <b>Frente de Loja:</b> no “Por cargo”, a 💡 Sugestão divide as operadoras em 3 horários iguais: <b>abertura, intermediária (10h) e fechamento</b>.'},
+    ]:[
+      {k:['regra','regras','3 pessoas','tres pessoas','quantos','laticinio','setores diferentes'],r:'📏 <b>Regras do domingo (Encarregados):</b> trabalham <b>3 pessoas</b> — pelo menos <b>1 Encarregado</b> e <b>1 Subencarregado</b>, todos de <b>setores diferentes</b> e no máximo <b>1 do Laticínio</b>. Ninguém faz 3 domingos seguidos. No domingo de balanço, todos trabalham.'},
+      {k:['sabado','sabados','rodizio'],r:'⭐ <b>Sábado do rodízio:</b> quem fecha com o domingo de folga ganha sábados de folga em rodízio (⭐). O quadro fica no passo <b>4 Feriados</b>.'},
+    ]),
+  ];
+
+  /* ── quem é a pessoa da pergunta ── */
+  function pessoas(q){
+    const nums=(q.match(/\b\d{4,}\b/g)||[]); const porMat=equipe.map((f,i)=>i).filter(i=>{ const m=String(equipe[i]?.matricula||'').replace(/^0+/,''); return m&&nums.some(n=>n.replace(/^0+/,'')===m); });
+    if(porMat.length) return porMat;
+    const c=[]; equipe.forEach((f,i)=>{ const t=sem(f?.nome).split(/[^a-z0-9]+/).filter(x=>x.length>1); if(!t.length||!q.includes(' '+t[0]+' ')) return; c.push({i,n:t.filter(x=>q.includes(' '+x+' ')).length}); });
+    if(!c.length) return []; const mx=Math.max(...c.map(x=>x.n)); return c.filter(x=>x.n===mx).map(x=>x.i);
+  }
+  /* ── qual domingo ── */
+  function domingos(q){
+    const D=doms(), out=new Set();
+    (q.match(/\b\d{1,2}\b/g)||[]).map(Number).forEach(n=>{ if(D.includes(n)) out.add(n); });
+    const ord=[['primeiro',0],['1o',0],['segundo',1],['2o',1],['terceiro',2],['3o',2],['quarto',3],['4o',3],['quinto',4],['5o',4]];
+    ord.forEach(([w,k])=>{ if(q.includes(' '+w+' domingo')&&D[k]) out.add(D[k]); });
+    if(q.includes(' ultimo domingo')&&D.length) out.add(D[D.length-1]);
+    return [...out].sort((a,b)=>a-b);
+  }
+  const ambigua=ii=>`Achei mais de uma pessoa: ${ii.slice(0,6).map(i=>'<b>'+es(nome(i))+'</b>').join(', ')}. Escreva o nome e o sobrenome.`;
+  const naoAchei='Não achei essa pessoa na equipe deste setor. Escreva o nome como está na lista (ou a matrícula).';
+  function domingosDe(i){ return doms().filter(d=>AP.quem(d).l.includes(i)); }
+  function historicoDe(i){ try{ const f=equipe[i], pk=String(f.matricula||'').trim().replace(/^0+/,'')||('N:'+String(f.nome||'').trim().toUpperCase());
+      const p=window.v262Assistente?.dados?.()?.setores?.[AP.sk()]?.pessoas?.[pk]; if(!p) return null; const ym=`${ano()}-${String(mes()+1).padStart(2,'0')}`;
+      const v=Object.entries(p.dm||{}).filter(([k])=>k<ym).map(([,x])=>x); return v.length?{n:v.length,media:v.reduce((a,b)=>a+b,0)/v.length}:null; }catch(e){ return null; } }
+  const folgaFixa=f=>f.folgaPendente||f.folgaFixa===''||f.folgaFixa==null?'ainda <b>a definir</b>':`na <b>${DIA[Number(f.folgaFixa)]||'?'}</b>`;
+
+  /* ── responder ── */
+  function responder(texto){
+    const q=limpa(texto); if(q.trim()===''||q==='  ') return 'Escreva sua dúvida. Exemplos: “<i>quem trabalha no domingo '+(doms()[0]||'')+'?</i>”, “<i>o que falta?</i>”, “<i>como funciona o 6×1?</i>”.';
+    if(!equipe.length&&!/regra|6x1|2x1|passo|feriado|balanco|historico|assistente/.test(q)) return 'Primeiro carregue a equipe no passo <b>1 Equipe</b> (planilha do RH, histórico guardado ou ✏️ Editar equipe). Depois eu respondo sobre a escala.';
+    if(tem(q,'oi','ola','bom dia','boa tarde','boa noite','opa','e ai')&&q.trim().split(' ').length<=4) return 'Oi! 😊 Pode perguntar. Ex.: “<i>quem trabalha no domingo '+(doms()[0]||'')+'?</i>”, “<i>por que '+es(exemploNome())+' não pode?</i>”, “<i>o que falta?</i>”.';
+    if(tem(q,'obrigado','obrigada','valeu','vlw','brigado')) return 'De nada! 😊 Estou aqui se precisar.';
+    const P=pessoas(q), Ds=domingos(q), mesNome=`${MES[mes()]} de ${ano()}`;
+    /* o que falta */
+    if(tem(q,'falta','faltando','pendente*','pronta','pronto','posso gerar','esta certo','ta certo','erro','erros','problema*')&&!P.length){
+      const f=AP.falta(); if(f===null) return `No modo <b>Automático</b>, o app monta os domingos quando você toca em <b>Gerar</b> (passo 5). Antes, confira a equipe, o mês passado${APP==='setores'?' e a liderança (③ Quem lidera)':''}.`;
+      if(!f.length) return '✅ Não falta nada na escala dos domingos. Pode ir para os feriados e depois <b>Gerar</b>.';
+      return `🛠️ Falta${f.length>1?'m':''} <b>${f.length}</b> coisa(s):<ul>${f.slice(0,5).map(x=>'<li>'+es(x)+'</li>').join('')}</ul>${f.length>5?`…e mais ${f.length-5}. `:''}Ajuste no passo <b>3 Domingos</b>.`; }
+    /* por que não pode */
+    if(tem(q,'por que','porque','pq','motivo','nao pode','nao da','nao consigo','bloquead*','nao aparece')){
+      if(!P.length){ const rr=RESP.find(x=>x.k.some(k=>tem(q,k))); if(rr) return rr.r; return 'De quem você quer saber? Escreva o nome. Ex.: “<i>por que '+es(exemploNome())+' não pode no domingo '+(doms()[0]||'')+'?</i>”'; }
+      if(P.length>1) return ambigua(P); const i=P[0], f=equipe[i], alvo=Ds.length?Ds:doms();
+      if(foraDom(f)) return `<b>${es(nome(i))}</b> ${AP.motivo(i,alvo[0]).t}. Por isso não entra em nenhum domingo.`;
+      const linhas=alvo.map(d=>{ const r=AP.motivo(i,d); return `<li>${r.ok===true?'✅':r.ok===false?'❌':'ℹ️'} <b>${dd(d)}</b>: ${es(r.t)}</li>`; });
+      return `<b>${es(nome(i))}</b> nos domingos de ${mesNome}:<ul>${linhas.join('')}</ul>`; }
+    /* quantos domingos */
+    if(P.length&&tem(q,'quantos','quantas','quanto','vezes')){
+      if(P.length>1) return ambigua(P); const i=P[0], ds=domingosDe(i), h=historicoDe(i), src=AP.quem(doms()[0]||0);
+      return `<b>${es(nome(i))}</b>: <b>${ds.length}</b> domingo(s) em ${mesNome}${ds.length?` (${ds.map(dd).join(', ')})`:''}${src.f!=='escala gerada'?' — pelo que está escolhido até agora':''}.`+(h?` Nos ${h.n} mês(es) anteriores que eu aprendi, a média foi <b>${h.media.toFixed(1).replace('.',',')}</b>.`:''); }
+    /* quem trabalha */
+    if(tem(q,'quem','quais pessoas','escalad*','lista')&&(tem(q,'domingo','domingos','trabalha','trabalham','vai','vao','escalad*')||Ds.length)){
+      const alvo=Ds.length?Ds:doms(); if(!alvo.length) return 'Este mês não tem domingo.';
+      const linhas=alvo.map(d=>{ const r=AP.quem(d); const nm=r.l.map(curto);
+        return `<li><b>${dd(d)}</b>${d===bal()?' (balanço)':''}: ${nm.length?es(lista(nm))+` <small>(${nm.length})</small>`:'<i>ninguém escolhido ainda</i>'}${r.aberto&&nm.length?' + o app completa':''}</li>`; });
+      return `👥 Domingos de ${mesNome} — ${es(AP.quem(alvo[0]).f)}:<ul>${linhas.join('')}</ul>`; }
+    /* folga da pessoa */
+    if(P.length&&tem(q,'folga','folgas','folguista','descansa')&&!tem(q,'feriado')){
+      if(P.length>1) return ambigua(P); const f=equipe[P[0]]; return `🗓️ A folga fixa de <b>${es(nome(P[0]))}</b> é ${folgaFixa(f)}.${Number(f.folgaFixa)===0?' Por isso não trabalha domingo.':''} Para mudar, use <b>✏️ Editar equipe</b>.`; }
+    /* feriados do mês */
+    if(tem(q,'feriado','feriados')&&tem(q,'quais','qual','quando','tem','dias','dia','esse mes','este mes','mes')){
+      let f={}; try{ f=feriados(ano(),mes())||{}; }catch(e){} const ks=Object.keys(f).map(Number).sort((a,b)=>a-b);
+      return ks.length?`🎉 Feriados de ${mesNome}: ${ks.map(d=>`<b>${dd(d)}</b> (${es(f[d])})`).join(', ')}. Marque quem trabalha no passo <b>4 Feriados</b>.`:`Não há feriado em ${mesNome}.`; }
+    /* balanço do mês */
+    if(tem(q,'balanco')&&tem(q,'quando','qual','dia','tem','esse mes','este mes','mes')){ const b=bal(); return b?`📦 O domingo de balanço de ${mesNome} é <b>${dd(b)}</b>.`:`📦 ${mesNome} não tem domingo de balanço marcado.`+([0,2,5,8].includes(mes())?' Se tiver, escolha o domingo no quadro 📦 Domingos de balanço.':''); }
+    /* só o nome da pessoa: resumo */
+    if(P.length&&!RESP.some(x=>x.k.some(k=>tem(q,k)))){
+      if(P.length>1) return ambigua(P); const i=P[0], f=equipe[i], ds=domingosDe(i);
+      return `👤 <b>${es(nome(i))}</b> — ${es(f.cargo||'sem cargo')}. Folga fixa ${folgaFixa(f)}. Domingos em ${mesNome}: <b>${ds.length}</b>${ds.length?` (${ds.map(dd).join(', ')})`:''}. Pergunte “<i>por que ${es(curto(i))} não pode?</i>” para ver cada domingo.`; }
+    /* respostas prontas */
+    let melhor=null, pts=0; RESP.forEach(x=>{ const n=x.k.filter(k=>tem(q,k)).length; if(n>pts){ pts=n; melhor=x; } });
+    if(melhor) return melhor.r;
+    return '🤔 Não entendi essa. Tente com outras palavras ou toque numa das perguntas abaixo. Eu sei responder sobre <b>regras</b> (6×1, domingos seguidos, feriado, balanço), <b>como usar</b> cada passo e <b>a escala aberta</b> (quem trabalha, por que alguém não pode, quantos domingos, folga, o que falta).';
+  }
+
+  /* ── tela: abas “Dicas” e “Perguntar” dentro do painel do Assistente ── */
+  const conversa=[];
+  function exemplos(){ const d=doms(); return ['O que falta?',d.length?`Quem trabalha no domingo ${d[0]}?`:'Quem trabalha nos domingos?',equipe.length?`Por que ${exemploNome()} não pode?`:'Como funciona o 6×1?','Como funciona o feriado?','Como faço a escala?']; }
+  function desenhar(){
+    const box=$i('v265Msgs'); if(!box) return;
+    box.innerHTML=(conversa.length?'':`<div class="v265-msg bot">Oi! 😊 Escreva sua dúvida ou toque numa pergunta abaixo. Respondo sem internet, com os dados desta tela.</div>`)
+      +conversa.map(m=>`<div class="v265-msg ${m.de}">${m.de==='eu'?es(m.t):m.t}</div>`).join('');
+    box.scrollTop=box.scrollHeight;
+    const sug=$i('v265Sug'); if(sug) sug.innerHTML=exemplos().map(x=>`<button type="button">${es(x)}</button>`).join('');
+    sug?.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>perguntar(b.textContent)));
+  }
+  function perguntar(t){ t=String(t||'').trim(); if(!t) return; let r; try{ r=responder(t); }catch(e){ console.warn('[V178]',e); r='Ops, não consegui responder essa agora. Tente de novo.'; }
+    conversa.push({de:'eu',t},{de:'bot',t:r}); if(conversa.length>40) conversa.splice(0,conversa.length-40); desenhar(); }
+  function montar(){
+    const p=$i('v262Painel'); if(!p||p.querySelector('.v265-abas')) return !!p;
+    const top=p.querySelector('.top'), lista=p.querySelector('.lista');
+    const abas=document.createElement('div'); abas.className='v265-abas'; abas.setAttribute('role','tablist');
+    abas.innerHTML='<button type="button" role="tab" data-aba="dicas" aria-selected="true">💡 Dicas</button><button type="button" role="tab" data-aba="chat" aria-selected="false">💬 Perguntar</button>';
+    top.after(abas);
+    const chat=document.createElement('div'); chat.className='v265-chat'; chat.hidden=true;
+    chat.innerHTML='<div id="v265Msgs" class="v265-msgs" aria-live="polite"></div><div id="v265Sug" class="v265-sug"></div><form class="v265-form" autocomplete="off"><input id="v265Txt" type="text" maxlength="200" placeholder="Escreva sua dúvida…" aria-label="Escreva sua dúvida"><button type="submit">Enviar</button></form>';
+    p.appendChild(chat);
+    const sub=top.querySelector('small');
+    const ir=aba=>{ abas.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.aba===aba)));
+      lista.hidden=aba!=='dicas'; chat.hidden=aba!=='chat'; if(sub) sub.textContent=aba==='chat'?'Pergunte e eu respondo (sem internet)':'Dicas do passo em que você está';
+      if(aba==='chat'){ desenhar(); setTimeout(()=>$i('v265Txt')?.focus(),50); } };
+    abas.addEventListener('click',e=>{ const b=e.target.closest('[data-aba]'); if(b) ir(b.dataset.aba); });
+    chat.querySelector('form').addEventListener('submit',e=>{ e.preventDefault(); const inp=$i('v265Txt'); const t=inp.value; inp.value=''; perguntar(t); inp.focus(); });
+    window.v265Chat.abrirChat=()=>{ window.v262Assistente?.abrir?.(); ir('chat'); };
+    return true;
+  }
+  window.v265Chat={responder,perguntar,abrirChat:()=>{}};
+  let n=0; const t=setInterval(()=>{ if(montar()||++n>60) clearInterval(t); },500);
+})();
+</script>
+
 </body>
 </html>
