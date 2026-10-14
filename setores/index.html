@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V266</title>
+<title>Escala de Setores — V267</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V267 [Claude] — ⏰ HORÁRIO POR FUNÇÃO NO “POR CARGO” (pedido do dono): no quadro “Quantos de cada cargo por domingo”,
+       cada função ganhou “⏰ Horário de domingo”: você diz quantos entram em cada horário (ex.: 3 Açougueiros às 06:50,
+       1 às 07:45 e 3 às 12:00). A quantidade da função vira a soma. Ao gerar, o app escolhe quem já trabalha naquele
+       turno e dá a cada um o horário definido (quem começa mais cedo no dia a dia fica com o mais cedo). Os horários
+       são os da lista oficial (⚙️ Configurações). Depois, o quadro ⏰ da V266 mostra tudo para conferir e confirmar.
 V266 [Claude] — ⏰ CONFIRMAR O HORÁRIO DE DOMINGO (pedido do dono): no modo Automático o app escolhia o horário de
        domingo de cada pessoa sozinho e não perguntava. Agora, depois de gerar, aparece no passo 5 o quadro “⏰ Horário
        de domingo de cada pessoa”: domingo a domingo, quem o app escalou, com o horário sugerido numa lista para trocar.
@@ -2465,6 +2470,16 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 @keyframes v266pisca{50%{box-shadow:0 0 0 4px #FFCC00}}
 @media (prefers-reduced-motion: reduce){.v266-pisca{animation:none;outline:3px solid #FFCC00}}
 </style>
+<style id="v267-hor-funcao">
+.v267-hor{margin:-2px 0 10px;padding:6px 10px;border:1px dashed var(--border,#d5dce6);border-radius:10px;font-size:13.5px}
+.v267-hor>summary{cursor:pointer;padding:4px 0}
+.v267-lin{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+.v267-lin select{flex:1 1 100%;min-width:0;min-height:42px;font-size:15px;border-radius:10px;padding:6px 8px}
+.v267-lin .fn-qtd{flex:1}
+.v267-tira{min-width:42px;min-height:42px;border-radius:10px;border:1px solid var(--border,#d5dce6);background:transparent;cursor:pointer;font-size:16px}
+.v267-hor .btn.sm{margin:6px 6px 0 0}
+.v267-tot{margin-top:6px;font-size:13px}
+</style>
 </head>
 <body>
 <script>
@@ -2560,7 +2575,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V266 · ⏰ Horário de domingo confirmado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V267 · ⏰ Horário por função</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -7538,10 +7553,11 @@ function _lerTodasCfgFuncao(){ try{ return JSON.parse(localStorage.getItem('esca
 function carregarCfgFuncao(forcar=false){
   const k=chaveSetorFuncao(); if(!forcar && _setorCfgFuncao===k) return;
   const c=_lerTodasCfgFuncao()[k]||{};
-  coberturaFuncao={base:c.base||{},dom:c.dom||{},subst:c.subst||{}}; aceitosFuncao=c.aceitos||{}; _setorCfgFuncao=k;
+  coberturaFuncao={base:c.base||{},dom:c.dom||{},subst:c.subst||{},hor:c.hor||{}};   // V267: + hor
+  aceitosFuncao=c.aceitos||{}; _setorCfgFuncao=k;
 }
 function salvarCfgFuncao(){
-  try{ const all=_lerTodasCfgFuncao(); all[chaveSetorFuncao()]={base:coberturaFuncao.base,dom:coberturaFuncao.dom,subst:coberturaFuncao.subst||{},aceitos:aceitosFuncao};
+  try{ const all=_lerTodasCfgFuncao(); all[chaveSetorFuncao()]={base:coberturaFuncao.base,dom:coberturaFuncao.dom,subst:coberturaFuncao.subst||{},hor:coberturaFuncao.hor||{},aceitos:aceitosFuncao};   // V267: + hor
     localStorage.setItem('escalaSetores.coberturaFuncao',JSON.stringify(all)); }catch(e){}
 }
 function isoDomingo(ano,mes,d){ return chaveDataLocal(new Date(ano,mes,d)); }
@@ -14279,6 +14295,82 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   },true);
   window.v266Horarios={precisa,confirmado,confirmar,pendentes,render};
   setInterval(()=>{ if(document.visibilityState==='visible') try{ render(); }catch(e){} },1000);
+})();
+</script>
+
+<script>
+/* ═════ V267 — ⏰ HORÁRIO POR FUNÇÃO NO “POR CARGO” ═════
+   Pedido do dono: no quadro “🧑‍🔧 Quantos de cada cargo por domingo” (modo Por cargo), dividir cada função por horário.
+   Ex.: Açougueiro → 3 às 06:50, 1 às 07:45 e 3 às 12:00 (total 7).
+   - Guarda em coberturaFuncao.hor = {chave:[{h:'06:50',n:3},…]} (vai no localStorage do setor e no histórico, junto com
+     base/dom/subst/aceitos — salvarCfgFuncao/carregarCfgFuncao com a linha // V267).
+   - A quantidade da função passa a ser a soma dos horários (coberturaFuncao.base[chave]).
+   - Motor: embrulho de metasFuncaoUsuario → a meta de abertura/fechamento da função vem dos horários (antes de 12:00 =
+     abertura), para escolher quem já trabalha naquele turno. Embrulho de atribuirHorariosAutomaticosDomingo → depois do
+     horário automático, quem é da função recebe os horários definidos (quem começa mais cedo no dia a dia fica com o
+     horário mais cedo). Quem tem horário dado à mão (horariosManuaisDomingo) não muda. Balanço não muda.
+   - Os horários vêm da lista oficial de domingo (⚙️ Configurações → ⏰ Horários de domingo e feriado).
+   - O quadro ⏰ da V266 (confirmar depois de gerar) já mostra esses horários para conferir.
+   window.v267HorFuncao = {lista(chave), definir(chave,lista), slots(chave)}. */
+(function(){
+  const $i=id=>document.getElementById(id);
+  const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const porCargo=()=>($i('modoCobertura')?.value||'')==='funcao';
+  const H=()=>{ coberturaFuncao.hor=coberturaFuncao.hor&&typeof coberturaFuncao.hor==='object'?coberturaFuncao.hor:{}; return coberturaFuncao.hor; };
+  const lista=k=>(H()[k]||[]).filter(x=>x&&/^\d{2}:\d{2}$/.test(x.h)&&x.n>0);
+  const soma=k=>lista(k).reduce((t,x)=>t+x.n,0);
+  /* horários em ordem, um por pessoa: [06:50,06:50,06:50,07:45,12:00,…] */
+  const slots=k=>lista(k).slice().sort((a,b)=>horaMinutos(a.h)-horaMinutos(b.h)).flatMap(x=>Array(x.n).fill(x.h));
+  function definir(k,l){ const limpa=(l||[]).map(x=>({h:String(x.h||''),n:Math.max(0,Math.min(99,parseInt(x.n,10)||0))})).filter(x=>/^\d{2}:\d{2}$/.test(x.h));
+    if(limpa.length) H()[k]=limpa; else delete H()[k];
+    const s=limpa.reduce((t,x)=>t+x.n,0); if(limpa.length&&s>0) coberturaFuncao.base[k]=s;
+    salvarCfgFuncao(); }
+  /* ── tela: dentro do quadro “Quantos de cada cargo por domingo” ── */
+  const abertos=new Set();
+  function htmlHor(fn){ const k=fn.chave, l=H()[k]||[], s=soma(k), q=qtdFuncaoBase(k), ofi=HORARIOS_OFICIAIS_DOMINGO||[];
+    const resumo=lista(k).length?lista(k).slice().sort((a,b)=>horaMinutos(a.h)-horaMinutos(b.h)).map(x=>`${x.n}× ${x.h}`).join(' · '):'o app escolhe';
+    return `<details class="v267-hor" data-v267-fn="${es(k)}" ${abertos.has(k)?'open':''}><summary>⏰ Horário de domingo: <b>${es(resumo)}</b></summary>
+      <p class="hint" style="margin:6px 0">Escolha o horário e quantos <b>${es(fn.rotulo)}</b> entram nele. A quantidade da função vira a soma.</p>
+      ${l.map((x,j)=>`<div class="v267-lin" data-v267-j="${j}"><select data-v267-h aria-label="Horário">${ofi.some(o=>o[0]===x.h)?'':`<option value="${es(x.h)}" selected>${es(x.h)} (fora da lista)</option>`}${ofi.map(([a,b])=>`<option value="${a}" ${a===x.h?'selected':''}>${a} às ${b}</option>`).join('')}</select>
+        <div class="fn-qtd"><button type="button" data-v267-menos aria-label="menos">−</button><input type="number" inputmode="numeric" min="0" max="99" value="${x.n}" data-v267-n aria-label="Quantos às ${es(x.h)}"><button type="button" data-v267-mais aria-label="mais">+</button></div>
+        <button type="button" class="v267-tira" data-v267-tira aria-label="Tirar este horário">🗑</button></div>`).join('')}
+      <button type="button" class="btn secondary sm" data-v267-add>➕ Adicionar horário</button>
+      ${l.length?`<button type="button" class="btn secondary sm" data-v267-limpa>↩ O app escolhe</button>`:''}
+      ${l.length&&s!==q?`<div class="alert warn" style="margin-top:6px">A soma dos horários (${s}) é diferente da quantidade (${q}) em algum ajuste. Quem passar da soma fica com o horário que o app escolher.</div>`:''}
+      ${l.length?`<div class="v267-tot">Total por domingo: <b>${s}</b> ${es(fn.rotulo)}</div>`:''}</details>`; }
+  function enfeitar(){
+    const el=$i('configFuncao'); if(!el) return; const fns=funcoesDoSetor();
+    fns.forEach(fn=>{ const inp=el.querySelector(`[data-fn-base="${CSS.escape(fn.chave)}"]`); if(!inp) return; const row=inp.closest('.fn-row'); if(!row) return;
+      let ancora=row; const sub=row.nextElementSibling; if(sub&&sub.classList.contains('fn-sub')) ancora=sub;
+      const tmp=document.createElement('div'); tmp.innerHTML=htmlHor(fn); const det=tmp.firstElementChild; ancora.after(det);
+      const k=fn.chave, ler=()=>(H()[k]||[]).map(x=>({...x})), salvar=l=>{ abertos.add(k); definir(k,l); renderConfigFuncao(); };
+      det.addEventListener('toggle',()=>{ if(det.open) abertos.add(k); else abertos.delete(k); });
+      det.querySelectorAll('[data-v267-j]').forEach(lin=>{ const j=+lin.dataset.v267J;
+        lin.querySelector('[data-v267-h]').onchange=e=>{ const l=ler(); l[j].h=e.target.value; salvar(l); };
+        lin.querySelector('[data-v267-n]').onchange=e=>{ const l=ler(); l[j].n=e.target.value; salvar(l); };
+        lin.querySelector('[data-v267-menos]').onclick=()=>{ const l=ler(); l[j].n=Math.max(0,l[j].n-1); salvar(l); };
+        lin.querySelector('[data-v267-mais]').onclick=()=>{ const l=ler(); l[j].n=l[j].n+1; salvar(l); };
+        lin.querySelector('[data-v267-tira]').onclick=()=>{ const l=ler(); l.splice(j,1); salvar(l); }; });
+      det.querySelector('[data-v267-add]').onclick=()=>{ const l=ler(), ofi=HORARIOS_OFICIAIS_DOMINGO||[]; const livre=ofi.find(o=>!l.some(x=>x.h===o[0]))||ofi[0]; l.push({h:livre?livre[0]:'08:00',n:1}); salvar(l); };
+      det.querySelector('[data-v267-limpa]')?.addEventListener('click',()=>salvar([]));
+    });
+  }
+  { const orig=window.renderConfigFuncao; if(typeof orig==='function') window.renderConfigFuncao=function(){ const r=orig.apply(this,arguments); try{ enfeitar(); }catch(e){ console.warn('[V267]',e); } return r; }; }
+  /* ── motor: meta de abertura/fechamento pelos horários ── */
+  { const orig=window.metasFuncaoUsuario; if(typeof orig==='function') window.metasFuncaoUsuario=function(){ const m=orig.apply(this,arguments);
+      try{ if(porCargo()) Object.entries(m||{}).forEach(([k,x])=>{ const s=slots(k); if(!s.length) return;
+        (x.porDomingo||[]).forEach(q=>{ const t=q.total||0, usa=s.slice(0,t); const a=usa.filter(h=>horaMinutos(h)<720).length, f=usa.length-a; q.abertura=a; q.fechamento=f; q.outros=Math.max(0,t-a-f); }); }); }catch(e){ console.warn('[V267]',e); }
+      return m; }; }
+  /* ── motor: horário de cada pessoa da função ── */
+  { const orig=window.atribuirHorariosAutomaticosDomingo; if(typeof orig==='function') window.atribuirHorariosAutomaticosDomingo=function(d,indices,isBalanco){ const r=orig.apply(this,arguments);
+      try{ if(!isBalanco&&porCargo()){ const ofi=listaHorariosDomingoParaData(d); const g=(window.horariosGeradosDomingo[String(d)]=window.horariosGeradosDomingo[String(d)]||{});
+        Object.keys(H()).forEach(k=>{ const s=slots(k).filter(h=>ofi.some(o=>o[0]===h)); if(!s.length) return;
+          const ps=[...new Set((indices||[]).map(Number))].filter(i=>equipe[i]&&!ehLiderancaDomingo(equipe[i])&&chaveFuncaoDistribuicao(i)===k&&!horarioManualSelecionado(d,i))
+            .sort((a,b)=>(horarioHabitualInicio(a)??999)-(horarioHabitualInicio(b)??999)||a-b);
+          ps.slice(0,s.length).forEach((i,j)=>{ const x=ofi.find(o=>o[0]===s[j]); g[String(i)]=`${x[0]}-${x[1]}`; }); }); } }catch(e){ console.warn('[V267]',e); }
+      return r; }; }
+  window.v267HorFuncao={lista,definir,slots};
+  setTimeout(()=>{ try{ renderConfigFuncao(); }catch(e){} },900);
 })();
 </script>
 
