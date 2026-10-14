@@ -21,10 +21,11 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V176.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
-- **PRs abertas:** nenhuma no momento desta conferência. PRs #47–#52 já incorporadas ao `main`, incluindo #50 (documentação V257), #51 (Setores V258–V260) e #52 (Setores V261).
+- **Hierarquia (pedido do dono, 14/10/2026 — topo do `AGENTS.md`):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o **subencarregado**. Nada por iniciativa própria sem autorização do gerente.
+- **PRs abertas:** só a desta documentação. Já no `main`: #54 (Setores V262 + Encarregados V176, Assistente RH) e #56 (AGENTS.md: hierarquia e seção 2.1). A #55 do ChatGPT (guia REA) foi fechada sem merge: as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V262**, Encarregados **V176**.
+- **Próximo número de versão:** Setores **V263**, Encarregados **V177**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -74,6 +75,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - `v228DomsDe(texto)`: em quais domingos um aviso da auditoria cai.
 - `domingoForaDoMesTrabalhado(i, dt)` (V229, também `window.v229DomingoForaDoMes`): se a pessoa trabalhou um domingo de OUTRO mês. Último e penúltimo domingo do mês passado vêm do passo “Mês passado” (`historicoManual`); domingo do mês seguinte = não trabalhado. **Use sempre que uma conta atravessar a virada do mês.**
 
+- **Assistente RH (V262):** bloco `/* ═════ V262 — 🤖 ASSISTENTE RH (etapa 1) ═════ */` + `<style id="v262-assistente">`. `window.v262Assistente = {exportar, juntar, aprenderMes, dicas, abrir, dados, atualizar}`. Guarda em `localStorage escalaSetores.v262Assistente` = `{v:1, setores:{<setor>:{pessoas:{<chave>:{nome,esc,rec,ace,hor,dm}}, meses}}}` (chave = matrícula sem zeros à esquerda ou `N:NOME`). Vai no histórico pelo campo `p.assistente` (linha `// V262` em `montarProjeto`); ao abrir um histórico (`#arquivoProjetoJSON`) chama `juntar`. Aprende escutando: change em `#selecaoDomingosManual input[data-dom][data-func]` e `select.func-dom-hour`, clique em `[data-v233-aceitar]` e em Guardar histórico/Gerar (`aprenderMes`). A dica do auditor (a mais pesada) só roda com o painel aberto. “Ir até lá” = `v45GotoStep(3)` (Domingos). **Só dica:** nunca bloquear nada pelo Assistente.
+
 **Armazenamento no aparelho:** chaves `localStorage` começam com `escalaSetores.` (ex.: `escalaSetores.v183` = cópia de cada setor/mês, `escalaSetores.quadroERP` = quadro da loja). O espaço é limitado (V216 libera sozinho).
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
@@ -90,6 +93,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
   - o motor recebe a escolha por **embrulhos**: `window.escolherDomingo` e `window.combinacoesDomingoNormal` (domingo com 3 marcados = exatamente eles; com 1–2 marcados = só as combinações do motor que contêm os marcados — é o Misto) e `window.gerar` (À mão: só gera sem 🔴 e sem 🟡; Misto: só sem 🔴). No modo Automático tudo passa direto para o original (escala igual à V166).
   - `window.v167`: `auditar(sel?)` → `{r:[…], y:[…]}` (cada item `{d, ds?, is:[índices], t:texto}` — use `is` para saber quem o aviso cita, sem procurar nome no texto), `sel()` (marcações do mês na tela, em índices), `motivo(i,d,sel)` (por que não pode entrar; `''` = pode), `marcar(i,d,silencioso)`, `desmarcar`, `sugestoes(d)` (chama o `escolherDomingo` ORIGINAL e filtra pela conferência; reserva: combinações com menos domingos no mês), `copiarAnterior(d)`, `render()`, `estado()`, `definirModo(m)`.
   - **Regra nova do domingo tem que entrar em `auditar` e em `motivo`** (as duas), senão a lista deixa marcar e só a conferência acusa (ou o contrário).
+  - **Assistente RH (V176):** mesmo bloco do Setores, adaptado. O objeto continua com o nome **`window.v262Assistente`** (igual nos dois apps) e guarda em `localStorage enc.v176Assistente`; vai no histórico por `p.assistente` (em `exportarProjeto`). Lê a escala à mão por `window.v167Api = {sel, modo, auditar}` (exposto pelo bloco V167 só para isso). Aprende com `input[data-p][data-d]` e com `[data-acao="aceitar"]` (diferença do `sel` antes/depois). “Ir até lá” procura o passo cujo `dataset.panel==='domingosEtapa'` (não use número fixo).
   - V169: `window.bloqueioFolgaFeriado` é embrulhado — no À mão/Misto, a folga (DSR, `descansosDoCandidato`) de quem foi marcado num domingo bloqueia o feriado nesse dia, mesmo antes de gerar. No Gerar, `#v169Resumo` mostra o modo e o estado dos domingos.
 
 ---
@@ -113,6 +117,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Ícones (V236/V166):** se um bloco novo compara o texto de um elemento com emoji (`el.textContent!==txt`), ponha a classe dele na lista `FORA` do bloco de ícones. Senão o app e a troca de ícones se desfazem em ciclo.
 - **Aba Grupos dos Encarregados:** está escondida; nos testes, clique só se `isVisible()`.
 - **Desempenho (V247):** setores grandes (Frente de Loja real = 168 pessoas) travavam. Regras para não voltar: (1) função chamada no motor não pode varrer a equipe inteira sem necessidade — `folgaFixaAtivaNaData` chega a milhões de chamadas por Gerar; (2) `domingosDoMes`, `feriados`, `chaveFuncaoDistribuicao` são guardadas pelo bloco V247 (cópia a cada chamada — pode mexer no resultado); se mudar a regra de uma delas, mude a função original: o bloco envolve a função pelo nome (`window[nome]`, original em `.__v247orig`); (3) rotina de fundo (`setInterval`) que varre a tela deve usar `window.v247DomMudou('<chave>')`; (4) `candidatoPodeReceberDSRPorTurno` hoje é só `!!equipe[i]` (a capacidade por turno é meta, não trava) — se a regra voltar a travar, reescreva com cuidado (era O(equipe) por chamada); (5) `content-visibility:auto` só na tela de feriados: na escala à mão ele apagava o `innerText` das linhas escondidas (o teste V230 pegou). Ferramentas de medição usadas (fora do repositório): Playwright + `Emulation.setCPUThrottlingRate` 4 + `PerformanceObserver('longtask')` + `Profiler` do CDP.
+- **Assistente RH nos Encarregados (V176):** o objeto global se chama `window.v262Assistente` também nos Encarregados (o código é o mesmo do Setores). Não procure `v176Assistente`; só a chave do `localStorage` muda (`enc.v176Assistente`).
 - **Datas de balanço (V246/V175):** a lista oficial é `datasBalanco` ([{d,m,a}], m de 0 a 11), mas quem manda é o aparelho: `localStorage` `escalaSetores.v246Balancos` / `enc.v175Balancos`, com `d:0` = “sem balanço” escolhido pelo usuário. A cada 1,5 s o bloco V246/V175 junta o que apareceu em `datasBalanco` (ex.: histórico aberto) com o aparelho — o aparelho vence. Para mudar uma data por código, use `window.v246Balancos.escolher(a,m,d)` / `window.v175Balancos.escolher(a,m,d)`; trocar `datasBalanco` direto também funciona, mas não desfaz um “sem balanço” guardado. O `#arquivoBalanco` (.txt) só ficou escondido.
 - **Folgas que atravessam a virada do mês (V174):** o “Gerar” zera `descansosDomingo` e só refaz as folgas dos domingos DESTE mês. A folga da semana de DEPOIS do último domingo do mês passado (cai nos primeiros dias deste mês) não está em `descansosDomingo`: nos Encarregados ela vem de `window.v174.dsrDoMesPassado`, ligada pelo embrulho de `ehDescansoAssociado`. Leia folgas sempre por `ehDescansoAssociado(i,dt)`, nunca direto de `descansosDomingo`. No Setores isso não pesa porque o DSR cai no dia da folga fixa, que continua valendo (`folgaFixaAtivaNaData`).
 - **Domingo de balanço é exceção na sequência de domingos:** não tire o balanço da lista (`doms.filter(d=>d!==bal)` junta domingos que não são seguidos). Deixe no lugar como “não trabalhado” (`d!==bal&&…`), igual ao verificador do `testes/rodar.js`.
@@ -123,6 +128,19 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-14 — Documentação atualizada até Setores V262 / Encarregados V176 — Claude
+- **O que mudou:** `CHANGELOG.md` (V262 e V176), `README.md` (versões arquivadas até V261/V175), esta passagem (estado, hierarquia, mapa técnico do Assistente RH, armadilha) e `docs/INICIO_NOVA_CONVERSA.txt`. O dono autorizou (“Agora”), seguindo a regra de perguntar antes.
+- **Escopo:** só documentação; nenhum HTML mudou. Manuais (Claude Docs) ainda não falam do Assistente RH — ver pendências.
+
+### 2026-10-14 — AGENTS.md: hierarquia e seção 2.1 “Investigar antes de mudar” — Claude (PR #56)
+- **O que mudou:** (1) topo do `AGENTS.md` e `CLAUDE.md`: **dono = gerente, Claude = encarregado, ChatGPT = subencarregado**; nada por iniciativa própria sem autorização do gerente (código, documentação, merge, abrir ou fechar PR). (2) Seção 2.1: as ideias do guia REA (PR #55 do ChatGPT, fechada a pedido do dono) juntas em 5 passos — seguir o caminho real do código (inclusive os embrulhos `window.nome=function`), separar certeza de suspeita, ver o que pode ser afetado, conserto mínimo com teste que falha antes e passa depois, relatório no formato padrão. Não instalar o REA.
+
+### 2026-10-14 — Setores V262 + Encarregados V176 — 🤖 Assistente RH (etapa 1) — Claude (PR #54)
+- **O que mudou e por quê:** o dono quer um assistente que aprenda como cada encarregado monta a escala e fique mais rápido e certeiro com o tempo. Etapa 1: botão flutuante com dicas do passo atual (o que falta, domingos acima do costume, horário de costume, quem costuma escolher) e aprendizado guardado no aparelho e no histórico do mês.
+- **Onde no código:** ver o mapa técnico (seções 2 e 3, item “Assistente RH”).
+- **Teste:** `testes/rodar.js` — botão, aprender a escolha, dicas de domingos acima do costume e de horário, ir no histórico e juntar o histórico aberto (Setores); `testarEncAssistente` nos Encarregados.
+- **Próximas etapas (só se o dono pedir):** usar o que aprendeu na 💡 Sugestão (ex.: pôr primeiro quem o encarregado costuma escolher) e um resumo do ano.
 
 ### 2026-10-13 — Documentação atualizada até Setores V261 — ChatGPT
 - **O que mudou:** documentação alinhada ao estado do `main`: Setores V261 e Encarregados V175; nenhuma PR aberta na conferência.
@@ -551,6 +569,8 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 - **Encarregados — dois balanços com 2 semanas de diferença** (ex.: último domingo de fev e 2º domingo de mar): quem trabalha o 1º domingo do mês fica com balanço + domingo + balanço e o “Gerar” pede revisão. O balanço é exceção, então o aviso é exagerado; cenário raro (achado na investigação de 13/10/2026). Se o dono usar balanços assim, ajustar `validarEscala` para não contar sequência com balanço.
 - **Transformar as conferências dia a dia da investigação de 13/10/2026 em teste fixo** (6×1 com a virada do mês, folgas de feriado no DSR/folga fixa, meses com balanço) — hoje os testes cobrem os 4 consertos de forma pontual. Cuidado com o tempo da suíte.
 - **Revisar as telas atuais com a regra de ouro (seção 4.1 do AGENTS.md, lista de 16 itens):** começar pela escala à mão (passo 2 ④), que acumulou muitas camadas (filtros, sugestões, auditoria, folga no cartão) e é a parte mais usada.
+- **Manuais (Claude Docs):** incluir o 🤖 Assistente RH (texto + print fictício) nos dois manuais — perguntar ao dono quando.
+- **Assistente RH — próximas etapas** (só com pedido do dono): usar o aprendizado na 💡 Sugestão; resumo do ano.
 - **Apagar os branches antigos do ChatGPT** no GitHub (lista na seção 1) — só o dono consegue.
 - **Encarregados — escala à mão (V167), ideias:** (1) a sugestão segue o motor, que prefere a dupla 2×1 (quem trabalhou o domingo anterior) — por isso um mês usa ~6–8 pessoas diferentes, igual ao automático; se o dono quiser “espalhar mais”, a mudança é no `escolherDomingo` (vale para os dois modos). (2) Revisar a tela da escala à mão com o checklist da seção 4.1 do `AGENTS.md` junto com o dono.
 - **Sugestões da escala à mão (V235):** alguns cliques levaram 2–4 s em setores pequenos (Salgado, Padaria, Cozinha), provavelmente no salvamento automático depois de aceitar — investigar. Na Frente de Loja cada toque leva ~1–2 s, porque cada candidato roda a auditoria do mês inteiro. Se precisar de mais velocidade: auditar só a pessoa testada (3 domingos seguidos, folga fixa no domingo, 6×1) em vez do mês todo.
