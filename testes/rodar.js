@@ -534,6 +534,31 @@ async function testarSetores(browser){
     const html = require('fs').readFileSync(APP_SETORES, 'utf8');
     ok(!/Bloquear o domingo<\/b> de \$\{aprend\}/.test(html) && /aprendizes:!\$\$\('erpOpAprendiz'\)\|\|/.test(html), 'V260: a importação não mostra mais “Bloquear o domingo…” e continua bloqueando o domingo de aprendiz e cartazista');
   }
+  if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 262){   // V262: Assistente RH (aprende e dá dicas; vai no histórico)
+    const r = await p.evaluate(async () => {
+      const w = ms => new Promise(o => setTimeout(o, ms)), out = {}, A = window.v262Assistente;
+      const bk = { mg: $('modoGeracao').value, sel: JSON.stringify(selecaoManualDomingo || {}), hor: JSON.stringify(horariosManuaisDomingo || {}) };
+      try{
+        out.botao = !!document.getElementById('v262Botao');
+        $('modoGeracao').value = 'manual'; renderSelecaoDomingosGeracao(); await w(250);
+        const i = equipe.findIndex(f => /OPERADOR/.test(f.cargo) && !foraDom(f)), f = equipe[i], pk = String(f.matricula).replace(/^0+/, '');
+        const sk = norm($('setorSelecionado').value), antes = JSON.parse(JSON.stringify(A.dados().setores[sk]?.pessoas?.[pk] || { esc: 0, hor: {} }));
+        const ch = document.querySelector(`#selecaoDomingosManual input[type=checkbox][data-func="${i}"]`);
+        ch.checked = true; ch.dispatchEvent(new Event('change', { bubbles: true })); await w(100);
+        const p1 = A.dados().setores[sk].pessoas[pk]; out.aprendeEscolha = p1.esc === (antes.esc || 0) + 1;
+        p1.hor = { '07:20-16:00': 5 }; p1.dm = { '2000-01': 1, '2000-02': 1 };
+        const doms = domingosDoMes(+$('ano').value, +$('mes').value); selecaoManualDomingo = {}; doms.slice(0, 3).forEach(d => { selecaoManualDomingo[String(d)] = [i]; });
+        horariosManuaisDomingo[String(doms[0])] = { [String(i)]: '12:00-20:40' };
+        const L = A.dicas(false).map(x => x.txt).join(' | ');
+        out.dicaMedia = /3<\/b> domingo\(s\) este mês/.test(L); out.dicaHorario = /costuma dar <b>07:20-16:00/.test(L);
+        out.historico = !!window.v147MontarProjeto?.().assistente?.dados?.pessoas?.[pk];
+        const n = A.juntar({ setor: sk, dados: { meses: { '1999-12': 'historico' }, pessoas: { [pk]: { dm: { '1999-12': 2 } } } } });
+        out.junta = n >= 2 && A.dados().setores[sk].pessoas[pk].dm['1999-12'] === 2 && A.dados().setores[sk].meses['1999-12'] === 'historico';
+      } finally { $('modoGeracao').value = bk.mg; selecaoManualDomingo = JSON.parse(bk.sel); horariosManuaisDomingo = JSON.parse(bk.hor); renderSelecaoDomingosGeracao(); }
+      return out;
+    });
+    ok(r.botao && r.aprendeEscolha && r.dicaMedia && r.dicaHorario && r.historico && r.junta, `V262: Assistente RH — botão (${r.botao}), aprende a escolha (${r.aprendeEscolha}), dica de domingos acima da média (${r.dicaMedia}) e do horário de costume (${r.dicaHorario}), vai no histórico (${r.historico}) e junta o histórico aberto (${r.junta})`);
+  }
   { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
     if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238) ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'Setores: passos na ordem ' + ordem.join(' → ')); }
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
