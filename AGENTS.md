@@ -5,6 +5,15 @@ Escreva sempre em **português do Brasil**, com linguagem simples (quem usa o ap
 
 > **Regra de ouro do dono (UX/UI):** o app tem que ser fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Toda mudança de tela segue a seção 4.1.
 
+> **Hierarquia (pedido do dono, 14/10/2026):**
+> - **Gerente:** o dono do projeto. Só ele decide e autoriza.
+> - **Encarregado:** Claude.
+> - **Subencarregado:** ChatGPT — subordinado do Claude.
+>
+> **Nada é feito por iniciativa própria** (nem pelo Claude, nem pelo ChatGPT) **sem autorização do gerente**: mudança de código,
+> documentação, merge, abrir ou fechar PR. Na dúvida, pergunte ao gerente antes. O ChatGPT segue também as orientações do
+> Claude e, se discordar, explica o motivo no PR para o gerente decidir.
+
 ## 1. O que é o projeto
 
 Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo HTML** (abre no navegador, funciona sem internet):
@@ -26,6 +35,24 @@ Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo
    Se houver PR aberto mexendo no mesmo app, **espere ele entrar no main** ou combine com o dono do projeto.
 4. Descubra qual é a **versão atual** de cada app pelo nome do arquivo na raiz (ex.: `Escala_de_Setores_V222.html`).
 5. Numa **conversa nova**, leia também [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) (regras de continuidade, estado e pendências) e mantenha esse arquivo atualizado.
+
+## 2.1 Investigar antes de mudar (método do REA, resumido)
+
+Ideia tirada do REA — *Reverse Engineer Anything* (github.com/morluto/rea, licença MIT), por decisão do dono em 14/10/2026:
+**primeiro entender, seguir o caminho e provar; depois mudar o mínimo.** Vale só o método — **não instale o REA** nem nenhuma
+ferramenta de fora sem uma prova separada, sem dados reais e com o aval do dono (o app tem que continuar funcionando sem internet
+e sem depender de nada externo). Use na medida do problema: ajuste simples e bem localizado não precisa de investigação longa.
+
+1. **Siga o caminho real:** da tela (botão, evento, passo) até a função que decide. Anote os dados envolvidos (variáveis globais,
+   `localStorage`, campos do histórico) e veja se **uma versão mais nova embrulha a função antiga** (`window.nome=function…`) —
+   a camada nova é que vale. Antes de criar algo, procure regra, auditoria ou teste que já faz o mesmo.
+2. **Separe certeza de suspeita:** ✅ confirmado (visto no código e reproduzido) · 🟡 provável · ❔ não confirmado · ❌ descartado.
+   Nunca apresente suspeita como causa. Se não deu para rodar o app, diga isso.
+3. **Confira o que pode ser afetado** (só o que tiver ligação de verdade): tela e mensagens · motor da escala · auditoria
+   (automático, à mão e misto) · dados da equipe · salvamento e histórico · saídas (tabela, PDF, Excel, WhatsApp) · virada do mês.
+4. **Corrija o mínimo** e prove com um teste que **falha antes** da correção e **passa depois** (seção 6).
+5. Ao explicar um problema (no PR ou para o dono): o que acontecia · o que deveria acontecer · a causa (e se é certeza) · onde no
+   código · o que pode ser afetado · a correção · os testes e o resultado · o que ficou sem conferir.
 
 ## 3. Toda mudança gera uma VERSÃO NOVA (obrigatório)
 
@@ -124,7 +151,8 @@ Se a mudança cria uma regra nova, **acrescente a conferência dela** em `testes
 Os mesmos testes rodam **sozinhos no GitHub** (`.github/workflows/testes.yml`) em todo Pull Request, em todo push no `main` e nos branches `chatgpt/…` (suíte rápida e a do ano inteiro). Não crie outro workflow de testes: use esse.
 Se o seu ambiente não consegue instalar o Chromium, abra o PR e confira o resultado na aba **Checks** do PR
 (“Testes”): o PR só está pronto quando esse teste fica verde ✅. Diga no PR onde os testes rodaram.
-Cada conferência tem que poder **falhar** de verdade (nunca compare um valor com ele mesmo).
+Cada conferência tem que poder **falhar** de verdade (nunca compare um valor com ele mesmo). Para defeito, o teste novo
+**falha antes** da correção e **passa depois** (seção 2.1).
 
 ## 7. Privacidade (obrigatório)
 
