@@ -1513,7 +1513,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1745,4 +1745,158 @@ async function testarGabriel(browser, app, nome, abrir, versaoMin){
   ok(rede === 0, `o Gabriel não usa a internet (pedidos de rede: ${rede})`);
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
+}
+
+/* ───── planilhas FICTÍCIAS no formato do ERP (FPRE815), geradas na hora: nenhum .xlsx entra no repositório (regra de privacidade) ───── */
+function crc32(buf){ let crc = 0xFFFFFFFF; for(let n = 0; n < buf.length; n++){ crc ^= buf[n]; for(let k = 0; k < 8; k++) crc = crc & 1 ? (crc >>> 1) ^ 0xEDB88320 : crc >>> 1; } return (crc ^ 0xFFFFFFFF) >>> 0; }
+function zipSemCompressao(entradas){
+  const partes = [], central = []; let pos = 0;
+  entradas.forEach(({ nome, dados }) => {
+    const nb = Buffer.from(nome, 'utf8'), d = Buffer.from(dados, 'utf8'), crc = crc32(d), h = Buffer.alloc(30);
+    h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0, 6); h.writeUInt16LE(0, 8); h.writeUInt16LE(0, 10); h.writeUInt16LE(0x21, 12);
+    h.writeUInt32LE(crc, 14); h.writeUInt32LE(d.length, 18); h.writeUInt32LE(d.length, 22); h.writeUInt16LE(nb.length, 26); h.writeUInt16LE(0, 28);
+    const c = Buffer.alloc(46); c.writeUInt32LE(0x02014b50, 0); c.writeUInt16LE(20, 4); c.writeUInt16LE(20, 6); c.writeUInt16LE(0, 8); c.writeUInt16LE(0, 10); c.writeUInt16LE(0, 12); c.writeUInt16LE(0x21, 14);
+    c.writeUInt32LE(crc, 16); c.writeUInt32LE(d.length, 20); c.writeUInt32LE(d.length, 24); c.writeUInt16LE(nb.length, 28); c.writeUInt32LE(pos, 42);
+    partes.push(h, nb, d); central.push(Buffer.concat([c, nb])); pos += 30 + nb.length + d.length;
+  });
+  const cd = Buffer.concat(central), e = Buffer.alloc(22);
+  e.writeUInt32LE(0x06054b50, 0); e.writeUInt16LE(entradas.length, 8); e.writeUInt16LE(entradas.length, 10); e.writeUInt32LE(cd.length, 12); e.writeUInt32LE(pos, 16);
+  return Buffer.concat([...partes, cd, e]);
+}
+function escreverXlsx(arquivo, abas, { barras = false } = {}){
+  const x = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const col = i => String.fromCharCode(65 + i);
+  const serial = d => Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(1899, 11, 30)) / 86400000);
+  const folha = linhas => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' +
+    linhas.map((l, i) => `<row r="${i + 1}">` + l.map((v, j) => v == null ? '' : v instanceof Date ? `<c r="${col(j)}${i + 1}"><v>${serial(v)}</v></c>` : typeof v === 'number' ? `<c r="${col(j)}${i + 1}"><v>${v}</v></c>`
+      : `<c r="${col(j)}${i + 1}" t="inlineStr"><is><t>${x(v)}</t></is></c>`).join('') + '</row>').join('') + '</sheetData></worksheet>';
+  const ent = [
+    { nome: '[Content_Types].xml', dados: '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/></Types>' },
+    { nome: '_rels/.rels', dados: '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+    { nome: 'xl/workbook.xml', dados: '<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' + abas.map((a, i) => `<sheet name="${x(a.nome)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets></workbook>' },
+    { nome: 'xl/_rels/workbook.xml.rels', dados: '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + abas.map((a, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') + '</Relationships>' },
+    ...abas.map((a, i) => ({ nome: `xl/worksheets/sheet${i + 1}.xml`, dados: folha(a.linhas) })),
+  ].map(e => barras ? { ...e, nome: e.nome.replace(/\//g, '\\') } : e);   // o ERP real grava os nomes internos com “\”
+  fs.writeFileSync(arquivo, zipSemCompressao(ent)); return arquivo;
+}
+function erpFicticio({ totalErrado = false, repetir = false, abaExtra = true } = {}){
+  const CAB = ['Cadastro', 'Nome', null, null, 'Filial', 'Escala', 'Situação', 'Função', null, null, 'Admissão', null], d = (a, m, di) => new Date(a, m - 1, di);
+  const SETORES = [
+    ['01.01.03.005.01.01.01', 'FL 05 - FRENTE DE LOJA', [[90001, 'ANA TESTE', 23, '10:00-18:20 seg/sab', 'Trabalhando', 'OPERADOR(A)DE CAIXA', d(2019, 3, 4)], [90002, 'BRUNO TESTE', 76, '15:40-00:00', 'Trabalhando', 'OPERADOR(A)DE CAIXA', d(2021, 8, 16)],
+      [90003, 'CARLA TESTE', 76, '15:40-00:00', 'Lic.Medica', 'FISCAL DE CAIXA', d(2015, 1, 12)], [90004, 'DIEGO TESTE', 690, '2ª4ª5ª6ªe3ªcurso 13:00as 17:00', 'Trabalhando', 'APRENDIZ EM SERV SUPERMERCADOS', d(2026, 5, 4)], [90005, 'ELAINE TESTE', 52, '13:40-22:00', 'Trabalhando', 'OPERADOR(A)DE CAIXA', d(2023, 11, 20)]]],
+    ['01.01.03.005.01.01.02', 'FL 05 - AÇOUGUE', [[90006, 'FABIO TESTE', 351, '07:40-16:00', 'Trabalhando', 'ACOUGUEIRO', d(2012, 6, 1)], [90007, 'GISELE TESTE', 351, '07:40-16:00', 'Trabalhando', 'ACOUGUEIRO', d(2018, 9, 10)], [90008, 'HUGO TESTE', 312, '12:00-20:20 folga dom', 'Trabalhando', 'BALCONISTA DE ACOUGUE', d(2020, 2, 3)]]],
+    ['01.01.03.005.01.01.03', 'FL 05 - PADARIA', [[90009, 'IRIS TESTE', 186, '06:00-14:20 sab 06:00-14:20', 'Trabalhando', 'PADEIRO', d(2017, 4, 17)], [90010, 'JOAO TESTE', 186, '06:00-14:20 sab 06:00-14:20', 'Suspensão de Contrato', 'PADEIRO', d(2022, 7, 25)]]],
+    ['01.01.03.005.01.01.04', 'FL 05 - SESMT', [[90011, 'KARLA TESTE', 56, '08:00-17:00 Seg-Sex', 'Trabalhando', 'TECNICO DE SEGURANCA', d(2010, 10, 18)]]],
+  ];
+  const ger = ', FICTICIA, FL 05 - GERENCIA, FL 05 - GERENCIA', L = [
+    [1, '-', 'CASAS TESTE COMESTIVEIS FICTICIA LTDA', null, null, null, null, null, null, null, 'Pág.:', 1], [null, null, null, null, 'Empregados por Escala/Função', null, null, null, null, null, null, null], CAB,
+    ['01.01.03.005.01 , FICTICIA, FL 05 - GERENCIA'], ['FPRE815.COL  -  02/10/2026  -  09:41:51                   '], ['01.01.03.005.01.01' + ger]];
+  let lidos = 0;
+  SETORES.forEach(([cod, nome, ps]) => { L.push([`${cod}${ger}, ${nome}`]);
+    ps.forEach(([mat, n, esc, hor, sit, cargo, adm]) => { L.push([mat, n, null, null, 'FILIAL 05', esc, '-', hor, sit, cargo, adm, null]); lidos++; if(repetir && mat === 90009) L.push([mat, n, null, null, 'FILIAL 05', esc, '-', hor, sit, cargo, adm, null]); });
+    L.push(['Total', `${cod}${ger}, ${nome}`, null, null, null, null, null, String(ps.length + (totalErrado && cod.endsWith('.02') ? 3 : 0))]); });
+  L.push(['Total', '01.01.03.005.01.01' + ger, null, null, null, null, null, String(lidos)], ['Total', '01.01.03.005.01 , FICTICIA, FL 05 - GERENCIA', null, null, null, null, null, String(lidos)], ['Total', 'Empresa', null, null, null, null, null, String(lidos)]);
+  const abas = [{ nome: 'Plan1', linhas: L }]; if(abaExtra) abas.push({ nome: 'Legenda', linhas: [['Código', 'Descrição'], ['A', 'Ativo'], ['AF', 'Afastado'], ['EP', 'Emprestado']] });
+  return abas;
+}
+function erpGrande(n = 4000){
+  const L = [[1, '-', 'CASAS TESTE FICTICIA', null, null, null, null, null, null, null, 'Pág.:', 1], ['Cadastro', 'Nome', null, null, 'Filial', 'Escala', 'Situação', 'Função', null, null, 'Admissão', null], ['FPRE815.COL  -  02/10/2026  -  09:41:51'],
+    ['01.01.03.005.01.01.01 , FICTICIA, FL 05 - GERENCIA, FL 05 - FRENTE DE LOJA']];
+  for(let i = 0; i < n; i++){ L.push([100000 + i, `PESSOA ${String(i).padStart(5, '0')} TESTE`, null, null, 'FILIAL 05', i % 2 ? 76 : 23, '-', i % 2 ? '15:40-00:00' : '10:00-18:20 seg/sab', 'Trabalhando', 'OPERADOR(A)DE CAIXA', new Date(2020, 0, 1 + (i % 2000)), null]);
+    if(i % 50 === 49) L.push([1 + Math.floor(i / 50), '-', 'CASAS TESTE FICTICIA', null, null, null, null, null, null, null, 'Pág.:', 2]); }
+  L.push(['Total', '01.01.03.005.01.01.01 , FICTICIA, FL 05 - GERENCIA, FL 05 - FRENTE DE LOJA', null, null, null, null, null, String(n)], ['Total', 'Empresa', null, null, null, null, null, String(n)]);
+  return [{ nome: 'Plan1', linhas: L }];
+}
+
+/* V271 — 📄 Gabriel lê a planilha do RH por inteiro (só Setores, que é onde existe o importador do ERP) */
+async function testarPlanilhaGabriel(browser){
+  console.log('\n▶ Setores — 📄 Gabriel lê a planilha do RH (inventário)');
+  const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'erp_ficticio_'));
+  const ARQ = escreverXlsx(path.join(dir, 'erp_fpre815_ficticio.xlsx'), erpFicticio());
+  const DIV = escreverXlsx(path.join(dir, 'erp_fpre815_divergente.xlsx'), erpFicticio({ totalErrado: true, repetir: true, abaExtra: false }), { barras: true });
+  const GRANDE = escreverXlsx(path.join(dir, 'erp_fpre815_grande.xlsx'), erpGrande(4000));
+  const TXT = path.join(DADOS, 'setores_cpd_6.txt');
+  const LS = 'escalaSetores.v271Planilha', txt = h => String(h).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '');
+  const nova = async () => { const o = await novaPagina(browser); let rede = 0; o.p.on('request', r => { if(!/^file:|^data:|^blob:|^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url())) rede++; }); o.rede = () => rede;
+    await o.p.goto('file://' + APP_SETORES); await o.p.waitForTimeout(1500); await o.p.click('#comeceFechar').catch(() => {}); return o; };
+  const perg = (p, qs) => p.evaluate(qs => qs.map(q => String(window.v265Chat.responder(q)).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '')), qs);
+  const importar = async (p, arq) => { const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.evaluate(() => document.getElementById('btnImportarERPHome').click())]); await fc.setFiles(arq); await p.waitForSelector('#erpModal', { timeout: 20000 }); };
+
+  // A) sem planilha, a resposta antiga continua e o Gabriel diz que ainda não leu nada
+  { const { p, erros, rede } = await nova();
+    const r = await perg(p, ['o que você leu da planilha?', 'como baixar a planilha excel?', 'a planilha confere?', 'o que você sabe fazer?']);
+    ok(/Ainda não li nenhuma planilha/.test(r[0]) && /Ainda não li/.test(r[2]), 'sem planilha importada o Gabriel diz que ainda não leu nenhuma (e como importar)');
+    ok(/Primeiro carregue a equipe|Baixar planilha Excel/.test(r[1]) && !/Ainda não li/.test(r[1]), '“como baixar a planilha Excel?” não é confundida com a pergunta sobre a planilha lida');
+    ok(/planilha do RH/.test(r[3]), 'a lista “o que você sabe fazer?” cita a planilha do RH');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await p.close(); }
+
+  // B) planilha consistente: prévia → inventário → aplicar → perguntas → guardado → recarregar
+  { const { p, erros, rede } = await nova();
+    await importar(p, ARQ);
+    const modal = await p.evaluate(() => document.getElementById('erpModal').innerText);
+    ok(/O que o Gabriel leu/.test(modal) && /2 aba\(s\)/.test(modal) && /Plan1/.test(modal) && /Legenda/.test(modal), 'a prévia do importador mostra “🤖 O que o Gabriel leu” com as 2 abas');
+    ok(/11 de funcionário/.test(modal) && /batem com as linhas que li/.test(modal) && /SESMT/.test(modal), 'a prévia mostra os 11 funcionários, a conferência dos totais e o setor que o app não usa');
+    ok(/11 funcionário\(s\) lidos/.test(modal), 'a leitura que o app já fazia continua igual (11 funcionários lidos)');
+    let r = await perg(p, ['o que você leu da planilha?']);
+    ok(/ainda não aplicada/.test(r[0]) && /erp_fpre815_ficticio\.xlsx/.test(r[0]), 'antes de aplicar o Gabriel avisa que a planilha ainda não foi aplicada');
+    ok(await p.evaluate(k => localStorage.getItem(k) === null, LS), 'nada é guardado só por ver a prévia');
+    await p.click('#erpAplicar'); await p.waitForTimeout(1200);
+    r = await perg(p, ['o que você leu da planilha?', 'quantas abas tem a planilha?', 'quantas linhas tem a planilha?', 'a planilha confere?', 'o que você não entendeu da planilha?', 'qm importou a planilha', 'o que vc leu do arquivo?']);
+    ok(!/ainda não aplicada/.test(r[0]) && /erp_fpre815_ficticio\.xlsx/.test(r[0]) && /02\/10\/2026 09:41/.test(r[0]) && /Plan1/.test(r[0]) && /Legenda/.test(r[0]), 'depois de aplicar o Gabriel conta o que leu: arquivo, emissão e abas');
+    ok(/2 aba\(s\)/.test(r[1]) && /28 linhas/.test(r[2]) && /11 de funcionário/.test(r[0]), 'responde quantas abas (2), quantas linhas (28) e quantos funcionários (11)');
+    ok(/✅/.test(r[3]) && /6 total/.test(r[3]), 'a planilha confere: “✅ … 6 totais por setor e o total da empresa batem”');
+    ok(/SESMT/.test(r[4]) && /Legenda/.test(r[4]) && /horário/.test(r[4]) && /Não invento/.test(r[4]), 'diz o que não interpretou: setor SESMT, aba Legenda e horários com texto — sem inventar significado');
+    ok(/Plan1/.test(r[5]) || /planilha/i.test(r[5]), 'pergunta com abreviação/erro (“qm importou a planilha”, “vc leu do arquivo”) também é entendida');
+    const g = await p.evaluate(k => { const o = JSON.parse(localStorage.getItem(k) || 'null'); if(!o) return null; const a = o.pessoas['90001']; return { n: Object.keys(o.pessoas).length, l: a && a.l, e: a && a.e, h: a && a.h, f: a && a.f, s: a && a.s, ab: a && a.a, ad: a && a.ad, chaves: Object.keys(localStorage).filter(x => /v271/.test(x)) }; }, LS);
+    ok(g && g.n === 11 && g.l === 8 && g.e === '23' && g.h === '10:00-18:20 seg/sab' && g.f === 'FILIAL 05' && g.s === 'FRENTE DE LOJA' && g.ab === 'Plan1' && g.ad === '2019-03-04', 'o que o app não guardava agora fica registrado por pessoa: linha de origem, código da escala, texto do horário, filial, setor e admissão');
+    ok(g && g.chaves.length === 1, 'só uma chave nova no aparelho (separada do aprendizado do Assistente e do histórico)');
+    ok(await p.evaluate(() => Array.isArray(todasEquipes) && todasEquipes.length === 10), 'o importador continua aplicando a equipe como antes (10 pessoas das áreas do app)');
+    ok(/planilha do RH/.test((await perg(p, ['o que você sabe fazer?']))[0]), 'a lista de capacidades cita a planilha do RH');
+    { const x = (await perg(p, ['como baixar a planilha excel?']))[0]; ok(!/aba\(s\)|Plan1|ainda não aplicada/.test(x), 'mesmo com planilha lida, “como baixar a planilha Excel?” não vira resumo da planilha'); }
+    await p.reload(); await p.waitForTimeout(1800);
+    r = await perg(p, ['o que você leu da planilha?', 'a planilha confere?']);
+    ok(/erp_fpre815_ficticio\.xlsx/.test(r[0]) && /✅/.test(r[1]), 'depois de recarregar o app o Gabriel ainda sabe o que leu');
+    ok(rede() === 0, `nada foi enviado para fora (pedidos de rede: ${rede()})`);
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await p.close(); }
+
+  // C) planilha com problemas (arquivo gravado como o ERP: nomes internos com “\”)
+  { const { p, erros } = await nova();
+    await importar(p, DIV); await p.click('#erpAplicar'); await p.waitForTimeout(1200);
+    const r = await perg(p, ['a planilha confere?', 'o que você não entendeu da planilha?', 'quantas abas tem a planilha?']);
+    ok(/⚠️/.test(r[0]) && /AÇOUGUE[^:]*: o relatório diz 6, eu li 3/.test(r[0]) && /PADARIA[^:]*: o relatório diz 2, eu li 3/.test(r[0]) && /Empresa: o relatório diz 11, eu li 12/.test(r[0]), 'total que não confere: o Gabriel diz qual setor, o que o relatório declara e o que ele leu');
+    ok(/repetida/.test(r[1]) && /não conferem/.test(r[1]) && !/Legenda/.test(r[1]), 'matrícula repetida e totais divergentes aparecem em “o que não entendi”');
+    ok(/1 aba\(s\)/.test(r[2]), 'planilha de 1 aba: “1 aba”');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await p.close(); }
+
+  // D) prévia cancelada não vira “planilha aplicada” nem fica guardada
+  { const { p, erros } = await nova();
+    await importar(p, ARQ); await p.click('#erpCancelar'); await p.waitForTimeout(500);
+    let r = await perg(p, ['o que você leu da planilha?']);
+    ok(/ainda não aplicada/.test(r[0]) && await p.evaluate(k => localStorage.getItem(k) === null, LS), 'cancelar a prévia: o Gabriel só lembra nesta sessão, marcado como “não aplicada”, e nada é guardado');
+    await p.reload(); await p.waitForTimeout(1500); r = await perg(p, ['o que você leu da planilha?']);
+    ok(/Ainda não li nenhuma planilha/.test(r[0]), 'depois de recarregar, a prévia cancelada foi esquecida');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await p.close(); }
+
+  // E) robustez: guardado estragado, arquivo que não é planilha, falha no inventário, planilha grande
+  { const { p, erros } = await nova();
+    const lixos = ['{ruim', 'null', '[]', '"texto"', '{"v":1}', '{"v":1,"tipos":5,"abas":[],"pessoas":{},"nao":[],"papeis":{},"porSetor":{},"conferencia":{"divergentes":[]}}', '{"v":1,"tipos":{},"abas":[1],"pessoas":{},"nao":[],"papeis":{},"porSetor":{},"conferencia":{"divergentes":[]}}', 'x'.repeat(100000)];
+    let tudoCerto = true;
+    for(const l of lixos){ await p.evaluate(([k, v]) => localStorage.setItem(k, v), [LS, l]); await p.reload(); await p.waitForTimeout(900);
+      const r = (await perg(p, ['o que você leu da planilha?']))[0]; if(!/Ainda não li nenhuma planilha/.test(r)) tudoCerto = false; }
+    ok(tudoCerto, `guardado estragado (${lixos.length} tipos de lixo) é ignorado: o app abre sem erro e o Gabriel diz que ainda não leu nada`);
+    await p.evaluate(k => localStorage.removeItem(k), LS); await p.reload(); await p.waitForTimeout(1200); await p.click('#comeceFechar').catch(() => {});
+    // arquivo que não é planilha
+    await importar(p, TXT).catch(() => {}); await p.waitForTimeout(800);
+    ok(!(await p.$('#erpModal')) && /Não consegui ler o arquivo/.test(await p.evaluate(() => document.body.innerText)), 'arquivo que não é .xlsx: o app avisa “Não consegui ler o arquivo” e continua normal');
+    // falha no inventário não derruba a leitura
+    await p.evaluate(() => { window.v271Planilha.inventariar = () => { throw new Error('falha de teste'); }; });
+    await importar(p, ARQ); const m = await p.evaluate(() => document.getElementById('erpModal').innerText);
+    ok(/11 funcionário\(s\) lidos/.test(m) && !/O que o Gabriel leu/.test(m), 'se o inventário falhar, a prévia e a leitura de sempre continuam funcionando');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await p.close(); }
+  { const { p, erros } = await nova();
+    const t0 = Date.now(); await importar(p, GRANDE); const ms = Date.now() - t0;
+    const r = (await perg(p, ['o que você leu da planilha?']))[0];
+    ok(ms < 20000 && /4000 de funcionário/.test(r) && /✅|batem/.test((await perg(p, ['a planilha confere?']))[0]), `planilha grande (4000 funcionários, ~${Math.round(fs.statSync(GRANDE).size / 1024)} KB): lida e conferida em ${ms} ms`);
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await p.close(); }
+  fs.rmSync(dir, { recursive: true, force: true });
 }
