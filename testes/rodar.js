@@ -1513,7 +1513,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1902,6 +1902,57 @@ async function testarPlanilhaGabriel(browser){
 }
 
 /* V272/V180 — 📱 chat no celular (o painel sempre cabe na tela), “folgando” ≠ “faltando” e perguntas sobre folga/trabalho nos feriados */
+async function testarRegime274(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — 📏 regime da escala (6×1 hoje; 5×2 preparada e desligada)`);
+  const enc = nome !== 'Setores', { p, erros, ctx } = await novaPagina(browser);
+  const contar = () => p.evaluate(enc => { const e = enc ? validarEscala({}) : auditarProtecao6x1({}); return { n: e.filter(x => /6×1|dias seguidos|dias trabalhados/.test(x)).length, ex: e.find(x => /6×1|dias seguidos|dias trabalhados/.test(x)) || '' }; }, enc);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1000);
+  // 1) padrão: desligado, limite 6
+  const e0 = await p.evaluate(() => ({ s: window.v274Regime.estado(), m: window.v274Regime.maxSeguidos(), f: maxSeguidosTrab() }));
+  ok(!e0.s.ativo && e0.s.regime === '6x1' && e0.m === 6 && e0.f === 6, 'padrão: regime 6×1, 5×2 desligada, limite de 6 dias seguidos');
+  // 2) valores inválidos são ignorados
+  const inv = await p.evaluate(() => { const R = window.v274Regime; R.restaurar(); R.configurar({ maxSeguidos: 0 }); R.configurar({ maxSeguidos: 7 }); R.configurar({ maxSeguidos: 'x' }); R.configurar({ regime: '9x9' }); R.configurar({ ativo: 'sim' }); R.configurar({ vigenciaInicio: '2026-13-45' }); R.configurar('lixo'); R.configurar(null); R.configurar([1]);
+    const e = R.estado(); R.restaurar(); return { e, m: R.maxSeguidos() }; });
+  ok(!inv.e.ativo && inv.e.regime === '6x1' && inv.e.maxSeguidos === 6 && inv.e.vigenciaInicio === '' && inv.m === 6, 'valor inválido (0, 7, texto, regime desconhecido, data impossível, lixo) é ignorado');
+  // 3) o limite de verdade vem da camada: mesmo resultado desligado/religado, e mais rígido com limite 5
+  const a = await contar(); await p.evaluate(() => window.v274Regime.configurar({ ativo: true, maxSeguidos: 2, regime: '5x2' })); const b = await contar();
+  await p.evaluate(() => window.v274Regime.configurar({ ativo: false })); const c = await contar(); await p.evaluate(() => window.v274Regime.restaurar()); const d = await contar();
+  ok(a.n === c.n && a.n === d.n, `desligado, a conta de dias seguidos é a de sempre (${a.n} avisos) e volta igual depois de ligar e desligar`);
+  ok(b.n > a.n && /\b3 dias/.test(b.ex), `com limite 2 (só para provar a ligação) a auditoria fica mais rígida (${a.n} → ${b.n} avisos): “${b.ex.slice(0, 90)}”`);
+  // 4) fica no aparelho e lixo guardado vira o padrão
+  await p.evaluate(() => window.v274Regime.configurar({ ativo: true, maxSeguidos: 5, regime: '5x2', vigenciaInicio: '2026-12-14' }));
+  await p.reload(); await p.waitForTimeout(1500);
+  const r1 = await p.evaluate(() => ({ s: window.v274Regime.estado(), m: window.v274Regime.maxSeguidos() }));
+  ok(r1.s.ativo && r1.m === 5 && r1.s.vigenciaInicio === '2026-12-14', 'o regime configurado continua depois de recarregar');
+  const chave = await p.evaluate(() => Object.keys(localStorage).find(k => /v274Regime$/.test(k)));
+  for(const lixo of ['{"ativo":true,"maxSeguidos":99,"regime":"x"}', 'isto não é json', '[1,2]', '{"ativo":true,"maxSeguidos":"3"}']){
+    await p.evaluate(([k, v]) => localStorage.setItem(k, v), [chave, lixo]); await p.reload(); await p.waitForTimeout(1200);
+    const r = await p.evaluate(() => ({ m: window.v274Regime.maxSeguidos(), s: window.v274Regime.estado() }));
+    ok(r.m === 6 && r.s.maxSeguidos === 6 && r.s.regime === '6x1', `valor guardado estragado (${lixo.slice(0, 30)}) volta ao padrão 6×1`);
+  }
+  await p.evaluate(k => localStorage.removeItem(k), chave);
+  // 5) Gabriel
+  await p.reload(); await p.waitForTimeout(1500); await abrir(p); await p.waitForTimeout(1000);
+  const g = await p.evaluate(() => { const t = h => String(h).replace(/<[^>]+>/g, ''), C = window.v265Chat; return { a: t(C.responder('qual regime está valendo?')), b: t(C.responder('a escala 5x2 já está ligada?')), c: t(C.responder('como funciona o 6x1')) }; });
+  ok(/6×1/.test(g.a) && /desligada/.test(g.a) && /desligada/.test(g.b), `Gabriel diz qual regime vale e que a 5×2 está desligada: “${g.a.slice(0, 80)}…”`);
+  ok(/6 dias seguidos/.test(g.c) && !/desligada/.test(g.c), 'a pergunta de regra “como funciona o 6x1” continua com a resposta de sempre');
+  // 6) o histórico anota o regime, mas abrir histórico NÃO liga nem desliga o regime
+  await p.evaluate(() => window.v274Regime.configurar({ ativo: true, maxSeguidos: 5, regime: '5x2' }));
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 240; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(a => a && a.length))) break; }
+  await p.waitForTimeout(800); await p.evaluate(() => window.v266Horarios?.confirmar?.());
+  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), p.evaluate(() => document.getElementById('btnHistorico').click())]).catch(() => [null]);
+  if(dl){ const arq = path.join(require('os').tmpdir(), `teste_reg_${nome}_` + dl.suggestedFilename()); await dl.saveAs(arq); const j = JSON.parse(fs.readFileSync(arq, 'utf8'));
+    ok(j.regime && j.regime.ativo === true && j.regime.maxSeguidos === 5 && j.regime.regime === '5x2', 'o histórico guardado anota o regime do mês (registro)');
+    const o = await novaPagina(browser); await o.p.goto('file://' + app); await o.p.waitForTimeout(1200); await abrir(o.p);
+    await o.p.setInputFiles('#arquivoProjetoJSON', arq); await o.p.waitForTimeout(3500);
+    const rr = await o.p.evaluate(() => ({ s: window.v274Regime.estado(), m: window.v274Regime.maxSeguidos() }));
+    ok(!rr.s.ativo && rr.m === 6, 'abrir um histórico (mesmo de um mês em outro regime) NÃO liga a 5×2: o regime é decisão do gerente'); await o.ctx.close();
+  } else ok(false, 'não consegui baixar o histórico para conferir o regime');
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
 async function testarMemoria273(browser, app, nome, abrir, versaoMin){
   if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
   console.log(`\n▶ ${nome} — 🧠 memória do Gabriel e 🟢 aviso em 10 s`);
