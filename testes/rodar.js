@@ -1912,7 +1912,8 @@ async function testarMemoria273(browser, app, nome, abrir, versaoMin){
   await p.evaluate(() => { const d = document.createElement('div'); d.id = 't273'; d.style.cssText = 'position:fixed;left:0;top:0;z-index:99999;background:#fff;padding:6px';
     d.innerHTML = '<label>Opção teste <input type="checkbox" id="t273c"></label><label>Nome teste <input type="text" id="t273t"></label><input type="password" id="t273s" aria-label="senha"><input type="hidden" id="t273h"><label>Cor teste <select id="t273sel"><option value="a">Azul</option><option value="b">Verde</option></select></label>'; document.body.appendChild(d); });
   await p.click('#t273c'); await p.fill('#t273t', 'valor um'); await p.keyboard.press('Tab'); await p.fill('#t273t', 'valor dois'); await p.keyboard.press('Tab');
-  await p.selectOption('#t273sel', 'b'); await p.fill('#t273s', 'segredo123'); await p.keyboard.press('Tab');
+  await p.focus('#t273sel'); await p.keyboard.press('ArrowDown');   // teclado de verdade (selectOption do Playwright cria evento falso)
+   await p.fill('#t273s', 'segredo123'); await p.keyboard.press('Tab');
   await p.evaluate(() => { const t = document.getElementById('t273t'); t.value = 'falso'; t.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('t273h').value = 'oculto'; document.getElementById('t273h').dispatchEvent(new Event('change', { bubbles: true })); });
   await p.evaluate(() => window.v265Chat.abrirChat()); await p.waitForTimeout(300);
   await p.fill('#v265Txt', 'quantos domingos tem?'); await p.keyboard.press('Enter'); await p.waitForTimeout(500);
@@ -1922,12 +1923,13 @@ async function testarMemoria273(browser, app, nome, abrir, versaoMin){
   ok(por('digitou').length === 2 && por('digitou')[1].de === 'valor um' && por('digitou')[1].pa === 'valor dois', 'digitar é anotado com o valor de antes e o de depois');
   ok(por('escolheu').some(i => /Cor teste/.test(i.c) && /Azul/.test(i.de) && /Verde/.test(i.pa)), 'escolher numa lista é anotado (valor antes → depois)');
   ok(!/segredo123|oculto|falso/.test(txt), 'senha, campo oculto e evento falso (não feito por gente) NÃO entram na memória');
-  ok(por('perguntou').some(i => /domingos/.test(i.pa || i.c || '')), 'a pergunta feita ao Gabriel é anotada');
+  ok(por('perguntou').some(i => /domingos/.test(i.de || '')), 'a pergunta feita ao Gabriel é anotada');
   ok(m.itens.every(i => i.id && i.t && i.k) && new Set(m.itens.map(i => i.id)).size === m.itens.length, 'toda anotação tem id único, hora e tipo');
   // 2) fica no aparelho depois de recarregar
   await p.waitForTimeout(700); const antes = m.total;
   await p.reload(); await p.waitForTimeout(1500);
   const depois = await p.evaluate(() => window.v273Memoria.exportar().total);
+  await abrir(p); await p.waitForTimeout(1000);   // depois de recarregar a equipe some: carrega de novo para gerar a escala e guardar o histórico
   ok(depois >= antes, `a memória sobrevive ao recarregar a página (${antes} → ${depois})`);
   // 3) o Gabriel conta e só apaga com confirmação
   const r = await p.evaluate(() => { const t = h => String(h).replace(/<[^>]+>/g, ''), C = window.v265Chat, n0 = window.v273Memoria.exportar().total, a = t(C.responder('o que você guardou?')), b = t(C.responder('apague a memória')), n1 = window.v273Memoria.exportar().total, c = t(C.responder('sim')), n2 = window.v273Memoria.exportar().total; return { n0, a, b, n1, c, n2 }; });
@@ -1941,7 +1943,11 @@ async function testarMemoria273(browser, app, nome, abrir, versaoMin){
   // 5) o histórico guardado leva a memória (campo memoriaGabriel)
   const hist = await p.evaluate(() => { try{ const pj = (typeof montarProjeto === 'function') ? montarProjeto() : null; return { auto: pj ? !!pj.memoriaGabriel : null }; }catch(e){ return { auto: null }; } });
   ok(hist.auto !== true, 'o rascunho automático NÃO carrega a memória (só o botão de guardar histórico)');
-  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), p.evaluate(() => { (document.getElementById('btnHistorico') || document.querySelector('[onclick*=exportarProjeto]'))?.click(); })]).catch(() => [null]);
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 240; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(a => a && a.length))) break; }
+  await p.waitForTimeout(800); await p.evaluate(() => window.v266Horarios?.confirmar?.());
+  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), p.evaluate(() => { (document.getElementById('btnHistorico') || document.querySelector('[onclick*=exportarProjeto]'))?.click(); })]).catch(e => { console.log('   (download falhou: ' + String(e.message).slice(0, 80) + ')'); return [null]; });
+  if(!dl) console.log('   estado:', JSON.stringify(await p.evaluate(() => ({ ger: typeof escalaGeradaParaPeriodo === 'function' && escalaGeradaParaPeriodo(), mes: document.getElementById('mes').value, ano: document.getElementById('ano').value, n: equipe.length, t: [...document.querySelectorAll('.toast')].map(e => e.textContent.slice(0, 90)) }))));
   if(dl){ const arq = path.join(require('os').tmpdir(), `teste_mem_${nome}_` + dl.suggestedFilename()); await dl.saveAs(arq); const j = JSON.parse(fs.readFileSync(arq, 'utf8'));
     ok(j.memoriaGabriel && Array.isArray(j.memoriaGabriel.itens) && j.memoriaGabriel.itens.some(i => i.id === 'x-1'), 'o histórico guardado leva a memória do Gabriel (memoriaGabriel)');
     // abrir o histórico em outro aparelho (limpo): a memória volta, uma vez só
