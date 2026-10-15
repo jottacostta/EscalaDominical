@@ -7,10 +7,24 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V271</title>
+<title>Escala de Setores — V273</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V273 [Claude] — 🧠 MEMÓRIA DO GABRIEL + ⏱️ AVISO VERDE EM 10 SEGUNDOS (pedido do dono, 15/10/2026: “guardar tudo o que foi selecionado ou digitado em um espaço à parte
+       de memória e depois colocar tudo dentro do histórico” e “as notificações verdes têm que fechar em 10 segundos”). (1) MEMÓRIA: um registro à parte (no aparelho, chave própria,
+       fora do rascunho da escala) anota o que a pessoa marcou, escolheu, digitou, tocou e perguntou ao Gabriel (campo, valor antes e depois, tela, hora). Só ações feitas por gente
+       (eventos confiáveis); senha e campos ocultos nunca; de arquivo só o nome. Limite de 4000 anotações / ~1,8 MB (as mais antigas saem e a contagem fica registrada). Ao tocar em
+       Guardar histórico, a memória vai junto no arquivo (campo memoriaGabriel); ao abrir um histórico ela é mesclada sem duplicar. O Gabriel responde “o que você guardou?” e, com
+       confirmação, “apague a memória”. (2) AVISO VERDE: some sozinho em 10 s (antes: 3 s ou 8 s; o ✕ continua; no computador, com o mouse em cima ele espera).
+V272 [Claude] — 📱 GABRIEL NO CELULAR + 🎉 FERIADOS (print do celular do dono, 15/10/2026: “ao ter muita conversa no celular o layout vai ficando ruim e o Gabriel
+       não soube responder uma pergunta simples de folga de feriado”). (1) LAYOUT: o painel do Gabriel crescia para cima além da tela (topo e botão ✕ fora da tela), a lista
+       de mensagens tinha altura mínima de 180 px (empurrava o campo de digitar para fora) e a linha de atalhos era espremida. Agora o painel sempre cabe na tela (altura
+       máxima pela tela e áreas seguras), só a lista de mensagens rola, e com o teclado aberto o painel fica logo acima dele. (2) “folgando” era “corrigido” para
+       “faltando” e a pergunta virava outra: palavras do mesmo radical (folg-, trabalh-, escal-, feriad-…) nunca são “corrigidas” e correção de 2 letras só vale se o começo e
+       o fim batem. (3) FERIADOS: “quem está folgando nos feriados?”, “quem trabalha no feriado do dia 15?”, “qual a folga de feriado da Ana?” são respondidas com o passo 4
+       Feriados (quem trabalha, folga aceita ✅, só sugerida 💡 ou sem folga). Perguntas de regra continuam com a resposta de sempre. Só leitura. Camada V272 + 3 linhas
+       marcadas // V272 na camada do Gabriel (V270).
 V271 [Claude] — 📄 GABRIEL, FASE 2A: LÊ A PLANILHA DO RH POR INTEIRO (issue #68; planilha real enviada pelo dono só para conferir a estrutura — nunca vai
        para o repositório): o importador do ERP (V152) lia só a 1ª aba e guardava só o que usa. Agora, ao ler o relatório FPRE815, o app faz um
        INVENTÁRIO: todas as abas (nome e tamanho), todos os tipos de linha (funcionário, setor/grupo, total, cabeçalho de página, emissão…), o papel de
@@ -2544,6 +2558,16 @@ details.v271-leu{margin:8px 0 10px;border:1px solid var(--border,#d7deea);border
 details.v271-leu summary{cursor:pointer}
 details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 </style>
+<style id="v272-chat-celular">
+/* V272: o painel do Gabriel sempre cabe na tela (celular); só a lista de mensagens rola */
+#v262Painel{overflow:hidden;max-height:min(80vh,660px,calc(100vh - 176px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px)))}
+@supports (height:100dvh){#v262Painel{max-height:min(80dvh,660px,calc(100dvh - 176px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px)))}}
+#v262Painel .top,.v265-abas,.v265-sug,.v265-form{flex:0 0 auto}
+#v262Painel .lista{min-height:0;flex:1 1 auto}
+.v265-chat{min-height:0;overflow:hidden}
+.v265-msgs{min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media (max-height:560px){.v265-sug{display:none}.v265-abas button{min-height:36px}#v262Painel .top{padding-top:8px;padding-bottom:6px}}
+</style>
 </head>
 <body>
 <script>
@@ -2639,7 +2663,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V271 · 📄 Planilha do RH lida por inteiro</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V273 · 🧠 Memória do Gabriel + aviso verde 10 s</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -8676,7 +8700,14 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     t.appendChild(close);
     stack.appendChild(t);
     while(stack.children.length > 3) stack.firstElementChild.remove();
-    if(!persistent) setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),180); }, 3000);
+    { // V273: aviso verde fecha em 10 s (mouse em cima = espera); os demais mantêm o prazo antigo; persistente não-verde nunca fecha
+      const ms = type==='ok' ? 10000 : (persistent ? 0 : 3000);
+      if(ms){ let h=null; const fechar=()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),180); };
+        const arma=n=>{ clearTimeout(h); h=setTimeout(fechar,n); };
+        arma(ms);
+        t.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse') clearTimeout(h); });
+        t.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse') arma(3000); }); }
+    }
     return t;
   }
   window.showToast = showToast;
@@ -9473,6 +9504,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function exportarProjeto(){
     const p=montarProjeto();
+    try{ const m=window.v273Memoria?.exportar?.(); if(m) p.memoriaGabriel=m; }catch(e){}   // V273: memória do Gabriel vai no histórico (só aqui; o rascunho automático não leva)
     const setor=(val('setorSelecionado')||'escala').replace(/[^\\wÀ-ÿ-]+/g,'_');
     const mes=String((Number(val('mes'))||0)+1).padStart(2,'0');
     const ano=val('ano')||'projeto';
@@ -14678,6 +14710,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return prev[lb];
   }
   const limiteErro=n=>n<=3?0:(n<=6?1:2);
+  const RADICAIS=['folg','trabalh','escal','feriad','compens','descans','afast','domin','lider','horari','sugest','balanc','falt','gerar','import','planilh'];   // V272: flexões destas palavras nunca são “corrigidas”
+  const ehFlexao=w=>RADICAIS.some(r=>w.length>r.length&&w.indexOf(r)===0);
 
   /* ── vocabulário (palavras que o chat entende) e palavras que nunca se corrigem ── */
   const VOC_BASE=('quem quais qual quantos quantas quanto quando onde como porque domingo domingos trabalha trabalham trabalhou trabalharam trabalhar '+
@@ -14687,7 +14721,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     'ajuda ajudar semana data hora horas diferente fixa fixo pode podem posso motivo problema erro erros certo pronta pronto aprendiz promotor cartazista '+
     'emprestado planilha excel imprimir whatsapp manual automatico mista misto cargo grupos grupo cobertura dsr compensacao antecipada anterior estamos '+
     'estao veio vieram presente presenca compareceu liste lista listar mostre mostrar diga dizer fez feita feito nao sabado sabados primeiro segundo '+
-    'terceiro quarto quinto semanas escalou escalaram vezes lider lideres apresente apresentar apresentacao gabriel').split(' ');
+    'terceiro quarto quinto semanas escalou escalaram vezes lider lideres apresente apresentar apresentacao gabriel '+
+    'folgando folgam folgas folgou folgaram folgar folguista descansa descansam descansando compensa compensam compensacao compensatoria compensatorias feriadao feriadinho trabalhando trabalhamos').split(' ');   // V272
   const CONHECIDAS=new Set(('para como esta esse essa isso este aqui pelo pela mais menos muito todo toda todos todas onde ainda sobre entre posso deve devo '+
     'tenho temos meu minha seus suas dele dela deles delas ele ela eles elas sim vamos vai vou tudo nada algum alguma alguem ninguem cada outro outra mesmo '+
     'mesma tambem depois antes sempre nunca quer quero gostaria preciso favor uma uns umas dos das nos nas ola opa bom boa tarde noite obrigado obrigada '+
@@ -14722,7 +14757,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const exp=[]; bruto.forEach(w=>{ if(Object.prototype.hasOwnProperty.call(ABREV,w)) ABREV[w].split(' ').forEach(x=>exp.push(x)); else exp.push(w); });
     const voc=vocabulario(), nm=nomesDaEquipe(), corrigidas=[];
     const out=exp.map(w=>{
-      if(w.length<=3||/\d/.test(w)||w.length>25||voc.set.has(w)||CONHECIDAS.has(w)||nm.todos.has(w)) return w;
+      if(w.length<=3||/\d/.test(w)||w.length>25||voc.set.has(w)||CONHECIDAS.has(w)||nm.todos.has(w)||ehFlexao(w)) return w;   // V272: flexão conhecida
       const max=limiteErro(w.length); let melhor=null, md=max+1, empate=false;
       for(const v of voc.arr){
         if(Math.abs(v.length-w.length)>max) continue;
@@ -14731,6 +14766,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         else if(d===md&&d<=max&&melhor&&v!==melhor&&v.slice(0,5)!==melhor.slice(0,5)) empate=true;
       }
       if(!melhor||md>max||empate) return w;
+      if(md>=2&&!(melhor.slice(0,3)===w.slice(0,3)&&melhor.slice(-2)===w.slice(-2))) return w;   // V272: distância 2 só quando o começo e o fim batem (“folgando” não vira “faltando”)
       for(const n of nm.todos){ if(n.length>=4&&Math.abs(n.length-w.length)<=max&&dist(w,n,max)<=md) return w; }   // parece nome da equipe: deixa para a lógica de nomes
       corrigidas.push([w,melhor]); return melhor;
     });
@@ -15165,6 +15201,235 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           return resumoHtml(q.inv,q.aplicada)+'<br>'+naoEntendiHtml(q.inv); }
       }catch(e){ console.warn('[V271]',e); }
       return anterior(texto);
+    };
+  }
+})();
+
+</script>
+
+<script>
+(function(){
+/* ═════ V272 — 📱 CHAT NO CELULAR + 🎉 FOLGAS E TRABALHO NOS FERIADOS (Gabriel) ═════
+   Pedido do dono (print do celular, 15/10/2026): “ao ter muita conversa no celular o layout vai ficando ruim e o Gabriel não soube
+   responder uma pergunta simples de folga de feriado”.
+   1) LAYOUT. Causa (reproduzida no Chromium com tela de celular): o painel do Gabriel é ancorado embaixo, mas crescia para CIMA além da
+      tela (topo e botão ✕ ficavam fora da tela); a lista de mensagens tinha altura mínima fixa de 180 px, que empurrava o campo de
+      digitar para fora quando a tela é baixa, e a linha de atalhos era espremida. Agora: o painel nunca passa da tela (altura máxima
+      calculada pela tela e pelas áreas seguras), a lista de mensagens é a parte que rola, atalhos/abas/campo têm altura própria e, com
+      o teclado aberto (visualViewport), o painel sobe para ficar logo acima do teclado. Em tela muito baixa os atalhos se escondem.
+   2) ERRO DE DIGITAÇÃO. “folgando” era “corrigido” para “faltando” (distância 2) e a pergunta virava outra. Agora: palavras com o
+      mesmo radical (folg-, trabalh-, escal-, feriad-…) nunca são “corrigidas”, e correção de 2 letras só vale se o começo e o fim batem.
+   3) FERIADOS. Perguntas como “quem está folgando nos feriados?”, “quem trabalha no feriado do dia 15?”, “qual a folga de feriado da
+      Ana?” agora são respondidas com os dados do passo 4 Feriados: quem trabalha em cada feriado, folga aceita ✅, folga só sugerida 💡
+      (falta aceitar) ou sem folga definida. Perguntas de REGRA (“como funciona a folga de feriado?”) continuam com a resposta de sempre.
+   Só leitura; nada altera a escala. window.v272Layout = {ajustar}; window.v272Feriados = {responder}. */
+  'use strict';
+  const $i=id=>document.getElementById(id);
+
+  /* ── 1) layout: o painel sempre cabe na tela, também com o teclado aberto ── */
+  function ajustar(vv){
+    const p=$i('v262Painel'); if(!p) return;
+    const H=window.innerHeight||0, alt=vv&&vv.height>0?vv.height:H, off=vv&&vv.offsetTop>0?vv.offsetTop:0;
+    const tecla=Math.max(0,H-alt-off);   // espaço tomado pelo teclado
+    if(tecla>120){ p.style.bottom=(tecla+8)+'px'; p.style.maxHeight=Math.max(160,alt-16)+'px'; p.dataset.v272='teclado'; }
+    else if(p.dataset.v272){ p.style.bottom=''; p.style.maxHeight=''; delete p.dataset.v272; }
+  }
+  window.v272Layout={ajustar};
+  try{ const vv=window.visualViewport; if(vv){ const f=()=>{ try{ ajustar(vv); }catch(e){} }; vv.addEventListener('resize',f); vv.addEventListener('scroll',f); } }catch(e){}
+
+  /* ── 3) feriados ── */
+  const base=window.v265Chat, G=window.v270Gabriel, I=base&&base.interno;
+  if(!(base&&G&&I&&typeof base.responder==='function')) return;
+  const anterior=base.responder, tem=I.tem, es=I.es;
+  const p2=n=>String(n).padStart(2,'0');
+  const feriadosDoMes=()=>{ try{ return feriados(+$i('ano').value,+$i('mes').value)||{}; }catch(e){ return {}; } };
+  const isoBR=iso=>{ const m=String(iso||'').match(/^\d{4}-(\d{2})-(\d{2})/); return m?`${m[2]}/${m[1]}`:''; };
+  const nomes=ids=>{ const n=ids.map(i=>`<b>${es(I.curto(i))}</b>`); return n.length>12?n.slice(0,12).join(', ')+` e mais ${n.length-12}`:I.lista(n); };
+  const dado=(fn,vazio)=>{ try{ const v=fn(); return v&&typeof v==='object'?v:vazio; }catch(e){ return vazio; } };   // as listas do app são variáveis globais soltas
+
+  function quer(qn){
+    if(!tem(qn,'feriado','feriados')) return null;
+    const folg=/ (folg\w*|descans\w*|compens\w*) /.test(qn), trab=/ trabalh\w* /.test(qn);
+    const quem=tem(qn,'quem','quais','lista','liste','mostre','nomes','quantos','quantas');
+    const pess=I.pessoas(qn).length>0;
+    if(tem(qn,'como','funciona','regra','regras','prazo','posso','devo')&&!quem) return null;   // pergunta de regra: resposta de sempre
+    if(folg&&(quem||pess)) return 'folgas';
+    if(trab&&(quem||pess)) return 'trabalho';
+    return null;
+  }
+  function responder(foco,qn){
+    const A=+$i('ano').value, M=+$i('mes').value, f=feriadosDoMes(), todos=Object.keys(f).map(Number).sort((a,b)=>a-b), mesNome=`${I.MES[M]} de ${A}`;
+    if(!todos.length) return `Não há feriado em ${mesNome}.`;
+    const P=I.pessoas(qn); if(P.length>1) return `Achei mais de uma pessoa: ${P.slice(0,6).map(i=>'<b>'+es(I.nome(i))+'</b>').join(', ')}. Escreva o nome e o sobrenome.`;
+    const so=P.length===1?P[0]:null;
+    const sel=((qn.match(/ \d{1,2} /g)||[]).map(x=>+x.trim())).filter(n=>todos.includes(n)), ds=sel.length?sel:todos;
+    const TF=dado(()=>trabalhoFeriado,{}), FC=dado(()=>folgasCompensatorias,{}), SG=dado(()=>sugestoesFolgasFeriado,{});
+    let trabalham=0, aceitas=0, sugeridas=0, semFolga=0; const linhas=[];
+    ds.forEach(d=>{
+      let ids=(TF[d]||[]).map(Number).filter(i=>equipe[i]); if(so!==null) ids=ids.filter(i=>i===so);
+      trabalham+=ids.length;
+      if(so!==null&&!ids.length) return;   // numa pergunta sobre UMA pessoa, só os feriados em que ela trabalha
+      const cab=`<b>${p2(d)}/${p2(M+1)}</b> — ${es(f[d])}`;
+      if(foco==='trabalho'){ linhas.push(`<li>${cab}: ${ids.length?`${nomes(ids)} <small>(${ids.length})</small>`:'<i>ninguém marcado para trabalhar</i>'}</li>`); return; }
+      const itens=ids.map(i=>{ const k=`${d}_${i}`;
+        if(FC[k]){ aceitas++; return `<b>${es(I.curto(i))}</b> folga em <b>${isoBR(FC[k])}</b> ✅`; }
+        if(SG[k]){ sugeridas++; return `<b>${es(I.curto(i))}</b>: 💡 sugerida para ${isoBR(SG[k])} (falta aceitar)`; }
+        semFolga++; return `<b>${es(I.curto(i))}</b>: sem folga definida ainda`; });
+      linhas.push(`<li>${cab}: ${itens.length?itens.join('; '):'<i>ninguém marcado para trabalhar (então não há folga a dar)</i>'}</li>`);
+    });
+    if(so!==null&&!trabalham) return `<b>${es(I.nome(so))}</b> não está marcado(a) para trabalhar ${sel.length?'nesse feriado':'em nenhum feriado de '+mesNome}, então não tem folga de feriado a receber. Marque no passo <b>4 Feriados</b>.`;
+    const quem=so!==null?`<b>${es(I.nome(so))}</b>`:'';
+    let t=foco==='trabalho'?`🎉 <b>Quem trabalha nos feriados</b> de ${mesNome}${quem?' — '+quem:''}:<ul>${linhas.join('')}</ul>`
+      :`🎉 <b>Folgas de feriado</b> de ${mesNome}${quem?' — '+quem:''}. Quem trabalha no feriado ganha uma folga em outro dia:<ul>${linhas.join('')}</ul>`;
+    if(foco==='folgas'){
+      if(!trabalham) t+='Ninguém foi marcado para trabalhar nos feriados ainda: marque no passo <b>4 Feriados</b>.';
+      else if(sugeridas||semFolga) t+=`No passo <b>4 Feriados</b>, toque em <b>✅ Aceitar</b> (ou <b>🔄 Outra data</b>) para fechar as folgas${sugeridas?` (${sugeridas} sugerida(s))`:''}${semFolga?` e peça sugestão para ${semFolga} sem folga`:''}.`;
+      else t+=`<small>${aceitas} folga(s) aceita(s). Quem não trabalha no feriado já está de folga nesse dia.</small>`;
+    }
+    return t;
+  }
+  window.v272Feriados={responder,quer};
+  base.responder=function(texto){
+    try{ const n=G.entender(texto), qn=n&&n.qn; const k=qn?quer(qn):null; if(k) return responder(k,qn); }catch(e){ console.warn('[V272]',e); }
+    return anterior(texto);
+  };
+})();
+
+</script>
+
+<script>
+(function(){
+/* ═════ V273 — 📝 MEMÓRIA DO GABRIEL: tudo o que foi marcado ou digitado fica guardado à parte e vai para o histórico ═════
+   Pedido do dono (15/10/2026): “Gabriel precisa guardar tudo o que foi selecionado ou digitado em um espaço à parte de memória e
+   depois colocar tudo dentro do histórico”. É o início da “auditoria das ações” da issue #68 (item 5).
+   O QUE GUARDA (só ações FEITAS PELA PESSOA — eventos confiáveis do navegador; o que o app muda sozinho não entra):
+   - marcou / desmarcou (caixinhas), escolheu (listas e opções), digitou (campos de texto, número, data… quando a pessoa termina de
+     digitar), arquivo (só o NOME do arquivo escolhido, nunca o conteúdo), tocou (botões) e perguntou (o que foi escrito ao Gabriel e o
+     começo da resposta). Cada registro leva: quando, em que tela/passo, qual setor e mês, qual campo (com nome da pessoa e domingo
+     quando for o caso), o valor ANTERIOR e o NOVO.
+   - NUNCA guarda: senha, campo oculto, conteúdo de arquivo, nem o que estiver marcado com data-v273-ignorar.
+   ONDE GUARDA: numa chave PRÓPRIA do aparelho (escalaSetores.v273Memoria / enc.v273Memoria), separada do aprendizado do Assistente (V262) e
+   do histórico. Limite de 4000 registros (os mais antigos saem e a contagem de “descartados” fica registrada). Grava logo depois de cada
+   ação e ao fechar/sair da página.
+   HISTÓRICO: ao 📦 Guardar histórico do mês, a memória inteira vai junto no arquivo (campo memoriaGabriel). Ao abrir um histórico, ela é
+   JUNTADA à memória do aparelho sem duplicar (cada registro tem um código único: reimportar a mesma cópia não repete nada).
+   GABRIEL: “o que você guardou?”, “quantas ações você guardou?”, “apague a memória” (pede confirmação).
+   window.v273Memoria = {registrar, exportar, importar, itens, estado, limpar}. */
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const base=window.v265Chat, I=base&&base.interno;
+  const ENC=!!(I&&I.APP==='enc');
+  const LS=ENC?'enc.v273Memoria':'escalaSetores.v273Memoria';
+  const MAX=4000, MAXTXT=200, MAXBYTES=1800000;
+  const seguro=fn=>{ try{ return fn(); }catch(e){ console.warn('[V273]',e); return null; } };
+  const cort=(v,n)=>{ const t=String(v==null?'':v).replace(/\s+/g,' ').trim(); return t.length>n?t.slice(0,n-1)+'…':t; };
+  let M={v:1,disp:'',seq:0,descartadas:0,itens:[]};
+  const itemOk=x=>!!x&&typeof x==='object'&&typeof x.id==='string'&&x.id.length<40&&Number.isFinite(x.t)&&typeof x.k==='string'&&x.k.length<20;
+  const limpoItem=x=>({id:x.id,t:x.t,s:cort(x.s,80),p:cort(x.p,40),k:x.k,c:cort(x.c,100),de:cort(x.de,MAXTXT),pa:cort(x.pa,MAXTXT),...(x.r?{r:cort(x.r,MAXTXT)}:{})});
+  function carregar(){
+    seguro(()=>{ const o=JSON.parse(localStorage.getItem(LS)||'null');
+      if(o&&typeof o==='object'&&o.v===1&&Array.isArray(o.itens)&&typeof o.disp==='string'){
+        M={v:1,disp:o.disp.slice(0,20),seq:Number.isFinite(o.seq)?o.seq:0,descartadas:Number.isFinite(o.descartadas)?o.descartadas:0,itens:o.itens.filter(itemOk).map(limpoItem).slice(-MAX)}; } });
+    if(!M.disp) M.disp=Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3);
+  }
+  carregar();
+  let timer=null;
+  function gravar(){ clearTimeout(timer); timer=null; seguro(()=>{
+    let s=JSON.stringify(M); while(s.length>MAXBYTES&&M.itens.length>50){ const n=Math.ceil(M.itens.length*0.2); M.itens.splice(0,n); M.descartadas+=n; s=JSON.stringify(M); }
+    localStorage.setItem(LS,s); }); }
+  const agendar=()=>{ if(!timer) timer=setTimeout(gravar,400); };
+  window.addEventListener('pagehide',gravar); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') gravar(); });
+
+  /* contexto: tela/passo e setor+mês */
+  const passo=()=>{ const m=document.querySelector('.modal.on,#erpModal,.v207-fundo,.v266-fundo'); if(m&&m.id) return m.id; return document.querySelector('.step-panel.active')?.id||(document.querySelector('#homeSetores.on')?'inicio':''); };
+  const ref=()=>{ try{ const setor=ENC?'encarregados':(window.norm?norm($i('setorSelecionado')?.value||''):($i('setorSelecionado')?.value||'')); return `${setor||'-'}|${$i('ano')?.value||''}-${String((+$i('mes')?.value||0)+1).padStart(2,'0')}`; }catch(e){ return ''; } };
+  function registrar(k,c,de,pa,extra){
+    return seguro(()=>{ const t=Date.now(); M.seq++; const it={id:`${M.disp}-${t.toString(36)}-${M.seq}`,t,s:ref(),p:passo(),k:String(k),c:cort(c,100),de:cort(de,MAXTXT),pa:cort(pa,MAXTXT)}; if(extra&&extra.r) it.r=cort(extra.r,MAXTXT);
+      M.itens.push(it); if(M.itens.length>MAX){ const n=M.itens.length-MAX; M.itens.splice(0,n); M.descartadas+=n; } agendar(); return it; });
+  }
+  /* nome legível do campo */
+  function rotulo(el){
+    const d=el.dataset||{};
+    const dom=d.dom!==undefined?d.dom:d.d, pes=d.func!==undefined?d.func:d.p;
+    if(dom!==undefined&&pes!==undefined&&!isNaN(+pes)){ const f=(typeof equipe!=='undefined'&&equipe[+pes])||null; const m=String((+$i('mes')?.value||0)+1).padStart(2,'0'); return `domingo ${String(dom).padStart(2,'0')}/${m} · ${f?f.nome:'pessoa '+pes}`; }
+    let t=el.getAttribute('aria-label'); if(t) return t;
+    if(el.id){ const l=document.querySelector(`label[for="${CSS.escape(el.id)}"]`); if(l) return l.textContent; }
+    const w=el.closest('label'); if(w){ const c=w.cloneNode(true); c.querySelectorAll('input,select,textarea,button').forEach(x=>x.remove()); if(c.textContent.trim()) return c.textContent; }
+    return el.title||el.placeholder||el.name||el.id||el.tagName.toLowerCase();
+  }
+  const prev=new WeakMap();
+  const valorDe=el=>{ if(el.tagName==='SELECT') return el.selectedOptions&&el.selectedOptions[0]?el.selectedOptions[0].textContent:el.value; return el.value; };
+  document.addEventListener('focusin',e=>{ const el=e.target; if(el&&(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!['checkbox','radio','button','submit','file','password','hidden'].includes(el.type)))) seguro(()=>prev.set(el,valorDe(el))); },true);
+  const ignorado=el=>!el||!el.closest||el.closest('[data-v273-ignorar]')||el.type==='password'||el.type==='hidden'||!!el.closest('.v265-form');
+
+  document.addEventListener('change',e=>{ seguro(()=>{ const el=e.target; if(!e.isTrusted||!el||ignorado(el)) return;
+    const tag=el.tagName; if(tag==='INPUT'&&el.type==='file'){ registrar('arquivo',rotulo(el),'',[...(el.files||[])].map(f=>f.name).join(', ')); return; }
+    if(tag==='INPUT'&&el.type==='checkbox'){ registrar(el.checked?'marcou':'desmarcou',rotulo(el),el.checked?'desmarcado':'marcado',el.checked?'marcado':'desmarcado'); return; }
+    if(tag==='INPUT'&&el.type==='radio'){ registrar('escolheu',rotulo(el),'',(el.closest('label')?.textContent||el.value)); return; }
+    if(tag==='SELECT'){ const novo=valorDe(el); registrar('escolheu',rotulo(el),prev.get(el)||'',novo); prev.set(el,novo); return; }
+    if(tag==='TEXTAREA'||tag==='INPUT'){ const novo=valorDe(el); registrar('digitou',rotulo(el),prev.get(el)||'',novo); prev.set(el,novo); }
+  }); },true);
+  let ultimoToque={t:0,x:''};
+  document.addEventListener('click',e=>{ seguro(()=>{ if(!e.isTrusted) return; const b=e.target.closest&&e.target.closest('button,[role="button"],a.btn,summary'); if(!b||ignorado(b)) return;
+    if(b.closest('.toast,.v265-sug,.v265-form,#v270Balao')||b.type==='submit'&&b.closest('.v265-form')) return;   // fechar aviso e perguntas ao Gabriel têm registro próprio
+    const x=cort(b.getAttribute('aria-label')||b.textContent||b.title||b.id,80); if(!x) return; const t=Date.now(); if(ultimoToque.x===x&&t-ultimoToque.t<300) return; ultimoToque={t,x};
+    registrar('tocou',x,'',''); }); },true);
+
+  /* perguntas ao Gabriel: o que foi escrito (ou o atalho tocado) e o começo da resposta */
+  let pendente=null;
+  const txt=h=>String(h).replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  document.addEventListener('submit',e=>{ seguro(()=>{ if(!e.isTrusted||!e.target.closest||!e.target.closest('.v265-form')) return; const q=$i('v265Txt')?.value; if(q&&q.trim()) pendente=registrar('perguntou','Gabriel',q.trim(),''); }); },true);
+  document.addEventListener('click',e=>{ seguro(()=>{ if(!e.isTrusted) return; const b=e.target.closest&&e.target.closest('.v265-sug button'); if(b) pendente=registrar('perguntou','Gabriel (atalho)',b.textContent.trim(),''); }); },true);
+  const antesResp=base&&base.responder;
+
+  /* ── exportar / importar (histórico) ── */
+  function exportar(){ gravar(); return {v:1,exportadoEm:Date.now(),disp:M.disp,total:M.itens.length,descartadas:M.descartadas,itens:M.itens.map(limpoItem)}; }
+  function importar(o){
+    if(!o||typeof o!=='object'||o.v!==1||!Array.isArray(o.itens)) return 0;
+    const tem=new Set(M.itens.map(x=>x.id)); let n=0;
+    o.itens.slice(0,MAX*2).forEach(x=>{ if(itemOk(x)&&!tem.has(x.id)){ tem.add(x.id); M.itens.push(limpoItem(x)); n++; } });
+    if(n){ M.itens.sort((a,b)=>a.t-b.t); if(M.itens.length>MAX){ M.descartadas+=M.itens.length-MAX; M.itens=M.itens.slice(-MAX); } gravar(); }
+    return n;
+  }
+  document.addEventListener('change',ev=>{   // abrir um histórico: junta a memória que veio no arquivo (igual ao que o Assistente faz com o aprendizado)
+    const inp=ev.target; if(!inp||inp.id!=='arquivoProjetoJSON') return; const f=inp.files&&inp.files[0]; if(!f||!/\.json$/i.test(f.name||'')) return;
+    const rd=new FileReader(); rd.onload=()=>{ seguro(()=>{ const j=JSON.parse(String(rd.result||'').replace(/^﻿/,'')); setTimeout(()=>{ seguro(()=>{ const n=importar(j&&j.memoriaGabriel); if(n) registrar('historico','Memória do Gabriel','',`${n} registro(s) vindos do histórico`); }); },1800); }); }; rd.readAsText(f);
+  },true);
+  function limpar(){ M.itens=[]; M.descartadas=0; gravar(); }
+  window.v273Memoria={registrar,exportar,importar,limpar,itens:()=>M.itens.slice(),estado:()=>({total:M.itens.length,descartadas:M.descartadas,disp:M.disp,chave:LS})};
+
+  /* ── Gabriel: o que guardei ── */
+  const G=window.v270Gabriel;
+  if(base&&G&&I&&typeof base.responder==='function'){
+    const anterior=base.responder, tem2=I.tem, es=I.es;
+    const dh=t=>{ const d=new Date(t); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+    const linha=x=>{ const c=es(x.c), pa=es(x.pa), de=es(x.de); switch(x.k){
+      case 'marcou': return `marcou “${c}”`; case 'desmarcou': return `desmarcou “${c}”`;
+      case 'escolheu': return `escolheu “${pa}” em “${c}”${de?` (antes: “${de}”)`:''}`; case 'digitou': return `digitou “${pa}” em “${c}”${de?` (antes: “${de}”)`:''}`;
+      case 'arquivo': return `escolheu o arquivo “${pa}”`; case 'tocou': return `tocou em “${c}”`; case 'perguntou': return `perguntou “${de}”`; case 'historico': return es(pa); default: return es(x.k+' '+c); } };
+    let confirmar=false;
+    function quer(qn){
+      if(!tem2(qn,'memoria','guardou','guardado','guardados','registrou','registrado','anotou','anotado','historico de acoes','acoes','fiz','fizemos')) return null;
+      if(tem2(qn,'apague','apagar','limpe','limpar','esqueca','esquecer','delete','deletar','zere','zerar','exclua','excluir')) return 'limpar';
+      if(tem2(qn,'guardou','guardado','guardados','guardei','memoria','registrou','registrado','anotou','anotado','acoes','fiz','fizemos')&&tem2(qn,'o que','quais','quantas','quantos','mostre','liste','lista','resumo','ultimas','ultimos','tem','hoje')) return 'resumo';
+      return null;
+    }
+    function resumo(){
+      const it=M.itens; if(!it.length) return '📝 Ainda não guardei nenhuma ação neste aparelho. Eu guardo tudo o que você marca, escolhe, digita ou toca (sem senhas), e levo isso para o histórico quando você toca em <b>📦 Guardar histórico do mês</b>.';
+      const c={}; it.forEach(x=>{ c[x.k]=(c[x.k]||0)+1; });
+      const rot={marcou:'marcou',desmarcou:'desmarcou',escolheu:'escolheu',digitou:'digitou',arquivo:'arquivo',tocou:'tocou em botão',perguntou:'perguntou ao Gabriel',historico:'histórico aberto'};
+      return `📝 <b>Memória do Gabriel:</b> ${it.length} ação(ões) guardada(s), de <b>${dh(it[0].t)}</b> até <b>${dh(it[it.length-1].t)}</b>${M.descartadas?` (e ${M.descartadas} mais antiga(s) já saíram)`:''}.<br>`+
+        Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${v} ${rot[k]||k}`).join(' · ')+`<br><small>Últimas:</small><ul>${it.slice(-5).reverse().map(x=>`<li><small>${dh(x.t)}</small> — ${linha(x)}</li>`).join('')}</ul>`+
+        '<small>Tudo isso vai junto no 📦 histórico do mês e fica só neste aparelho. Para apagar, peça “apague a memória”.</small>';
+    }
+    base.responder=function(texto){
+      try{ const n=G.entender(texto), qn=n&&n.qn; if(qn){
+        if(confirmar){ confirmar=false; if(n.tokens.some(x=>['sim','s','pode','confirmo','apague','apagar'].includes(x))&&!n.tokens.includes('nao')){ const k=M.itens.length; limpar(); return `🧹 Pronto: apaguei ${k} ação(ões) da minha memória. O que já está em arquivos de histórico guardados continua lá.`; } return 'Tudo bem, não apaguei nada.'; }
+        const q=quer(qn); if(q==='resumo') return resumo();
+        if(q==='limpar'){ if(!M.itens.length) return 'Minha memória já está vazia.'; confirmar=true; return `🧹 Quer mesmo que eu apague as <b>${M.itens.length}</b> ação(ões) guardadas? Isso não apaga os históricos que você já guardou em arquivo. Responda <b>sim</b> para apagar.`; } } }catch(e){ console.warn('[V273]',e); }
+      const r=anterior(texto);
+      if(pendente){ const p=pendente; pendente=null; seguro(()=>{ p.r=cort(txt(r),MAXTXT); agendar(); }); }
+      return r;
     };
   }
 })();
