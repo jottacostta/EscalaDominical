@@ -7,10 +7,20 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V269</title>
+<title>Escala de Setores — V270</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V270 [Claude] — 🤖 GABRIEL, FASE 1 (issue #68; o dono pediu “por partes, de forma segura, JavaScript robusto e sem erros”): o Assistente RH
+       passa a se chamar GABRIEL. (1) Saudação automática ao abrir o app: balão perto do 🤖 (“Olá! Eu sou o Gabriel, seu assistente
+       virtual de RH. Como posso ajudar hoje?”) e a mesma saudação no topo do chat — desenhada, nunca guardada na conversa, então não
+       duplica ao recarregar, voltar à página ou redesenhar. (2) Responde “qual é o seu nome?”, “quem é você?”, “o que você sabe fazer?”
+       (só cita o que existe). (3) PNL em JS puro: abreviações (pq, vc, qnts, dom, hj…), erros de digitação (só corrige quando há UMA palavra
+       mais parecida), contexto (“e no domingo 12?”, “e a Maria?”, “por que ela não pode?”) e dúvida: nome parecido ou nomes repetidos →
+       ele PERGUNTA (sim / número / sobrenome). (4) Datas pelo relógio do aparelho: “que dia é hoje?”, “que horas são?”, e o “último
+       domingo” em 3 perguntas diferentes — ESCALADOS (planejado), TRABALHOU (o app não tem ponto: avisa) e FOLGOU —, dizendo o limite
+       quando a data está fora do que o app guarda. Só LEITURA: nada altera escala, regras, equipe ou aprendizado. Camada nova V270 por
+       cima do chat V265 (poucas linhas marcadas // V270 no bloco V265 e no título do painel V262). Só nos Setores; Encarregados = V179.
 V269 [Claude] — ✋ ESCALA MANUAL FORA DO PAR 2×1, COM RESPONSABILIDADE (pedido do dono, 15/10/2026 — só nos Setores): na escala
        Manual o encarregado pode alternar os domingos de um jeito diferente do 2×1 (ex.: Eduardo trabalha o 1º domingo, NÃO trabalha
        o 2º e a Maria entra no lugar dele). Quando um domingo fica completo e alguém que COMEÇOU o par (trabalhou o domingo anterior,
@@ -2509,6 +2519,15 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v269-caixa ul{margin:6px 0 10px;padding-left:20px}
 .v269-peq{font-size:13px;color:#5b6675}
 </style>
+<style id="v270-gabriel">
+/* V270: balão de saudação do Gabriel */
+#v270Balao{position:fixed;right:16px;bottom:calc(96px + 58px + 14px + env(safe-area-inset-bottom,0px));z-index:1301;max-width:min(300px,calc(100vw - 32px));background:#fff;color:#1b2430;border:2px solid var(--v262-brand,#0047BA);border-radius:16px 16px 4px 16px;box-shadow:0 10px 28px rgba(0,40,110,.28);padding:12px 14px 12px 14px;font-size:14px;line-height:1.4}
+#v270Balao .t{display:flex;flex-direction:column;gap:4px;margin:0 18px 8px 0}
+#v270Balao .x{position:absolute;top:4px;right:6px;border:0;background:transparent;font-size:20px;line-height:1;cursor:pointer;color:#5b6675;padding:2px 6px}
+#v270Balao .ir{border:0;border-radius:999px;background:var(--v262-brand,#0047BA);color:#fff;font-weight:800;font-size:13px;padding:8px 14px;cursor:pointer}
+.v270-saudacao{font-weight:600}
+@media print{#v270Balao{display:none!important}}
+</style>
 </head>
 <body>
 <script>
@@ -2604,7 +2623,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V269 · ✋ Escala manual fora do 2×1</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V270 · 🤖 Gabriel</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -14021,10 +14040,10 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   let painel, botao, abertoEm=0;
   function montar(){
     if($i('v262Botao')) return;
-    botao=document.createElement('button'); botao.type='button'; botao.id='v262Botao'; botao.setAttribute('aria-label','Abrir o Assistente RH'); botao.title='Assistente RH';
+    botao=document.createElement('button'); botao.type='button'; botao.id='v262Botao'; botao.setAttribute('aria-label','Abrir o Assistente RH'); botao.title='Gabriel — Assistente RH';
     botao.innerHTML='🤖<span class="n" hidden>0</span>'; document.body.appendChild(botao);
     painel=document.createElement('section'); painel.id='v262Painel'; painel.hidden=true; painel.setAttribute('role','dialog'); painel.setAttribute('aria-label','Assistente RH');
-    painel.innerHTML='<div class="top"><b>🤖 Assistente RH<small>Dicas do passo em que você está</small></b><button type="button" class="fechar" aria-label="Fechar">×</button></div><div class="lista"></div>';
+    painel.innerHTML='<div class="top"><b>🤖 Gabriel · Assistente RH<small>Dicas do passo em que você está</small></b><button type="button" class="fechar" aria-label="Fechar">×</button></div><div class="lista"></div>';
     document.body.appendChild(painel);
     botao.addEventListener('click',()=>{ painel.hidden=!painel.hidden; if(!painel.hidden){ abertoEm=Date.now(); atualizar(true); } });
     painel.querySelector('.fechar').addEventListener('click',()=>{ painel.hidden=true; botao.focus(); });
@@ -14128,7 +14147,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     {k:['editar equipe','editar','cadastr*','adicionar','incluir','novo funcionario','turno','horario','admissao'],r:'✏️ <b>Equipe:</b> no passo <b>1 Equipe</b>, toque em <b>✏️ Editar equipe</b> para mudar nome, cargo, horário, turno, folga fixa ou data de admissão (dd/mm/aaaa). A equipe também entra pela planilha do RH ou pelo histórico guardado.'},
     {k:['mes passado','ultimo domingo','ultimos domingos'],r:'↩️ <b>Mês passado:</b> no passo <b>2 Mês passado</b>, marque quem trabalhou nos <b>2 últimos domingos</b> do mês anterior. Isso evita 3 domingos seguidos na virada do mês. Se você abriu o histórico do mês passado, ele já vem preenchido.'},
     {k:['previa'],r:'📅 <b>Prévia das folgas:</b> fica no passo <b>4 Feriados</b>. Mostra o mês inteiro como a tabela final: folgas de feriado sugeridas (💡) e aceitas, folgas da semana (FOLGA) e os domingos. Antes de gerar, os domingos mostram o que você já escolheu; “—” quer dizer que o app ainda vai escolher.'},
-    {k:['assistente','voce','quem e voce','aprende','aprendeu','dicas'],r:'🤖 Eu sou o <b>Assistente RH</b>. Olho o que você faz (quem escolhe, horários, quantos domingos cada um fez) e dou <b>dicas</b>. Não mudo nada sozinho, e as regras quem confere é o app. Tudo fica neste aparelho e vai junto no histórico do mês. Também respondo perguntas — sem internet.'},
+    {k:['assistente','voce','quem e voce','aprende','aprendeu','dicas'],r:'🤖 Eu sou o <b>Gabriel</b>, o assistente virtual de RH. Olho o que você faz (quem escolhe, horários, quantos domingos cada um fez) e dou <b>dicas</b>. Não mudo nada sozinho, e as regras quem confere é o app. Tudo fica neste aparelho e vai junto no histórico do mês. Também respondo perguntas — sem internet.'},
     ...(APP==='setores'?[
       {k:['regra','regras','pode e nao pode'],r:'📏 <b>Regras principais:</b> ninguém trabalha mais de <b>6 dias seguidos</b> (6×1); no máximo <b>2 domingos seguidos</b> (o 3º é folga); quem trabalha no domingo ganha a <b>folga da semana</b>; quem trabalha no feriado ganha <b>uma folga em outro dia</b>. <b>Jovem aprendiz</b> e <b>cartazista</b> não trabalham domingo; <b>promotor</b>: 1 por domingo. Pergunte sobre qualquer uma para eu explicar.'},
       {k:['aprendiz','jovem aprendiz','jovens'],r:'🎓 <b>Jovem aprendiz</b> não trabalha domingo. Eles têm o cartão próprio <b>🎓 Jovem Aprendiz</b> na tela inicial.'},
@@ -14221,13 +14240,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function exemplos(){ const d=doms(); return ['O que falta?',d.length?`Quem trabalha no domingo ${d[0]}?`:'Quem trabalha nos domingos?',equipe.length?`Por que ${exemploNome()} não pode?`:'Como funciona o 6×1?','Como funciona o feriado?','Como faço a escala?']; }
   function desenhar(){
     const box=$i('v265Msgs'); if(!box) return;
-    box.innerHTML=(conversa.length?'':`<div class="v265-msg bot">Oi! 😊 Escreva sua dúvida ou toque numa pergunta abaixo. Respondo sem internet, com os dados desta tela.</div>`)
+    box.innerHTML=(window.v270Gabriel?.saudacaoHtml?.()||'')+(conversa.length?'':`<div class="v265-msg bot">Escreva sua dúvida ou toque numa pergunta abaixo. Respondo sem internet, com os dados desta tela.</div>`)   // V270: saudação do Gabriel sempre no topo (não entra na conversa)
       +conversa.map(m=>`<div class="v265-msg ${m.de}">${m.de==='eu'?es(m.t):m.t}</div>`).join('');
     box.scrollTop=box.scrollHeight;
     const sug=$i('v265Sug'); if(sug) sug.innerHTML=exemplos().map(x=>`<button type="button">${es(x)}</button>`).join('');
     sug?.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>perguntar(b.textContent)));
   }
-  function perguntar(t){ t=String(t||'').trim(); if(!t) return; let r; try{ r=responder(t); }catch(e){ console.warn('[V265]',e); r='Ops, não consegui responder essa agora. Tente de novo.'; }
+  function perguntar(t){ t=String(t||'').trim(); if(!t) return; let r; try{ r=(window.v265Chat.responder||responder)(t); }catch(e){ console.warn('[V265]',e); r='Ops, não consegui responder essa agora. Tente de novo.'; }   // V270: passa pela camada Gabriel
     conversa.push({de:'eu',t},{de:'bot',t:r}); if(conversa.length>40) conversa.splice(0,conversa.length-40); desenhar(); }
   function montar(){
     const p=$i('v262Painel'); if(!p||p.querySelector('.v265-abas')) return !!p;
@@ -14247,7 +14266,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     window.v265Chat.abrirChat=()=>{ window.v262Assistente?.abrir?.(); ir('chat'); };
     return true;
   }
-  window.v265Chat={responder,perguntar,abrirChat:()=>{}};
+  window.v265Chat={responder,perguntar,abrirChat:()=>{},interno:{APP,AP,RESP,es,sem,limpa,tem,doms,dd,nome,curto,lista,ativos,bal,ano,mes,pessoas,domingos,DIA,MES}};   // V270: a camada Gabriel lê isto
   let n=0; const t=setInterval(()=>{ if(montar()||++n>60) clearInterval(t); },500);
 })();
 </script>
@@ -14569,6 +14588,367 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   { const o=window.gerarSetores; if(typeof o==='function') window.gerarSetores=function(){ const r=o.apply(this,arguments); setTimeout(()=>{ sincronizar(); avisoResultado(); },50); return r; }; }
   setInterval(()=>{ if(document.visibilityState!=='visible') return; try{ sincronizar(); desenhar(); }catch(e){} },1000);
 })();
+</script>
+
+<script>
+(function(){
+/* ═════ V270 — 🤖 GABRIEL: nome do Assistente RH, saudação ao abrir e conversa mais esperta (JS puro, sem internet) ═════
+   Pedido do dono (15/10/2026, issue #68 — fase 1). O chat da V265 continua o mesmo; esta camada fica POR CIMA dele:
+   - Identidade: o assistente se chama Gabriel (“Qual é o seu nome?”, “Quem é você?”, “O que você sabe fazer?”). A lista de
+     capacidades só cita o que existe de verdade.
+   - Saudação automática: ao abrir/recarregar o app aparece um balão perto do 🤖 (“Olá! Eu sou o Gabriel…”) e a 1ª mensagem do chat
+     é a mesma saudação. Ela NÃO é guardada na conversa (é desenhada sempre no topo), então não duplica por re-renderização,
+     recarga ou volta à página (pageshow). Não mexe em nenhum dado da escala.
+   - PNL leve em JS puro: abreviações (pq, vc, qnts, dom, hj…), erros de digitação (distância de edição curta, só quando há UMA
+     palavra mais parecida), contexto (“e no domingo 12?”, “e a Maria?”, “por que ela não pode?”) e dúvida: se o nome está parecido ou
+     há duas pessoas com o mesmo nome, o Gabriel PERGUNTA em vez de chutar (responda “sim”, o número ou o sobrenome).
+   - Datas (relógio do aparelho): “Que dia é hoje?”, “Que horas são?”, e o “último domingo” em 3 perguntas diferentes:
+     ESCALADOS (planejado) × TRABALHOU (presença efetiva — o app não tem ponto) × FOLGOU. Fora do que o app guarda, ele diz o limite.
+   - Segurança: só LEITURA. Nenhuma pergunta altera escala, regra, equipe ou aprendizado. Tudo em try/catch: se algo falhar, vale a
+     resposta antiga da V265. Nada sai do aparelho.
+   window.v270Gabriel = {nome, saudacao, saudacaoHtml, entender, responder, reset, relogio}. */
+  'use strict';
+  const base=window.v265Chat;
+  if(!base||!base.interno||typeof base.responder!=='function') return;
+  const I=base.interno, orig=base.responder, AP=I.AP;
+  const $i=id=>document.getElementById(id);
+  const es=I.es, sem=I.sem, tem=I.tem;
+  const NOME='Gabriel';
+  const SAUDACAO='Olá! Eu sou o Gabriel, seu assistente virtual de RH. Como posso ajudar hoje?';
+  const G=window.v270Gabriel={nome:NOME,saudacao:SAUDACAO,relogio:null};
+  const toks=t=>sem(t).replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean);
+  const p2=n=>String(n).padStart(2,'0');
+
+  /* ── relógio do aparelho (os testes podem trocar G.relogio) ── */
+  const agora=()=>{ try{ const r=typeof G.relogio==='function'?G.relogio():null; if(r instanceof Date&&!isNaN(r.getTime())) return r; }catch(e){} return new Date(); };
+  const DSEM=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const dataExtenso=d=>`${DSEM[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+  const dataCurta=d=>`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+  const fuso=()=>{ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch(e){ return ''; } };
+
+  /* ── distância de edição (Damerau/OSA) com corte: devolve max+1 quando passa do limite ── */
+  function dist(a,b,max){
+    const la=a.length, lb=b.length; if(Math.abs(la-lb)>max) return max+1;
+    let prev2=null, prev=[]; for(let j=0;j<=lb;j++) prev.push(j);
+    for(let i=1;i<=la;i++){
+      const cur=[i]; let menor=i;
+      for(let j=1;j<=lb;j++){
+        const c=a.charCodeAt(i-1)===b.charCodeAt(j-1)?0:1;
+        let v=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+c);
+        if(i>1&&j>1&&prev2&&a.charCodeAt(i-1)===b.charCodeAt(j-2)&&a.charCodeAt(i-2)===b.charCodeAt(j-1)) v=Math.min(v,prev2[j-2]+1);
+        cur[j]=v; if(v<menor) menor=v;
+      }
+      if(menor>max) return max+1;
+      prev2=prev; prev=cur;
+    }
+    return prev[lb];
+  }
+  const limiteErro=n=>n<=3?0:(n<=6?1:2);
+
+  /* ── vocabulário (palavras que o chat entende) e palavras que nunca se corrigem ── */
+  const VOC_BASE=('quem quais qual quantos quantas quanto quando onde como porque domingo domingos trabalha trabalham trabalhou trabalharam trabalhar '+
+    'folga folgas folgou folgaram folgar feriado feriados escala escalado escalada escalados escaladas gerar gerada gerado falta faltando faltam faltou '+
+    'pendente pendentes balanco horario horarios regra regras equipe funcionario funcionarios funcionaria setor setores mes passado ultimo ultima ultimos '+
+    'proximo proxima hoje agora historico guardar salvar sugestao sugestoes lideranca lider encarregado subencarregado nome chama chamo voce sabe fazer '+
+    'ajuda ajudar semana data hora horas diferente fixa fixo pode podem posso motivo problema erro erros certo pronta pronto aprendiz promotor cartazista '+
+    'emprestado planilha excel imprimir whatsapp manual automatico mista misto cargo grupos grupo cobertura dsr compensacao antecipada anterior estamos '+
+    'estao veio vieram presente presenca compareceu liste lista listar mostre mostrar diga dizer fez feita feito nao sabado sabados primeiro segundo '+
+    'terceiro quarto quinto semanas escalou escalaram vezes lider lideres apresente apresentar apresentacao gabriel').split(' ');
+  const CONHECIDAS=new Set(('para como esta esse essa isso este aqui pelo pela mais menos muito todo toda todos todas onde ainda sobre entre posso deve devo '+
+    'tenho temos meu minha seus suas dele dela deles delas ele ela eles elas sim vamos vai vou tudo nada algum alguma alguem ninguem cada outro outra mesmo '+
+    'mesma tambem depois antes sempre nunca quer quero gostaria preciso favor uma uns umas dos das nos nas ola opa bom boa tarde noite obrigado obrigada '+
+    'valeu beleza verdade tipo entao ainda fim meses anos dias domingo aqui ali la').split(' '));
+  const ABREV={pq:'porque',vc:'voce',vcs:'voces',q:'que',qm:'quem',qnd:'quando',qdo:'quando',qd:'quando',qto:'quanto',qtos:'quantos',qts:'quantos',qnts:'quantos',
+    qntos:'quantos',qtd:'quantos',qta:'quanta',qtas:'quantas',hj:'hoje',tb:'tambem',tbm:'tambem',td:'tudo',func:'funcionario',funcs:'funcionarios',dom:'domingo',
+    doms:'domingos',ult:'ultimo',prox:'proximo',sab:'sabado',fer:'feriado',n:'nao',nn:'nao',msm:'mesmo',dps:'depois',oq:'o que',oque:'o que',pra:'para',hr:'hora',
+    hrs:'horas',mt:'muito',obg:'obrigado'};
+  let _voc=null;
+  function vocabulario(){
+    if(_voc) return _voc;
+    const s=new Set(VOC_BASE);
+    try{ (I.RESP||[]).forEach(x=>(x.k||[]).forEach(k=>toks(String(k).replace(/\*/g,'')).forEach(w=>{ if(w.length>=4) s.add(w); }))); }catch(e){}
+    _voc={set:s,arr:[...s].sort((a,b)=>a.length-b.length||(a<b?-1:1))};
+    return _voc;
+  }
+
+  /* ── equipe: nomes que existem agora ── */
+  const nomeI=i=>String(equipe[i]?.nome||'');
+  const primeiroTok=i=>toks(nomeI(i))[0]||'';
+  const refPessoa=i=>{ const m=String(equipe[i]?.matricula||'').replace(/^0+/,''); return m.length>=4?m:toks(nomeI(i)).join(' '); };
+  function nomesDaEquipe(){
+    const todos=new Set(), primeiros=new Map();
+    try{ (equipe||[]).forEach((f,i)=>{ const t=toks(f&&f.nome); t.forEach(x=>{ if(x.length>=2) todos.add(x); }); if(t[0]&&t[0].length>=2){ if(!primeiros.has(t[0])) primeiros.set(t[0],[]); primeiros.get(t[0]).push(i); } }); }catch(e){}
+    return {todos,primeiros};
+  }
+
+  /* ── normalizar: minúsculas, sem acento, abreviações e erros de digitação ── */
+  function entender(texto){
+    let t=String(texto==null?'':texto); if(t.length>300) t=t.slice(0,300);
+    const bruto=sem(t).replace(/([a-z])\1{2,}/g,'$1').replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean).slice(0,60);
+    const exp=[]; bruto.forEach(w=>{ if(Object.prototype.hasOwnProperty.call(ABREV,w)) ABREV[w].split(' ').forEach(x=>exp.push(x)); else exp.push(w); });
+    const voc=vocabulario(), nm=nomesDaEquipe(), corrigidas=[];
+    const out=exp.map(w=>{
+      if(w.length<=3||/\d/.test(w)||w.length>25||voc.set.has(w)||CONHECIDAS.has(w)||nm.todos.has(w)) return w;
+      const max=limiteErro(w.length); let melhor=null, md=max+1, empate=false;
+      for(const v of voc.arr){
+        if(Math.abs(v.length-w.length)>max) continue;
+        const d=dist(w,v,max);
+        if(d<md){ md=d; melhor=v; empate=false; }
+        else if(d===md&&d<=max&&melhor&&v!==melhor&&v.slice(0,5)!==melhor.slice(0,5)) empate=true;
+      }
+      if(!melhor||md>max||empate) return w;
+      for(const n of nm.todos){ if(n.length>=4&&Math.abs(n.length-w.length)<=max&&dist(w,n,max)<=md) return w; }   // parece nome da equipe: deixa para a lógica de nomes
+      corrigidas.push([w,melhor]); return melhor;
+    });
+    return {tokens:out,texto:out.join(' '),qn:' '+out.join(' ')+' ',corrigidas};
+  }
+
+  /* ── contexto da conversa (só memória) ── */
+  const ctx={pessoa:null,doms:[],base:'',escolha:null};
+  G.reset=()=>{ ctx.pessoa=null; ctx.doms=[]; ctx.base=''; ctx.escolha=null; };
+  G.contexto=()=>({pessoa:ctx.pessoa,doms:ctx.doms.slice(),base:ctx.base,escolha:!!ctx.escolha});
+  const seguro=fn=>{ try{ return fn(); }catch(e){ console.warn('[V270]',e); return null; } };
+
+  /* ── textos fixos ── */
+  const TXT_NOME=`🤖 Meu nome é <b>${NOME}</b>. Sou o assistente virtual de RH deste app. Eu leio o que está na tela (equipe, domingos, folgas) e respondo <b>sem internet</b>. Não mudo nada na escala: quem confere as regras é o app. Pergunte “<i>o que você sabe fazer?</i>” para ver a lista.`;
+  const TXT_FAZ=`🤖 <b>${NOME}</b> — o que eu sei fazer:<ul>`+
+    `<li>📏 Explicar as <b>regras</b>: 6×1, domingos seguidos (2×1), DSR, feriado e balanço.</li>`+
+    `<li>👥 Responder sobre a <b>escala aberta</b>: quem trabalha num domingo, por que alguém não pode, quantos domingos a pessoa fez, a folga fixa e o que falta.</li>`+
+    `<li>📅 Dizer a <b>data de hoje</b> e a hora do aparelho, e quem estava <b>escalado</b> ou <b>folgou</b> no último domingo (só a escala planejada: eu não tenho registro de ponto).</li>`+
+    `<li>🧭 Mostrar <b>como usar</b> cada passo do app.</li>`+
+    `<li>💡 Dar <b>dicas</b> (aba Dicas) e aprender os costumes da equipe neste aparelho.</li></ul>`+
+    `Entendo abreviações e erros de digitação simples. Se eu ficar na dúvida de qual pessoa você quis dizer, <b>eu pergunto</b>. Não altero a escala e não uso a internet.`;
+  G.saudacaoHtml=()=>`<div class="v265-msg bot v270-saudacao">${es(SAUDACAO)}</div>`;
+
+  /* ── identidade ── */
+  function equipeTem(tok){ try{ return nomesDaEquipe().primeiros.has(tok); }catch(e){ return false; } }
+  function ehIdentidade(qn,tokens){
+    if(tem(qn,'meu','minha')) return false;
+    const eu=tem(qn,'voce','seu','teu','sua');
+    if(tem(qn,'nome')&&eu) return true;
+    if(tem(qn,'chama','chamo','chamar')&&(eu||tokens.length<=4)&&!tem(qn,'funcionario','pessoa','setor','cargo')) return true;
+    if(tem(qn,'quem')&&tem(qn,'voce','es')) return true;
+    if(tem(qn,'gabriel')&&(tem(qn,'voce')||(tem(qn,'quem')&&!equipeTem('gabriel')))) return true;
+    if(tokens.length<=2&&tokens[0]==='gabriel'&&!equipeTem('gabriel')) return true;
+    if(tem(qn,'apresente','apresentar','apresentacao')) return true;
+    return false;
+  }
+  function ehCapacidades(qn,tokens){
+    if(tem(qn,'voce')&&tem(qn,'sabe','consegue','faz','fazer','ajudar','responder')&&(qn.includes(' o que ')||tem(qn,'fazer','ajudar','responder'))) return true;
+    if(tem(qn,'ajuda','help','comandos','menu')&&tokens.length<=3) return true;
+    if(tem(qn,'posso')&&tem(qn,'perguntar')) return true;
+    return false;
+  }
+
+  /* ── datas ── */
+  function ehHoje(qn,tokens){
+    if(tem(qn,'hoje','agora')&&tem(qn,'dia','data','semana','estamos')&&!tem(qn,'quem','quantos','quantas','falta','balanco','feriado','folga','escala','trabalha','trabalham','gerar')) return true;
+    if(tem(qn,'data')&&tem(qn,'atual','hoje')) return true;
+    if(qn.includes(' que dia e ')&&tokens.length<=5&&!tem(qn,'domingo')) return true;
+    if(tem(qn,'hoje')&&tem(qn,'domingo','sabado','feriado')&&tokens.length<=5&&!tem(qn,'quem')) return true;
+    return false;
+  }
+  const ehHora=qn=>qn.includes(' que horas ')||qn.includes(' horas sao ')||qn.includes(' hora agora ')||qn.includes(' horas agora ')||qn.includes(' hora atual ');
+  function respHoje(){
+    const h=agora(), A=+$i('ano').value, M=+$i('mes').value, z=fuso();
+    let t=`📅 Hoje é <b>${es(dataExtenso(h))}</b>${z?` <small>(data do aparelho, fuso ${es(z)})</small>`:''}.`;
+    const mesmo=h.getFullYear()===A&&h.getMonth()===M;
+    t+=mesmo?` A escala aberta é deste mês (<b>${MESES[M]} de ${A}</b>).`:` A escala que está aberta é a de <b>${MESES[M]} de ${A}</b>, que não é o mês de hoje.`;
+    if(h.getDay()===0) t+=' Hoje é <b>domingo</b>.';
+    return t;
+  }
+  function respHora(){ const h=agora(); return `🕒 Agora são <b>${p2(h.getHours())}:${p2(h.getMinutes())}</b> <small>(hora do aparelho)</small>.`; }
+
+  const domingoAntes=(h,dir)=>{ const d=new Date(h.getFullYear(),h.getMonth(),h.getDate()), w=d.getDay(); d.setDate(d.getDate()+(dir<0?-(w===0?7:w):(w===0?7:7-w))); return d; };
+  function estadoDomingo(data){
+    const A=+$i('ano').value, M=+$i('mes').value, y=data.getFullYear(), m=data.getMonth(), d=data.getDate();
+    if(y===A&&m===M) return {fonte:'escala',d};
+    const pm=new Date(A,M,1); pm.setDate(0);
+    if(y===pm.getFullYear()&&m===pm.getMonth()){
+      const ds=domingosDoMes(y,m), k=ds.indexOf(d);
+      if(k>=0&&k===ds.length-1) return {fonte:'historico',qual:'ultimo',d};
+      if(k>=0&&k===ds.length-2) return {fonte:'historico',qual:'penultimo',d};
+    }
+    return {fonte:'fora'};
+  }
+  const sitA=f=>{ try{ return String(f&&f.situacao||'A').trim().toUpperCase()==='A'; }catch(e){ return true; } };
+  function nomesLista(ids,max){ max=max||15; const n=ids.map(i=>`<b>${es(I.curto(i))}</b>`); return n.length>max?n.slice(0,max).join(', ')+` e mais ${n.length-max}`:I.lista(n); }
+  function quemEscala(d){
+    const b=I.bal();
+    if(d===b&&typeof vaiTrabalharNoBalanco==='function'){ const l=equipe.map((f,i)=>i).filter(i=>seguro(()=>vaiTrabalharNoBalanco(i))); return {l,f:'domingo de balanço: todos os aptos trabalham',aberto:false}; }
+    const r=AP.quem(d)||{l:[],f:''}; return {l:(r.l||[]).map(Number).filter(i=>equipe[i]),f:String(r.f||''),aberto:!!r.aberto};
+  }
+  /* tipo: 'escalados' (planejado) | 'trabalhou' (presença efetiva) | 'folgou' */
+  function respDomingo(data,tipo,explica){
+    const hoje=agora(), est=estadoDomingo(data), rot=`domingo <b>${es(dataCurta(data))}</b>`;
+    const nota=`<br><small>${explica||''}Hoje (aparelho): ${es(dataExtenso(hoje))}.</small>`;
+    if(!equipe.length) return 'Primeiro carregue a equipe no passo <b>1 Equipe</b>. Depois eu respondo sobre os domingos.';
+    if(est.fonte==='fora'){
+      const A=+$i('ano').value, M=+$i('mes').value, ds=I.doms(), ult=ds[ds.length-1];
+      return `🤔 Não tenho a escala do ${rot}. A escala aberta é a de <b>${MESES[M]} de ${A}</b>; fora dela eu só guardo os <b>2 últimos domingos do mês passado</b> (passo 2) e não invento dados.${ult?` Para ver o último domingo da escala aberta, pergunte “<i>quem trabalha no domingo ${ult}?</i>”.`:''}`+nota;
+    }
+    let esc, fonteTxt;
+    if(est.fonte==='escala'){ const r=quemEscala(est.d); esc=r.l; fonteTxt=r.f; if(!r.l.length&&r.aberto) return `📋 Para o ${rot} ainda <b>não há escala</b>: no modo Automático o app escolhe quem trabalha quando você toca em <b>Gerar</b> (passo 5).`+nota; }
+    else { esc=equipe.map((f,i)=>i).filter(i=>seguro(()=>historicoManual(i)[est.qual])); fonteTxt='passo 2 Mês passado (informado por você ou vindo do histórico guardado)'; }
+    const fonte=`<small>Fonte: ${es(fonteTxt)}.</small>`;
+    if(tipo==='folgou'){
+      const fora=equipe.map((f,i)=>i).filter(i=>sitA(equipe[i])&&!esc.includes(i));
+      return fora.length?`🛋️ No ${rot} <b>não estavam escalados</b> (${fora.length}): ${nomesLista(fora)}. <small>Inclui quem tem folga fixa no domingo; afastados e de férias não entram na conta.</small><br>${fonte}`+nota
+        :`No ${rot} todo mundo da equipe estava escalado. ${fonte}`+nota;
+    }
+    const lista=esc.length?`${nomesLista(esc)} <small>(${esc.length})</small>`:'<i>ninguém</i>';
+    if(tipo==='trabalhou'){
+      return `🤝 Eu <b>não tenho registro de presença</b> (ponto): só guardo a escala <b>planejada</b>. Para o ${rot} o que tenho é isto: ${lista}.<br>${fonte}`+nota;
+    }
+    return `👥 <b>Escalados</b> no ${rot} (planejado): ${lista}.<br>${fonte}`+nota;
+  }
+  function ehUltimoDomingo(qn){ return qn.includes(' domingo ')&&tem(qn,'ultimo','ultima','passado','anterior')&&!qn.includes(' mes passado ')&&!qn.includes(' meses ')&&!qn.includes(' do mes ')&&!qn.includes(' deste mes ')&&!qn.includes(' desse mes ')&&!qn.includes(' este mes ')&&!qn.includes(' esse mes ')&&tem(qn,'quem','quais','quantos','quantas','lista','nomes','liste','mostre','escalado','escalados','escalada','trabalhou','trabalharam','trabalha','trabalham','folgou','folgaram','folga','veio','vieram'); }
+  function ehProximoDomingo(qn){ return qn.includes(' domingo ')&&tem(qn,'proximo','proxima')&&tem(qn,'quem','quais','lista','liste','mostre','escalado','escalados','trabalha','trabalham','folga','vai','vao'); }
+  function tipoDomingo(qn){
+    if(tem(qn,'folgou','folgaram','folga','folgam','folgar','folgando')||qn.includes(' nao trabalhou')||qn.includes(' nao veio')||qn.includes(' de folga ')) return 'folgou';
+    if(tem(qn,'trabalhou','trabalharam','veio','vieram','compareceu','compareceram','presente','presentes','presenca','faltou','faltaram','bateu')) return 'trabalhou';
+    return 'escalados';
+  }
+  function respUltimoDomingo(qn){
+    const h=agora(), d=domingoAntes(h,-1), tipo=tipoDomingo(qn);
+    const ex=`Entendi “último domingo” como o domingo mais recente que já passou (${es(dataCurta(d))}), contando a partir de hoje.${h.getDay()===0?' Hoje é domingo; para hoje, pergunte “<i>quem trabalha hoje?</i>”.':''} `;
+    return respDomingo(d,tipo,ex);
+  }
+  function respProximoDomingo(qn){
+    const h=agora(), d=domingoAntes(h,1), tipo=tipoDomingo(qn)==='folgou'?'folgou':'escalados';
+    return respDomingo(d,tipo,`Entendi “próximo domingo” como o primeiro domingo depois de hoje (${es(dataCurta(d))}). `);
+  }
+  function ehQuemHoje(qn){ return tem(qn,'hoje')&&tem(qn,'quem','quais','lista')&&tem(qn,'trabalha','trabalham','escalado','escalados','vai','vao','folga','folgam'); }
+  function respQuemHoje(qn){
+    const h=agora();
+    if(h.getDay()!==0) return `Hoje é <b>${es(dataExtenso(h))}</b>, que não é domingo. A escala daqui é dos domingos (e feriados). Para saber do domingo mais recente, pergunte “<i>quem trabalhou no último domingo?</i>”.`;
+    return respDomingo(new Date(h.getFullYear(),h.getMonth(),h.getDate()),tipoDomingo(qn)==='folgou'?'folgou':'escalados','Hoje é domingo. ');
+  }
+
+  /* ── pessoas: dúvida de nome e nomes repetidos ── */
+  const NUMS=['1','2','3','4','5','6'];
+  const ORDS={primeiro:1,primeira:1,segundo:2,segunda:2,terceiro:3,terceira:3,quarto:4,quarta:4,quinto:5,quinta:5};
+  function opcoesHtml(ops){ return `<ol>${ops.map(o=>`<li>${es(o.rotulo)}</li>`).join('')}</ol>`; }
+  function substituir(tokens,alvo,por){ const out=[]; let feito=false; tokens.forEach(t=>{ if(!feito&&t===alvo){ por.split(' ').forEach(x=>out.push(x)); feito=true; } else out.push(t); }); return out.join(' '); }
+  function rotuloPessoa(i){ const f=equipe[i]||{}; return `${nomeI(i)}${f.cargo?' — '+f.cargo:''}`; }
+  function perguntaPessoa(n,intro){
+    const nm=nomesDaEquipe(), P=I.pessoas(n.qn);
+    if(P.length>1){
+      const alvo=primeiroTok(P[0]); const ops=P.slice(0,6).map(i=>({rotulo:rotuloPessoa(i),texto:substituir(n.tokens,alvo,refPessoa(i)),toks:toks(nomeI(i))}));
+      ctx.escolha={ops,tipo:'pessoa'};
+      return `${intro||'Achei mais de uma pessoa com esse nome.'} Qual delas?${opcoesHtml(ops)}Responda com o <b>número</b> (1, 2…) ou escreva o <b>sobrenome</b>.`;
+    }
+    return null;
+  }
+  function duvidaNome(n){
+    if(I.pessoas(n.qn).length) return null;
+    const voc=vocabulario(), nm=nomesDaEquipe();
+    const conteudo=n.tokens.filter(t=>voc.set.has(t)&&!CONHECIDAS.has(t));
+    if(!conteudo.length) return null;                                   // não parece pergunta sobre alguém
+    const desconhecidas=n.tokens.filter(t=>t.length>=4&&!/\d/.test(t)&&!voc.set.has(t)&&!CONHECIDAS.has(t)&&!nm.todos.has(t));
+    for(const w of desconhecidas){
+      const max=limiteErro(w.length); if(!max) continue;
+      let md=max+1, melhores=[];
+      nm.primeiros.forEach((idx,tk)=>{ if(tk.length<4||Math.abs(tk.length-w.length)>max) return; const d=dist(w,tk,max); if(d<md){ md=d; melhores=[tk]; } else if(d===md&&d<=max) melhores.push(tk); });
+      if(!melhores.length||md>max) continue;
+      const pessoas=[]; melhores.forEach(tk=>nm.primeiros.get(tk).forEach(i=>pessoas.push(i)));
+      const ops=pessoas.slice(0,5).map(i=>({rotulo:rotuloPessoa(i),texto:substituir(n.tokens,w,refPessoa(i)),toks:toks(nomeI(i))}));
+      ctx.escolha={ops,tipo:'nome'};
+      return ops.length===1?`🤔 Não achei “${es(w)}”. Você quis dizer <b>${es(ops[0].rotulo)}</b>? Responda <b>sim</b> ou escreva o nome certo.`
+        :`🤔 Não achei “${es(w)}”. Você quis dizer uma destas?${opcoesHtml(ops)}Responda com o <b>número</b> ou escreva o nome certo.`;
+    }
+    return null;
+  }
+  function resolverEscolha(n){
+    const e=ctx.escolha; ctx.escolha=null; if(!e||!e.ops||!e.ops.length) return null;
+    const t=n.tokens; if(t.length>4) return null;
+    if(t.includes('nao')||(t.length===1&&t[0]==='n')) return 'Tudo bem. Escreva o nome como está na lista do passo <b>1 Equipe</b> (ou a matrícula).';
+    let k=-1;
+    if(e.ops.length===1&&t.some(x=>['sim','isso','essa','esse','correto','exato','certo','claro','ok','s'].includes(x))) k=0;
+    if(k<0){ const num=t.find(x=>NUMS.includes(x)); if(num&&+num<=e.ops.length) k=+num-1; }
+    if(k<0){ const o=t.find(x=>ORDS[x]); if(o&&ORDS[o]<=e.ops.length) k=ORDS[o]-1; }
+    if(k<0){ const cand=e.ops.map((op,j)=>({j,n:t.filter(x=>x.length>=3&&op.toks.includes(x)).length})).filter(x=>x.n>0); if(cand.length===1) k=cand[0].j; }
+    if(k<0) return null;
+    return responderTexto(e.ops[k].texto,true);
+  }
+
+  /* ── continuação: “e no domingo 12?”, “e a Maria?”, “por que ela não pode?” ── */
+  const PRONOMES=['ele','ela','dele','dela','nele','nela'];
+  function seguimento(n){
+    if(!ctx.base||!n.tokens.length) return null;
+    const P=I.pessoas(n.qn), D=I.domingos(n.qn), t=n.tokens;
+    const voc=vocabulario(), conteudo=t.filter(x=>voc.set.has(x)&&!CONHECIDAS.has(x)&&x!=='domingo'&&x!=='domingos');
+    const continua=t[0]==='e'||t[0]==='tambem'||t.includes('tambem');
+    if(continua&&t.length<=7&&!conteudo.length&&(P.length||D.length)){
+      if(P.length>1) return null;
+      const pe=P.length?P[0]:ctx.pessoa, dm=D.length?D:ctx.doms;
+      return [ctx.base,pe!=null?refPessoa(pe):'',dm.join(' ')].filter(Boolean).join(' ');
+    }
+    if(!P.length&&ctx.pessoa!=null&&t.length<=9&&t.some(x=>PRONOMES.includes(x))&&(conteudo.length||D.length)) return n.texto+' '+refPessoa(ctx.pessoa);
+    return null;
+  }
+  function lembrar(n){
+    const P=I.pessoas(n.qn), D=I.domingos(n.qn);
+    if(!P.length&&!D.length){ ctx.base=''; return; }   // sem pessoa nem domingo na pergunta: não há o que continuar
+    if(P.length===1) ctx.pessoa=P[0];
+    if(D.length) ctx.doms=D.slice(0,3);
+    const nomesTok=new Set(); P.forEach(i=>toks(nomeI(i)).forEach(x=>nomesTok.add(x)));
+    const b=n.tokens.filter(x=>!nomesTok.has(x)&&!/^\d+$/.test(x)&&x!=='e');
+    if(b.length) ctx.base=b.join(' ');
+  }
+
+  /* ── resposta final ── */
+  function responderTexto(texto,sub){
+    const n=entender(texto);
+    if(!n.tokens.length) return orig(texto);
+    if(!sub){
+      const r=seguimento(n); if(r){ const out=responderTexto(r,true); return out; }
+      const esc=ctx.escolha?resolverEscolha(n):null; if(esc) return esc;
+    }
+    const qn=n.qn, tk=n.tokens;
+    if(ehIdentidade(qn,tk)) return TXT_NOME;
+    if(ehCapacidades(qn,tk)) return TXT_FAZ;
+    if(ehHora(qn)) return respHora();
+    if(ehHoje(qn,tk)) return respHoje();
+    if(ehQuemHoje(qn)) return respQuemHoje(qn);
+    if(ehUltimoDomingo(qn)) return respUltimoDomingo(qn);
+    if(ehProximoDomingo(qn)) return respProximoDomingo(qn);
+    if(tem(qn,'oi','ola','opa','bom dia','boa tarde','boa noite','e ai')&&tk.length<=4&&!tem(qn,'quem','quais','quantos')) return es(SAUDACAO);
+    const dn=duvidaNome(n); if(dn) return dn;
+    const antes=n.corrigidas.length?`<small>Entendi: “${es(n.texto)}”.</small><br>`:'';
+    let r=orig(n.texto);
+    if(typeof r==='string'&&r.indexOf('Achei mais de uma pessoa')===0){ const q=perguntaPessoa(n); if(q) return q; }
+    seguro(()=>lembrar(n));
+    return antes+r;
+  }
+  function responder(texto){
+    try{ const r=responderTexto(texto,false); if(typeof r==='string'&&r) return r; }
+    catch(e){ console.warn('[V270]',e); }
+    try{ return orig(texto); }catch(e){ return 'Ops, não consegui responder essa agora. Tente de novo.'; }
+  }
+  G.entender=entender; G.responder=responder;
+  base.responder=responder;
+
+  /* ── saudação automática: balão perto do 🤖 (uma vez por abertura do app) ── */
+  function criarBalao(){
+    if(window.__v270Balao||$i('v270Balao')) return true;
+    const btn=$i('v262Botao'); if(!btn) return false;
+    window.__v270Balao=true;
+    const b=document.createElement('div'); b.id='v270Balao'; b.setAttribute('role','status'); b.setAttribute('aria-live','polite');
+    b.innerHTML=`<button type="button" class="x" aria-label="Fechar a mensagem do Gabriel">×</button><div class="t"><b>🤖 ${NOME}</b><span>${es(SAUDACAO)}</span></div><button type="button" class="ir">💬 Conversar com o ${NOME}</button>`;
+    document.body.appendChild(b);
+    const fechar=()=>{ if(b.parentNode) b.remove(); };
+    b.querySelector('.x').addEventListener('click',fechar);
+    b.querySelector('.ir').addEventListener('click',()=>{ fechar(); try{ base.abrirChat(); }catch(e){} });
+    btn.addEventListener('click',fechar);
+    { const pn=$i('v262Painel'); if(pn){ if(!pn.hidden) fechar(); new MutationObserver(()=>{ if(!pn.hidden) fechar(); }).observe(pn,{attributes:true,attributeFilter:['hidden']}); } }   // painel aberto por qualquer caminho: o balão sai da frente
+    setTimeout(fechar,20000);
+    return true;
+  }
+  { let n=0; const t=setInterval(()=>{ let ok=false; try{ ok=criarBalao(); }catch(e){ ok=true; } if(ok||++n>60) clearInterval(t); },300); }
+})();
+
 </script>
 
 </body>
