@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V267</title>
+<title>Escala de Setores — V268</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V268 [Claude] — 🤖 ASSISTENTE RH NA TELA INICIAL (print do dono): na tela inicial (escolher o setor / início do setor)
+       aparecia “Faltam 5 coisa(s)…” sem dizer de qual setor, e o “Ir até lá” não fazia nada — a escala fica atrás da
+       tela inicial. Agora a dica diz o setor, o mês e o domingo (ex.: “Frente de Loja · novembro/2026 — domingo 01/11:
+       …”), e o “Ir até lá” fecha a tela inicial, abre o passo 3 Domingos daquele setor e vai até o domingo. O 💬 chat
+       (“o que falta?”) também diz o setor e o mês.
 V267 [Claude] — ⏰ HORÁRIO POR FUNÇÃO NO “POR CARGO” (pedido do dono): no quadro “Quantos de cada cargo por domingo”,
        cada função ganhou “⏰ Horário de domingo”: você diz quantos entram em cada horário (ex.: 3 Açougueiros às 06:50,
        1 às 07:45 e 3 às 12:00). A quantidade da função vira a soma. Ao gerar, o app escolhe quem já trabalha naquele
@@ -2578,7 +2583,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V267 · ⏰ Horário por função</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V268 · 🤖 Assistente: “Ir até lá” na tela inicial</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -13960,13 +13965,19 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   /* ── dicas ── */
   const naTelaDomingos=()=>!!($i('selecaoDomingosManual')||$i('selecaoDomingosMista'))?.closest('.step-panel')?.classList.contains('active');
   const modoG=()=>$i('modoGeracao')?.value||'motor';
-  function irDomingos(){ try{ window.v45GotoStep?.(3,false); }catch(e){}   /* passo 3 = Domingos */ setTimeout(()=>($i('selecaoDomingosManual')||$i('selecaoDomingosMista'))?.scrollIntoView({behavior:'smooth',block:'start'}),200); }
+  function irDomingos(d){   // V268: fecha a tela inicial (escolher o setor / início do setor), que fica por cima da escala
+    try{ if($i('homeSetores')?.classList.contains('on')) fecharHomeSetores(); $i('inicioSetor')?.classList.remove('on'); }catch(e){}
+    try{ if(painel) painel.hidden=true; }catch(e){}
+    try{ window.v45GotoStep?.(3,false); }catch(e){}   /* passo 3 = Domingos */
+    setTimeout(()=>{ const box=$i('selecaoDomingosManual')||$i('selecaoDomingosMista'); const card=d?[...(box?.querySelectorAll('.dom-card')||[])].find(c=>c.querySelector(`[data-dom="${d}"]`)):null; (card||box)?.scrollIntoView({behavior:'smooth',block:'start'}); },250); }
+  const ondeV268=()=>{ try{ return `${$i('setorSelecionado')?.value||'Setor'} · ${$i('mes').options[$i('mes').selectedIndex].text.toLowerCase()}/${$i('ano').value}`; }catch(e){ return ''; } };   // V268
   function dicas(completo){   // completo: com a conferência do auditor (pesada) — só com o painel aberto
     const out=[]; let s; try{ s=S(); }catch(e){ return out; }
     const ano=+$i('ano').value, mes=+$i('mes').value, ym=ymK(ano,mes), doms=domingosDoMes(ano,mes), manual=['manual','mista'].includes(modoG());
     const sel=manual?(selecaoManualDomingo||{}):(trabalhoDomingo||{});
     /* 1. o que falta antes de gerar */
-    if(manual&&completo){ try{ const er=(auditarSelecaoAntesDaGeracao(modoG())||[]); if(er.length) out.push({tipo:'bad',txt:`🛠️ Faltam <b>${er.length}</b> coisa(s) para a escala ficar pronta. A primeira: ${es(String(er[0]).replace(/^\d{2}\/\d{2}(\/\d{4})?:\s*/,''))}`,acoes:[['Ir até lá',irDomingos]]}); }catch(e){} }
+    if(manual&&completo){ try{ const er=(auditarSelecaoAntesDaGeracao(modoG())||[]); if(er.length){ const m0=String(er[0]).match(/^(\d{2})\/(\d{2})(\/\d{4})?:\s*/), d0=m0?+m0[1]:0;   /* V268: diz o setor, o mês e o domingo */
+      out.push({tipo:'bad',txt:`🛠️ <b>${es(ondeV268())}</b>: faltam <b>${er.length}</b> coisa(s) para a escala ficar pronta. A primeira${d0?` (domingo ${m0[1]}/${m0[2]})`:''}: ${es(String(er[0]).replace(/^\d{2}\/\d{2}(\/\d{4})?:\s*/,''))}`,acoes:[['Ir até lá',()=>irDomingos(d0)]]}); } }catch(e){} }
     /* 2. domingos acima do costume */
     const cont=new Map(); doms.forEach(d=>(sel[d]||sel[String(d)]||[]).map(Number).forEach(i=>cont.set(i,(cont.get(i)||0)+1)));
     cont.forEach((n,i)=>{ const f=equipe[i]; if(!f) return; const p=s.pessoas[chaveP(f)]; if(!p) return;
@@ -14147,7 +14158,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(tem(q,'falta','faltando','pendente*','pronta','pronto','posso gerar','esta certo','ta certo','erro','erros','problema*')&&!P.length){
       const f=AP.falta(); if(f===null) return `No modo <b>Automático</b>, o app monta os domingos quando você toca em <b>Gerar</b> (passo 5). Antes, confira a equipe, o mês passado${APP==='setores'?' e a liderança (③ Quem lidera)':''}.`;
       if(!f.length) return '✅ Não falta nada na escala dos domingos. Pode ir para os feriados e depois <b>Gerar</b>.';
-      return `🛠️ Falta${f.length>1?'m':''} <b>${f.length}</b> coisa(s):<ul>${f.slice(0,5).map(x=>'<li>'+es(x)+'</li>').join('')}</ul>${f.length>5?`…e mais ${f.length-5}. `:''}Ajuste no passo <b>3 Domingos</b>.`; }
+      return `🛠️ <b>${es(($i('setorSelecionado')?.value||'Setor')+' · '+mesNome)}</b>: falta${f.length>1?'m':''} <b>${f.length}</b> coisa(s):<ul>${f.slice(0,5).map(x=>'<li>'+es(x)+'</li>').join('')}</ul>${f.length>5?`…e mais ${f.length-5}. `:''}Ajuste no passo <b>3 Domingos</b>.`; }
     /* por que não pode */
     if(tem(q,'por que','porque','pq','motivo','nao pode','nao da','nao consigo','bloquead*','nao aparece')){
       if(!P.length){ const rr=RESP.find(x=>x.k.some(k=>tem(q,k))); if(rr) return rr.r; return 'De quem você quer saber? Escreva o nome. Ex.: “<i>por que '+es(exemploNome())+' não pode no domingo '+(doms()[0]||'')+'?</i>”'; }
