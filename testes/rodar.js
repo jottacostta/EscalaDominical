@@ -1513,7 +1513,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1587,6 +1587,162 @@ async function testarSetoresAlternada(browser){   // V269: escala Manual FORA do
   // 7) fora do modo Manual não aparece nada
   await p.evaluate(() => { const m = $('modoGeracao'); m.value = 'motor'; m.dispatchEvent(new Event('change', { bubbles: true })); }); await p.waitForTimeout(1300);
   ok(await p.evaluate(() => window.v269Alt.quebras().length === 0 && !document.getElementById('v269Alt')), 'no modo Automático a regra não se aplica (nada é perguntado)');
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+/* V270/V179 — 🤖 Gabriel: nome, saudação sem duplicar, PNL (abreviações, erros, contexto, dúvida) e datas */
+async function testarGabriel(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — 🤖 Gabriel (nome, saudação, conversa e datas)`);
+  const enc = nome !== 'Setores', SAUD = 'Olá! Eu sou o Gabriel, seu assistente virtual de RH. Como posso ajudar hoje?';
+  const { p, erros } = await novaPagina(browser);
+  let rede = 0; p.on('request', r => { if(!/^file:|^data:|^blob:|^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url())) rede++; });   // (as fontes do Google já faziam parte do app)
+  await p.goto('file://' + app); await p.waitForTimeout(2200);
+  // 1) saudação automática ao abrir (sem o usuário escrever nada) e sem duplicar
+  const b1 = await p.evaluate(() => ({ n: document.querySelectorAll('#v270Balao').length, txt: document.getElementById('v270Balao')?.innerText || '', botao: !!document.getElementById('v262Botao') }));
+  ok(b1.n === 1 && b1.txt.includes(SAUD) && b1.botao, `ao abrir o app o Gabriel se apresenta sozinho, uma vez só: “${b1.txt.replace(/\n/g, ' ').slice(0, 80)}…”`);
+  await p.evaluate(() => { for(const t of ['visibilitychange', 'focus', 'online']) window.dispatchEvent(new Event(t)); document.dispatchEvent(new Event('visibilitychange')); window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); });
+  await p.waitForTimeout(800);
+  ok(await p.evaluate(() => document.querySelectorAll('#v270Balao').length) === 1, 'voltar à página / trocar de aba não cria outro balão');
+  await p.evaluate(() => document.querySelector('#v270Balao .x').click()); await p.waitForTimeout(200);
+  await p.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }))); await p.waitForTimeout(800);
+  ok(await p.evaluate(() => document.querySelectorAll('#v270Balao').length) === 0, 'depois de fechar o balão, voltar à página não o abre de novo');
+  await abrir(p); await p.waitForTimeout(1200);
+  const chat = async () => p.evaluate(async () => { const w = ms => new Promise(o => setTimeout(o, ms)); window.v265Chat.abrirChat(); await w(300);
+    const m = [...document.querySelectorAll('#v265Msgs .v265-msg')]; return { saud: document.querySelectorAll('#v265Msgs .v270-saudacao').length, primeiro: m[0]?.classList.contains('v270-saudacao'), txt: m[0]?.innerText || '', n: m.length }; });
+  let c1 = await chat();
+  ok(c1.saud === 1 && c1.primeiro && c1.txt === SAUD, 'a 1ª mensagem do chat é a saudação do Gabriel, sem ninguém escrever');
+  const c2 = await p.evaluate(async () => { const w = ms => new Promise(o => setTimeout(o, ms)); const f = document.querySelector('.v265-form'), i = document.getElementById('v265Txt');
+    for(const q of ['oi', 'o que falta?', 'qual é o seu nome?']){ i.value = q; f.requestSubmit(); await w(150); }
+    document.querySelector('.v265-abas [data-aba="dicas"]').click(); await w(100); document.querySelector('.v265-abas [data-aba="chat"]').click(); await w(200);
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); await w(200);
+    const m = [...document.querySelectorAll('#v265Msgs .v265-msg')]; return { saud: document.querySelectorAll('#v265Msgs .v270-saudacao').length, n: m.length, ult: m[m.length - 1].classList.contains('bot') }; });
+  ok(c2.saud === 1 && c2.n === 1 + 6 && c2.ult, `depois de conversar e trocar de aba, a saudação continua uma só (${c2.saud}) e a conversa tem as 6 mensagens (${c2.n - 1})`);
+  await p.reload(); await p.waitForTimeout(2200);
+  ok(await p.evaluate(() => document.querySelectorAll('#v270Balao').length) === 1, 'ao recarregar o app o Gabriel se apresenta de novo (uma vez)');
+  await abrir(p); await p.waitForTimeout(1200); c1 = await chat();
+  ok(c1.saud === 1 && c1.n <= 2 && !(await p.$('#v265Msgs .v265-msg.eu')), 'depois de recarregar o chat começa com uma única saudação (e nenhuma pergunta antiga)');
+  ok(await p.evaluate(() => document.querySelectorAll('#v270Balao').length) === 0, 'com o painel do Gabriel aberto (por qualquer caminho) o balão sai da frente');
+
+  // 2) identidade e capacidades
+  const R = await p.evaluate(({ enc }) => { const C = window.v265Chat, t = h => String(h).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ''), out = {};
+    const nomes = ['qual é o seu nome?', 'Como você se chama?', 'quem é você?', 'quem é vc', 'qual seu nome', 'qaul é seu nmoe?', 'como vc se chama', 'Se apresente'];
+    out.nomes = nomes.map(q => [q, /Gabriel/.test(t(C.responder(q)))]);
+    out.meu = /Meu nome é Gabriel/.test(t(C.responder('qual é o meu nome?')));
+    const faz = t(C.responder('o que você sabe fazer?')); out.faz = faz; out.faz2 = /Gabriel/.test(t(C.responder('no que você pode me ajudar?')));
+    out.malu = nomes.concat(['o que você sabe fazer?']).some(q => /MaLu/i.test(t(C.responder(q))));
+    out.sabe = t(C.responder('você sabe quem trabalha no domingo?')); return out; }, { enc });
+  ok(R.nomes.every(x => x[1]), 'responde que se chama Gabriel (com abreviações e erros de digitação): ' + R.nomes.filter(x => !x[1]).map(x => x[0]).join('; '));
+  ok(!R.meu && !R.malu, '“qual é o MEU nome?” não é a pergunta sobre o Gabriel, e o nome MaLu não aparece');
+  ok(/o que eu sei fazer/i.test(R.faz) && R.faz2 && !/auditoria|machine learning|treinad|aprendizado de máquina|planilha inteira/i.test(R.faz), 'a lista “o que você sabe fazer?” só cita o que existe de verdade');
+  ok(!/o que eu sei fazer/i.test(R.sabe), '“você sabe quem trabalha no domingo?” continua sendo pergunta da escala, não da lista de capacidades');
+
+  // 3) montar um cenário (domingos escalados) e datas pelo relógio do aparelho
+  const cen = await p.evaluate(({ enc }) => { const A = +$('ano').value, M = +$('mes').value; const uniq = {}; equipe.forEach(f => { const k = f.nome.split(' ')[0]; uniq[k] = (uniq[k] || 0) + 1; });
+    const livres = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && uniq[equipe[i].nome.split(' ')[0]] === 1 && (enc || !ehLiderancaDomingo(equipe[i])));
+    return { A, M, livres, total: equipe.length }; }, { enc });
+  ok(cen.livres.length >= 6, `cenário: ${cen.total} pessoas, ${cen.livres.length} com primeiro nome único`);
+  const escalar = (d, ids) => p.evaluate(({ d, ids, enc }) => { if(enc){ window.v167.definirModo('manual'); const sel = window.v167.sel()[d] || []; sel.slice().forEach(i => window.v167.desmarcar(i, d));
+      const pool = equipe.map((f, i) => i); for(const t of ['enc', 'sub', null]){ for(const i of pool){ const S = window.v167.sel()[d] || []; if(S.length >= 3) break; if(S.includes(i) || (t && equipe[i].tipo !== t)) continue; if(window.v167.marcar(i, d, true)) break; } }
+      return window.v167.sel()[d].slice(); }
+    const s = $('modoGeracao'); s.value = 'manual'; s.dispatchEvent(new Event('change', { bubbles: true })); selecaoManualDomingo[String(d)] = ids.slice(); return ids.slice(); }, { d, ids, enc });
+  const relogio = (y, m, d, h = 14, mi = 35) => p.evaluate(([y, m, d, h, mi]) => { window.v270Gabriel.relogio = () => new Date(y, m, d, h, mi, 0); }, [y, m, d, h, mi]);
+  const perg = qs => p.evaluate(qs => { const C = window.v265Chat, t = h => String(h).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ''); return qs.map(q => t(C.responder(q))); }, qs);
+  // hoje = quinta 15/10/2026; escala aberta = outro mês
+  await relogio(2026, 9, 15);
+  let r = await perg(['Que dia é hoje?', 'data de hoje', 'hoje é que dia?', 'qual a data de hoje', 'que dia é hj', 'que dia da semana é hoje?', 'que horas são?', 'Que dia é hoje, segundo o app, no mês da escala?']);
+  ok(r.slice(0, 6).every(x => /quinta-feira, 15 de outubro de 2026/.test(x)), 'Que dia é hoje? (e variações) usa a data do aparelho: ' + r[0].slice(0, 70));
+  ok(/14:35/.test(r[6]), 'Que horas são? usa a hora do aparelho: ' + r[6]);
+  await mudarMes(p, 9, 2026); await p.waitForTimeout(600); r = await perg(['que dia é hoje?']);
+  ok(/deste mês/.test(r[0]), 'com a escala aberta no mês de hoje, o Gabriel diz que é deste mês');
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600); r = await perg(['que dia é hoje?']);
+  ok(/15 de outubro de 2026/.test(r[0]) && /não é o mês de hoje/.test(r[0]) && /novembro de 2026/.test(r[0]), 'com a escala aberta em outro mês, não confunde a data de hoje com o mês da escala');
+  // último domingo DENTRO da escala aberta (hoje = quarta 18/11/2026 → domingo 15/11)
+  const ids = cen.livres.slice(0, 3);
+  const quem = await escalar(15, ids);
+  await relogio(2026, 10, 18);
+  const nm = i => p.evaluate(i => equipe[i].nome.split(' ')[0], i);
+  const nomesQ = await Promise.all(quem.map(nm));
+  r = await perg(['Quem está escalado no último domingo?', 'Quem trabalhou no último domingo?', 'Quem folgou no último domingo?', 'qm esta escalado no ult dom', 'quem folgou no ultimo domigo?']);
+  const todosAtivos = await p.evaluate(() => equipe.filter(f => String(f.situacao || 'A').trim().toUpperCase() === 'A').length);
+  ok(nomesQ.every(x => r[0].includes(x)) && /Escalados/.test(r[0]) && /planejado/.test(r[0]) && /15\/11\/2026/.test(r[0]), 'ESCALADOS no último domingo: lista quem está na escala e diz que é o planejado (' + r[0].slice(0, 90) + '…)');
+  ok(/não tenho registro de presença/i.test(r[1]) && nomesQ.every(x => r[1].includes(x)), 'TRABALHOU: avisa que o app não tem ponto/presença e só mostra o planejado');
+  const fol = r[2].match(/\((\d+)\):/);
+  ok(/não estavam escalados/.test(r[2]) && fol && +fol[1] === todosAtivos - quem.length && !nomesQ.some(x => new RegExp('(^|[ ,])' + x + '([ ,.]|$)').test(r[2].split('Fonte')[0].split('escalados')[1] || '')), `FOLGOU: lista quem NÃO estava escalado (${fol && fol[1]} = ${todosAtivos} - ${quem.length})`);
+  ok(r[0] !== r[1] && r[1] !== r[2] && r[0] !== r[2], 'as 3 perguntas sobre o último domingo têm respostas diferentes');
+  ok(/Escalados/.test(r[3]) && /não estavam escalados/.test(r[4]), 'abreviações e erro de digitação (“qm”, “ult dom”, “domigo”) são entendidos');
+  ok(/Hoje \(aparelho\)/.test(r[0]) && /mais recente que já passou/.test(r[0]), 'a resposta mostra de onde veio a data (hoje, pelo aparelho) e como “último domingo” foi entendido');
+  // hoje é domingo
+  await relogio(2026, 10, 15);
+  r = await perg(['quem estava escalado no último domingo?', 'quem trabalha hoje?']);
+  ok(/08\/11\/2026/.test(r[0]) && /Hoje é domingo/.test(r[0]), 'se hoje é domingo, “último domingo” é o anterior (08/11) e o Gabriel avisa');
+  ok(nomesQ.every(x => r[1].includes(x)) && /15\/11\/2026/.test(r[1]), '“quem trabalha hoje?” num domingo mostra a escala de hoje');
+  await relogio(2026, 10, 18); r = await perg(['quem trabalha hoje?']);
+  ok(/não é domingo/.test(r[0]), '“quem trabalha hoje?” fora do domingo explica que hoje não é domingo');
+  // último domingo = último do mês passado (passo 2)
+  await mudarMes(p, 11, 2026); await p.waitForTimeout(800);
+  const hist = await p.evaluate(ids => { const dsNov = domingosDoMes(2026, 10), ult = dsNov[dsNov.length - 1]; ids.forEach(i => { const c = document.getElementById('hist_ult_' + i); if(c){ c.checked = true; c.dispatchEvent(new Event('change', { bubbles: true })); } }); return { ult, ok: ids.every(i => historicoManual(i).ultimo) }; }, quem);
+  await relogio(2026, 11, 2); r = await perg(['quem trabalhou no último domingo?', 'quem está escalado no último domingo?']);
+  ok(hist.ok && nomesQ.every(x => r[0].includes(x)) && /passo 2/.test(r[0]) && new RegExp(String(hist.ult) + '/11/2026').test(r[0]) && /não tenho registro de presença/i.test(r[0]), 'último domingo do mês passado: usa o passo 2 (Mês passado) e continua avisando que não é registro de ponto');
+  // fora do período
+  await relogio(2027, 2, 10); r = await perg(['quem está escalado no último domingo?', 'quem folgou no último domingo?']);
+  ok(r.every(x => /Não tenho a escala do domingo 07\/03\/2027/.test(x) && /não invento dados/.test(x)) && !nomesQ.some(x => r[0].includes(x)), 'domingo fora do que o app guarda: diz a limitação e não inventa ninguém');
+  // "último domingo do mês" continua sendo a pergunta antiga da escala aberta
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600); await relogio(2026, 10, 18);
+  r = await perg(['quem trabalha no último domingo do mês?']);
+  ok(!/mais recente que já passou/.test(r[0]), '“último domingo do mês” não é confundido com “último domingo passado”');
+
+  // 4) conversa: abreviações, erros de digitação, contexto e dúvida
+  const alvo = await p.evaluate(ids => { const i = ids[0]; return { i, pn: equipe[i].nome.split(' ')[0], nome: equipe[i].nome }; }, cen.livres.slice(3, 4));
+  const outro = await p.evaluate(i => ({ i, pn: equipe[i].nome.split(' ')[0] }), cen.livres[4]);
+  const limpo = x => x.replace(/^Entendi: “[^”]*”\.\s*/, '');
+  r = await perg([`por que ${alvo.pn} não pode no domingo 8?`, `pq ${alvo.pn} nao pode no domigo 8`, `por que ${alvo.pn} não pode no domingo 8`.toUpperCase(), `quantos domingos ${alvo.pn} fez?`, `qnts dom ${alvo.pn} fez`]);
+  ok(limpo(r[0]) === limpo(r[1]) && limpo(r[0]) === limpo(r[2]) && r[0].includes('08/11'), 'abreviações e erro de digitação dão a MESMA resposta da pergunta escrita certa');
+  ok(/Entendi/.test(r[1]) && !/Entendi/.test(r[0]), 'quando corrige uma palavra, o Gabriel mostra como entendeu');
+  ok(limpo(r[3]) === limpo(r[4]), '“qnts dom … fez” = “quantos domingos … fez”');
+  // contexto
+  const ctxR = await perg([`por que ${alvo.pn} não pode no domingo 8?`, 'e no domingo 15?', `e ${outro.pn}?`, 'quantos domingos ela fez?']);
+  ok(ctxR[1].includes(alvo.nome) && /15\/11/.test(ctxR[1]) && !/08\/11/.test(ctxR[1]), '“e no domingo 15?” continua a pergunta anterior sobre a mesma pessoa');
+  ok(ctxR[2].includes(await p.evaluate(i => equipe[i].nome, outro.i)), '“e a <outra pessoa>?” repete a pergunta para a outra pessoa');
+  ok(ctxR[3].includes(await p.evaluate(i => equipe[i].nome, outro.i)) && /domingo\(s\)/.test(ctxR[3]), '“quantos domingos ela fez?” usa a última pessoa da conversa');
+  r = await perg(['e no domingo 15?']); ok(true, 'continuação sem contexto não quebra');
+  await p.evaluate(() => window.v270Gabriel.reset());
+  r = await perg(['e no domingo 15?', 'quantos domingos ela fez?']);
+  ok(!r[0].includes(alvo.nome) && !r[1].includes(alvo.nome), 'sem contexto (conversa nova) o Gabriel não inventa de quem é a continuação');
+  // erro de digitação no nome → pergunta antes
+  const typo = alvo.pn.length > 3 ? alvo.pn.slice(0, 1) + alvo.pn.slice(2, 3) + alvo.pn.slice(1, 2) + alvo.pn.slice(3) : alvo.pn + 'x';
+  r = await perg([`quantos domingos ${typo} fez?`]);
+  ok(/Você quis dizer/.test(r[0]) && r[0].toLowerCase().includes(alvo.nome.toLowerCase()) && !/domingo\(s\) em/.test(r[0]), `nome parecido (“${typo}”): o Gabriel PERGUNTA em vez de chutar`);
+  r = await perg(['sim']);
+  ok(r[0].includes(alvo.nome) && /domingo\(s\) em/.test(r[0]), 'responder “sim” confirma e a pergunta é respondida para a pessoa certa');
+  await perg([`quantos domingos ${typo} fez?`]); r = await perg(['não']);
+  ok(/Escreva o nome como está/.test(r[0]), 'responder “não” pede o nome certo e não responde nada errado');
+  // nomes repetidos
+  const dup = await p.evaluate(() => { const c = {}; equipe.forEach((f, i) => { const k = f.nome.split(' ')[0]; (c[k] = c[k] || []).push(i); }); const k = Object.keys(c).find(x => c[x].length >= 2);
+    if(k) return { k, ids: c[k].slice(0, 2), fake: false }; const [a, b] = [equipe[0], equipe[1]]; const o = [a.nome, b.nome]; const sob = (a.nome.split(' ')[1] || 'SILVA'); a.nome = 'REPETIDA ' + sob; b.nome = 'REPETIDA ' + sob + 'ZZ'; window.__nomesOrig = o; return { k: 'REPETIDA', ids: [0, 1], fake: true }; });
+  r = await perg([`quantos domingos a ${dup.k} fez?`]);
+  ok(/mais de uma pessoa/.test(r[0]) && /1/.test(r[0]) && /2/.test(r[0]), 'nome repetido: o Gabriel lista as opções numeradas em vez de escolher uma');
+  const nomes2 = await p.evaluate(ids => ids.map(i => equipe[i].nome), dup.ids);
+  r = await perg(['2']);
+  ok(r[0].includes(nomes2[1]) && /domingo\(s\) em/.test(r[0]), 'responder “2” escolhe a 2ª pessoa e a pergunta original é respondida');
+  await perg([`quantos domingos a ${dup.k} fez?`]); r = await perg([nomes2[0].split(' ').slice(1).join(' ').toLowerCase()]);
+  ok(r[0].includes(nomes2[0]) || /Você quis|mais de uma/.test(r[0]), 'responder com o sobrenome escolhe a pessoa (ou volta a perguntar, nunca chuta)');
+  if(dup.fake) await p.evaluate(() => { equipe[0].nome = window.__nomesOrig[0]; equipe[1].nome = window.__nomesOrig[1]; });
+
+  // 5) robustez e segurança
+  const rob = await p.evaluate(() => { const C = window.v265Chat, out = { erros: [], tipos: true }; const f = typeof fetch === 'function'; const antes = JSON.stringify([typeof selecaoManualDomingo === 'undefined' ? null : selecaoManualDomingo, trabalhoDomingo, equipe.map(x => [x.nome, x.folgaFixa]), window.v167 ? window.v167.sel() : null]);
+    const lixo = ['', '   ', null, undefined, 123, {}, [], 'a'.repeat(5000), '<img src=x onerror=alert(1)>', '😀😀😀', 'quem '.repeat(500), '\u0000‮', "'; DROP TABLE x;--", '%s%d%n', 'constructor', '__proto__', 'toString', 'hasOwnProperty', '1e999', '((((', '\\', 'e e e e e e e e', 'ele ela dele', '99999999999999999999'];
+    lixo.forEach((q, k) => { try{ const r = C.responder(q); if(typeof r !== 'string') out.tipos = false; if(/<img|<script/i.test(r)) out.erros.push('html solto #' + k); }catch(e){ out.erros.push('#' + k + ' ' + e.message); } });
+    const t0 = performance.now(); for(let k = 0; k < 150; k++) C.responder(['quem trabalha no domingo 8?', 'pq nao pode', 'qnts dom fez', 'que dia é hoje?', 'quem folgou no último domingo?', 'xpto qwerty asdf ghjk'][k % 6]); out.ms = Math.round(performance.now() - t0);
+    const depois = JSON.stringify([typeof selecaoManualDomingo === 'undefined' ? null : selecaoManualDomingo, trabalhoDomingo, equipe.map(x => [x.nome, x.folgaFixa]), window.v167 ? window.v167.sel() : null]); out.igual = antes === depois;
+    const n0 = String.prototype.normalize; String.prototype.normalize = function(){ throw new Error('quebrou'); }; try{ out.queda = typeof C.responder('oi') === 'string'; }catch(e){ out.queda = false; } finally{ String.prototype.normalize = n0; }
+    return out; });
+  ok(!rob.erros.length && rob.tipos, 'entradas estranhas (vazio, null, objeto, 5000 letras, HTML, emoji, constructor/__proto__…) nunca dão erro e sempre voltam texto' + (rob.erros.length ? ': ' + rob.erros.join(', ') : ''));
+  ok(rob.ms < 3000, `150 perguntas seguidas em ${rob.ms} ms`);
+  ok(rob.igual, 'conversar com o Gabriel não muda a escala, a equipe nem as marcações (só leitura)');
+  ok(rob.queda, 'se algo falhar por dentro, o chat ainda devolve uma resposta (nada de erro na tela)');
+  ok(rede === 0, `o Gabriel não usa a internet (pedidos de rede: ${rede})`);
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
