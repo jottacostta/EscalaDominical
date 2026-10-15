@@ -1513,7 +1513,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1902,6 +1902,64 @@ async function testarPlanilhaGabriel(browser){
 }
 
 /* V272/V180 — 📱 chat no celular (o painel sempre cabe na tela), “folgando” ≠ “faltando” e perguntas sobre folga/trabalho nos feriados */
+async function testarMemoria273(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — 🧠 memória do Gabriel e 🟢 aviso em 10 s`);
+  const enc = nome !== 'Setores', { p, erros, ctx } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1000);
+  await p.evaluate(() => window.v273Memoria.limpar());
+  // 1) ações de verdade (cliques/teclas) são anotadas; eventos falsos, senha e campos ocultos não
+  await p.evaluate(() => { const d = document.createElement('div'); d.id = 't273'; d.style.cssText = 'position:fixed;left:0;top:0;z-index:99999;background:#fff;padding:6px';
+    d.innerHTML = '<label>Opção teste <input type="checkbox" id="t273c"></label><label>Nome teste <input type="text" id="t273t"></label><input type="password" id="t273s" aria-label="senha"><input type="hidden" id="t273h"><label>Cor teste <select id="t273sel"><option value="a">Azul</option><option value="b">Verde</option></select></label>'; document.body.appendChild(d); });
+  await p.click('#t273c'); await p.fill('#t273t', 'valor um'); await p.keyboard.press('Tab'); await p.fill('#t273t', 'valor dois'); await p.keyboard.press('Tab');
+  await p.selectOption('#t273sel', 'b'); await p.fill('#t273s', 'segredo123'); await p.keyboard.press('Tab');
+  await p.evaluate(() => { const t = document.getElementById('t273t'); t.value = 'falso'; t.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('t273h').value = 'oculto'; document.getElementById('t273h').dispatchEvent(new Event('change', { bubbles: true })); });
+  await p.evaluate(() => window.v265Chat.abrirChat()); await p.waitForTimeout(300);
+  await p.fill('#v265Txt', 'quantos domingos tem?'); await p.keyboard.press('Enter'); await p.waitForTimeout(500);
+  const m = await p.evaluate(() => window.v273Memoria.exportar()), txt = JSON.stringify(m);
+  const por = k => m.itens.filter(i => i.k === k);
+  ok(por('marcou').some(i => /Opção teste/.test(i.c) && i.de === 'desmarcado' && i.pa === 'marcado'), 'marcar uma caixa é anotado (campo, antes e depois)');
+  ok(por('digitou').length === 2 && por('digitou')[1].de === 'valor um' && por('digitou')[1].pa === 'valor dois', 'digitar é anotado com o valor de antes e o de depois');
+  ok(por('escolheu').some(i => /Cor teste/.test(i.c) && /Azul/.test(i.de) && /Verde/.test(i.pa)), 'escolher numa lista é anotado (valor antes → depois)');
+  ok(!/segredo123|oculto|falso/.test(txt), 'senha, campo oculto e evento falso (não feito por gente) NÃO entram na memória');
+  ok(por('perguntou').some(i => /domingos/.test(i.pa || i.c || '')), 'a pergunta feita ao Gabriel é anotada');
+  ok(m.itens.every(i => i.id && i.t && i.k) && new Set(m.itens.map(i => i.id)).size === m.itens.length, 'toda anotação tem id único, hora e tipo');
+  // 2) fica no aparelho depois de recarregar
+  await p.waitForTimeout(700); const antes = m.total;
+  await p.reload(); await p.waitForTimeout(1500);
+  const depois = await p.evaluate(() => window.v273Memoria.exportar().total);
+  ok(depois >= antes, `a memória sobrevive ao recarregar a página (${antes} → ${depois})`);
+  // 3) o Gabriel conta e só apaga com confirmação
+  const r = await p.evaluate(() => { const t = h => String(h).replace(/<[^>]+>/g, ''), C = window.v265Chat, n0 = window.v273Memoria.exportar().total, a = t(C.responder('o que você guardou?')), b = t(C.responder('apague a memória')), n1 = window.v273Memoria.exportar().total, c = t(C.responder('sim')), n2 = window.v273Memoria.exportar().total; return { n0, a, b, n1, c, n2 }; });
+  ok(/Memória do Gabriel/.test(r.a) && r.n0 > 0, '“o que você guardou?” mostra o resumo da memória');
+  ok(/Quer mesmo/.test(r.b) && r.n1 === r.n0 && r.n2 === 0, '“apague a memória” pergunta antes e só apaga depois do “sim”');
+  // 4) importação: o histórico traz a memória sem duplicar, ignorando lixo
+  const lixo = await p.evaluate(() => { const M = window.v273Memoria; M.limpar(); const it = [{ id: 'x-1', t: 1000, s: 'A|2026-01', p: 'p', k: 'marcou', c: 'Campo A', de: 'desmarcado', pa: 'marcado' }, { id: 'x-2', t: 2000, s: 'A|2026-01', p: 'p', k: 'digitou', c: 'Campo B', de: '', pa: 'oi' }];
+    M.importar({ v: 1, itens: it }); M.importar({ v: 1, itens: it }); M.importar({ v: 1, itens: [null, 5, 'x', { id: 7 }, { k: 'marcou' }] }); M.importar('lixo'); M.importar(null);
+    return M.exportar().itens.filter(i => /^x-/.test(i.id)).length; });
+  ok(lixo === 2, `importar a mesma memória duas vezes não duplica e lixo é ignorado (${lixo} anotações)`);
+  // 5) o histórico guardado leva a memória (campo memoriaGabriel)
+  const hist = await p.evaluate(() => { try{ const pj = (typeof montarProjeto === 'function') ? montarProjeto() : null; return { auto: pj ? !!pj.memoriaGabriel : null }; }catch(e){ return { auto: null }; } });
+  ok(hist.auto !== true, 'o rascunho automático NÃO carrega a memória (só o botão de guardar histórico)');
+  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), p.evaluate(() => { (document.getElementById('btnHistorico') || document.querySelector('[onclick*=exportarProjeto]'))?.click(); })]).catch(() => [null]);
+  if(dl){ const arq = path.join(require('os').tmpdir(), `teste_mem_${nome}_` + dl.suggestedFilename()); await dl.saveAs(arq); const j = JSON.parse(fs.readFileSync(arq, 'utf8'));
+    ok(j.memoriaGabriel && Array.isArray(j.memoriaGabriel.itens) && j.memoriaGabriel.itens.some(i => i.id === 'x-1'), 'o histórico guardado leva a memória do Gabriel (memoriaGabriel)');
+    // abrir o histórico em outro aparelho (limpo): a memória volta, uma vez só
+    const o = await novaPagina(browser); await o.p.goto('file://' + app); await o.p.waitForTimeout(1200); await abrir(o.p);
+    await o.p.setInputFiles('#arquivoProjetoJSON', arq); await o.p.waitForTimeout(3500);
+    await o.p.setInputFiles('#arquivoProjetoJSON', arq); await o.p.waitForTimeout(3500);
+    const n = await o.p.evaluate(() => window.v273Memoria.exportar().itens.filter(i => i.id === 'x-1').length);
+    ok(n === 1, `abrir o histórico (duas vezes) traz a memória de volta sem duplicar (${n})`); await o.ctx.close();
+  } else ok(false, 'não consegui baixar o histórico para conferir a memória');
+  // 6) aviso verde: fica ~9 s, sai em ~11 s; aviso de alerta mantém o prazo antigo
+  const tt = await p.evaluate(() => { document.getElementById('toastStack')?.replaceChildren(); window.showToast('verde 273', 'ok'); return Date.now(); });
+  await p.waitForTimeout(8500); const aos8 = await p.locator('.toast-ok').count(); await p.waitForTimeout(3000); const aos11 = await p.locator('.toast-ok').count();
+  ok(aos8 === 1 && aos11 === 0, `aviso verde ainda aparece aos 8,5 s e some aos 11,5 s (${aos8} → ${aos11})`);
+  await p.evaluate(() => { document.getElementById('toastStack')?.replaceChildren(); window.showToast('info 273', 'info'); }); await p.waitForTimeout(5000);
+  ok(await p.locator('.toast-info').count() === 0, 'aviso que não é verde continua fechando no prazo antigo (≤ 5 s)');
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
 async function testarGabriel272(browser, app, nome, abrir, versaoMin){
   if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
   console.log(`\n▶ ${nome} — 📱 Gabriel no celular e 🎉 feriados`);

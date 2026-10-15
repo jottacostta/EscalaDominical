@@ -7,10 +7,16 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V180</title>
+<title>Escala 2×1 — Encarregados V181</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V181 [Claude] — 🧠 MEMÓRIA DO GABRIEL + ⏱️ AVISO VERDE EM 10 SEGUNDOS (pedido do dono, 15/10/2026: “guardar tudo o que foi selecionado ou digitado em um espaço à parte
+       de memória e depois colocar tudo dentro do histórico” e “as notificações verdes têm que fechar em 10 segundos”). (1) MEMÓRIA: um registro à parte (no aparelho, chave própria,
+       fora do rascunho da escala) anota o que a pessoa marcou, escolheu, digitou, tocou e perguntou ao Gabriel (campo, valor antes e depois, tela, hora). Só ações feitas por gente
+       (eventos confiáveis); senha e campos ocultos nunca; de arquivo só o nome. Limite de 4000 anotações / ~1,8 MB (as mais antigas saem e a contagem fica registrada). Ao tocar em
+       Guardar histórico, a memória vai junto no arquivo (campo memoriaGabriel); ao abrir um histórico ela é mesclada sem duplicar. O Gabriel responde “o que você guardou?” e, com
+       confirmação, “apague a memória”. (2) AVISO VERDE: some sozinho em 10 s (antes: 3 s ou 8 s; o ✕ continua; no computador, com o mouse em cima ele espera).
 V180 [Claude] — 📱 GABRIEL NO CELULAR + 🎉 FERIADOS (print do celular do dono, 15/10/2026: “ao ter muita conversa no celular o layout vai ficando ruim e o Gabriel
        não soube responder uma pergunta simples de folga de feriado”). (1) LAYOUT: o painel do Gabriel crescia para cima além da tela (topo e botão ✕ fora da tela), a lista
        de mensagens tinha altura mínima de 180 px (empurrava o campo de digitar para fora) e a linha de atalhos era espremida. Agora o painel sempre cabe na tela (altura
@@ -1984,7 +1990,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V180 · 📱 Chat no celular + feriados</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V181 · 🧠 Memória do Gabriel + aviso verde 10 s</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2352,7 +2358,12 @@ window.showToast=window.showToast||function(msg,type,persistent){
   const x=document.createElement('button');x.type='button';x.textContent='×';x.setAttribute('aria-label','Fechar');x.onclick=()=>t.remove();t.appendChild(x);
   while(stack.firstElementChild) stack.firstElementChild.remove();   // V143: um aviso por vez
   stack.appendChild(t);
-  setTimeout(()=>t.remove(), type==='danger'&&persistent ? 15000 : (persistent ? 8000 : 4000));   // V143: todo aviso some sozinho
+  { // V143: todo aviso some sozinho; V273: o verde (ok) fecha em 10 s (mouse em cima = espera)
+    const ms = type==='ok' ? 10000 : (type==='danger'&&persistent ? 15000 : (persistent ? 8000 : 4000));
+    let h=setTimeout(()=>t.remove(),ms);
+    t.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse') clearTimeout(h); });
+    t.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse'){ clearTimeout(h); h=setTimeout(()=>t.remove(),3000); } });
+  }
   return t;
 };
 
@@ -6311,6 +6322,7 @@ $('btnWhats').onclick=async (ev)=>{
     p.dispensadosBalanco=clone(dispensadosBalanco);
     p.escalaMao=window.v167Exportar?.();   // V167: escala à mão dos domingos
     try{ const a=window.v262Assistente?.exportar?.(); if(a) p.assistente=a; }catch(e){}   // V176: o que o Assistente RH aprendeu vai no histórico
+    try{ const m=window.v273Memoria?.exportar?.(); if(m) p.memoriaGabriel=m; }catch(e){}   // V273: memória do Gabriel vai no histórico
     const mes=String((Number(val('mes'))||0)+1).padStart(2,'0'), ano=val('ano')||'projeto';
     baixarJSON(p,`Historico_Encarregados_${mes}_${ano}.json`); window.v161MarcarGuardado?.();   // V153 (antes: escala_ENCARREGADOS_mês_ano.json)
     { const _m=$('mes'); const _nm=_m?.options?.[_m.selectedIndex]?.text||'do mês'; window.showToast?.(`✅ Histórico de ${String(_nm).toLowerCase()} guardado na pasta Downloads. No mês que vem, abra este arquivo em ⋮ → Abrir histórico guardado: ele vira o “mês passado”.`,'ok',true); }
@@ -9527,6 +9539,145 @@ function perguntarOrientacaoImpressao(cb){
     try{ const n=G.entender(texto), qn=n&&n.qn; const k=qn?quer(qn):null; if(k) return responder(k,qn); }catch(e){ console.warn('[V272]',e); }
     return anterior(texto);
   };
+})();
+
+</script>
+
+<script>
+(function(){
+/* ═════ V273 — 📝 MEMÓRIA DO GABRIEL: tudo o que foi marcado ou digitado fica guardado à parte e vai para o histórico ═════
+   Pedido do dono (15/10/2026): “Gabriel precisa guardar tudo o que foi selecionado ou digitado em um espaço à parte de memória e
+   depois colocar tudo dentro do histórico”. É o início da “auditoria das ações” da issue #68 (item 5).
+   O QUE GUARDA (só ações FEITAS PELA PESSOA — eventos confiáveis do navegador; o que o app muda sozinho não entra):
+   - marcou / desmarcou (caixinhas), escolheu (listas e opções), digitou (campos de texto, número, data… quando a pessoa termina de
+     digitar), arquivo (só o NOME do arquivo escolhido, nunca o conteúdo), tocou (botões) e perguntou (o que foi escrito ao Gabriel e o
+     começo da resposta). Cada registro leva: quando, em que tela/passo, qual setor e mês, qual campo (com nome da pessoa e domingo
+     quando for o caso), o valor ANTERIOR e o NOVO.
+   - NUNCA guarda: senha, campo oculto, conteúdo de arquivo, nem o que estiver marcado com data-v273-ignorar.
+   ONDE GUARDA: numa chave PRÓPRIA do aparelho (escalaSetores.v273Memoria / enc.v273Memoria), separada do aprendizado do Assistente (V262) e
+   do histórico. Limite de 4000 registros (os mais antigos saem e a contagem de “descartados” fica registrada). Grava logo depois de cada
+   ação e ao fechar/sair da página.
+   HISTÓRICO: ao 📦 Guardar histórico do mês, a memória inteira vai junto no arquivo (campo memoriaGabriel). Ao abrir um histórico, ela é
+   JUNTADA à memória do aparelho sem duplicar (cada registro tem um código único: reimportar a mesma cópia não repete nada).
+   GABRIEL: “o que você guardou?”, “quantas ações você guardou?”, “apague a memória” (pede confirmação).
+   window.v273Memoria = {registrar, exportar, importar, itens, estado, limpar}. */
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const base=window.v265Chat, I=base&&base.interno;
+  const ENC=!!(I&&I.APP==='enc');
+  const LS=ENC?'enc.v273Memoria':'escalaSetores.v273Memoria';
+  const MAX=4000, MAXTXT=200, MAXBYTES=1800000;
+  const seguro=fn=>{ try{ return fn(); }catch(e){ console.warn('[V273]',e); return null; } };
+  const cort=(v,n)=>{ const t=String(v==null?'':v).replace(/\s+/g,' ').trim(); return t.length>n?t.slice(0,n-1)+'…':t; };
+  let M={v:1,disp:'',seq:0,descartadas:0,itens:[]};
+  const itemOk=x=>!!x&&typeof x==='object'&&typeof x.id==='string'&&x.id.length<40&&Number.isFinite(x.t)&&typeof x.k==='string'&&x.k.length<20;
+  const limpoItem=x=>({id:x.id,t:x.t,s:cort(x.s,80),p:cort(x.p,40),k:x.k,c:cort(x.c,100),de:cort(x.de,MAXTXT),pa:cort(x.pa,MAXTXT),...(x.r?{r:cort(x.r,MAXTXT)}:{})});
+  function carregar(){
+    seguro(()=>{ const o=JSON.parse(localStorage.getItem(LS)||'null');
+      if(o&&typeof o==='object'&&o.v===1&&Array.isArray(o.itens)&&typeof o.disp==='string'){
+        M={v:1,disp:o.disp.slice(0,20),seq:Number.isFinite(o.seq)?o.seq:0,descartadas:Number.isFinite(o.descartadas)?o.descartadas:0,itens:o.itens.filter(itemOk).map(limpoItem).slice(-MAX)}; } });
+    if(!M.disp) M.disp=Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3);
+  }
+  carregar();
+  let timer=null;
+  function gravar(){ clearTimeout(timer); timer=null; seguro(()=>{
+    let s=JSON.stringify(M); while(s.length>MAXBYTES&&M.itens.length>50){ const n=Math.ceil(M.itens.length*0.2); M.itens.splice(0,n); M.descartadas+=n; s=JSON.stringify(M); }
+    localStorage.setItem(LS,s); }); }
+  const agendar=()=>{ if(!timer) timer=setTimeout(gravar,400); };
+  window.addEventListener('pagehide',gravar); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') gravar(); });
+
+  /* contexto: tela/passo e setor+mês */
+  const passo=()=>{ const m=document.querySelector('.modal.on,#erpModal,.v207-fundo,.v266-fundo'); if(m&&m.id) return m.id; return document.querySelector('.step-panel.active')?.id||(document.querySelector('#homeSetores.on')?'inicio':''); };
+  const ref=()=>{ try{ const setor=ENC?'encarregados':(window.norm?norm($i('setorSelecionado')?.value||''):($i('setorSelecionado')?.value||'')); return `${setor||'-'}|${$i('ano')?.value||''}-${String((+$i('mes')?.value||0)+1).padStart(2,'0')}`; }catch(e){ return ''; } };
+  function registrar(k,c,de,pa,extra){
+    return seguro(()=>{ const t=Date.now(); M.seq++; const it={id:`${M.disp}-${t.toString(36)}-${M.seq}`,t,s:ref(),p:passo(),k:String(k),c:cort(c,100),de:cort(de,MAXTXT),pa:cort(pa,MAXTXT)}; if(extra&&extra.r) it.r=cort(extra.r,MAXTXT);
+      M.itens.push(it); if(M.itens.length>MAX){ const n=M.itens.length-MAX; M.itens.splice(0,n); M.descartadas+=n; } agendar(); return it; });
+  }
+  /* nome legível do campo */
+  function rotulo(el){
+    const d=el.dataset||{};
+    const dom=d.dom!==undefined?d.dom:d.d, pes=d.func!==undefined?d.func:d.p;
+    if(dom!==undefined&&pes!==undefined&&!isNaN(+pes)){ const f=(typeof equipe!=='undefined'&&equipe[+pes])||null; const m=String((+$i('mes')?.value||0)+1).padStart(2,'0'); return `domingo ${String(dom).padStart(2,'0')}/${m} · ${f?f.nome:'pessoa '+pes}`; }
+    let t=el.getAttribute('aria-label'); if(t) return t;
+    if(el.id){ const l=document.querySelector(`label[for="${CSS.escape(el.id)}"]`); if(l) return l.textContent; }
+    const w=el.closest('label'); if(w){ const c=w.cloneNode(true); c.querySelectorAll('input,select,textarea,button').forEach(x=>x.remove()); if(c.textContent.trim()) return c.textContent; }
+    return el.title||el.placeholder||el.name||el.id||el.tagName.toLowerCase();
+  }
+  const prev=new WeakMap();
+  const valorDe=el=>{ if(el.tagName==='SELECT') return el.selectedOptions&&el.selectedOptions[0]?el.selectedOptions[0].textContent:el.value; return el.value; };
+  document.addEventListener('focusin',e=>{ const el=e.target; if(el&&(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!['checkbox','radio','button','submit','file','password','hidden'].includes(el.type)))) seguro(()=>prev.set(el,valorDe(el))); },true);
+  const ignorado=el=>!el||!el.closest||el.closest('[data-v273-ignorar]')||el.type==='password'||el.type==='hidden'||!!el.closest('.v265-form');
+
+  document.addEventListener('change',e=>{ seguro(()=>{ const el=e.target; if(!e.isTrusted||!el||ignorado(el)) return;
+    const tag=el.tagName; if(tag==='INPUT'&&el.type==='file'){ registrar('arquivo',rotulo(el),'',[...(el.files||[])].map(f=>f.name).join(', ')); return; }
+    if(tag==='INPUT'&&el.type==='checkbox'){ registrar(el.checked?'marcou':'desmarcou',rotulo(el),el.checked?'desmarcado':'marcado',el.checked?'marcado':'desmarcado'); return; }
+    if(tag==='INPUT'&&el.type==='radio'){ registrar('escolheu',rotulo(el),'',(el.closest('label')?.textContent||el.value)); return; }
+    if(tag==='SELECT'){ const novo=valorDe(el); registrar('escolheu',rotulo(el),prev.get(el)||'',novo); prev.set(el,novo); return; }
+    if(tag==='TEXTAREA'||tag==='INPUT'){ const novo=valorDe(el); registrar('digitou',rotulo(el),prev.get(el)||'',novo); prev.set(el,novo); }
+  }); },true);
+  let ultimoToque={t:0,x:''};
+  document.addEventListener('click',e=>{ seguro(()=>{ if(!e.isTrusted) return; const b=e.target.closest&&e.target.closest('button,[role="button"],a.btn,summary'); if(!b||ignorado(b)) return;
+    if(b.closest('.toast,.v265-sug,.v265-form,#v270Balao')||b.type==='submit'&&b.closest('.v265-form')) return;   // fechar aviso e perguntas ao Gabriel têm registro próprio
+    const x=cort(b.getAttribute('aria-label')||b.textContent||b.title||b.id,80); if(!x) return; const t=Date.now(); if(ultimoToque.x===x&&t-ultimoToque.t<300) return; ultimoToque={t,x};
+    registrar('tocou',x,'',''); }); },true);
+
+  /* perguntas ao Gabriel: o que foi escrito (ou o atalho tocado) e o começo da resposta */
+  let pendente=null;
+  const txt=h=>String(h).replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  document.addEventListener('submit',e=>{ seguro(()=>{ if(!e.isTrusted||!e.target.closest||!e.target.closest('.v265-form')) return; const q=$i('v265Txt')?.value; if(q&&q.trim()) pendente=registrar('perguntou','Gabriel',q.trim(),''); }); },true);
+  document.addEventListener('click',e=>{ seguro(()=>{ if(!e.isTrusted) return; const b=e.target.closest&&e.target.closest('.v265-sug button'); if(b) pendente=registrar('perguntou','Gabriel (atalho)',b.textContent.trim(),''); }); },true);
+  const antesResp=base&&base.responder;
+
+  /* ── exportar / importar (histórico) ── */
+  function exportar(){ gravar(); return {v:1,exportadoEm:Date.now(),disp:M.disp,total:M.itens.length,descartadas:M.descartadas,itens:M.itens.map(limpoItem)}; }
+  function importar(o){
+    if(!o||typeof o!=='object'||o.v!==1||!Array.isArray(o.itens)) return 0;
+    const tem=new Set(M.itens.map(x=>x.id)); let n=0;
+    o.itens.slice(0,MAX*2).forEach(x=>{ if(itemOk(x)&&!tem.has(x.id)){ tem.add(x.id); M.itens.push(limpoItem(x)); n++; } });
+    if(n){ M.itens.sort((a,b)=>a.t-b.t); if(M.itens.length>MAX){ M.descartadas+=M.itens.length-MAX; M.itens=M.itens.slice(-MAX); } gravar(); }
+    return n;
+  }
+  document.addEventListener('change',ev=>{   // abrir um histórico: junta a memória que veio no arquivo (igual ao que o Assistente faz com o aprendizado)
+    const inp=ev.target; if(!inp||inp.id!=='arquivoProjetoJSON') return; const f=inp.files&&inp.files[0]; if(!f||!/\.json$/i.test(f.name||'')) return;
+    const rd=new FileReader(); rd.onload=()=>{ seguro(()=>{ const j=JSON.parse(String(rd.result||'').replace(/^﻿/,'')); setTimeout(()=>{ seguro(()=>{ const n=importar(j&&j.memoriaGabriel); if(n) registrar('historico','Memória do Gabriel','',`${n} registro(s) vindos do histórico`); }); },1800); }); }; rd.readAsText(f);
+  },true);
+  function limpar(){ M.itens=[]; M.descartadas=0; gravar(); }
+  window.v273Memoria={registrar,exportar,importar,limpar,itens:()=>M.itens.slice(),estado:()=>({total:M.itens.length,descartadas:M.descartadas,disp:M.disp,chave:LS})};
+
+  /* ── Gabriel: o que guardei ── */
+  const G=window.v270Gabriel;
+  if(base&&G&&I&&typeof base.responder==='function'){
+    const anterior=base.responder, tem2=I.tem, es=I.es;
+    const dh=t=>{ const d=new Date(t); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+    const linha=x=>{ const c=es(x.c), pa=es(x.pa), de=es(x.de); switch(x.k){
+      case 'marcou': return `marcou “${c}”`; case 'desmarcou': return `desmarcou “${c}”`;
+      case 'escolheu': return `escolheu “${pa}” em “${c}”${de?` (antes: “${de}”)`:''}`; case 'digitou': return `digitou “${pa}” em “${c}”${de?` (antes: “${de}”)`:''}`;
+      case 'arquivo': return `escolheu o arquivo “${pa}”`; case 'tocou': return `tocou em “${c}”`; case 'perguntou': return `perguntou “${de}”`; case 'historico': return es(pa); default: return es(x.k+' '+c); } };
+    let confirmar=false;
+    function quer(qn){
+      if(!tem2(qn,'memoria','guardou','guardado','guardados','registrou','registrado','anotou','anotado','historico de acoes','acoes','fiz','fizemos')) return null;
+      if(tem2(qn,'apague','apagar','limpe','limpar','esqueca','esquecer','delete','deletar','zere','zerar','exclua','excluir')) return 'limpar';
+      if(tem2(qn,'guardou','guardado','guardados','guardei','memoria','registrou','registrado','anotou','anotado','acoes','fiz','fizemos')&&tem2(qn,'o que','quais','quantas','quantos','mostre','liste','lista','resumo','ultimas','ultimos','tem','hoje')) return 'resumo';
+      return null;
+    }
+    function resumo(){
+      const it=M.itens; if(!it.length) return '📝 Ainda não guardei nenhuma ação neste aparelho. Eu guardo tudo o que você marca, escolhe, digita ou toca (sem senhas), e levo isso para o histórico quando você toca em <b>📦 Guardar histórico do mês</b>.';
+      const c={}; it.forEach(x=>{ c[x.k]=(c[x.k]||0)+1; });
+      const rot={marcou:'marcou',desmarcou:'desmarcou',escolheu:'escolheu',digitou:'digitou',arquivo:'arquivo',tocou:'tocou em botão',perguntou:'perguntou ao Gabriel',historico:'histórico aberto'};
+      return `📝 <b>Memória do Gabriel:</b> ${it.length} ação(ões) guardada(s), de <b>${dh(it[0].t)}</b> até <b>${dh(it[it.length-1].t)}</b>${M.descartadas?` (e ${M.descartadas} mais antiga(s) já saíram)`:''}.<br>`+
+        Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${v} ${rot[k]||k}`).join(' · ')+`<br><small>Últimas:</small><ul>${it.slice(-5).reverse().map(x=>`<li><small>${dh(x.t)}</small> — ${linha(x)}</li>`).join('')}</ul>`+
+        '<small>Tudo isso vai junto no 📦 histórico do mês e fica só neste aparelho. Para apagar, peça “apague a memória”.</small>';
+    }
+    base.responder=function(texto){
+      try{ const n=G.entender(texto), qn=n&&n.qn; if(qn){
+        if(confirmar){ confirmar=false; if(n.tokens.some(x=>['sim','s','pode','confirmo','apague','apagar'].includes(x))&&!n.tokens.includes('nao')){ const k=M.itens.length; limpar(); return `🧹 Pronto: apaguei ${k} ação(ões) da minha memória. O que já está em arquivos de histórico guardados continua lá.`; } return 'Tudo bem, não apaguei nada.'; }
+        const q=quer(qn); if(q==='resumo') return resumo();
+        if(q==='limpar'){ if(!M.itens.length) return 'Minha memória já está vazia.'; confirmar=true; return `🧹 Quer mesmo que eu apague as <b>${M.itens.length}</b> ação(ões) guardadas? Isso não apaga os históricos que você já guardou em arquivo. Responda <b>sim</b> para apagar.`; } } }catch(e){ console.warn('[V273]',e); }
+      const r=anterior(texto);
+      if(pendente){ const p=pendente; pendente=null; seguro(()=>{ p.r=cort(txt(r),MAXTXT); agendar(); }); }
+      return r;
+    };
+  }
 })();
 
 </script>
