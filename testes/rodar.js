@@ -1513,7 +1513,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1521,3 +1521,72 @@ async function testarSemTxt(browser, app, nome, dados){
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
   process.exit(falhas ? 1 : 0);
 })();
+
+async function testarSetoresAlternada(browser){   // V269: escala Manual FORA do par 2×1 — o Assistente pergunta “ciente e se responsabiliza?”
+  console.log('\n▶ Setores — ✋ escala manual fora do 2×1 (ciente e se responsabiliza)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + APP_SETORES); await p.waitForTimeout(1200); await abrirSetoresFL(p); await p.waitForTimeout(800);
+  await p.evaluate(() => { window.v206IrParaManual(); selecaoManualDomingo = {}; const m = $('modoGeracao'); m.value = 'manual'; m.dispatchEvent(new Event('change', { bubbles: true })); renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(900);
+  const info = await p.evaluate(() => { const ano = +$('ano').value, mes = +$('mes').value, bal = balancoDoMes(ano, mes), doms = domingosDoMes(ano, mes).filter(d => d !== bal), alvo = alvoCoberturaAtual(), folga = window.v258Folga?.() || 0;
+    const livres = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !ehLiderancaDomingo(equipe[i]) && Number(equipe[i].folgaFixa) !== 0 && !historicoManual(i).ultimo && !historicoManual(i).penultimo);
+    return { doms, alvo, folga, livres }; });
+  const [d0, d1, d2] = info.doms, alvo = info.alvo, minimo = Math.max(1, alvo - info.folga);
+  ok(info.doms.length >= 3 && info.livres.length >= alvo * 2, `cenário: ${info.doms.length} domingos, meta ${alvo} por domingo, ${info.livres.length} pessoas livres`);
+  const A = info.livres.slice(0, alvo), B = info.livres.slice(alvo, alvo * 2), ultimaB = B[B.length - 1];
+  // domingo 1 completo com A; domingo 2 com OUTRAS pessoas (B), faltando só a última
+  await p.evaluate(([d0, d1, A, B]) => { selecaoManualDomingo = {}; selecaoManualDomingo[d0] = A.slice(); selecaoManualDomingo[d1] = B.slice(0, B.length - 1); renderSelecaoDomingosGeracao(); }, [d0, d1, A, B]); await p.waitForTimeout(700);
+  const antes = await p.evaluate(d => window.v269Alt.quebras().filter(x => x.d === d).length, d1);
+  ok(antes === 0 && (await p.evaluate(() => !document.getElementById('v269Alt'))), 'domingos montados sem a mão do encarregado (como as sugestões do app) não perguntam nada');
+  // 1) pela tela: a última pessoa de B completa o domingo → o Assistente pergunta
+  await p.evaluate(d => document.querySelector(`#selecaoDomingosManual [data-geracao-dom="${d}"]`)?.scrollIntoView(), d1); await p.waitForTimeout(250);
+  await p.click(`#selecaoDomingosManual input[data-dom="${d1}"][data-func="${ultimaB}"]`); await p.waitForTimeout(1200);
+  const dlg = await p.evaluate(() => { const d = document.getElementById('v269Dlg'); return d ? { txt: d.innerText, foco: document.activeElement?.id } : null; });
+  ok(!!dlg && /diferente da regra 2×1/.test(dlg.txt) && /ciente e se responsabiliza/.test(dlg.txt) && /3 domingos seguidos/.test(dlg.txt), `o Assistente abre a pergunta “Você está ciente e se responsabiliza?” (${antes} apontadas antes de fechar o domingo)`);
+  ok(dlg && dlg.foco === 'v269Nao', 'o foco começa no “Não, quero voltar” (o jeito seguro)');
+  ok(await p.evaluate(([d, A]) => window.v269Alt.quebras().filter(x => x.d === d).length >= A.length && A.every(i => window.v269Alt.quebras().some(x => x.d === d && x.i === i)), [d1, A]), 'todas as pessoas do domingo 1 que ficaram de fora do domingo 2 são apontadas');
+  ok(await p.evaluate(() => !(window.v227Auditar?.() || { r: [] }).r.some(t => /3 domingos consecutivos/.test(t))), 'ficar fora do par NÃO é erro 🔴 (nenhum aviso de 3 domingos seguidos)');
+  // 2) “Não” desfaz a marcação
+  await p.click('#v269Nao'); await p.waitForTimeout(700);
+  ok(!(await p.evaluate(d => selecaoManualDomingo[d], d1)).map(Number).includes(ultimaB) && !(await p.$('#v269Dlg')) && (await p.evaluate(() => window.v269Alt.pendentes().length)) === 0, '“Não”: a pessoa marcada volta, a janela fecha e nada fica assumido');
+  // 3) Esc também é “não”; “Sim” mantém
+  await p.click(`#selecaoDomingosManual input[data-dom="${d1}"][data-func="${ultimaB}"]`); await p.waitForTimeout(1200);
+  ok(!!(await p.$('#v269Dlg')), 'marcar de novo abre a pergunta de novo');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(700);
+  ok(!(await p.evaluate(d => selecaoManualDomingo[d], d1)).map(Number).includes(ultimaB), 'Esc também vale como “Não”');
+  await p.click(`#selecaoDomingosManual input[data-dom="${d1}"][data-func="${ultimaB}"]`); await p.waitForTimeout(1200);
+  await p.click('#v269Sim'); await p.waitForTimeout(800);
+  const sim = await p.evaluate(d => ({ marcado: selecaoManualDomingo[d].length, pend: window.v269Alt.pendentes().length, caixa: document.getElementById('v269Alt')?.innerText || '' }), d1);
+  ok(sim.marcado === B.length && sim.pend === 0 && /fora do 2×1, com a sua responsabilidade/.test(sim.caixa), `“Sim”: a marcação fica e o quadro 🟠 mostra a responsabilidade (“${sim.caixa.slice(0, 70).replace(/\n/g, ' ')}…”)`);
+  // 4) Gerar: barrado sem resposta; liberado (não barrado por ESTA regra) com resposta
+  await p.evaluate(() => document.querySelector('#v269Alt [data-v269="desfazer"]').click()); await p.waitForTimeout(800);
+  ok(await p.evaluate(() => window.v269Alt.pendentes().length > 0), 'sem resposta, a pergunta volta a ficar pendente');
+  await p.evaluate(() => document.getElementById('btnGerar').click()); await p.waitForTimeout(1200);
+  const gate = await p.evaluate(() => ({ v: document.getElementById('validacao').innerText, dlg: !!document.getElementById('v269Dlg'), gerou: Object.values(trabalhoDomingo || {}).some(a => a && a.length) }));
+  ok(/Ainda não dá para gerar/.test(gate.v) && /diferente da regra 2×1/.test(gate.v) && gate.dlg && !gate.gerou, 'sem a resposta, o 🚀 Gerar não gera e abre a pergunta');
+  await p.click('#v269Sim'); await p.waitForTimeout(600);
+  await p.evaluate(() => document.getElementById('btnGerar').click()); await p.waitForTimeout(1800);
+  ok(await p.evaluate(() => !/diferente da regra 2×1/.test(document.getElementById('validacao').innerText) && !document.getElementById('v269Dlg')), 'com a resposta “sim”, o Gerar não é mais barrado por esta regra (as outras regras continuam valendo)');
+  // 5) 3 domingos seguidos continua proibido (auditoria ao vivo desfaz a marcação)
+  const tres = await p.evaluate(([d0, d1, d2, i]) => { selecaoManualDomingo[d0] = [...new Set([...(selecaoManualDomingo[d0] || []), i])]; selecaoManualDomingo[d1] = [...new Set([...(selecaoManualDomingo[d1] || []), i])]; selecaoManualDomingo[d2] = (selecaoManualDomingo[d2] || []).filter(x => x !== i); renderSelecaoDomingosGeracao(); return true; }, [d0, d1, d2, A[0]]);
+  await p.waitForTimeout(700);
+  await p.evaluate(d => document.querySelector(`#selecaoDomingosManual [data-geracao-dom="${d}"]`)?.scrollIntoView(), d2); await p.waitForTimeout(250);
+  const cb = await p.$(`#selecaoDomingosManual input[data-dom="${d2}"][data-func="${A[0]}"]`);
+  if(cb){ await cb.click({ force: true }).catch(() => {}); await p.waitForTimeout(1400); }
+  ok(tres && !(await p.evaluate(([d, i]) => (selecaoManualDomingo[d] || []).map(Number).includes(i), [d2, A[0]])), '3 domingos seguidos continua proibido: marcar a mesma pessoa no 3º domingo é recusado');
+  await p.evaluate(() => { const o = document.getElementById('v269Dlg'); o?.remove(); });
+  // 6) histórico e recarregar
+  await p.evaluate(([d0, d1, A, B]) => { selecaoManualDomingo = {}; selecaoManualDomingo[d0] = A.slice(); selecaoManualDomingo[d1] = B.slice(); renderSelecaoDomingosGeracao(); window.v269Alt.pendentes().forEach(x => window.v269Alt.responder(x.d, true, [])); }, [d0, d1, A, B]); await p.waitForTimeout(1500);
+  const hist = await p.evaluate(() => ({ arr: estadoFinalMes?.v269Alt, ls: localStorage.getItem('escalaSetores.v269Alt') }));
+  ok(Array.isArray(hist.arr) && hist.arr.length > 0 && hist.arr.every(a => a.key && a.mes && a.nome && a.quando) && !!hist.ls, `o histórico do mês leva as respostas (estadoFinalMes.v269Alt: ${hist.arr?.length})`);
+  const salvo = await p.evaluate(() => JSON.parse(localStorage.getItem('escalaSetores.v269Alt')));
+  await p.evaluate(() => { localStorage.removeItem('escalaSetores.v269Alt'); });
+  await p.evaluate(h => { const e = window.v269Alt.estado(); Object.keys(e).forEach(k => delete e[k]); estadoFinalMes = estadoFinalMes || {}; estadoFinalMes.v269Alt = h.map(x => ({ ...x, quando: '2026-10-01T10:00:00.000Z' })); }, hist.arr); await p.evaluate(() => window.v269Alt.sincronizar()); await p.waitForTimeout(300);   // aparelho limpo abrindo o arquivo de histórico (o app também sincroniza sozinho a cada segundo)
+  ok(await p.evaluate(([d1]) => window.v269Alt.quebras().some(x => x.d === d1) && window.v269Alt.pendentes().length === 0, [d1]), 'abrir o histórico restaura as respostas (nada volta a ficar pendente)');
+  await p.evaluate(() => { estadoFinalMes.v269Alt = [{ key: 'x'.repeat(200), mes: 'a' }, null, { key: 5 }, { key: '7|ok', mes: 'lixo|2099-1', nome: 'Fulano' }]; window.v269Alt.sincronizar(); }); await p.waitForTimeout(300);
+  ok(await p.evaluate(() => Object.keys(window.v269Alt.estado()['lixo|2099-1'] || {}).join() === '7|ok' && !Object.values(window.v269Alt.estado()).some(m => Object.keys(m).some(k => k.length > 60))), 'lixo no campo do histórico é ignorado sem erro');
+  // 7) fora do modo Manual não aparece nada
+  await p.evaluate(() => { const m = $('modoGeracao'); m.value = 'motor'; m.dispatchEvent(new Event('change', { bubbles: true })); }); await p.waitForTimeout(1300);
+  ok(await p.evaluate(() => window.v269Alt.quebras().length === 0 && !document.getElementById('v269Alt')), 'no modo Automático a regra não se aplica (nada é perguntado)');
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
