@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V271</title>
+<title>Escala de Setores — V272</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V272 [Claude] — 📱 GABRIEL NO CELULAR + 🎉 FERIADOS (print do celular do dono, 15/10/2026: “ao ter muita conversa no celular o layout vai ficando ruim e o Gabriel
+       não soube responder uma pergunta simples de folga de feriado”). (1) LAYOUT: o painel do Gabriel crescia para cima além da tela (topo e botão ✕ fora da tela), a lista
+       de mensagens tinha altura mínima de 180 px (empurrava o campo de digitar para fora) e a linha de atalhos era espremida. Agora o painel sempre cabe na tela (altura
+       máxima pela tela e áreas seguras), só a lista de mensagens rola, e com o teclado aberto o painel fica logo acima dele. (2) “folgando” era “corrigido” para
+       “faltando” e a pergunta virava outra: palavras do mesmo radical (folg-, trabalh-, escal-, feriad-…) nunca são “corrigidas” e correção de 2 letras só vale se o começo e
+       o fim batem. (3) FERIADOS: “quem está folgando nos feriados?”, “quem trabalha no feriado do dia 15?”, “qual a folga de feriado da Ana?” são respondidas com o passo 4
+       Feriados (quem trabalha, folga aceita ✅, só sugerida 💡 ou sem folga). Perguntas de regra continuam com a resposta de sempre. Só leitura. Camada V272 + 3 linhas
+       marcadas // V272 na camada do Gabriel (V270).
 V271 [Claude] — 📄 GABRIEL, FASE 2A: LÊ A PLANILHA DO RH POR INTEIRO (issue #68; planilha real enviada pelo dono só para conferir a estrutura — nunca vai
        para o repositório): o importador do ERP (V152) lia só a 1ª aba e guardava só o que usa. Agora, ao ler o relatório FPRE815, o app faz um
        INVENTÁRIO: todas as abas (nome e tamanho), todos os tipos de linha (funcionário, setor/grupo, total, cabeçalho de página, emissão…), o papel de
@@ -2544,6 +2552,16 @@ details.v271-leu{margin:8px 0 10px;border:1px solid var(--border,#d7deea);border
 details.v271-leu summary{cursor:pointer}
 details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 </style>
+<style id="v272-chat-celular">
+/* V272: o painel do Gabriel sempre cabe na tela (celular); só a lista de mensagens rola */
+#v262Painel{overflow:hidden;max-height:min(80vh,660px,calc(100vh - 176px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px)))}
+@supports (height:100dvh){#v262Painel{max-height:min(80dvh,660px,calc(100dvh - 176px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px)))}}
+#v262Painel .top,.v265-abas,.v265-sug,.v265-form{flex:0 0 auto}
+#v262Painel .lista{min-height:0;flex:1 1 auto}
+.v265-chat{min-height:0;overflow:hidden}
+.v265-msgs{min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media (max-height:560px){.v265-sug{display:none}.v265-abas button{min-height:36px}#v262Painel .top{padding-top:8px;padding-bottom:6px}}
+</style>
 </head>
 <body>
 <script>
@@ -2639,7 +2657,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V271 · 📄 Planilha do RH lida por inteiro</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V272 · 📱 Chat no celular + feriados</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -14678,6 +14696,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return prev[lb];
   }
   const limiteErro=n=>n<=3?0:(n<=6?1:2);
+  const RADICAIS=['folg','trabalh','escal','feriad','compens','descans','afast','domin','lider','horari','sugest','balanc','falt','gerar','import','planilh'];   // V272: flexões destas palavras nunca são “corrigidas”
+  const ehFlexao=w=>RADICAIS.some(r=>w.length>r.length&&w.indexOf(r)===0);
 
   /* ── vocabulário (palavras que o chat entende) e palavras que nunca se corrigem ── */
   const VOC_BASE=('quem quais qual quantos quantas quanto quando onde como porque domingo domingos trabalha trabalham trabalhou trabalharam trabalhar '+
@@ -14687,7 +14707,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     'ajuda ajudar semana data hora horas diferente fixa fixo pode podem posso motivo problema erro erros certo pronta pronto aprendiz promotor cartazista '+
     'emprestado planilha excel imprimir whatsapp manual automatico mista misto cargo grupos grupo cobertura dsr compensacao antecipada anterior estamos '+
     'estao veio vieram presente presenca compareceu liste lista listar mostre mostrar diga dizer fez feita feito nao sabado sabados primeiro segundo '+
-    'terceiro quarto quinto semanas escalou escalaram vezes lider lideres apresente apresentar apresentacao gabriel').split(' ');
+    'terceiro quarto quinto semanas escalou escalaram vezes lider lideres apresente apresentar apresentacao gabriel '+
+    'folgando folgam folgas folgou folgaram folgar folguista descansa descansam descansando compensa compensam compensacao compensatoria compensatorias feriadao feriadinho trabalhando trabalhamos').split(' ');   // V272
   const CONHECIDAS=new Set(('para como esta esse essa isso este aqui pelo pela mais menos muito todo toda todos todas onde ainda sobre entre posso deve devo '+
     'tenho temos meu minha seus suas dele dela deles delas ele ela eles elas sim vamos vai vou tudo nada algum alguma alguem ninguem cada outro outra mesmo '+
     'mesma tambem depois antes sempre nunca quer quero gostaria preciso favor uma uns umas dos das nos nas ola opa bom boa tarde noite obrigado obrigada '+
@@ -14722,7 +14743,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const exp=[]; bruto.forEach(w=>{ if(Object.prototype.hasOwnProperty.call(ABREV,w)) ABREV[w].split(' ').forEach(x=>exp.push(x)); else exp.push(w); });
     const voc=vocabulario(), nm=nomesDaEquipe(), corrigidas=[];
     const out=exp.map(w=>{
-      if(w.length<=3||/\d/.test(w)||w.length>25||voc.set.has(w)||CONHECIDAS.has(w)||nm.todos.has(w)) return w;
+      if(w.length<=3||/\d/.test(w)||w.length>25||voc.set.has(w)||CONHECIDAS.has(w)||nm.todos.has(w)||ehFlexao(w)) return w;   // V272: flexão conhecida
       const max=limiteErro(w.length); let melhor=null, md=max+1, empate=false;
       for(const v of voc.arr){
         if(Math.abs(v.length-w.length)>max) continue;
@@ -14731,6 +14752,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         else if(d===md&&d<=max&&melhor&&v!==melhor&&v.slice(0,5)!==melhor.slice(0,5)) empate=true;
       }
       if(!melhor||md>max||empate) return w;
+      if(md>=2&&!(melhor.slice(0,3)===w.slice(0,3)&&melhor.slice(-2)===w.slice(-2))) return w;   // V272: distância 2 só quando o começo e o fim batem (“folgando” não vira “faltando”)
       for(const n of nm.todos){ if(n.length>=4&&Math.abs(n.length-w.length)<=max&&dist(w,n,max)<=md) return w; }   // parece nome da equipe: deixa para a lógica de nomes
       corrigidas.push([w,melhor]); return melhor;
     });
@@ -15167,6 +15189,96 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       return anterior(texto);
     };
   }
+})();
+
+</script>
+
+<script>
+(function(){
+/* ═════ V272 — 📱 CHAT NO CELULAR + 🎉 FOLGAS E TRABALHO NOS FERIADOS (Gabriel) ═════
+   Pedido do dono (print do celular, 15/10/2026): “ao ter muita conversa no celular o layout vai ficando ruim e o Gabriel não soube
+   responder uma pergunta simples de folga de feriado”.
+   1) LAYOUT. Causa (reproduzida no Chromium com tela de celular): o painel do Gabriel é ancorado embaixo, mas crescia para CIMA além da
+      tela (topo e botão ✕ ficavam fora da tela); a lista de mensagens tinha altura mínima fixa de 180 px, que empurrava o campo de
+      digitar para fora quando a tela é baixa, e a linha de atalhos era espremida. Agora: o painel nunca passa da tela (altura máxima
+      calculada pela tela e pelas áreas seguras), a lista de mensagens é a parte que rola, atalhos/abas/campo têm altura própria e, com
+      o teclado aberto (visualViewport), o painel sobe para ficar logo acima do teclado. Em tela muito baixa os atalhos se escondem.
+   2) ERRO DE DIGITAÇÃO. “folgando” era “corrigido” para “faltando” (distância 2) e a pergunta virava outra. Agora: palavras com o
+      mesmo radical (folg-, trabalh-, escal-, feriad-…) nunca são “corrigidas”, e correção de 2 letras só vale se o começo e o fim batem.
+   3) FERIADOS. Perguntas como “quem está folgando nos feriados?”, “quem trabalha no feriado do dia 15?”, “qual a folga de feriado da
+      Ana?” agora são respondidas com os dados do passo 4 Feriados: quem trabalha em cada feriado, folga aceita ✅, folga só sugerida 💡
+      (falta aceitar) ou sem folga definida. Perguntas de REGRA (“como funciona a folga de feriado?”) continuam com a resposta de sempre.
+   Só leitura; nada altera a escala. window.v272Layout = {ajustar}; window.v272Feriados = {responder}. */
+  'use strict';
+  const $i=id=>document.getElementById(id);
+
+  /* ── 1) layout: o painel sempre cabe na tela, também com o teclado aberto ── */
+  function ajustar(vv){
+    const p=$i('v262Painel'); if(!p) return;
+    const H=window.innerHeight||0, alt=vv&&vv.height>0?vv.height:H, off=vv&&vv.offsetTop>0?vv.offsetTop:0;
+    const tecla=Math.max(0,H-alt-off);   // espaço tomado pelo teclado
+    if(tecla>120){ p.style.bottom=(tecla+8)+'px'; p.style.maxHeight=Math.max(160,alt-16)+'px'; p.dataset.v272='teclado'; }
+    else if(p.dataset.v272){ p.style.bottom=''; p.style.maxHeight=''; delete p.dataset.v272; }
+  }
+  window.v272Layout={ajustar};
+  try{ const vv=window.visualViewport; if(vv){ const f=()=>{ try{ ajustar(vv); }catch(e){} }; vv.addEventListener('resize',f); vv.addEventListener('scroll',f); } }catch(e){}
+
+  /* ── 3) feriados ── */
+  const base=window.v265Chat, G=window.v270Gabriel, I=base&&base.interno;
+  if(!(base&&G&&I&&typeof base.responder==='function')) return;
+  const anterior=base.responder, tem=I.tem, es=I.es;
+  const p2=n=>String(n).padStart(2,'0');
+  const feriadosDoMes=()=>{ try{ return feriados(+$i('ano').value,+$i('mes').value)||{}; }catch(e){ return {}; } };
+  const isoBR=iso=>{ const m=String(iso||'').match(/^\d{4}-(\d{2})-(\d{2})/); return m?`${m[2]}/${m[1]}`:''; };
+  const nomes=ids=>{ const n=ids.map(i=>`<b>${es(I.curto(i))}</b>`); return n.length>12?n.slice(0,12).join(', ')+` e mais ${n.length-12}`:I.lista(n); };
+  const dado=(fn,vazio)=>{ try{ const v=fn(); return v&&typeof v==='object'?v:vazio; }catch(e){ return vazio; } };   // as listas do app são variáveis globais soltas
+
+  function quer(qn){
+    if(!tem(qn,'feriado','feriados')) return null;
+    const folg=/ (folg\w*|descans\w*|compens\w*) /.test(qn), trab=/ trabalh\w* /.test(qn);
+    const quem=tem(qn,'quem','quais','lista','liste','mostre','nomes','quantos','quantas');
+    const pess=I.pessoas(qn).length>0;
+    if(tem(qn,'como','funciona','regra','regras','prazo','posso','devo')&&!quem) return null;   // pergunta de regra: resposta de sempre
+    if(folg&&(quem||pess)) return 'folgas';
+    if(trab&&(quem||pess)) return 'trabalho';
+    return null;
+  }
+  function responder(foco,qn){
+    const A=+$i('ano').value, M=+$i('mes').value, f=feriadosDoMes(), todos=Object.keys(f).map(Number).sort((a,b)=>a-b), mesNome=`${I.MES[M]} de ${A}`;
+    if(!todos.length) return `Não há feriado em ${mesNome}.`;
+    const P=I.pessoas(qn); if(P.length>1) return `Achei mais de uma pessoa: ${P.slice(0,6).map(i=>'<b>'+es(I.nome(i))+'</b>').join(', ')}. Escreva o nome e o sobrenome.`;
+    const so=P.length===1?P[0]:null;
+    const sel=((qn.match(/ \d{1,2} /g)||[]).map(x=>+x.trim())).filter(n=>todos.includes(n)), ds=sel.length?sel:todos;
+    const TF=dado(()=>trabalhoFeriado,{}), FC=dado(()=>folgasCompensatorias,{}), SG=dado(()=>sugestoesFolgasFeriado,{});
+    let trabalham=0, aceitas=0, sugeridas=0, semFolga=0; const linhas=[];
+    ds.forEach(d=>{
+      let ids=(TF[d]||[]).map(Number).filter(i=>equipe[i]); if(so!==null) ids=ids.filter(i=>i===so);
+      trabalham+=ids.length;
+      if(so!==null&&!ids.length) return;   // numa pergunta sobre UMA pessoa, só os feriados em que ela trabalha
+      const cab=`<b>${p2(d)}/${p2(M+1)}</b> — ${es(f[d])}`;
+      if(foco==='trabalho'){ linhas.push(`<li>${cab}: ${ids.length?`${nomes(ids)} <small>(${ids.length})</small>`:'<i>ninguém marcado para trabalhar</i>'}</li>`); return; }
+      const itens=ids.map(i=>{ const k=`${d}_${i}`;
+        if(FC[k]){ aceitas++; return `<b>${es(I.curto(i))}</b> folga em <b>${isoBR(FC[k])}</b> ✅`; }
+        if(SG[k]){ sugeridas++; return `<b>${es(I.curto(i))}</b>: 💡 sugerida para ${isoBR(SG[k])} (falta aceitar)`; }
+        semFolga++; return `<b>${es(I.curto(i))}</b>: sem folga definida ainda`; });
+      linhas.push(`<li>${cab}: ${itens.length?itens.join('; '):'<i>ninguém marcado para trabalhar (então não há folga a dar)</i>'}</li>`);
+    });
+    if(so!==null&&!trabalham) return `<b>${es(I.nome(so))}</b> não está marcado(a) para trabalhar ${sel.length?'nesse feriado':'em nenhum feriado de '+mesNome}, então não tem folga de feriado a receber. Marque no passo <b>4 Feriados</b>.`;
+    const quem=so!==null?`<b>${es(I.nome(so))}</b>`:'';
+    let t=foco==='trabalho'?`🎉 <b>Quem trabalha nos feriados</b> de ${mesNome}${quem?' — '+quem:''}:<ul>${linhas.join('')}</ul>`
+      :`🎉 <b>Folgas de feriado</b> de ${mesNome}${quem?' — '+quem:''}. Quem trabalha no feriado ganha uma folga em outro dia:<ul>${linhas.join('')}</ul>`;
+    if(foco==='folgas'){
+      if(!trabalham) t+='Ninguém foi marcado para trabalhar nos feriados ainda: marque no passo <b>4 Feriados</b>.';
+      else if(sugeridas||semFolga) t+=`No passo <b>4 Feriados</b>, toque em <b>✅ Aceitar</b> (ou <b>🔄 Outra data</b>) para fechar as folgas${sugeridas?` (${sugeridas} sugerida(s))`:''}${semFolga?` e peça sugestão para ${semFolga} sem folga`:''}.`;
+      else t+=`<small>${aceitas} folga(s) aceita(s). Quem não trabalha no feriado já está de folga nesse dia.</small>`;
+    }
+    return t;
+  }
+  window.v272Feriados={responder,quer};
+  base.responder=function(texto){
+    try{ const n=G.entender(texto), qn=n&&n.qn; const k=qn?quer(qn):null; if(k) return responder(k,qn); }catch(e){ console.warn('[V272]',e); }
+    return anterior(texto);
+  };
 })();
 
 </script>
