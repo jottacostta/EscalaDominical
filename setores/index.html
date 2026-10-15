@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V268</title>
+<title>Escala de Setores — V269</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V269 [Claude] — ✋ ESCALA MANUAL FORA DO PAR 2×1, COM RESPONSABILIDADE (pedido do dono, 15/10/2026 — só nos Setores): na escala
+       Manual o encarregado pode alternar os domingos de um jeito diferente do 2×1 (ex.: Eduardo trabalha o 1º domingo, NÃO trabalha
+       o 2º e a Maria entra no lugar dele). Quando um domingo fica completo e alguém que COMEÇOU o par (trabalhou o domingo anterior,
+       mas não o de antes) fica de fora, o Assistente avisa que a escala está diferente da regra e pergunta “Você está ciente e se
+       responsabiliza?”. SIM = a marcação fica; NÃO = a pessoa que acabou de ser marcada volta. O “🚀 Gerar escala” só libera depois
+       do SIM. A resposta aparece no quadro 🟠 do passo Domingos, no resultado da escala e no histórico do mês
+       (estadoFinalMes.v269Alt). 3 DOMINGOS SEGUIDOS CONTINUA PROIBIDO (e as demais regras: cobertura, liderança, folgas, 6×1).
+       Camada nova V269 (sem mexer no motor nem na auditoria): não entra em auditarSelecaoAntesDaGeracao para não desfazer marcações.
 V268 [Claude] — 🤖 ASSISTENTE RH NA TELA INICIAL (print do dono): na tela inicial (escolher o setor / início do setor)
        aparecia “Faltam 5 coisa(s)…” sem dizer de qual setor, e o “Ir até lá” não fazia nada — a escala fica atrás da
        tela inicial. Agora a dica diz o setor, o mês e o domingo (ex.: “Frente de Loja · novembro/2026 — domingo 01/11:
@@ -2488,6 +2496,19 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v267-hor .btn.sm{margin:6px 6px 0 0}
 .v267-tot{margin-top:6px;font-size:13px}
 </style>
+<style id="v269-alternada">
+/* V269: escala manual fora do par 2×1 (pergunta de responsabilidade) */
+#v269Alt{margin:10px 0}
+.v269-box{margin:8px 0;padding:10px 12px;border:2px solid #E8963A;border-radius:12px;background:#FFF6EA;color:#5C2B00;font-size:14px}
+.v269-box.ok{border-style:dashed}
+.v269-box p{margin:0 0 8px}
+.v269-bt{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.v269-fundo{position:fixed;inset:0;z-index:100010;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.v269-caixa{background:#fff;color:#1b2430;max-width:460px;width:100%;border-radius:18px;padding:18px 18px 14px;box-shadow:0 12px 40px rgba(0,0,0,.35);max-height:90vh;overflow:auto}
+.v269-caixa h3{margin:0 0 8px;font-size:17px}
+.v269-caixa ul{margin:6px 0 10px;padding-left:20px}
+.v269-peq{font-size:13px;color:#5b6675}
+</style>
 </head>
 <body>
 <script>
@@ -2583,7 +2604,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V268 · 🤖 Assistente: “Ir até lá” na tela inicial</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V269 · ✋ Escala manual fora do 2×1</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -14094,7 +14115,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   /* ── respostas prontas (regras e como usar) ── */
   const RESP=[
     {k:['6x1','6 x 1','7 dias','sete dias','seis dias','dias seguidos','dia seguido'],r:'📏 <b>Regra do 6×1:</b> ninguém trabalha mais de <b>6 dias seguidos</b>. Depois de 6 dias, tem que ter uma folga. O app confere sozinho e avisa em vermelho se alguém passar disso.'},
-    {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção.':'')},
+    {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção. Na <b>escala Manual</b> você pode alternar fora do par 2×1 (ex.: Eduardo no 1º domingo, Maria no 2º): o app pergunta se você está ciente e se responsabiliza. <b>3 domingos seguidos continua proibido.</b>':'')},
     {k:['dsr','folga da semana','descanso semanal','descanso'],r:'💤 <b>Folga da semana (DSR):</b> quem trabalha no domingo ganha uma folga durante a semana. O app calcula sozinho quando você toca em <b>Gerar</b>, e ela aparece como <b>FOLGA</b> na escala e na prévia.'},
     {k:['feriado','feriados','compensa*','folga do feriado','folga de feriado'],r:'🎉 <b>Feriado:</b> no passo <b>4 Feriados</b>, marque quem vai trabalhar. Quem trabalha ganha <b>uma folga em outro dia</b>: o app sugere a data, e você toca em <b>✅ Aceitar</b> ou <b>🔄 Outra data</b>. A folga nunca cai no dia da folga fixa.'+(APP==='enc'?' O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções.':'')+' Para ver o mês inteiro, abra a <b>📅 Prévia das folgas</b>.'},
     {k:['balanco'],r:APP==='setores'?'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>⚙️ Configurações → 📦 Domingos de balanço</b>. Ele é exceção na regra dos domingos seguidos.':'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>📅 Mês e opções → Mais opções → 📦 Domingos de balanço</b>. No balanço, <b>todos trabalham</b>.'},
@@ -14385,6 +14406,168 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       return r; }; }
   window.v267HorFuncao={lista,definir,slots};
   setTimeout(()=>{ try{ renderConfigFuncao(); }catch(e){} },900);
+})();
+</script>
+
+<script>
+(function(){
+/* ═════ V269 — ✋ ESCALA MANUAL FORA DO PAR 2×1, COM RESPONSABILIDADE ═════
+   Pedido do dono (15/10/2026, só nos Setores): na escala Manual o encarregado pode alternar os domingos diferente do 2×1.
+   Par 2×1 = quem começa trabalha 2 domingos seguidos. “Quebra o par” = a pessoa trabalhou o domingo anterior, NÃO trabalhou o de
+   antes (par aberto) e NÃO está neste domingo, já com o domingo completo (operacionais ≥ meta, menos a folga V258). Liderança
+   conta: se o domingo tem liderança escolhida, quem é de liderança e deixou o par aberto também aparece. Balanço fica de fora.
+   - Quando um domingo fica completo pela marcação (caixinha), o Assistente abre a pergunta. SIM = fica (anotado, com data e hora);
+     NÃO (ou Esc) = a pessoa recém-marcada volta.
+   - Quadro 🟠 (#v269Alt) antes dos cartões: mostra o que está sem resposta (com Sim/Não) e o que já foi assumido (com Desfazer).
+   - “🚀 Gerar escala” é barrado (captura do clique) enquanto houver pergunta sem resposta.
+   - A resposta vai no histórico (estadoFinalMes.v269Alt) e no resultado da escala (aviso 🟠 no #validacao).
+   3 DOMINGOS SEGUIDOS CONTINUA PROIBIDO (auditoria V227/V234 intacta). Nada aqui entra em auditarSelecaoAntesDaGeracao, senão a
+   auditoria ao vivo desfaria a marcação. window.v269Alt = {quebras, pendentes, responder, perguntar}. */
+  const $i=id=>document.getElementById(id);
+  const es=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const LS='escalaSetores.v269Alt';
+  const dd=(d,m)=>`${String(d).padStart(2,'0')}/${String((m===undefined?+$i('mes').value:m)+1).padStart(2,'0')}`;
+  const manual=()=>($i('modoGeracao')?.value||'motor')==='manual';
+  const refMes=()=>`${norm($i('setorSelecionado')?.value||'')}|${+$i('ano').value}-${+$i('mes').value}`;
+  const chaveP=f=>{ const m=String(f?.matricula||'').replace(/^0+/,''); return m||('N:'+norm(f?.nome||'')); };
+  let store={}; try{ store=JSON.parse(localStorage.getItem(LS)||'{}')||{}; if(typeof store!=='object'||Array.isArray(store)) store={}; }catch(e){ store={}; }
+  const gravar=()=>{ try{ const ks=Object.keys(store).sort(); while(ks.length>24) delete store[ks.shift()]; localStorage.setItem(LS,JSON.stringify(store)); }catch(e){} };
+  /* domingos em que o encarregado mexeu À MÃO (caixinha). As sugestões do app e o “copiar o domingo anterior” NÃO contam: o app não
+     pergunta “responsabilidade” sobre o que ele mesmo sugeriu. */
+  const LSM='escalaSetores.v269Maos';
+  let maos={}; try{ maos=JSON.parse(localStorage.getItem(LSM)||'{}')||{}; if(typeof maos!=='object'||Array.isArray(maos)) maos={}; }catch(e){ maos={}; }
+  const gravarMaos=()=>{ try{ const ks=Object.keys(maos).sort(); while(ks.length>24) delete maos[ks.shift()]; localStorage.setItem(LSM,JSON.stringify(maos)); }catch(e){} };
+  const marcarMao=d=>{ const r=refMes(); if(!maos[r]||typeof maos[r]!=='object') maos[r]={}; if(!maos[r][d]){ maos[r][d]=1; gravarMaos(); } };
+  const diaMao=d=>!!(maos[refMes()]&&maos[refMes()][d])||Object.keys(store[refMes()]||{}).some(k=>k.startsWith(d+'|'));
+  const acks=()=>{ const r=refMes(); if(!store[r]||typeof store[r]!=='object') store[r]={}; return store[r]; };
+
+  function quebras(){
+    if(!manual()||!equipe.length) return [];
+    const ano=+$i('ano').value, mes=+$i('mes').value, doms=domingosDoMes(ano,mes), bal=balancoDoMes(ano,mes);
+    const ativos=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i]));
+    const sel=normalizarSelecoesDomingais(doms,ativos), alvo=alvoCoberturaAtual(), folga=window.v258Folga?.()||0;
+    const pm=new Date(ano,mes,1); pm.setDate(0); const ult=domingosDoMes(pm.getFullYear(),pm.getMonth()).slice(-1)[0];
+    const trab=(i,j)=>{ if(j>=0){ const d=doms[j]; return d===bal?true:(sel[d]||[]).includes(i); } const h=historicoManual(i)||{}; return j===-1?!!h.ultimo:!!h.penultimo; };
+    const out=[];
+    doms.forEach((d,j)=>{
+      if(d===bal||(j>0&&doms[j-1]===bal)) return;
+      const ops=(selecaoManualDomingo[String(d)]||[]).map(Number).filter(i=>ativos.includes(i)&&!ehLiderancaDomingo(equipe[i]));
+      if(!diaMao(d)) return;   // montado pelas sugestões do app: não pergunta
+      if(!(alvo>0&&ops.length>=Math.max(1,alvo-folga))) return;   // domingo ainda incompleto: o app espera
+      const temLid=lideresSelecionadosDomingo(d).length>0;
+      const de=j===0?(ult?dd(ult,pm.getMonth()):'mês passado'):dd(doms[j-1]);
+      ativos.forEach(i=>{ const f=equipe[i];
+        if((sel[d]||[]).includes(i)||Number(f.folgaFixa)===0) return;
+        if(ehLiderancaDomingo(f)&&!temLid) return;
+        if(!(trab(i,j-1)&&!trab(i,j-2))) return;
+        out.push({d,i,key:d+'|'+chaveP(f),de,dl:dd(d),nome:f.nome});
+      });
+    });
+    return out;
+  }
+  const ciente=x=>!!acks()[x.key];
+  const pendentes=()=>quebras().filter(x=>!ciente(x));
+  const porDia=l=>{ const m={}; l.forEach(x=>{ (m[x.d]=m[x.d]||[]).push(x); }); return m; };
+  const nomes=l=>{ const n=l.map(x=>es(String(x.nome).split(/\s+/)[0]+' '+(String(x.nome).split(/\s+/)[1]||'')).trim()); return n.length>6?n.slice(0,6).join(', ')+' e mais '+(n.length-6):n.join(', '); };
+
+  let dlg=null;
+  const fecharDlg=()=>{ if(dlg){ dlg.remove(); dlg=null; } };
+  function responder(d,sim,novos){
+    const p=pendentes().filter(x=>x.d===d);
+    if(sim){
+      p.forEach(x=>{ acks()[x.key]={key:x.key,mes:refMes(),nome:x.nome,dia:x.dl,de:x.de,quando:new Date().toISOString()}; });
+      gravar(); sincronizar(); fecharDlg(); desenhar();
+      window.showToast?.(`✅ Anotado: o encarregado está ciente e se responsabiliza pela escala fora do 2×1 em ${dd(d)}.`,'ok',true);
+    }else{
+      (novos||[]).forEach(i=>{ selecaoManualDomingo[String(d)]=(selecaoManualDomingo[String(d)]||[]).map(Number).filter(x=>x!==i);
+        if(horariosManuaisDomingo?.[String(d)]) delete horariosManuaisDomingo[String(d)][String(i)]; });
+      fecharDlg();
+      try{ renderSelecaoDomingosGeracao(); }catch(e){} try{ window.v45Persist?.(); }catch(e){} desenhar();
+      window.showToast?.((novos||[]).length?`↩ Voltei: ${novos.map(i=>String(equipe[i]?.nome||'').split(/\s+/)[0]).join(', ')} saiu de ${dd(d)}.`:`Tudo bem. Ajuste o domingo ${dd(d)}: o “Gerar” só libera depois do seu “sim”.`,'info',true);
+    }
+  }
+  function perguntar(d,novos){
+    const p=pendentes().filter(x=>x.d===d); if(!p.length) return false;
+    fecharDlg();
+    dlg=document.createElement('div'); dlg.id='v269Dlg'; dlg.className='v269-fundo';
+    dlg.innerHTML=`<div class="v269-caixa" role="alertdialog" aria-modal="true" aria-labelledby="v269T">
+      <h3 id="v269T">🤖 Assistente: esta escala é diferente da regra 2×1</h3>
+      <p>Pela regra <b>2×1</b>, quem começa trabalha <b>2 domingos seguidos</b>. Veja o que você montou para o domingo <b>${es(dd(d))}</b>:</p>
+      <ul><li><b>${p.length}</b> pessoa(s) trabalhou(aram) o domingo <b>${es(p[0].de)}</b> e <b>não</b> está(ão) neste domingo: ${nomes(p)}.</li></ul>
+      <p><b>Você está ciente e se responsabiliza por essa escala diferente da regra?</b></p>
+      <p class="v269-peq">Continua proibido: a mesma pessoa em 3 domingos seguidos.</p>
+      <div class="v269-bt"><button type="button" class="btn success" id="v269Sim">✅ Sim, estou ciente e me responsabilizo</button><button type="button" class="btn secondary" id="v269Nao">↩ Não, quero voltar</button></div></div>`;
+    document.body.appendChild(dlg);
+    dlg.querySelector('#v269Sim').onclick=()=>responder(d,true,novos);
+    dlg.querySelector('#v269Nao').onclick=()=>responder(d,false,novos);
+    dlg.addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); responder(d,false,novos); } });
+    setTimeout(()=>dlg?.querySelector('#v269Nao')?.focus(),30);
+    return true;
+  }
+
+  /* quadro 🟠 antes dos cartões do passo Domingos */
+  let ultimaAssin='';
+  function desenhar(){
+    const alvoEl=$i('selecaoDomingosManual'); if(!alvoEl) return;
+    let box=$i('v269Alt');
+    const q=quebras();
+    if(!q.length){ if(box) box.remove(); ultimaAssin=''; return; }
+    const dias=porDia(q), assin=refMes()+JSON.stringify(Object.entries(dias).map(([d,l])=>[d,l.map(x=>[x.key,ciente(x)])]));
+    if(!box){ box=document.createElement('div'); box.id='v269Alt'; alvoEl.before(box); ultimaAssin=''; }
+    else if(box.nextElementSibling!==alvoEl) alvoEl.before(box);
+    if(assin===ultimaAssin) return; ultimaAssin=assin;
+    box.innerHTML=Object.entries(dias).map(([d,l])=>{ const pend=l.filter(x=>!ciente(x));
+      return pend.length
+        ?`<div class="v269-box"><p>🟠 <b>Domingo ${es(dd(+d))}:</b> ${pend.length} pessoa(s) trabalhou(aram) o domingo ${es(pend[0].de)} e não está(ão) neste: ${nomes(pend)}. O par 2×1 fica quebrado. <b>Você está ciente e se responsabiliza?</b></p><div class="v269-bt"><button type="button" class="btn success sm" data-v269="sim" data-d="${d}">✅ Sim, estou ciente e me responsabilizo</button><button type="button" class="btn secondary sm" data-v269="nao" data-d="${d}">↩ Não, vou ajustar</button></div></div>`
+        :`<div class="v269-box ok"><p>🟠 <b>Domingo ${es(dd(+d))} fora do 2×1, com a sua responsabilidade</b> (${l.length} pessoa(s)). <button type="button" class="btn secondary sm" data-v269="desfazer" data-d="${d}">Desfazer resposta</button></p></div>`; }).join('');
+  }
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('[data-v269]'); if(!b) return; const d=+b.dataset.d, a=b.dataset.v269;
+    if(a==='sim') responder(d,true,[]); else if(a==='nao') responder(d,false,[]);
+    else if(a==='desfazer'){ quebras().filter(x=>x.d===d).forEach(x=>{ delete acks()[x.key]; }); gravar(); sincronizar(); desenhar(); } });
+
+  /* pergunta ao marcar a pessoa que completa o domingo (depois da auditoria ao vivo V227, que pode desfazer a marcação) */
+  document.addEventListener('change',e=>{ const ch=e.target; if(!ch?.matches?.('#selecaoDomingosManual input[type=checkbox][data-func]')||!manual()) return;
+    const d=+ch.dataset.dom, i=Number(ch.dataset.func);
+    marcarMao(d);   // mexeu à mão neste domingo (marcando ou desmarcando)
+    if(!ch.checked){ setTimeout(desenhar,300); return; }
+    setTimeout(()=>{ try{ if(!(selecaoManualDomingo[String(d)]||[]).map(Number).includes(i)) return; desenhar(); perguntar(d,[i]); }catch(err){ console.warn('[V269]',err); } },450);
+  });
+
+  /* trava do “Gerar” enquanto houver pergunta sem resposta */
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('#btnGerar'); if(!b||!manual()) return;
+    const p=pendentes(); if(!p.length) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const dias=Object.keys(porDia(p)).map(Number), v=$i('validacao');
+    if(v){ v.className='alert bad'; v.innerHTML=`✋ <b>Ainda não dá para gerar.</b> A escala está <b>diferente da regra 2×1</b> em ${dias.map(d=>es(dd(d))).join(', ')}. No quadro 🟠 do passo <b>Domingos</b>, responda se você está ciente e se responsabiliza.`; }
+    try{ $i('statusBadge').textContent='Falta responder'; }catch(err){}
+    try{ window.v45GotoStep?.(3,false); }catch(err){}
+    setTimeout(()=>{ desenhar(); const bx=$i('v269Alt'); bx?.scrollIntoView({behavior:'smooth',block:'start'}); perguntar(dias[0],[]); },250);
+  },true);
+
+  /* resultado: diz o que ficou fora do 2×1 com a responsabilidade do encarregado */
+  function avisoResultado(){ const v=$i('validacao'); if(!v||!manual()) return;
+    const fx=quebras().filter(ciente); let a=$i('v269Resultado');
+    if(!fx.length||!/ok/.test(v.className)){ a?.remove(); return; }
+    const dias=porDia(fx);
+    const html='🟠 <b>Fora do par 2×1, com a responsabilidade do encarregado:</b> '+Object.entries(dias).map(([d,l])=>`domingo ${es(dd(+d))} (${l.length} pessoa(s) que trabalharam ${es(l[0].de)} e não estão)`).join('; ')+'.';
+    if(!a){ a=document.createElement('div'); a.id='v269Resultado'; a.className='v269-box ok'; v.appendChild(a); }
+    if(a.innerHTML!==html) a.innerHTML=html;
+  }
+  { const v=$i('validacao'); if(v) new MutationObserver(()=>{ try{ avisoResultado(); }catch(e){} }).observe(v,{childList:true}); }
+
+  /* histórico: guarda no estadoFinalMes e recupera o que veio de um histórico aberto */
+  let ultimoExport='';   // o que EU escrevi por último no estadoFinalMes: só o que for diferente disso veio de fora (histórico aberto)
+  function sincronizar(){
+    try{ const arr=estadoFinalMes&&estadoFinalMes.v269Alt;
+      if(Array.isArray(arr)&&JSON.stringify(arr)!==ultimoExport){ let mudou=false; arr.forEach(a=>{ if(a&&typeof a==='object'&&typeof a.key==='string'&&/^\d{1,2}\|.{1,60}$/.test(a.key)&&typeof a.mes==='string'&&a.mes.length<90){
+        const m=(store[a.mes]=store[a.mes]&&typeof store[a.mes]==='object'?store[a.mes]:{}); if(!m[a.key]){ m[a.key]={key:a.key,mes:a.mes,nome:String(a.nome||'').slice(0,80),dia:String(a.dia||'').slice(0,10),de:String(a.de||'').slice(0,12),quando:String(a.quando||'').slice(0,30)}; mudou=true; } } });
+        if(mudou) gravar(); }
+      if(estadoFinalMes&&typeof estadoFinalMes==='object'){ const l=quebras().filter(ciente).map(x=>JSON.parse(JSON.stringify(acks()[x.key]))); if(l.length) estadoFinalMes.v269Alt=l; else delete estadoFinalMes.v269Alt; ultimoExport=l.length?JSON.stringify(l):''; }
+    }catch(e){ console.warn('[V269 sync]',e); }
+  }
+  window.v269Alt={quebras,pendentes,responder,perguntar,sincronizar,estado:()=>store,maos:()=>maos};
+  { const o=window.gerarSetores; if(typeof o==='function') window.gerarSetores=function(){ const r=o.apply(this,arguments); setTimeout(()=>{ sincronizar(); avisoResultado(); },50); return r; }; }
+  setInterval(()=>{ if(document.visibilityState!=='visible') return; try{ sincronizar(); desenhar(); }catch(e){} },1000);
 })();
 </script>
 
