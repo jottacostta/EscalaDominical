@@ -7,10 +7,18 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V178</title>
+<title>Escala 2×1 — Encarregados V179</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V179 [Claude] — ✋ ESCALA À MÃO FORA DO PAR 2×1, COM RESPONSABILIDADE (pedido do dono, 15/10/2026): na escala à mão (✋ À mão /
+       🤝 Misto) o encarregado pode alternar os domingos de um jeito diferente do 2×1 (ex.: Eduardo trabalha o 1º domingo, NÃO
+       trabalha o 2º e a Maria entra no lugar dele). Quando um domingo fica completo (3 pessoas) e alguém que COMEÇOU o par
+       (trabalhou o domingo anterior, mas não o de antes) fica de fora, o Assistente avisa que a escala está diferente da regra e
+       pergunta “Você está ciente e se responsabiliza?”. SIM = a marcação fica; NÃO = a(s) pessoa(s) que acabou(aram) de ser
+       marcada(s) volta(m). O “Gerar” só libera depois do SIM. A confirmação aparece no cartão do domingo (🟠 fora do 2×1), no
+       resultado da escala e no histórico do mês (escalaMao.alt). 3 DOMINGOS SEGUIDOS CONTINUA PROIBIDO (e as demais regras:
+       3 pessoas, Enc + Sub, setores diferentes, 6×1). Só no app de Encarregados.
 V178 [Claude] — 💬 PERGUNTE AO ASSISTENTE RH (pedido do dono, igual à Escala de Setores V265): abas “💡 Dicas” e
        “💬 Perguntar” no painel do 🤖 Assistente RH. Mini chat SEM internet: quem trabalha em cada domingo, por que
        alguém não pode (mesma conferência da escala à mão), quantos domingos fez, folga fixa, o que falta, feriados,
@@ -1893,6 +1901,20 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v265-form input{flex:1;min-width:0;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--v262-line);background:var(--v262-bg);color:var(--v262-ink);font:inherit;font-size:16px}
 .v265-form button{min-height:44px;padding:8px 16px;border-radius:12px;border:0;background:var(--v262-brand);color:var(--v265-on);font:inherit;font-weight:800;cursor:pointer}
 </style>
+<style id="v179-alternada">
+/* V179: escala à mão fora do par 2×1 (pergunta de responsabilidade) */
+.v167-st.a{background:#FFE9D2;color:#9A4300}
+.v167-ai.a{border-color:#E8963A;background:#FFF1E2;color:#7A3500}
+.v179-box{margin:8px 0;padding:10px 12px;border:2px solid #E8963A;border-radius:12px;background:#FFF6EA;color:#5C2B00;font-size:14px}
+.v179-box.ok{border-style:dashed}
+.v179-box p{margin:0 0 8px}
+.v179-bt{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.v179-fundo{position:fixed;inset:0;z-index:100010;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.v179-caixa{background:#fff;color:#1b2430;max-width:460px;width:100%;border-radius:18px;padding:18px 18px 14px;box-shadow:0 12px 40px rgba(0,0,0,.35);max-height:90vh;overflow:auto}
+.v179-caixa h3{margin:0 0 8px;font-size:17px}
+.v179-caixa ul{margin:6px 0 10px;padding-left:20px}
+.v179-peq{font-size:13px;color:#5b6675}
+</style>
 </head>
 <body class="em-inicio">
 
@@ -1947,7 +1969,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V178 · 💬 Pergunte ao Assistente</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V179 · ✋ Escala à mão fora do 2×1</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -8042,8 +8064,10 @@ function perguntarOrientacaoImpressao(cb){
   let st={modo:'auto',meses:{},mostrar:'todos',ord:{},fn:{}};
   try{ const o=JSON.parse(localStorage.getItem(LS)||'null'); if(o&&typeof o==='object') st=Object.assign(st,o); }catch(e){}
   if(!st.meses||typeof st.meses!=='object') st.meses={};
+  if(!st.alt||typeof st.alt!=='object') st.alt={};   // V179: respostas “ciente e me responsabilizo” por mês
   function gravar(){
     try{ const ks=Object.keys(st.meses).sort(); while(ks.length>8) delete st.meses[ks.shift()];
+      Object.keys(st.alt||{}).sort().slice(0,-8).forEach(k=>delete st.alt[k]);   // V179
       localStorage.setItem(LS,JSON.stringify(st)); }catch(e){}
   }
   const ano=()=>+$('ano').value, mes=()=>+$('mes').value;
@@ -8089,6 +8113,64 @@ function perguntarOrientacaoImpressao(cb){
     }
     return out;
   }
+
+  /* ───────── V179 — escala à mão FORA do par 2×1 (“alternada”), com resposta de responsabilidade ─────────
+     Par 2×1 = quem começa trabalha 2 domingos seguidos. “Quebra o par” = a pessoa trabalhou o domingo anterior, NÃO trabalhou o de
+     antes (então o par dela estava aberto) e NÃO está neste domingo — com o domingo já completo (3 pessoas). O balanço fica de fora
+     (todos trabalham). 3 domingos seguidos continua PROIBIDO (trincas/motivo/auditar), isso aqui não libera. */
+  const acks=()=>{ const k=chaveMes(); if(!st.alt[k]||typeof st.alt[k]!=='object') st.alt[k]={}; return st.alt[k]; };
+  const ciente=x=>!!acks()[x.key];
+  function quebrasPar(s){
+    const {doms,bal,full}=completo(s), out=[], lab=rotulosDomingos(doms);
+    doms.forEach((d,j)=>{
+      if(d===bal||(s[d]||[]).length<3) return;
+      if(j>0&&doms[j-1]===bal) return;
+      equipe.forEach((f,i)=>{
+        if(full[d].includes(i)||inativo(f)||Number(f.folgaFixa)===0||folgaNoFeriadoTrabalhado(i,d)) return;   // não é escolha: a pessoa não poderia entrar
+        const h=historicoManual(i);
+        const ant=j>0?full[doms[j-1]].includes(i):!!h.ultimo;
+        const ant2=j>1?full[doms[j-2]].includes(i):(j===1?!!h.ultimo:!!h.penultimo);
+        if(!(ant&&!ant2)) return;
+        const ref=lab[j+1], dl=dd(d);
+        out.push({d,i,is:[i],ref,dl,key:d+'|'+chaveP(i),t:`${f.nome} trabalhou o domingo ${ref} e não está no domingo ${dl}: o par 2×1 (2 domingos seguidos) fica quebrado.`});
+      });
+    });
+    return out;
+  }
+  const pendAlt=s=>quebrasPar(s||sel()).filter(x=>!ciente(x));
+  let dlgAlt=null;
+  const fecharAlt=()=>{ if(dlgAlt){ dlgAlt.remove(); dlgAlt=null; } };
+  function responderAlt(d,sim,novos){
+    const p=pendAlt().filter(x=>x.d===d);
+    if(sim){
+      p.forEach(x=>{ acks()[x.key]={key:x.key,nome:nome(x.i),dia:x.dl,ref:x.ref,quando:new Date().toISOString()}; });
+      gravar(); fecharAlt(); render();
+      toast(`✅ Anotado: o encarregado está ciente e se responsabiliza pela escala fora do 2×1 em ${dd(d)}.`,'ok');
+    }else{
+      (novos||[]).forEach(i=>desmarcar(i,d)); fecharAlt(); render();
+      toast((novos||[]).length?`↩ Voltei: ${novos.map(nome).join(', ')} saiu(ram) de ${dd(d)}.`:`Tudo bem. Ajuste o domingo ${dd(d)}: o “Gerar” só libera depois do seu “sim”.`,'info');
+    }
+  }
+  function perguntarAlternada(d,novos){
+    const p=pendAlt().filter(x=>x.d===d); if(!p.length) return false;
+    fecharAlt();
+    dlgAlt=document.createElement('div'); dlgAlt.id='v179Dlg'; dlgAlt.className='v179-fundo';
+    dlgAlt.innerHTML=`<div class="v179-caixa" role="alertdialog" aria-modal="true" aria-labelledby="v179T">
+      <h3 id="v179T">🤖 Assistente: esta escala é diferente da regra 2×1</h3>
+      <p>Pela regra <b>2×1</b>, quem começa trabalha <b>2 domingos seguidos</b>. Veja o que você montou:</p>
+      <ul>${p.map(x=>`<li><b>${H(nome(x.i))}</b> trabalhou o domingo <b>${H(x.ref)}</b> e <b>não</b> está no domingo <b>${H(x.dl)}</b>.</li>`).join('')}</ul>
+      <p><b>Você está ciente e se responsabiliza por essa escala diferente da regra?</b></p>
+      <p class="v179-peq">Continua proibido: a mesma pessoa em 3 domingos seguidos.</p>
+      <div class="v179-bt"><button type="button" class="btn success" id="v179Sim">✅ Sim, estou ciente e me responsabilizo</button><button type="button" class="btn secondary" id="v179Nao">↩ Não, quero voltar</button></div></div>`;
+    document.body.appendChild(dlgAlt);
+    dlgAlt.querySelector('#v179Sim').onclick=()=>responderAlt(d,true,novos);
+    dlgAlt.querySelector('#v179Nao').onclick=()=>responderAlt(d,false,novos);
+    dlgAlt.addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); responderAlt(d,false,novos); } });
+    setTimeout(()=>dlgAlt?.querySelector('#v179Nao')?.focus(),30);
+    return true;
+  }
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('[data-v179]'); if(!b) return; const d=+b.dataset.d;
+    if(b.dataset.v179==='sim') responderAlt(d,true,[]); else responderAlt(d,false,[]); });
   function folgaNoFeriadoTrabalhado(i,d){
     const a=ano(),m=mes(),fer=feriados(a,m);
     for(const x of descansosDoCandidato(i,d)){
@@ -8128,7 +8210,7 @@ function perguntarOrientacaoImpressao(cb){
         r.push({d:ds[ds.length-1],ds,is:[i],t:`${f.nome} trabalharia 3 domingos seguidos (${lab[k-2]}, ${lab[k-1]} e ${lab[k]}). O máximo são 2.`});
       });
     });
-    return {r,y};
+    return {r,y,a:quebrasPar(s)};   // V179: a = par 2×1 quebrado (não é erro: pede a resposta de responsabilidade)
   }
   const doDomingo=(x,d)=>x.d===d||(x.ds||[]).includes(d);
 
@@ -8170,10 +8252,11 @@ function perguntarOrientacaoImpressao(cb){
     if(!fonte.length){ toast(`Não há ninguém para copiar ${de}.`,'warn'); return; }
     if((s[d]||[]).length&&!confirm(`O domingo ${dd(d)} já tem pessoas marcadas. Trocar pelas pessoas ${de}?`)) return;
     gravarDia(d,[]);
-    const fora=[]; let n=0;
-    fonte.forEach(i=>{ const mo=motivo(i,d,sel()); if(mo) fora.push(`${nome(i)} (${mo.toLowerCase()})`); else if(marcar(i,d,true)) n++; else fora.push(nome(i)); });
+    const fora=[], novos=[]; let n=0;
+    fonte.forEach(i=>{ const mo=motivo(i,d,sel()); if(mo) fora.push(`${nome(i)} (${mo.toLowerCase()})`); else if(marcar(i,d,true)){ n++; novos.push(i); } else fora.push(nome(i)); });
     render();
     toast(`↻ ${n} pessoa(s) copiada(s) ${de}.`+(fora.length?` Ficaram de fora: ${fora.join('; ')}.`:''),fora.length?'warn':'ok');
+    perguntarAlternada(d,novos);   // V179
   }
 
   /* 💡 sugestão: o mesmo cálculo do automático (escolherDomingo original), só com quem completa os marcados */
@@ -8217,9 +8300,10 @@ function perguntarOrientacaoImpressao(cb){
   function aceitarSugestao(d,box){
     const marcados=[...box.querySelectorAll('input[data-sug]:checked')].map(x=>+x.dataset.sug);
     if(!marcados.length){ toast('Marque pelo menos uma pessoa da sugestão.','warn'); return; }
-    let n=0; const fora=[]; marcados.forEach(i=>{ if(marcar(i,d,true)) n++; else fora.push(nome(i)); });
+    let n=0; const fora=[], novos=[]; marcados.forEach(i=>{ if(marcar(i,d,true)){ n++; novos.push(i); } else fora.push(nome(i)); });
     delete sug[d]; render();
     toast(`✅ ${n} pessoa(s) colocada(s) em ${dd(d)}.`+(fora.length?` Não deu para colocar: ${fora.join(', ')} (a escala mudou).`:''),fora.length?'warn':'ok');
+    perguntarAlternada(d,novos);   // V179
   }
 
   /* 📌 1º domingo: as pessoas que o app previu no mês passado (as folgas antes deste domingo já foram avisadas) */
@@ -8231,9 +8315,10 @@ function perguntarOrientacaoImpressao(cb){
   function usarPrevisao(d){
     const l=previstos(d); if(!l) return;
     if((sel()[d]||[]).length&&!confirm(`Trocar as pessoas de ${dd(d)} pelas que foram previstas no mês passado?`)) return;
-    gravarDia(d,[]); const fora=[]; let n=0;
-    l.forEach(i=>{ const mo=motivo(i,d,sel()); if(mo) fora.push(`${nome(i)} (${mo.toLowerCase()})`); else if(marcar(i,d,true)) n++; else fora.push(nome(i)); });
+    gravarDia(d,[]); const fora=[], novos=[]; let n=0;
+    l.forEach(i=>{ const mo=motivo(i,d,sel()); if(mo) fora.push(`${nome(i)} (${mo.toLowerCase()})`); else if(marcar(i,d,true)){ n++; novos.push(i); } else fora.push(nome(i)); });
     render(); toast(`📌 ${n} pessoa(s) prevista(s) colocada(s) em ${dd(d)}.`+(fora.length?` Ficaram de fora: ${fora.join('; ')}.`:''),fora.length?'warn':'ok');
+    perguntarAlternada(d,novos);   // V179
   }
 
   /* folga fixa no próprio cartão (vale para o mês todo, igual ao Editar equipe) */
@@ -8258,6 +8343,9 @@ function perguntarOrientacaoImpressao(cb){
   function selo(au,d){
     if(au.r.some(x=>doDomingo(x,d))) return '<span class="v167-st r">🔴 regra quebrada</span>';
     if(au.y.some(x=>doDomingo(x,d))) return '<span class="v167-st y">🟡 falta completar</span>';
+    const al=(au.a||[]).filter(x=>doDomingo(x,d));   // V179
+    if(al.some(x=>!ciente(x))) return '<span class="v167-st a">🟠 precisa da sua resposta</span>';
+    if(al.length) return '<span class="v167-st a">🟠 fora do 2×1 (você assumiu)</span>';
     return '<span class="v167-st ok">✅ pronto</span>';
   }
   function linhaPessoa(i,d,s,full,doms,bal,marc,latVez){
@@ -8298,6 +8386,9 @@ function perguntarOrientacaoImpressao(cb){
       const n=S.filter(i=>(equipe[i].tipo||'outro')===t).length;
       return `<div class="v167-g"><div class="v167-gt">${GRUPO[t]} <small>— ${n} marcado${n===1?'':'s'}</small></div>${l.map(i=>linhaPessoa(i,d,s,full,doms,bal,S.includes(i),latVez)).join('')}</div>`;
     }).join('');
+    const altHtml=(au.a||[]).filter(x=>x.d===d).map(x=>ciente(x)
+      ?`<p class="v179-box ok">🟠 <b>Fora do 2×1, com a sua responsabilidade:</b> ${H(x.t)}</p>`
+      :`<div class="v179-box"><p>🟠 ${H(x.t)} <b>Você está ciente e se responsabiliza?</b></p><div class="v179-bt"><button type="button" class="btn success sm" data-v179="sim" data-d="${d}">✅ Sim, estou ciente e me responsabilizo</button><button type="button" class="btn secondary sm" data-v179="nao" data-d="${d}">↩ Não, vou ajustar</button></div></div>`).join('');   // V179
     const completoTxt=cheio?`<p class="v167-nota">✅ Domingo completo, com as 3 pessoas. Para trocar alguém, desmarque a pessoa: a lista com todos volta a aparecer.</p>`:'';
     const vazio=so&&!S.length?`<p class="v167-nota">Ninguém marcado ainda. Use a busca, 💡 Sugestão do app ou ↻ Copiar o domingo anterior.</p>`:'';
     const afast=equipe.filter((f,i)=>inativo(f)&&!S.includes(i)).length;
@@ -8320,7 +8411,7 @@ function perguntarOrientacaoImpressao(cb){
       ${prevHtml}${sugHtml}
       ${cheio?'':`<div class="v167-filtros"><label>Ordenar <select data-ord="${d}"><option value="az"${ord==='az'?' selected':''}>A–Z</option><option value="za"${ord==='za'?' selected':''}>Z–A</option><option value="antigos"${ord==='antigos'?' selected':''}>Admissão (mais antigos)</option><option value="novos"${ord==='novos'?' selected':''}>Admissão (mais novos)</option></select></label>
         <label>Função <select data-fn="${d}"><option value="todas">Todas</option><option value="enc"${fn==='enc'?' selected':''}>Encarregados</option><option value="sub"${fn==='sub'?' selected':''}>Subencarregados</option>${equipe.some(f=>f.tipo==='outro')?`<option value="outro"${fn==='outro'?' selected':''}>Outras funções</option>`:''}</select></label></div>`}
-      ${gerado}${completoTxt}${vazio}<div class="v167-lista">${grupos}</div>${afast&&!so&&!cheio?`<p class="v167-nota">🩺 ${afast} afastado(s) ou de férias não aparece(m) na lista.</p>`:''}</div>`;
+      ${altHtml}${gerado}${completoTxt}${vazio}<div class="v167-lista">${grupos}</div>${afast&&!so&&!cheio?`<p class="v167-nota">🩺 ${afast} afastado(s) ou de férias não aparece(m) na lista.</p>`:''}</div>`;
   }
   function render(){
     const b=bloco(); if(!b) return;
@@ -8382,7 +8473,7 @@ function perguntarOrientacaoImpressao(cb){
       return; }
     const ms=e.target.closest('[data-mostrar]'); if(ms){ st.mostrar=ms.dataset.mostrar; gravar(); render(); return; }
     const ir=e.target.closest('[data-ir]'); if(ir){ document.getElementById('v167c'+ir.dataset.ir)?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
-    const ad=e.target.closest('[data-add]'); if(ad){ const d=+ad.dataset.d; if(marcar(+ad.dataset.add,d)){ render(); setTimeout(()=>document.querySelector(`[data-busca="${d}"]`)?.focus(),30); } return; }
+    const ad=e.target.closest('[data-add]'); if(ad){ const d=+ad.dataset.d; if(marcar(+ad.dataset.add,d)){ render(); perguntarAlternada(d,[+ad.dataset.add]); setTimeout(()=>document.querySelector(`[data-busca="${d}"]`)?.focus(),30); } return; }
     const ac=e.target.closest('[data-acao]');
     if(ac){ const d=+ac.dataset.d, a=ac.dataset.acao;
       if(a==='sugerir') abrirSugestao(d);
@@ -8399,8 +8490,8 @@ function perguntarOrientacaoImpressao(cb){
     if(!b||!b.contains(e.target)){ if(ativo()&&!e.target.closest?.('#v167Bloco')) agendar(); return; }
     const t=e.target;
     if(t.matches('input[data-p]')){ const i=+t.dataset.p, d=+t.dataset.d;
-      if(t.checked){ if(!marcar(i,d)) t.checked=false; } else desmarcar(i,d);
-      render(); return; }
+      let novo=false; if(t.checked){ if(!marcar(i,d)) t.checked=false; else novo=true; } else desmarcar(i,d);
+      render(); if(novo) perguntarAlternada(d,[i]); return; }   // V179
     if(t.matches('select[data-ff]')){ definirFolga(+t.dataset.ff,t.value); return; }
     if(t.matches('select[data-ord]')){ st.ord[t.dataset.ord]=t.value; gravar(); render(); return; }
     if(t.matches('select[data-fn]')){ st.fn[t.dataset.fn]=t.value; gravar(); render(); return; }
@@ -8432,12 +8523,12 @@ function perguntarOrientacaoImpressao(cb){
   };
   window.gerar=function(){
     if(!ativo()||!equipe.length){ const res=gerarOrig.apply(this,arguments); try{ render(); }catch(e){} return res; }   // V169: o passo Domingos mostra o que o automático montou
-    const au=auditar(), bloq=modo()==='manual'?[...au.r,...au.y]:au.r;
+    const au=auditar(), pa=au.a.filter(x=>!ciente(x)), bloq=(modo()==='manual'?[...au.r,...au.y]:au.r).concat(pa);   // V179: par 2×1 quebrado sem resposta também trava
     if(bloq.length){
       const v=$('validacao');
       v.className='alert bad';
-      v.innerHTML=`✋ <b>Ainda não dá para gerar.</b> ${modo()==='manual'?'Na escala à mão, todos os domingos precisam estar ✅.':'Arrume as regras quebradas (🔴).'} Toque num aviso para ir ao domingo:`
-        +bloq.slice(0,10).map(x=>`<button type="button" class="v167-ai ${au.r.includes(x)?'r':'y'}" data-ir2="${x.d}">${au.r.includes(x)?'🔴':'🟡'} ${H(x.t)}</button>`).join('')+(bloq.length>10?`<small> … e mais ${bloq.length-10}.</small>`:'');
+      v.innerHTML=`✋ <b>Ainda não dá para gerar.</b> ${modo()==='manual'?'Na escala à mão, todos os domingos precisam estar ✅.':'Arrume as regras quebradas (🔴).'}${pa.length?' Onde aparece 🟠, a escala está diferente da regra 2×1: responda se está ciente e se responsabiliza.':''} Toque num aviso para ir ao domingo:`
+        +bloq.slice(0,10).map(x=>{ const c=au.r.includes(x)?'r':(pa.includes(x)?'a':'y'); return `<button type="button" class="v167-ai ${c}" data-ir2="${x.d}">${c==='r'?'🔴':c==='a'?'🟠':'🟡'} ${H(x.t)}</button>`; }).join('')+(bloq.length>10?`<small> … e mais ${bloq.length-10}.</small>`:'');
       $('statusBadge').textContent='Falta completar';
       render(); setTimeout(()=>v.scrollIntoView({behavior:'smooth',block:'center'}),60);
       return;
@@ -8446,6 +8537,9 @@ function perguntarOrientacaoImpressao(cb){
     try{
       const v=$('validacao');
       if(v&&/ok/.test(v.className)) v.textContent=v.textContent.replace('✅ Escala pronta e dentro das regras!',modo()==='manual'?'✅ Escala à mão pronta e dentro das regras!':'✅ Escala pronta (você marcou alguns e o app completou) e dentro das regras!');
+      const fx=quebrasPar(sel()).filter(ciente);   // V179: o resultado diz o que ficou fora do 2×1
+      if(v&&fx.length){ const dv=document.createElement('div'); dv.className='v179-box ok'; dv.id='v179Resultado';
+        dv.innerHTML='🟠 <b>Fora do par 2×1, com a responsabilidade do encarregado:</b> '+fx.map(x=>`${H(nome(x.i))} (trabalhou ${H(x.ref)}, não está em ${H(x.dl)})`).join('; ')+'.'; v.appendChild(dv); }
     }catch(e){}
     render(); return res;
   };
@@ -8464,9 +8558,11 @@ function perguntarOrientacaoImpressao(cb){
 
   /* histórico do mês e “Recomeçar do zero” */
   window.v167Api={sel,modo,auditar};   // V176: usado pelo Assistente RH
-  window.v167Exportar=()=>({modo:modo(),mes:chaveMes(),dias:JSON.parse(JSON.stringify(st.meses[chaveMes()]||{}))});
+  window.v167Exportar=()=>({modo:modo(),mes:chaveMes(),dias:JSON.parse(JSON.stringify(st.meses[chaveMes()]||{})),alt:quebrasPar(sel()).filter(ciente).map(x=>JSON.parse(JSON.stringify(acks()[x.key])))});   // V179: alt = respostas “ciente e me responsabilizo” que ainda valem
   window.v167Importar=x=>{ try{ if(!x||typeof x!=='object') return; if(['auto','manual','misto'].includes(x.modo)) st.modo=x.modo;
-    if(x.mes&&x.dias&&typeof x.dias==='object') st.meses[x.mes]=x.dias; gravar(); agendar(); }catch(e){} };
+    if(x.mes&&x.dias&&typeof x.dias==='object') st.meses[x.mes]=x.dias;
+    if(x.mes&&Array.isArray(x.alt)){ const o={}; x.alt.forEach(a=>{ if(a&&typeof a==='object'&&typeof a.key==='string'&&/^\d{1,2}\|.{1,60}$/.test(a.key)) o[a.key]={key:a.key,nome:String(a.nome||'').slice(0,80),dia:String(a.dia||'').slice(0,10),ref:String(a.ref||'').slice(0,12),quando:String(a.quando||'').slice(0,30)}; }); st.alt[x.mes]=o; }   // V179
+    gravar(); agendar(); }catch(e){} };
   const limparOrig=window.limparRascunho;
   window.limparRascunho=function(){ try{ localStorage.removeItem(LS); }catch(e){} return limparOrig?.apply(this,arguments); };
 
@@ -8486,6 +8582,7 @@ function perguntarOrientacaoImpressao(cb){
       window.sairDoInicio?.(); window.v80GotoStep?.(3,false); render();   // V169: passo 3 (Domingos)
       setTimeout(()=>document.getElementById('v167Bloco')?.scrollIntoView({behavior:'smooth',block:'start'}),200); });
   }
+  window.v179Alt={quebras:()=>quebrasPar(sel()),pendentes:()=>pendAlt(),responder:responderAlt,perguntar:perguntarAlternada};   // V179: usado pelos testes
   window.v167={auditar,sel,motivo,marcar,desmarcar,sugestoes,copiarAnterior,render,estado:()=>st,definirModo:m=>{ st.modo=m; gravar(); render(); }};
   const iniciar=()=>{ atalho(); render(); };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,50)); else setTimeout(iniciar,50);
@@ -8903,7 +9000,7 @@ function perguntarOrientacaoImpressao(cb){
   /* ── respostas prontas (regras e como usar) ── */
   const RESP=[
     {k:['6x1','6 x 1','7 dias','sete dias','seis dias','dias seguidos','dia seguido'],r:'📏 <b>Regra do 6×1:</b> ninguém trabalha mais de <b>6 dias seguidos</b>. Depois de 6 dias, tem que ter uma folga. O app confere sozinho e avisa em vermelho se alguém passar disso.'},
-    {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção.':'')},
+    {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção.':'')+(APP==='setores'?'':' Na <b>escala à mão</b> você pode alternar fora do par 2×1 (ex.: Eduardo no 1º domingo, Maria no 2º): o app pergunta se você está ciente e se responsabiliza. <b>3 domingos seguidos continua proibido.</b>')},
     {k:['dsr','folga da semana','descanso semanal','descanso'],r:'💤 <b>Folga da semana (DSR):</b> quem trabalha no domingo ganha uma folga durante a semana. O app calcula sozinho quando você toca em <b>Gerar</b>, e ela aparece como <b>FOLGA</b> na escala e na prévia.'},
     {k:['feriado','feriados','compensa*','folga do feriado','folga de feriado'],r:'🎉 <b>Feriado:</b> no passo <b>4 Feriados</b>, marque quem vai trabalhar. Quem trabalha ganha <b>uma folga em outro dia</b>: o app sugere a data, e você toca em <b>✅ Aceitar</b> ou <b>🔄 Outra data</b>. A folga nunca cai no dia da folga fixa.'+(APP==='enc'?' O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções.':'')+' Para ver o mês inteiro, abra a <b>📅 Prévia das folgas</b>.'},
     {k:['balanco'],r:APP==='setores'?'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>⚙️ Configurações → 📦 Domingos de balanço</b>. Ele é exceção na regra dos domingos seguidos.':'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>📅 Mês e opções → Mais opções → 📦 Domingos de balanço</b>. No balanço, <b>todos trabalham</b>.'},
