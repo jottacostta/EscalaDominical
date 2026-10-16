@@ -10264,7 +10264,7 @@ function perguntarOrientacaoImpressao(cb){
   }
   base.responder=function(texto){
     try{
-      if(perguntaCapacidades(texto))return respostaCapacidades();
+      if(perguntaCapacidades(texto))return original.call(base,texto);
       if(quantidadePerguntada(texto)){
         const d=contarEquipe(),q=normalizar(texto);
         if(!d||d.total===0)return '👥 Para informar a quantidade corretamente, primeiro carregue a equipe no passo 1 — Equipe.';
