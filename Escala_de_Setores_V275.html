@@ -14726,7 +14726,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return prev[lb];
   }
   const limiteErro=n=>n<=3?0:(n<=6?1:2);
-  const RADICAIS=['folg','trabalh','escal','feriad','compens','descans','afast','domin','lider','horari','sugest','balanc','falt','gerar','import','planilh'];   // V272: flexões destas palavras nunca são “corrigidas”
+  const RADICAIS=['folg','trabalh','escal','feriad','compens','descans','afast','domin','lider','horari','sugest','balanc','falt','gerar','import','planilh','guard','salv','lembr','memori','carreg','confer','corrig'];   // V272: flexões destas palavras nunca são “corrigidas”
   const ehFlexao=w=>RADICAIS.some(r=>w.length>r.length&&w.indexOf(r)===0);
 
   /* ── vocabulário (palavras que o chat entende) e palavras que nunca se corrigem ── */
@@ -14742,7 +14742,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     'descoberto descobertos suficiente suficientes sequencia longa maior menor colaborador colaboradores empregado empregados pessoal gente afastado afastados afastada emprestados cedido cedidos '+
     'transferido transferidos ativos ativo inativo inativos fala fale falar falo falam resultado conferir confere confira conferi corrigir corrija corrigi mude muda mudar troca trocar troque domingao '+
     'descansa descansam descansar descanso vem vao vir pega pegam fazer faz faca isso esse essa ela ele salario ferias intervalo almoco extra comparar compare compara comparacao '+
-    'importei carreguei selecionei terminei pronto apareceu aparece funcionou funciona abriu abre erro problema longo mais menos pessoas pessoa duas dois tres quatro cinco salvo guardo salva guarda baixo baixar importo importar importa carrego subir enviar anexar resume resumo resumir le ler analisa analise analisar contem conteudo ultimos ultimas '+
+    'guardou guardei guardado guardada guardaram salvou salvei salvado lembra lembro lembrou memoria memorias importei carreguei selecionei terminei pronto apareceu aparece funcionou funciona abriu abre erro problema longo mais menos pessoas pessoa duas dois tres quatro cinco salvo guardo salva guarda baixo baixar importo importar importa carrego subir enviar anexar resume resumo resumir le ler analisa analise analisar contem conteudo ultimos ultimas '+
     'folgando folgam folgas folgou folgaram folgar folguista descansa descansam descansando compensa compensam compensacao compensatoria compensatorias feriadao feriadinho trabalhando trabalhamos').split(' ');   // V272
   const CONHECIDAS=new Set(('para como esta esse essa isso este aqui pelo pela mais menos muito todo toda todos todas onde ainda sobre entre posso deve devo '+
     'tenho temos meu minha seus suas dele dela deles delas ele ela eles elas sim vamos vai vou tudo nada algum alguma alguem ninguem cada outro outra mesmo '+
