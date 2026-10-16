@@ -7,6 +7,12 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Escala de Setores
 
+- **V274** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos. A 5×2 fica preparada, mas desligada; nada muda para quem usa e abrir histórico não liga o novo regime. — *Claude*
+- **V273** — MEMÓRIA DO GABRIEL: registra localmente ações confiáveis, permite consultar e apagar após confirmação e leva a memória ao histórico guardado, sem incluir dados sensíveis nem o rascunho automático. — *Claude*
+- **V272** — CHAT ADAPTADO AO CELULAR E PERGUNTAS SOBRE FERIADOS: o painel cabe na tela e Gabriel responde sobre quem trabalha ou folga conforme o passo de feriados. — *Claude*
+- **V271** — GABRIEL LÊ A PLANILHA DO RH POR INTEIRO: inventário das abas, linhas, colunas, origem e totais; a prévia explica o que foi lido e o que não foi entendido. A leitura é local e não executa fórmulas ou macros. — *Claude*
+- **V270** — GABRIEL: SAUDAÇÃO, COMPREENSÃO E DATAS: nome oficial, saudação sem duplicação, abreviações, erros de digitação, contexto e respostas de data com base no relógio do aparelho. — *Claude*
+- **V269** — CONFIRMAÇÃO NA ESCALA MANUAL FORA DO PAR 2×1: ao marcar manualmente um domingo fora do par esperado, o app pede confirmação e registra a decisão no histórico; não altera a regra de 3 domingos seguidos. — *Claude*
 - **V267** — HORÁRIO DE DOMINGO POR FUNÇÃO NO “POR CARGO”: divide a quantidade de cada função entre horários oficiais; a quantidade vira a soma desses horários. A divisão fica guardada no aparelho e no histórico, e os horários gerados voltam ao abrir o histórico. Teste específico do Açougue ainda pendente. — *Claude*
 - **V266** — CONFIRMAR HORÁRIO DE DOMINGO: depois de gerar, o quadro mostra o horário sugerido de cada pessoa e permite trocar. Na opção **Mista**, mostra somente as pessoas cujo horário foi completado pelo aplicativo. É obrigatório confirmar antes de baixar a planilha ou guardar o histórico; gerar novamente pede nova confirmação. A escala à mão não usa esse quadro. — *Claude*
 - **V265** — 💬 PERGUNTE AO ASSISTENTE RH: abas “Dicas” e “Perguntar”, com mini chat sem internet nos dois apps. Responde usando os dados da tela e orienta sobre regras e uso; não substitui o auditor. — *Claude*
@@ -137,6 +143,11 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **V127** — correções: erro do motor 50% (inicioUnidade), alvo com liderança, virada de ano, histórico por matrícula/nome, sessão salva restaurada, sugestão de liderança 2×1, impressão/PDF, feriados extras.
 
 ## Escala 2×1 de Encarregados
+
+- **V182** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos; a 5×2 fica preparada, mas desligada até confirmação legal e ordem do gerente. — *Claude*
+- **V181** — MEMÓRIA DO GABRIEL: registro local de ações confiáveis, resumo e exclusão mediante confirmação; memória incluída no histórico guardado. — *Claude*
+- **V180** — CHAT ADAPTADO AO CELULAR E PERGUNTAS SOBRE FERIADOS: painel ajustado à tela móvel e respostas sobre trabalho/folga conforme o passo de feriados. — *Claude*
+- **V179** — GABRIEL: SAUDAÇÃO, COMPREENSÃO E DATAS: nome oficial, saudação sem duplicação, abreviações, contexto e respostas com base no relógio do aparelho. — *Claude*
 
 - **V178** — 💬 PERGUNTE AO ASSISTENTE RH: abas “Dicas” e “Perguntar”, com mini chat sem internet que responde usando os dados da tela e orienta sobre regras e como usar. Não inclui horário de domingo por pessoa. — *Claude*
 - **V177** — PRÉVIA DAS FOLGAS COM DOMINGOS + ASSISTENTE RH MAIS ROBUSTO: no passo Feriados, a prévia mostra os domingos antes de gerar. O Assistente RH valida os dados recebidos e grava o aprendizado ao sair do app. — *Claude*
