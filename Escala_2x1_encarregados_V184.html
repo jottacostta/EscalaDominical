@@ -9888,6 +9888,26 @@ function perguntarOrientacaoImpressao(cb){
 
   function intencao(t,qn,tk){
     const curto=tk.length<=4;
+    /* V276: perguntas sobre capacidades têm prioridade sobre as intenções de planilha.
+       Evita que “o que você sabe fazer?” caia no diagnóstico de planilha não lida. */
+    const perguntaCapacidades=(
+      ((qn.includes(' o que ')||qn.includes(' no que ')||qn.includes(' em que ')) &&
+       tem(qn,'sabe','consegue','faz','fazer','ajudar','ajuda','responder')) ||
+      tem(qn,'capacidades','comandos','menu')
+    ) && !(tem(qn,'quem','quais')&&tem(qn,'trabalha','trabalham','escalado','escalados','vem','vai'));
+    if(perguntaCapacidades){
+      const extraCapacidade=SETORES
+        ? '<li>📄 Ler e conferir a planilha do RH após importar e aplicar: abas, linhas, totais e itens não interpretados.</li>'
+        : '<li>🧾 Orientar a atualização de datas de admissão pelo ERP e carregar a equipe por arquivo, histórico ou edição. O inventário completo de planilhas não está disponível neste app.</li>';
+      return '🤖 <b>Gabriel</b> — o que eu sei fazer:<ul>'+
+        '<li>📏 Explicar as regras cadastradas: 6×1, domingos seguidos, DSR, feriados e balanço.</li>'+
+        '<li>👥 Consultar a equipe e a escala aberta: quem trabalha ou folga, domingos por pessoa, afastados, emprestados e o que falta.</li>'+
+        '<li>📅 Informar a data e hora do aparelho, e orientar o uso dos passos do aplicativo.</li>'+
+        '<li>🔎 Ajudar a conferir as regras e apontar limitações quando um dado necessário não está cadastrado.</li>'+
+        extraCapacidade+
+        '<li>💬 Entender abreviações simples e pedir esclarecimento quando houver ambiguidade.</li></ul>'+
+        'Sou um assistente local de RH. Não altero a escala nem invento dados ou regras.';
+    }
     /* planilha / importar / salvar / lista da equipe / últimos domingos */
     if(tem(qn,'planilha','arquivo','excel','xlsx','quadro')&&tem(qn,'importo','importar','importa','carrego','carregar','abro','abrir','subo','subir','envio','enviar','anexo','anexar','coloco','colocar')&&tem(qn,'como','onde','qual','posso','devo')) return respComoImportar();
     if(tem(qn,'salvo','salvar','guardo','guardar','salva','guarda','baixo','baixar')&&tem(qn,'escala','historico','mes','planilha')&&tem(qn,'como','onde','qual','posso','devo')&&!tem(qn,'importar','importo')) return respComoSalvar();
