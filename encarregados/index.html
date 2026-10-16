@@ -7,10 +7,15 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V181</title>
+<title>Escala 2×1 — Encarregados V182</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V182 [Claude] — 📏 REGIME DA ESCALA: BASE DA ADEQUAÇÃO À 5×2 (issue #73; pedido do dono, 15/10/2026: “temos 60 dias para fazer essa adequação”, “ligar de acordo com a
+       legislação de implantação”). NADA MUDA para quem usa: o limite de dias seguidos de trabalho (6 → o 7º dia é folga) estava escrito como número solto em vários pontos do
+       motor e das auditorias (auditoria ao vivo, escala à mão, balanço, virada do mês, folga da liderança); agora vem de UMA função (maxSeguidosTrab) que lê a camada V274.
+       Desligado (padrão) o limite é 6 e o comportamento é idêntico ao da versão anterior. Sem tela nova e sem data ou limite legal no código: o regime só é ligado pelo gerente depois
+       que o texto legal e a vigência forem confirmados. O histórico guardado anota o regime do mês (só registro). Gabriel responde “qual regime está valendo?”.
 V181 [Claude] — 🧠 MEMÓRIA DO GABRIEL + ⏱️ AVISO VERDE EM 10 SEGUNDOS (pedido do dono, 15/10/2026: “guardar tudo o que foi selecionado ou digitado em um espaço à parte
        de memória e depois colocar tudo dentro do histórico” e “as notificações verdes têm que fechar em 10 segundos”). (1) MEMÓRIA: um registro à parte (no aparelho, chave própria,
        fora do rascunho da escala) anota o que a pessoa marcou, escolheu, digitou, tocou e perguntou ao Gabriel (campo, valor antes e depois, tela, hora). Só ações feitas por gente
@@ -1990,7 +1995,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V181 · 🧠 Memória do Gabriel + aviso verde 10 s</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V182 · 📏 Regime da escala (6×1 hoje, 5×2 preparada e desligada)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -4387,6 +4392,7 @@ function grupoBase(d,ord,nDom){
 
 /* V121/V138 — dias da semana autorizados pelo gerente para o DSR (segunda a sábado; domingo nunca é DSR). */
 let diasDsrPermitidos=[1,2,3,4,5,6];
+function maxSeguidosTrab(){ try{ const n=Number(window.v274Regime&&window.v274Regime.maxSeguidos()); return Number.isInteger(n)&&n>=1&&n<=6?n:6; }catch(e){ return 6; } }   // V274: limite de dias seguidos de trabalho (6 = regra 6×1 de sempre); a camada V274 só muda se o gerente ligar o regime
 function normalizarDiasDsr(arr){
   const v=[...new Set((Array.isArray(arr)?arr:[]).map(Number).filter(d=>d>=1&&d<=6))].sort((a,b)=>a-b);
   return v.length?v:[1,2,3,4,5,6];
@@ -4525,7 +4531,7 @@ function pontuarParDescansoBalance(i,antes,depois,bal){
   const dist=Math.abs(Math.round((antes-domingoDateFromDayNumber(bal))/86400000));
   // V137: o par de folgas do balanço (quem tem folga fixa no domingo) vai para o dia com MENOS gente de folga.
   const carga=dt=>(descansosDomingo[chaveData(dt)]||[]).filter(x=>x.i!==i).length;
-  return (maxSeq<=6?1000000:0) + (antes.getDay()===diaDsrDe(equipe[i])?100000:0) - (carga(antes)+carga(depois))*3000 - maxSeq*1000 - dist;
+  return (maxSeq<=maxSeguidosTrab()?1000000:0) + (antes.getDay()===diaDsrDe(equipe[i])?100000:0) - (carga(antes)+carga(depois))*3000 - maxSeq*1000 - dist;
 }
 function escolherDescansosBalance(i,d){
   const f=equipe[i];
@@ -4896,7 +4902,7 @@ function validarEscala(dom){
       }
       if(trabalha){
         seq++;
-        if(seq===7)erros.push(`${f.nome}: ficaria 7 dias seguidos sem folga (o máximo é 6 dias seguidos — regra 6×1).`);
+        if(seq===maxSeguidosTrab()+1)erros.push(`${f.nome}: ficaria ${maxSeguidosTrab()+1} dias seguidos sem folga (o máximo é ${maxSeguidosTrab()} dias seguidos — regra 6×1).`);   // V274
       }else seq=0;
       dt.setDate(dt.getDate()+1);
     }
@@ -6322,6 +6328,7 @@ $('btnWhats').onclick=async (ev)=>{
     p.dispensadosBalanco=clone(dispensadosBalanco);
     p.escalaMao=window.v167Exportar?.();   // V167: escala à mão dos domingos
     try{ const a=window.v262Assistente?.exportar?.(); if(a) p.assistente=a; }catch(e){}   // V176: o que o Assistente RH aprendeu vai no histórico
+    try{ const r=window.v274Regime?.estado?.(); if(r) p.regime={regime:r.regime,ativo:r.ativo,maxSeguidos:window.v274Regime.maxSeguidos(),vigenciaInicio:r.vigenciaInicio}; }catch(e){}   // V274: só registro do regime do mês
     try{ const m=window.v273Memoria?.exportar?.(); if(m) p.memoriaGabriel=m; }catch(e){}   // V273: memória do Gabriel vai no histórico
     const mes=String((Number(val('mes'))||0)+1).padStart(2,'0'), ano=val('ano')||'projeto';
     baixarJSON(p,`Historico_Encarregados_${mes}_${ano}.json`); window.v161MarcarGuardado?.();   // V153 (antes: escala_ENCARREGADOS_mês_ano.json)
@@ -9678,6 +9685,73 @@ function perguntarOrientacaoImpressao(cb){
       return r;
     };
   }
+})();
+
+</script>
+
+<script>
+(function(){
+/* ═════ V274 — 📏 REGIME DA ESCALA (6×1 hoje; 5×2 preparada e DESLIGADA) — base da adequação de 60 dias (issue #73) ═════
+   Pedido do dono (15/10/2026): preparar os apps para a 5×2 entrar em vigor "de acordo com a legislação de implantação".
+   Esta versão NÃO muda nenhuma regra: o limite de dias seguidos de trabalho (6 → o 7º dia é folga) estava escrito como número solto
+   em vários pontos; agora vem de UMA função (maxSeguidosTrab) que lê esta camada. Enquanto o regime estiver DESLIGADO (padrão),
+   o limite é 6 e tudo se comporta exatamente como na versão anterior. Não há tela nova e nenhuma data/limite legal está escrito aqui:
+   quem liga e define a vigência é o gerente, depois que o texto legal for confirmado.
+   Dados (no aparelho): chave própria `escalaSetores.v274Regime` / `enc.v274Regime` = {v:1, ativo:false, regime:'6x1'|'5x2', maxSeguidos:1..6,
+   vigenciaInicio:'' | 'AAAA-MM-DD', definidoEm:''}. Valor inválido é ignorado (volta ao padrão). O histórico guardado anota `regime`
+   (só registro; abrir um histórico NUNCA liga ou desliga o regime).
+   window.v274Regime = {estado, configurar, restaurar, maxSeguidos, resumo}. Gabriel: “qual regime está valendo?”. */
+  'use strict';
+  const APP=(window.v265Chat&&window.v265Chat.interno&&window.v265Chat.interno.APP)||'';
+  const CH=(APP==='setores'?'escalaSetores':'enc')+'.v274Regime';
+  const PADRAO=Object.freeze({v:1,ativo:false,regime:'6x1',maxSeguidos:6,vigenciaInicio:'',definidoEm:''});
+  const intOk=n=>Number.isInteger(n)&&n>=1&&n<=6;
+  const dataOk=s=>s===''||(/^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(new Date(s+'T12:00:00')));
+  function limpo(o){
+    const r=Object.assign({},PADRAO);
+    if(!o||typeof o!=='object'||Array.isArray(o)) return r;
+    if(o.ativo===true) r.ativo=true;
+    if(o.regime==='5x2'||o.regime==='6x1') r.regime=o.regime;
+    if(intOk(o.maxSeguidos)) r.maxSeguidos=o.maxSeguidos;
+    if(typeof o.vigenciaInicio==='string'&&dataOk(o.vigenciaInicio)) r.vigenciaInicio=o.vigenciaInicio;
+    if(typeof o.definidoEm==='string'&&o.definidoEm.length<=40) r.definidoEm=o.definidoEm;
+    return r;
+  }
+  let cfg=Object.assign({},PADRAO);
+  try{ cfg=limpo(JSON.parse(localStorage.getItem(CH)||'null')); }catch(e){}
+  function gravar(){ try{ localStorage.setItem(CH,JSON.stringify(cfg)); }catch(e){} }
+  const estado=()=>Object.assign({},cfg);
+  /* Limite de dias seguidos de trabalho que o motor e as auditorias usam. Desligado = 6 (regra 6×1 de sempre). */
+  const maxSeguidos=()=>cfg.ativo&&intOk(cfg.maxSeguidos)?cfg.maxSeguidos:6;
+  function configurar(o){
+    if(!o||typeof o!=='object') return estado();
+    const novo=limpo(Object.assign({},cfg,o));
+    novo.definidoEm=new Date().toISOString();
+    cfg=novo; gravar(); return estado();
+  }
+  function restaurar(){ cfg=Object.assign({},PADRAO); try{ localStorage.removeItem(CH); }catch(e){} return estado(); }
+  function resumo(){
+    const e=cfg;
+    if(!e.ativo) return 'Regime em vigor: <b>6×1</b> (no máximo 6 dias seguidos de trabalho). A <b>5×2</b> está preparada mas <b>desligada</b>: só será ligada pelo gerente depois que o texto legal e a data de vigência forem confirmados.';
+    return `Regime em vigor: <b>${e.regime==='5x2'?'5×2':'6×1'}</b> — no máximo <b>${e.maxSeguidos}</b> dia(s) seguido(s) de trabalho${e.vigenciaInicio?`, a partir de <b>${e.vigenciaInicio.split('-').reverse().join('/')}</b>`:''}. Ligado pelo gerente.`;
+  }
+  window.v274Regime={estado,configurar,restaurar,maxSeguidos,resumo};
+
+  /* Gabriel: “qual regime está valendo?” (só pergunta de situação; a regra do 6×1 continua com a resposta de sempre) */
+  try{
+    const base=window.v265Chat, G=window.v270Gabriel, I=base&&base.interno;
+    if(base&&G&&I&&typeof base.responder==='function'){
+      const anterior=base.responder, tem=I.tem;
+      base.responder=function(texto){
+        try{
+          const n=G.entender(texto), qn=n&&n.qn;
+          if(qn&&(tem(qn,'regime','regimes')||/ (5 ?x ?2|cinco por dois) /.test(qn))&&tem(qn,'qual','quais','valendo','vigor','ligado','ligada','ativo','ativa','desligado','desligada','ja','hoje','agora'))
+            return '📏 '+resumo();
+        }catch(e){ console.warn('[V274]',e); }
+        return anterior(texto);
+      };
+    }
+  }catch(e){}
 })();
 
 </script>

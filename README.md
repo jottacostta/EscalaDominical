@@ -12,9 +12,9 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V273.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V181.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V272 e V150–V180), guardadas para comparação |
+| `Escala_de_Setores_V274.html` | **Versão atual** da Escala de Setores |
+| `Escala_2x1_encarregados_V182.html` | **Versão atual** da Escala de Encarregados |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V273 e V150–V181), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com o Claude ou o ChatGPT |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
