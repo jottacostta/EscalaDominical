@@ -7,10 +7,19 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V182</title>
+<title>Escala 2×1 — Encarregados V183</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V183 [Claude] — 🗣️ GABRIEL: CONTEXTO DA CONVERSA + VOCABULÁRIO DO SUPERMERCADO (pedido do dono, 16/10/2026: “faça os testes para procurar erro e corrigir, além de
+       enriquecer o vocabulário do Gabriel”; bateria de 66 perguntas e o caso “já fiz” da issue #68). A bateria foi executada nos dois apps: a maior parte caía em “Não entendi essa” ou numa
+       resposta de outro assunto (ex.: “quem trabalha amanhã?” listava todos os domingos; “me fala o resultado” virava “me falta”; “segunda” virava “segundo”). Agora: (1) CONTEXTO: “já fiz”, “pronto”,
+       “não apareceu”, “o segundo”, “o outro”, “muda para terça”, “pode corrigir” são entendidos pela conversa e pelo estado REAL do app (equipe, planilha lida × só selecionada, escala gerada); a
+       pergunta pendente continua. (2) DIAS E TURNOS: quem trabalha / vem / folga / descansa amanhã, ontem, segunda…, quem abre e quem fecha. (3) EQUIPE: quantos funcionários (cadastrados × ativos),
+       afastados, emprestados. (4) CONFERÊNCIAS: maior sequência de dias seguidos, conflitos / “a escala está certa?”, dia mais apertado, comparar dias, turno sem ninguém — sem inventar cobertura mínima
+       (ainda não cadastrada). (5) LIMITES: salário, férias, intervalo… e assuntos fora do RH não são inventados; “quem é ele?”, “faz isso” viram pergunta de esclarecimento. VOCABULÁRIO: dias da
+       semana, gírias (“tá de folga”, “domingão”, “vem”, “pega o fechamento”), colaborador/empregado/pessoal, cedido/emprestado, fala ≠ falta. Só leitura: nada altera a escala. Camada V275 + vocabulário
+       marcado // V275 na camada do Gabriel (V270).
 V182 [Claude] — 📏 REGIME DA ESCALA: BASE DA ADEQUAÇÃO À 5×2 (issue #73; pedido do dono, 15/10/2026: “temos 60 dias para fazer essa adequação”, “ligar de acordo com a
        legislação de implantação”). NADA MUDA para quem usa: o limite de dias seguidos de trabalho (6 → o 7º dia é folga) estava escrito como número solto em vários pontos do
        motor e das auditorias (auditoria ao vivo, escala à mão, balanço, virada do mês, folga da liderança); agora vem de UMA função (maxSeguidosTrab) que lê a camada V274.
@@ -1995,7 +2004,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V182 · 📏 Regime da escala (6×1 hoje, 5×2 preparada e desligada)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V183 · 🗣️ Gabriel entende a conversa e fala o vocabulário do supermercado</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -9162,6 +9171,11 @@ function perguntarOrientacaoImpressao(cb){
     'emprestado planilha excel imprimir whatsapp manual automatico mista misto cargo grupos grupo cobertura dsr compensacao antecipada anterior estamos '+
     'estao veio vieram presente presenca compareceu liste lista listar mostre mostrar diga dizer fez feita feito nao sabado sabados primeiro segundo '+
     'terceiro quarto quinto semanas escalou escalaram vezes lider lideres apresente apresentar apresentacao gabriel '+
+    'segunda terca quarta quinta sexta amanha ontem turno turnos abertura abrir abre abrem fechamento fechar fecha fecham manha tarde noite cedo caixa cobre cobrir cobrem apertado conflito conflitos '+
+    'descoberto descobertos suficiente suficientes sequencia longa maior menor colaborador colaboradores empregado empregados pessoal gente afastado afastados afastada emprestados cedido cedidos '+
+    'transferido transferidos ativos ativo inativo inativos fala fale falar falo falam resultado conferir confere confira conferi corrigir corrija corrigi mude muda mudar troca trocar troque domingao '+
+    'descansa descansam descansar descanso vem vao vir pega pegam fazer faz faca isso esse essa ela ele salario ferias intervalo almoco extra comparar compare compara comparacao '+
+    'importei carreguei selecionei terminei pronto apareceu aparece funcionou funciona abriu abre erro problema longo mais menos pessoas pessoa duas dois tres quatro cinco salvo guardo salva guarda baixo baixar importo importar importa carrego subir enviar anexar resume resumo resumir le ler analisa analise analisar contem conteudo ultimos ultimas '+
     'folgando folgam folgas folgou folgaram folgar folguista descansa descansam descansando compensa compensam compensacao compensatoria compensatorias feriadao feriadinho trabalhando trabalhamos').split(' ');   // V272
   const CONHECIDAS=new Set(('para como esta esse essa isso este aqui pelo pela mais menos muito todo toda todos todas onde ainda sobre entre posso deve devo '+
     'tenho temos meu minha seus suas dele dela deles delas ele ela eles elas sim vamos vai vou tudo nada algum alguma alguem ninguem cada outro outra mesmo '+
@@ -9170,7 +9184,7 @@ function perguntarOrientacaoImpressao(cb){
   const ABREV={pq:'porque',vc:'voce',vcs:'voces',q:'que',qm:'quem',qnd:'quando',qdo:'quando',qd:'quando',qto:'quanto',qtos:'quantos',qts:'quantos',qnts:'quantos',
     qntos:'quantos',qtd:'quantos',qta:'quanta',qtas:'quantas',hj:'hoje',tb:'tambem',tbm:'tambem',td:'tudo',func:'funcionario',funcs:'funcionarios',dom:'domingo',
     doms:'domingos',ult:'ultimo',prox:'proximo',sab:'sabado',fer:'feriado',n:'nao',nn:'nao',msm:'mesmo',dps:'depois',oq:'o que',oque:'o que',pra:'para',hr:'hora',
-    hrs:'horas',mt:'muito',obg:'obrigado'};
+    hrs:'horas',mt:'muito',obg:'obrigado',ta:'esta',tao:'estao',seg:'segunda',qua:'quarta',qui:'quinta',sex:'sexta',domingao:'domingo',colab:'colaborador',colabs:'colaboradores',tbem:'tambem',pessoal:'pessoal'};   // V275
   let _voc=null;
   function vocabulario(){
     if(_voc) return _voc;
@@ -9546,6 +9560,416 @@ function perguntarOrientacaoImpressao(cb){
     try{ const n=G.entender(texto), qn=n&&n.qn; const k=qn?quer(qn):null; if(k) return responder(k,qn); }catch(e){ console.warn('[V272]',e); }
     return anterior(texto);
   };
+})();
+
+</script>
+
+<script>
+(function(){
+/* ═════ V275 — 🗣️ GABRIEL: CONVERSA, CONTEXTO E VOCABULÁRIO DO SUPERMERCADO (issue #68; pedido do dono, 15/10/2026) ═════
+   O dono pediu: “faça os testes para procurar erro e corrigir, além de enriquecer o vocabulário do Gabriel”. A bateria de 66 perguntas do
+   ChatGPT (issue #68) foi executada nos dois apps; no V274 a maior parte caía em “Não entendi essa” ou numa resposta de outro assunto.
+   Esta camada (só leitura; nunca altera a escala) ensina o Gabriel a:
+   1) CONTEXTO: entender respostas curtas pela conversa (“já fiz”, “pronto”, “não apareceu”, “o segundo”, “o outro”, “muda para terça”,
+      “pode corrigir”) olhando o estado REAL do app (equipe, planilha lida, escala gerada) em vez de presumir; a pergunta pendente continua.
+   2) DIAS: “quem trabalha / vem / folga / descansa amanhã, ontem, segunda…”, “quem abre / quem fecha”, usando a escala planejada
+      (sem registro de ponto) e a data do aparelho.
+   3) NÚMEROS DA EQUIPE: quantos funcionários (cadastrados × ativos), afastados / emprestados, turnos Abertura e Fechamento.
+   4) CONFERÊNCIAS: maior sequência de dias seguidos, conflitos de folga / domingos seguidos / “a escala está certa?” (as mesmas conferências
+      do app), dia mais apertado, comparação de dias e turno sem ninguém. Cobertura MÍNIMA ainda não está cadastrada no app: o Gabriel diz isso
+      em vez de inventar um número.
+   5) LIMITES HONESTOS: salário, férias, intervalo, hora extra… (regra trabalhista não cadastrada) e assuntos fora do RH/escala não são inventados;
+      pronomes sem referente (“quem é ele?”, “faz isso”, “qual é melhor?”) viram pergunta de esclarecimento específica.
+   O vocabulário linguístico (sinônimos, gírias, dias da semana, “fala” ≠ “falta”) vem da camada V270 (marcado // V275 lá) e daqui.
+   window.v275Conversa = {responder, estado, reset}. */
+  'use strict';
+  const base=window.v265Chat, G=window.v270Gabriel, I=base&&base.interno;
+  if(!(base&&G&&I&&typeof base.responder==='function')) return;
+  const anterior=base.responder, tem=I.tem, es=I.es, SETORES=I.APP==='setores';
+  const $i=id=>document.getElementById(id);
+  const p2=n=>String(n).padStart(2,'0');
+  const DSEM=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const NDIA={segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6,domingo:0};
+  const hoje=()=>{ try{ const r=typeof G.relogio==='function'?G.relogio():null; if(r instanceof Date&&!isNaN(r.getTime())) return r; }catch(e){} return new Date(); };
+  const dia0=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const somaDias=(d,n)=>{ const x=dia0(d); x.setDate(x.getDate()+n); return x; };
+  const fmt=d=>`${p2(d.getDate())}/${p2(d.getMonth()+1)}`;
+  const fmtL=d=>`${DSEM[d.getDay()]} ${fmt(d)}/${d.getFullYear()}`;
+  const ctxEstado={topic:'',pergunta:'',lista:[],listaData:null,cand:[],candQ:'',ult:''};
+  const reset=()=>{ ctxEstado.topic=''; ctxEstado.pergunta=''; ctxEstado.lista=[]; ctxEstado.listaData=null; ctxEstado.cand=[]; ctxEstado.candQ=''; ctxEstado.ult=''; };
+  const seguro=(fn,def)=>{ try{ const v=fn(); return v===undefined?def:v; }catch(e){ console.warn('[V275]',e); return def; } };
+
+  /* ── dados do app (as listas do app são variáveis globais soltas) ── */
+  const eq=()=>seguro(()=>Array.isArray(equipe)?equipe:[],[]);
+  const sitA=f=>String(f&&f.situacao||'A').trim().toUpperCase()==='A';
+  const ativos=()=>eq().map((f,i)=>i).filter(i=>eq()[i]&&sitA(eq()[i]));
+  const anoMes=()=>({a:+$i('ano').value,m:+$i('mes').value});
+  const noMes=d=>{ const {a,m}=anoMes(); return d.getFullYear()===a&&d.getMonth()===m; };
+  const gerada=()=>seguro(()=>typeof escalaGeradaParaPeriodo==='function'?!!escalaGeradaParaPeriodo():Object.values(trabalhoDomingo||{}).some(a=>a&&a.length),false);
+  const nomeCurto=i=>es(I.curto(i));
+  const semAc=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  /* nomes repetidos na MESMA lista ganham a inicial do sobrenome (GISELE S.) para não parecer que a pessoa apareceu duas vezes */
+  const lista=(ids,max)=>{ max=max||18; const uns=ids.slice(0,max), cont={}; ids.forEach(i=>{ const k=semAc(I.curto(i)); cont[k]=(cont[k]||0)+1; });
+    const n=uns.map(i=>{ const k=semAc(I.curto(i)); let t=nomeCurto(i); if(cont[k]>1){ const partes=String(I.nome(i)||'').trim().split(/\s+/); const ult=partes.length>1?partes[partes.length-1]:''; t+=ult?' '+es(ult[0].toUpperCase())+'.':''; } return `<b>${t}</b>`; });
+    return ids.length>max?n.join(', ')+` e mais ${ids.length-max}`:I.lista(n); };
+  function trabalha(i,dt){
+    if(typeof trabalharBaseNaData==='function') return !!trabalharBaseNaData(i,dt);   // Setores
+    const {a,m}=anoMes();                                                           // Encarregados
+    if(dt.getDay()===0){ if(dt.getMonth()===m&&dt.getFullYear()===a) return (trabalhoDomingo[dt.getDate()]||[]).includes(i); return !!(window.v174&&window.v174.domingoForaDoMes&&window.v174.domingoForaDoMes(i,dt)); }
+    if(ehDescansoAssociado(i,dt)) return false;
+    if(dt.getMonth()===m&&dt.getFullYear()===a){ const f=feriados(a,m)[dt.getDate()]; if(f) return (trabalhoFeriado[dt.getDate()]||[]).includes(i); }
+    return true;
+  }
+  const turnoDe=i=>{ const t=String(eq()[i]&&eq()[i].turno||'').toUpperCase(); return t.startsWith('ABERT')?'ABERTURA':(t.startsWith('FECH')?'FECHAMENTO':''); };
+
+  /* ── datas citadas na pergunta ── */
+  function diaAlvo(qn){
+    const h=dia0(hoje());
+    if(qn.includes(' depois de amanha ')||qn.includes(' depois amanha ')) return {dt:somaDias(h,2),rot:'Depois de amanhã'};
+    if(qn.includes(' amanha ')) return {dt:somaDias(h,1),rot:'Amanhã'};
+    if(qn.includes(' ontem ')) return {dt:somaDias(h,-1),rot:'Ontem'};
+    if(qn.includes(' hoje ')) return {dt:h,rot:'Hoje'};
+    for(const [nome,n] of Object.entries(NDIA)){ if(n===0) continue; if(qn.includes(' '+nome+' ')){ const dt=dia0(h); while(dt.getDay()!==n) dt.setDate(dt.getDate()+1); return {dt,rot:DSEM[n][0].toUpperCase()+DSEM[n].slice(1)+(dt.getTime()===h.getTime()?' (hoje)':' (próxima)')}; } }
+    const m=qn.match(/ dia (\d{1,2}) /); if(m){ const {a,m:mm}=anoMes(), d=+m[1]; const dt=new Date(a,mm,d); if(d>=1&&d<=31&&dt.getMonth()===mm) return {dt,rot:`Dia ${p2(d)}`}; }
+    return null;
+  }
+  const foraMes=al=>{ const {a,m}=anoMes(); return `📅 ${al.rot} é <b>${fmtL(al.dt)}</b>, mas a escala aberta é de <b>${I.MES[m]} de ${a}</b>. Mude o mês no topo do app para eu consultar essa data. <small>(Só leio a escala do mês aberto.)</small>`; };
+
+  /* ── quem trabalha / folga numa data ── */
+  function respDia(al,modo,turno,cargoTok){
+    if(!noMes(al.dt)) return foraMes(al);
+    let ids=ativos();
+    if(cargoTok) ids=ids.filter(i=>String(eq()[i].cargo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(cargoTok));
+    if(turno) ids=ids.filter(i=>turnoDe(i)===turno);
+    const dom=al.dt.getDay()===0;
+    if(dom&&!gerada()) return `📅 ${fmtL(al.dt)}: a escala de domingos deste mês <b>ainda não foi gerada</b> (passo 5). Depois de tocar em Gerar eu respondo.`;
+    const tr=ids.filter(i=>trabalha(i,al.dt)), fo=ids.filter(i=>!trabalha(i,al.dt));
+    const qual=(turno?` no turno de <b>${turno==='ABERTURA'?'abertura':'fechamento'}</b>`:'')+(cargoTok?` (cargo com “${es(cargoTok)}”)`:'');
+    const nota='<br><small>Escala planejada (não tenho registro de ponto'+(dom?'':'; nos dias úteis conto a folga fixa, o descanso do domingo e o feriado')+').</small>';
+    ctxEstado.lista=(modo==='folga'?fo:tr).slice(); ctxEstado.listaData=al.dt;
+    if(modo==='conta') return `📊 <b>${al.rot}</b> — ${fmtL(al.dt)}${qual}: <b>${tr.length}</b> trabalham e <b>${fo.length}</b> folgam (de ${ids.length} ${cargoTok||turno?'filtrados':'ativos'}).`+nota;
+    if(modo==='folga') return `🛋️ <b>${al.rot}</b> — ${fmtL(al.dt)}${qual}: <b>${fo.length}</b> de folga${fo.length?': '+lista(fo):'.'}`+nota;
+    if(modo==='trab') return `👥 <b>${al.rot}</b> — ${fmtL(al.dt)}${qual}: <b>${tr.length}</b> trabalham${tr.length?': '+lista(tr):'.'}`+nota;
+    return `📅 <b>${al.rot}</b> — ${fmtL(al.dt)}${qual}: <b>${tr.length}</b> trabalham e <b>${fo.length}</b> folgam.<br>👥 Trabalham: ${tr.length?lista(tr):'ninguém'}<br>🛋️ Folgam: ${fo.length?lista(fo):'ninguém'}`+nota;
+  }
+
+  /* ── pessoa ── */
+  const pessoaDaFala=qn=>{ const P=seguro(()=>I.pessoas(qn),[]); return P.length===1?P[0]:(P.length>1?-2:null); };
+  const pessoaCtx=()=>{ const c=seguro(()=>G.contexto(),null); return c&&c.pessoa!=null?c.pessoa:null; };
+  function cartao(i,dt){
+    const f=eq()[i]; if(!f) return '';
+    const dn=['','segunda','terça','quarta','quinta','sexta','sábado'];
+    const fixa=Number(f.folgaFixa);
+    return `👤 <b>${es(I.nome(i))}</b> — ${es(f.cargo||'sem cargo')}${f.setor?' ('+es(f.setor)+')':''}.<ul><li>Turno: <b>${es(turnoDe(i)?turnoDe(i).toLowerCase():'não informado')}</b>${f.horario?' · horário '+es(f.horario):''}</li><li>Folga fixa: <b>${fixa===0?'domingo':(dn[fixa]||'a definir')}</b></li>`+
+      `${dt&&noMes(dt)?`<li>${fmtL(dt)}: <b>${trabalha(i,dt)?'trabalha':'folga'}</b></li>`:''}</ul>`;
+  }
+
+  /* ── números da equipe, afastados, emprestados, turnos ── */
+  function respQuantos(qn){
+    const todos=eq(), at=ativos(), out=todos.length-at.length;
+    if(!todos.length) return 'Ainda não há equipe carregada. Carregue no passo <b>1 Equipe</b> (planilha do RH, histórico ou ✏️ Editar equipe) e eu conto.';
+    const ab=at.filter(i=>turnoDe(i)==='ABERTURA').length, fe=at.filter(i=>turnoDe(i)==='FECHAMENTO').length;
+    return `👥 A equipe cadastrada (passo 1) tem <b>${todos.length}</b> pessoa(s): <b>${at.length}</b> ativa(s) (situação A)${out?` e <b>${out}</b> com outra situação (afastado, férias, emprestado…)`:''}. Por turno: <b>${ab}</b> abertura e <b>${fe}</b> fechamento.<br><small>Estou contando a equipe cadastrada, não só quem está escalado num dia.</small>`;
+  }
+  function respSituacao(qn){
+    const todos=eq(); if(!todos.length) return 'Ainda não há equipe carregada no passo <b>1 Equipe</b>.';
+    const fora=todos.map((f,i)=>i).filter(i=>!sitA(todos[i]));
+    const emp=todos.map((f,i)=>i).filter(i=>String(todos[i].setorEmprestimo||'').trim()||String(todos[i].situacao||'').toUpperCase()==='EP');
+    const querAf=tem(qn,'afastado','afastados','afastada','ferias','licenca','inativo','inativos'), querEmp=tem(qn,'emprestado','emprestados','emprestada','cedido','cedidos','cedida','transferido','transferidos');
+    const partes=[];
+    if(querAf||!querEmp){ const af=fora.filter(i=>!emp.includes(i)); partes.push(af.length?`🩺 Com situação diferente de ativo (${af.length}): ${af.slice(0,15).map(i=>`<b>${nomeCurto(i)}</b> (${es(String(todos[i].situacaoDetalhe||todos[i].situacao||'?'))})`).join(', ')}${af.length>15?' e mais '+(af.length-15):''}.`:'🩺 Ninguém afastado: todos os cadastrados estão com situação A (ativo).'); }
+    if(querEmp||!querAf){ partes.push(emp.length?`🔁 Emprestados/cedidos (${emp.length}): ${emp.slice(0,15).map(i=>`<b>${nomeCurto(i)}</b>${todos[i].setorEmprestimo?' → '+es(todos[i].setorEmprestimo):''}`).join(', ')}.`:'🔁 Ninguém emprestado ou cedido a outro setor na equipe carregada.'); }
+    return partes.join('<br>')+'<br><small>Vem da situação cadastrada no passo 1 (planilha do RH ou ✏️ Editar equipe).</small>';
+  }
+  const FUNCOES=['caixa','caixas','repositor','repositores','acougueiro','padeiro','balconista','fiscal','empacotador','estoquista','conferente','motorista','seguranca','confeiteiro','cozinheiro','atendente','auxiliar'];
+  function cargoInexistente(qn){
+    for(const w of FUNCOES){ if(qn.includes(' '+w+' ')){ const ok=eq().some(f=>semAc(f.cargo).includes(w.replace(/s$/,'').replace(/ores$/,'or'))); if(!ok) return w; } }
+    return '';
+  }
+  function filtroCargo(qn){
+    const STOP=new Set('encarregado subencarregado lider operador frente loja setor turno'.split(' '));
+    const cs=new Set(eq().map(f=>String(f.cargo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')));
+    for(const c of cs){ for(const w of c.split(/[^a-z0-9]+/)){ if(w.length>=5&&!STOP.has(w)&&qn.includes(' '+w+' ')) return w; } }
+    return '';
+  }
+  function respTurno(qn){
+    const abre=tem(qn,'abertura','abrir','abre','abrem','manha','cedo','primeiro'), fecha=tem(qn,'fechamento','fechar','fecha','fecham','tarde','noite','segundo','ultimo');
+    if(!abre&&!fecha) return null;
+    const turno=fecha&&!abre?'FECHAMENTO':(abre&&!fecha?'ABERTURA':null);
+    if(!turno) return null;
+    const cargo=filtroCargo(qn), al=diaAlvo(qn)||{dt:dia0(hoje()),rot:'Hoje'}; const sem=cargoInexistente(qn);
+    if(sem&&!cargo) return `Não há ninguém com cargo parecido com “${es(sem)}” na equipe carregada (cargos: ${es([...new Set(eq().map(f=>String(f.cargo||'').toLowerCase()))].slice(0,5).join(', '))}…). Quer ver todo o turno sem filtrar?`;
+    const aviso=tem(qn,'manha','tarde','noite','segundo','primeiro','cedo')?`<br><small>O app guarda o turno como <b>Abertura</b> e <b>Fechamento</b> (não existe “manhã/tarde/1º/2º turno”): considerei ${turno==='ABERTURA'?'manhã = abertura':'tarde/2º turno = fechamento'}.</small>`:'';
+    if(tem(qn,'quantas','quantos')){ const ids=ativos().filter(i=>turnoDe(i)===turno&&(!cargo||String(eq()[i].cargo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(cargo)));
+      if(!noMes(al.dt)) return foraMes(al);
+      const tr=ids.filter(i=>trabalha(i,al.dt)); ctxEstado.lista=tr.slice(); ctxEstado.listaData=al.dt;
+      return `🕘 No turno de <b>${turno==='ABERTURA'?'abertura':'fechamento'}</b> há <b>${ids.length}</b> pessoa(s) cadastrada(s)${cargo?' (cargo com “'+es(cargo)+'”)':''}; ${al.rot==='Hoje'?'hoje':'em '+al.rot.toLowerCase()} (${fmtL(al.dt)}) trabalham <b>${tr.length}</b>.`+aviso; }
+    const r=respDia(al,'trab',turno,cargo); return r+aviso;
+  }
+
+  /* ── cobertura, sequência e conferências (as contas do app; sem inventar mínimos) ── */
+  function datasDoMes(){ const {a,m}=anoMes(), n=new Date(a,m+1,0).getDate(), out=[]; for(let d=1;d<=n;d++) out.push(new Date(a,m,d)); return out; }
+  function contagens(){ const at=ativos(), {a,m}=anoMes(), fer=seguro(()=>feriados(a,m)||{},{}); return datasDoMes().map(dt=>{ const tr=at.filter(i=>trabalha(i,dt)); return {dt,fer:fer[dt.getDate()]||'',n:tr.length,ab:tr.filter(i=>turnoDe(i)==='ABERTURA').length,fe:tr.filter(i=>turnoDe(i)==='FECHAMENTO').length}; }); }
+  const SEMCOB='<br><small>⚠️ A <b>cobertura mínima</b> (quantas pessoas cada setor/turno precisa) ainda <b>não está cadastrada</b> no app: por isso eu comparo quantidades, mas não afirmo se é “suficiente”.</small>';
+  function exigeEscala(){ return gerada()?null:'A escala deste mês <b>ainda não foi gerada</b> (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.'; }
+  function respApertado(qn){
+    const x=exigeEscala(); if(x) return x;
+    const todosDias=contagens(), c=todosDias.filter(e=>!(e.fer&&e.n===0)), ferVazios=todosDias.filter(e=>e.fer&&e.n===0), porDia=[0,1,2,3,4,5,6].map(w=>{ const l=c.filter(e=>e.dt.getDay()===w); return {w,m:l.length?l.reduce((s,e)=>s+e.n,0)/l.length:0,l}; }).filter(e=>e.l.length);
+    const ord=porDia.slice().sort((a,b)=>a.m-b.m), pior=c.slice().sort((a,b)=>a.n-b.n)[0];
+    const pe=w=>porDia.find(e=>e.w===w);
+    const dias=qn.match(/ (segunda|terca|quarta|quinta|sexta|sabado|domingo) /g);
+    if(tem(qn,'compare','comparar','comparacao','compara','versus')&&dias&&dias.length>=2){
+      const [a,b]=[NDIA[dias[0].trim()],NDIA[dias[1].trim()]], A=pe(a), B=pe(b); if(!A||!B) return 'Não achei esses dias no mês aberto.';
+      const t=Math.round(ativos().length);
+      return `📊 <b>${DSEM[a]}</b> × <b>${DSEM[b]}</b> em ${I.MES[anoMes().m]}: em média <b>${A.m.toFixed(1)}</b> trabalham na ${DSEM[a]} (de ${t} ativos) contra <b>${B.m.toFixed(1)}</b> na ${DSEM[b]}. ${A.m<B.m?'A '+DSEM[a]+' tem menos gente.':(B.m<A.m?'A '+DSEM[b]+' tem menos gente.':'Estão iguais.')}`+SEMCOB;
+    }
+    return `📊 Dia da semana com <b>menos gente</b> em média: <b>${DSEM[ord[0].w]}</b> (${ord[0].m.toFixed(1)} de ${ativos().length} ativos); o mais cheio é <b>${DSEM[ord[ord.length-1].w]}</b> (${ord[ord.length-1].m.toFixed(1)}). A data com menos gente é <b>${fmtL(pior.dt)}</b> (${pior.n} trabalham).<br><small>Domingo costuma ter menos gente por causa do 2×1.</small>${ferVazios.length?`<br><small>Não contei ${ferVazios.length} feriado(s) sem ninguém marcado para trabalhar (${ferVazios.map(e=>fmt(e.dt)+' '+es(e.fer)).join(', ')}): confira no passo <b>4 Feriados</b>.</small>`:''}`+SEMCOB;
+  }
+  function respDescoberto(qn){
+    const x=exigeEscala(); if(x) return x;
+    const tudo=contagens(), c=tudo.filter(e=>!(e.fer&&e.n===0)), ferVazios=tudo.filter(e=>e.fer&&e.n===0), zeros=c.filter(e=>e.ab===0||e.fe===0);
+    const minAb=c.slice().sort((a,b)=>a.ab-b.ab)[0], minFe=c.slice().sort((a,b)=>a.fe-b.fe)[0];
+    const topo=zeros.length?`⚠️ ${zeros.length} dia(s) com um turno <b>sem ninguém</b>: ${zeros.slice(0,6).map(e=>`${fmt(e.dt)} (${e.ab===0?'abertura':'fechamento'} = 0)`).join(', ')}.`:'✅ Nenhum dia (fora feriados sem equipe) com um dos turnos zerado.';
+    const fv=ferVazios.length?`<br>🎉 ${ferVazios.length} feriado(s) <b>sem ninguém marcado</b> para trabalhar: ${ferVazios.map(e=>fmt(e.dt)+' '+es(e.fer)).join(', ')} (passo <b>4 Feriados</b>).`:'';
+    return `🕘 ${topo}<br>Menos gente na abertura: <b>${minAb.ab}</b> em ${fmtL(minAb.dt)}. Menos gente no fechamento: <b>${minFe.fe}</b> em ${fmtL(minFe.dt)}.${fv}`+SEMCOB;
+  }
+  function sequencias(){
+    const at=ativos(), ini=somaDias(datasDoMes()[0],-7), fim=somaDias(datasDoMes().slice(-1)[0],7), out=[];
+    at.forEach(i=>{ let run=0, r0=null, best={n:0}; for(let dt=ini;dt<=fim;dt=somaDias(dt,1)){ if(trabalha(i,dt)){ if(!run) r0=dt; run++; if(run>best.n) best={n:run,ini:r0,fim:dt}; } else run=0; } out.push({i,...best}); });
+    return out.sort((a,b)=>b.n-a.n);
+  }
+  function respSequencia(){
+    const x=exigeEscala(); if(x) return x;
+    const s=sequencias(), lim=seguro(()=>maxSeguidosTrab(),6); if(!s.length) return 'Sem equipe ativa para conferir.';
+    const acima=s.filter(e=>e.n>lim), noLim=s.filter(e=>e.n===lim);
+    const top=s.slice(0,3).map(e=>`<b>${nomeCurto(e.i)}</b>: ${e.n} dias seguidos (${fmt(e.ini)} a ${fmt(e.fim)})`).join('; ');
+    return `🔗 Maior sequência de trabalho: ${top}.<br>${acima.length?`⚠️ <b>${acima.length}</b> pessoa(s) passam do limite de ${lim} dias seguidos (regra 6×1): ${lista(acima.map(e=>e.i),8)}.`:`✅ Ninguém passa do limite de ${lim} dias seguidos; ${noLim.length} pessoa(s) chegam exatamente a ${lim}.`}<br><small>Conto de 7 dias antes até 7 dias depois do mês, pela escala planejada.</small>`;
+  }
+  function errosDoApp(filtro){
+    const dom=trabalhoDomingo;
+    let e=[]; try{ e=SETORES?validarEscalaSetores(dom,1e9):validarEscala(dom); }catch(x){ return null; }   // a mesma conferência que o app faz ao gerar (sem o alvo de pessoas por domingo, que não conheço)
+    e=(e||[]).map(t=>String(t).replace(/<[^>]+>/g,'')); return filtro?e.filter(t=>filtro.test(t)):e;
+  }
+  function respConferir(qn){
+    const x=exigeEscala(); if(x) return x;
+    const dom=tem(qn,'domingo','domingos','seguidos','seguido','consecutivos');
+    const e=errosDoApp(dom?/domingo/i:null);
+    if(e===null) return 'Não consegui rodar a conferência agora. Use o passo <b>5</b>: o app confere sozinho e avisa em vermelho.';
+    if(!e.length) return `✅ Conferi a escala planejada com as regras do app (${dom?'domingos seguidos':'6×1 e domingos seguidos'}): <b>nenhum problema</b> encontrado.<br><small>Ainda não existe conferência de <b>cobertura mínima</b> (não cadastrada). Para ver o que falta preencher, pergunte “o que falta?”.</small>`;
+    return `⚠️ A conferência do app achou <b>${e.length}</b> aviso(s):<ul>${e.slice(0,5).map(t=>`<li>${es(t)}</li>`).join('')}</ul>${e.length>5?`E mais ${e.length-5}. `:''}Eu não corrijo a escala sozinho: abra o passo <b>5</b> e troque a folga ou o domingo indicado.`;
+  }
+  function respFolgaSemana(qn){
+    const P=pessoaDaFala(qn), pi=P!==null&&P>=0?P:pessoaCtx();
+    if(P===-2) return 'Achei mais de uma pessoa com esse nome. Escreva o nome e o sobrenome.';
+    if(pi==null) return 'De qual funcionário? Escreva o nome (ou a matrícula) e eu conto as folgas da semana.';
+    const h=dia0(hoje()); if(!noMes(h)) return foraMes({dt:h,rot:'Hoje'});
+    const ini=somaDias(h,-((h.getDay()+6)%7)); const dias=[...Array(7)].map((_,k)=>somaDias(ini,k)).filter(noMes);
+    const fo=dias.filter(dt=>!trabalha(pi,dt));
+    return `🛋️ <b>${es(I.nome(pi))}</b> nesta semana (${fmt(dias[0])} a ${fmt(dias[dias.length-1])}): <b>${fo.length}</b> folga(s)${fo.length?': '+fo.map(dt=>DSEM[dt.getDay()].replace('-feira','')+' '+fmt(dt)).join(', '):''}.<br><small>Escala planejada.</small>`;
+  }
+
+
+  /* ── últimos domingos, lista da equipe, como importar / salvar, planilha sem arquivo ── */
+  function respUltimosDomingos(n){
+    const h=dia0(hoje()), out=[]; let d=dia0(h); while(d.getDay()!==0) d.setDate(d.getDate()-1);
+    for(let k=0;k<n;k++){ out.push(dia0(d)); d.setDate(d.getDate()-7); }
+    const at=ativos();
+    const linhas=out.map(dt=>{
+      if(!noMes(dt)) return `<li><b>${fmt(dt)}</b>: fora do mês aberto (${I.MES[anoMes().m]}); só tenho os 2 últimos domingos do mês passado marcados no passo <b>2 Mês passado</b>.</li>`;
+      const tr=at.filter(i=>trabalha(i,dt));
+      return `<li><b>${fmt(dt)}</b>: ${tr.length} escalados${tr.length?' — '+lista(tr,10):''}</li>`;
+    }).join('');
+    return `📅 Últimos ${n} domingos até hoje (${fmtL(h)}), pela <b>escala planejada</b> (não tenho registro de ponto):<ul>${linhas}</ul>`;
+  }
+  function respEquipeLista(qn){
+    const at=ativos(); if(!at.length) return 'Ainda não há equipe ativa carregada no passo <b>1 Equipe</b>.';
+    const conta=(fn)=>{ const m={}; at.forEach(i=>{ const k=fn(eq()[i])||'(não informado)'; m[k]=(m[k]||0)+1; }); return Object.entries(m).sort((a,b)=>b[1]-a[1]); };
+    const fmtc=l=>l.slice(0,12).map(([k,v])=>`<li>${es(k)}: <b>${v}</b></li>`).join('')+(l.length>12?`<li>… e mais ${l.length-12} grupo(s)</li>`:'');
+    const horas=conta(f=>String(f.horario||'').trim()), cargos=conta(f=>String(f.cargo||'').trim()), setores=conta(f=>String(f.setor||'').trim());
+    return `👥 Equipe ativa (${at.length}):<br><b>Por horário</b><ul>${fmtc(horas)}</ul><b>Por ${SETORES?'função (cargo)':'cargo'}</b><ul>${fmtc(cargos)}</ul>${!SETORES&&setores.length>1?`<b>Por setor</b><ul>${fmtc(setores)}</ul>`:''}<small>Para ver pessoa por pessoa, abra o passo <b>1 Equipe</b> ou pergunte “quem trabalha amanhã?”.</small>`;
+  }
+  function respComoImportar(){
+    ctxEstado.topic='planilha';
+    if(!SETORES) return '📥 Nos <b>Encarregados</b> a equipe entra por <b>Equipe.txt</b> (botão da tela inicial), pelo <b>histórico guardado</b> (⋮ → Abrir histórico guardado) ou em <b>✏️ Editar equipe</b>. O botão <b>📥 Atualizar pelo ERP</b> só atualiza as datas de admissão.';
+    return '📥 <b>Como importar a planilha do RH:</b> toque em <b>📥 Importar funcionários (planilha do RH)</b> (tela inicial ou passo 1 Equipe), escolha o arquivo <b>.xlsx</b>, confira a <b>prévia</b> e toque em <b>Aplicar</b>. Só depois disso eu consigo ler e responder sobre a planilha. Selecionar o arquivo ainda não é importar.';
+  }
+  function respComoSalvar(){
+    ctxEstado.topic='salvar';
+    return '📦 <b>Como guardar:</b> depois de gerar a escala (passo 5), toque em <b>📦 Guardar histórico do mês</b> — o arquivo <b>Historico_…json</b> vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use <b>📊 Baixar planilha Excel</b>. O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.';
+  }
+  function respPlanilhaSemArquivo(){
+    const s=estadoPlanilha(), n=eq().length;
+    const quem=n?`<br>Mas a equipe carregada (passo 1) tem <b>${n}</b> pessoa(s)${SETORES?' — vieram de Equipe.txt, histórico ou digitação, não de uma planilha lida'+'':''}. Pergunte “quantos funcionários tem?” ou “mostra os funcionários por horário e função” e eu resumo.`:'';
+    return (SETORES?`Ainda <b>não li nenhuma planilha do RH</b> neste aparelho (histórico guardado e Equipe.txt não contam como planilha).${quem}<br>`:`Nos Encarregados eu não leio a planilha inteira do RH.${quem}<br>`)+respComoImportar();
+  }
+  function respErroArquivo(){
+    return 'Entendi: o arquivo foi escolhido mas deu erro. Causas comuns: (1) o arquivo não termina em <b>.xlsx</b> (ou é .xls/.csv); (2) está <b>protegido por senha</b> ou aberto em outro programa; (3) a planilha não tem as colunas de <b>matrícula e nome</b>. Qual mensagem apareceu na tela? Copie o texto e eu explico.';
+  }
+
+  /* ── pedidos de alteração: o Gabriel orienta, mas não altera ── */
+  function respTrocarFolga(qn){
+    const dias=[...qn.matchAll(/ (segunda|terca|quarta|quinta|sexta|sabado) /g)].map(m=>NDIA[m[1]]);
+    const P=pessoaDaFala(qn), pi=P!==null&&P>=0?P:pessoaCtx();
+    const como='No passo <b>1 Equipe</b> → <b>✏️ Editar equipe</b> → escolha a pessoa e mude a <b>folga fixa</b>. Depois gere a escala de novo. <small>Eu não altero a escala: só leio e oriento.</small>';
+    if(P===-2) return 'Achei mais de uma pessoa com esse nome. Escreva o nome e o sobrenome.';
+    if(pi==null&&ctxEstado.cand.length>=2) return 'Antes de mudar: de qual delas? '+seguro(()=>anterior(ctxEstado.candQ),'Escreva o nome e o sobrenome.');
+    if(pi==null) return `A folga de <b>quem</b>? Escreva o nome (ou matrícula)${dias.length?'':' e o dia desejado'}. ${como}`;
+    const f=eq()[pi], alvo=dias.length?dias[dias.length-1]:null, dn=['','segunda','terça','quarta','quinta','sexta','sábado'], fixa=Number(f.folgaFixa);
+    let conf=''; if(alvo){ const mesmos=ativos().filter(i=>i!==pi&&String(eq()[i].setor||'')===String(f.setor||'')&&Number(eq()[i].folgaFixa)===alvo); conf=`<br>Hoje <b>${mesmos.length}</b> colega(s) do setor já folgam na ${dn[alvo]}${mesmos.length?': '+lista(mesmos,8):''}.`; }
+    return `🔁 A folga fixa de <b>${es(I.nome(pi))}</b> é <b>${fixa===0?'domingo':(dn[fixa]||'a definir')}</b>${alvo?`; você quer ${dn[alvo]}`:''}.${conf}<br>${como}`;
+  }
+
+  /* ── respostas curtas pelo contexto ── */
+  const reConfirma=/^( ?(sim|ja|foi|pronto|feito|ok|certo|consegui|terminei|conclui|concluido|concluida|fiz|fez|importei|carreguei|selecionei|salvei|guardei|gerei|baixei|abri)( ?(fiz|feito|importei|carreguei|selecionei|salvei|guardei|gerei|baixei|abri|terminei|conclui|isso|tudo))?){1,3}$/;
+  const reProblema=/ (nao apareceu|nao aparece|nao funcionou|nao funciona|deu erro|nao abriu|nao abre|nao carregou|nao carrega|nao foi|nao consegui|travou|sumiu|nao importou|nao baixou|deu problema) /;
+  function estadoPlanilha(){
+    const P=window.v271Planilha, u=P&&P.ultima?P.ultima():null, a=P&&P.atual?P.atual():null, n=eq().length;
+    return {temP:!!P, lida:!!(u||a), aplicada:!!a, ultima:u, atual:a, n};
+  }
+  function respConfirmaPlanilha(){
+    const s=estadoPlanilha();
+    if(!SETORES) return `Nos <b>Encarregados</b> eu não leio a planilha inteira do RH: o botão <b>📥 Atualizar pelo ERP</b> só atualiza datas de admissão; a equipe entra por <b>Equipe.txt</b>, pelo histórico guardado ou em <b>✏️ Editar equipe</b>. ${s.n?`Já vejo <b>${s.n}</b> pessoa(s) carregada(s) no passo 1.`:'Ainda não vejo ninguém carregado no passo 1.'}`;
+    if(s.aplicada||s.lida){ const r=seguro(()=>anterior('o que você leu da planilha?'),''); return (s.aplicada?'✅ Vi a planilha lida e aplicada.':'⚠️ Vi uma planilha lida, mas <b>ainda não aplicada</b> (você só viu a prévia: toque em <b>Aplicar</b>).')+'<br>'+r; }
+    if(s.n) return `Vejo <b>${s.n}</b> pessoa(s) na equipe, mas <b>nenhuma planilha do RH foi lida</b> neste aparelho (a equipe pode ter vindo de Equipe.txt, histórico ou digitação). Para eu ler a planilha: <b>📥 Importar funcionários (planilha do RH)</b> → escolha o .xlsx → confira a prévia → <b>Aplicar</b>. Apareceu alguma mensagem de erro?`;
+    return 'Ainda <b>não vejo nem equipe nem planilha</b> neste aparelho. Toque em <b>📥 Importar funcionários (planilha do RH)</b> (tela inicial ou passo 1 Equipe), escolha o arquivo .xlsx e confirme a prévia. Selecionar o arquivo ainda não é importar: o app mostra uma prévia e você toca em <b>Aplicar</b>. Apareceu alguma mensagem de erro?';
+  }
+  function respConfirmaSalvar(){
+    const ger=gerada();
+    return (ger?'':'⚠️ A escala deste mês ainda não foi gerada (passo 5), então não há o que guardar. ')+'Eu <b>não consigo confirmar</b> se o histórico foi baixado: o navegador salva o arquivo na pasta <b>Downloads</b> e não me avisa. Procure um arquivo chamado <b>Historico_…json</b>. Se o app mostrou o aviso verde “Histórico guardado”, o arquivo foi criado.';
+  }
+  function respProblema(){
+    const t=ctxEstado.topic;
+    if(t==='planilha') return respConfirmaPlanilha().replace(/Apareceu alguma mensagem de erro\?/,'')+'<br>Confira: (1) o arquivo termina em <b>.xlsx</b>; (2) depois de escolher o arquivo aparece uma <b>prévia</b> e é preciso tocar em <b>Aplicar</b>; (3) se aparecer mensagem de erro, me diga o texto dela.';
+    if(t==='salvar') return respConfirmaSalvar();
+    return 'O que não apareceu ou deu erro? Me diga o passo (importar a planilha, gerar a escala, guardar o histórico…) e o texto de qualquer mensagem na tela, que eu ajudo a achar o problema.';
+  }
+  function deveFalarDeSalvar(q){ return /salv|guard|historico/.test(q); }
+  function marcarTopico(q,r){
+    const qn=' '+G.entender(q).texto+' ';
+    if(/ planilha | xlsx | excel | importar | importo | importei /.test(qn)) ctxEstado.topic='planilha';
+    else if(deveFalarDeSalvar(qn)) ctxEstado.topic='salvar';
+    else if(/ conflito | conflitos | certa | errada | confere | conferir /.test(qn)) ctxEstado.topic='conflito';
+    else if(/ folga | troca | trocar | mude | muda /.test(qn)&&!/ planilha /.test(qn)) ctxEstado.topic='folga';
+    ctxEstado.pergunta=q;
+  }
+  const ORD={primeiro:1,primeira:1,segundo:2,segunda:2,terceiro:3,terceira:3,quarto:4,quarta:4,quinto:5,quinta:5,ultimo:-1,ultima:-1};
+
+  /* ── foras do escopo e assuntos trabalhistas ── */
+  const TRAB=['salario','salarios','ferias','intervalo','almoco','refeicao','extra','extras','banco','fgts','demissao','rescisao','decimo','insalubridade','adicional','atestado','licenca','maternidade','aviso','previo','comissao','vale','beneficio','beneficios','plano','pagamento','pagar','receber','holerite','contracheque'];
+  const DOM=new Set(('escala escalado escalada escalados folga folgas domingo domingos feriado feriados equipe funcionario funcionarios setor setores horario horarios turno turnos '+
+    'regra regras balanco cobertura dsr trabalha trabalham folgam planilha excel historico mes semana gerar gerada passo cargo lider lideranca encarregado subencarregado emprestado afastado '+
+    'ativo ativos pessoal gente colaborador colaboradores abertura fechamento hoje amanha ontem sabado segunda terca quarta quinta sexta seguidos 6x1 2x1 5x2 gabriel app aplicativo importar salvar guardar').split(' '));
+
+  function responder(texto){
+    const t=String(texto==null?'':texto);
+    const n=seguro(()=>G.entender(t),null);
+    if(!n||!n.tokens.length) return anterior(texto);
+    const qn=n.qn, tk=n.tokens;
+    let r=null;
+    r=seguro(()=>intencao(t,qn,tk),null);
+    if(typeof r==='string'&&r){ ctxEstado.ult=t; return r; }
+    const ret=anterior(texto);
+    seguro(()=>{
+      marcarTopico(t,ret);
+      const s=String(ret);
+      if(s.indexOf('Achei mais de uma pessoa')===0||s.indexOf('Achei mais de uma pessoa com esse nome')>=0){ ctxEstado.cand=seguro(()=>I.pessoas(qn),[]); ctxEstado.candQ=t; }
+      const D=seguro(()=>I.domingos(qn),[]);
+      if(D.length===1&&tem(qn,'quem','quais')&&tem(qn,'trabalha','trabalham','escalado','escalados','vem','vai')){ const ids=(trabalhoDomingo[D[0]]||[]); if(ids.length){ const {a,m}=anoMes(); ctxEstado.lista=ids.slice(); ctxEstado.listaData=new Date(a,m,D[0]); } }
+    });
+    ctxEstado.ult=t;
+    return ret;
+  }
+
+  function intencao(t,qn,tk){
+    const curto=tk.length<=4;
+    /* planilha / importar / salvar / lista da equipe / últimos domingos */
+    if(tem(qn,'planilha','arquivo','excel','xlsx','quadro')&&tem(qn,'importo','importar','importa','carrego','carregar','abro','abrir','subo','subir','envio','enviar','anexo','anexar','coloco','colocar')&&tem(qn,'como','onde','qual','posso','devo')) return respComoImportar();
+    if(tem(qn,'salvo','salvar','guardo','guardar','salva','guarda','baixo','baixar')&&tem(qn,'escala','historico','mes','planilha')&&tem(qn,'como','onde','qual','posso','devo')&&!tem(qn,'importar','importo')) return respComoSalvar();
+    if(tem(qn,'planilha')&&tem(qn,'tem','conteudo','contem','resume','resumo','resumir','le','ler','lê','analisa','analise','analisar','mostra','mostre','dados')&&!tem(qn,'como','baixar','baixo','excel','impressao')){ const s=estadoPlanilha(); if(!s.lida) return respPlanilhaSemArquivo(); }
+    if(tem(qn,'erro')&&tem(qn,'arquivo','planilha','selecionei','escolhi')) return respErroArquivo();
+    if(tem(qn,'funcionarios','colaboradores','equipe','pessoal','gente')&&tem(qn,'mostre','mostra','lista','liste','listar','mostrar')&&tem(qn,'horario','horarios','funcao','cargo','cargos','setor','setores','turno','turnos')) return respEquipeLista(qn);
+    if(tem(qn,'ultimos','ultimas')&&tem(qn,'domingos')&&tem(qn,'tres','3','dois','2','quatro','4','cinco')&&tem(qn,'quem','quais','trabalhou','trabalharam','escalados','folgou')){ const nn=tem(qn,'dois','2')?2:(tem(qn,'quatro','4')?4:(tem(qn,'cinco')?5:3)); const x=exigeEscala(); return x||respUltimosDomingos(nn); }
+    if(tem(qn,'escala','mostre','mostra')&&tem(qn,'domingo','domingos')&&tk.length<=6&&!tem(qn,'ultimo','proximo','passado','folga','folgam','folgou')&&!(seguro(()=>I.domingos(qn),[]).length)) return anterior('quem trabalha nos domingos');
+    /* confirmações e problemas */
+    if(curto&&reConfirma.test(tk.join(' '))){
+      if(ctxEstado.topic==='planilha') return respConfirmaPlanilha();
+      if(ctxEstado.topic==='salvar') return respConfirmaSalvar();
+      if(ctxEstado.topic==='conflito') return 'Certo. Se já mudou algo, pergunte de novo “tem conflito de folga?” que eu confiro de novo.';
+      return 'Certo! Mas ainda não sei qual passo você concluiu. Me diga o que fez (importou a planilha, gerou a escala, guardou o histórico…) ou faça a pergunta que eu respondo.';
+    }
+    if(reProblema.test(qn)&&tk.length<=8) return respProblema();
+    if(tem(qn,'selecionei','escolhi')&&tem(qn,'erro')) return respErroArquivo();
+    if(tem(qn,'importei','carreguei','selecionei')&&tk.length<=6&&(tem(qn,'planilha','arquivo','excel','xlsx')||ctxEstado.topic==='planilha')) return respConfirmaPlanilha();
+    /* ordinais e “o outro” */
+    const ord=tk.find(x=>ORD[x]!==undefined);
+    if(ord&&tk.length<=5&&ctxEstado.lista.length&&(tem(qn,'e','o','a','pra')||tk.length<=2)&&!tem(qn,'domingo','domingos','dia')){
+      const k=ORD[ord], idx=k<0?ctxEstado.lista.length-1:k-1, i=ctxEstado.lista[idx];
+      if(i!=null&&eq()[i]) return cartao(i,ctxEstado.listaData)+`<small>É o ${k<0?'último':k+'º'} da lista que mostrei.</small>`;
+      return `A lista que mostrei tem só ${ctxEstado.lista.length} nome(s). Qual deles você quer?`;
+    }
+    if(tem(qn,'outro','outra')&&tk.length<=6&&ctxEstado.cand.length<2&&pessoaCtx()!=null) return `Certo. Falávamos de <b>${es(I.nome(pessoaCtx()))}</b>. Qual é o outro funcionário? Escreva o nome (ou a matrícula).`;
+    if(tem(qn,'outro','outra')&&tk.length<=6&&ctxEstado.cand.length>=2) return 'Certo, vamos escolher de novo. '+seguro(()=>anterior(ctxEstado.candQ),'');
+    /* esclarecimentos de pronome sem referente */
+    if(tk.length<=4&&tem(qn,'quem')&&tem(qn,'ele','ela','esse','essa','aquele','aquela')){ const pc=pessoaCtx(); return pc!=null?cartao(pc,null):'Quem é “ele”? Ainda não falamos de ninguém. Escreva o nome (ou a matrícula) da pessoa.'; }
+    if(tk.length<=3&&(tem(qn,'faz','faca','fazer')&&tem(qn,'isso','esse','essa','aquilo'))) return 'Fazer o quê? Ainda não tem um pedido anterior. Diga a ação (por exemplo: “quem trabalha amanhã?”, “tem conflito de folga?”). Eu só leio e oriento: não altero a escala.';
+    if(tk.length<=4&&tem(qn,'melhor','pior')&&tem(qn,'qual')) return 'Melhor entre o quê? Me diga as duas opções (ex.: “folga na terça ou na sexta?”) e o critério (cobertura, domingos, regra).';
+    if(tem(qn,'resultado','resposta')&&tem(qn,'fala','fale','falar','diga','dizer','mostra','mostre')&&tk.length<=6) return 'Resultado de quê? Posso mostrar a escala de um dia, a conferência das regras (“tem conflito de folga?”), a leitura da planilha ou o que falta no app.';
+    if(tem(qn,'igual','mesmo','mesma','repete','repetir')&&tem(qn,'passado','anterior')&&tem(qn,'mes')){ const h=seguro(()=>historico,null); return `Eu não copio nem altero a escala. ${h?'Vejo um <b>histórico do mês passado carregado</b>: ele já alimenta o 6×1 e os domingos seguidos da virada.':'Não vejo histórico do mês passado carregado.'} Diga o que reaproveitar: os <b>domingos do mês passado</b> (passo 2 Mês passado), as <b>folgas fixas</b> (passo 1) ou o <b>aprendizado</b> do Assistente? Abra o histórico em ⋮ → Abrir histórico guardado.`; }
+    if(tem(qn,'corrigir','corrija','arrumar','arruma','resolver','resolve')&&tk.length<=6&&!tem(qn,'como','posso')){
+      if(ctxEstado.topic==='conflito') return respConferir(qn)+'<br><small>Corrijo nada sozinho: me diga qual aviso quer resolver e eu explico como.</small>';
+      return 'Corrigir o quê? Pergunte antes “tem conflito de folga?” ou “o que falta?” para eu apontar o problema. Eu não altero a escala: só mostro onde mexer.';
+    }
+    if(tem(qn,'muda','mudar','mude','troca','trocar','troque','passa','passar','altera','alterar','coloca','colocar')&&(tem(qn,'folga','folgas')||tk.length<=5)&&/ (segunda|terca|quarta|quinta|sexta|sabado) /.test(qn)) return respTrocarFolga(qn);
+    if(tem(qn,'da','dar','posso','pode','podemos')&&tem(qn,'trocar','troca','mudar','passar')&&tem(qn,'folga')&&/ (segunda|terca|quarta|quinta|sexta|sabado) /.test(qn)) return respTrocarFolga(qn);
+    if(tem(qn,'tirar','tiro')&&tem(qn,'duas','dois','essas','esses')&&tem(qn,'mesmo','mesma')) return 'Quais pessoas e qual dia? Escreva os dois nomes e o dia (ex.: “e se Ana e João folgarem no dia 15?”). Eu não consigo simular sem saber quem; e eu só leio, não altero a escala.';
+    /* assuntos trabalhistas e fora do escopo */
+    const trab=tk.filter(x=>TRAB.includes(x));
+    if(trab.length&&!tem(qn,'folga','domingo','escala')) return `🧾 Sobre <b>${es(trab[0])}</b>: esse assunto <b>não está cadastrado no app</b> (eu não guardo salário, férias, intervalo, hora extra nem benefícios) e eu não vou chutar uma regra trabalhista. Confirme com o RH ou o jurídico. O que o app confere é: 6×1, domingos seguidos (2×1), DSR, feriado e balanço.`;
+    /* números e listas da equipe */
+    if(tem(qn,'quantos','quantas','total','numero')&&tem(qn,'funcionarios','colaboradores','pessoas','gente','equipe','empregados')&&!/ (domingo|sabado|segunda|terca|quarta|quinta|sexta|amanha|hoje|dia) /.test(qn)&&!tem(qn,'turno','abertura','fechamento','manha','tarde')) return respQuantos(qn);
+    if(tem(qn,'afastado','afastados','afastada','emprestado','emprestados','emprestada','cedido','cedidos','cedida','transferido','transferidos','ferias','inativos')&&(tem(qn,'quem','quais','tem','mostre','mostra','lista','liste','ha','existe','algum','alguem','quantos')||tk.length<=4)) return respSituacao(qn);
+    /* cobertura e conferências */
+    if(tem(qn,'apertado','apertada','vazio','mais vazio','menos gente','falta de pessoal')||(tem(qn,'dia')&&tem(qn,'mais')&&tem(qn,'apertado','critico'))) return respApertado(qn);
+    if(tem(qn,'compare','comparar','compara','comparacao')&&tem(qn,'cobertura','gente','pessoal','folgas')) return respApertado(qn);
+    if(tem(qn,'descoberto','descoberta','descobertos','sem ninguem')||(tem(qn,'suficiente','suficientes')&&tem(qn,'gente','pessoal','funcionarios','setor','equipe'))||(tem(qn,'faltando','falta','faltam')&&tem(qn,'funcionario','funcionarios','gente','pessoal','horario','horarios','turno'))) return respDescoberto(qn);
+    if((tem(qn,'sequencia','seguidos','seguido')&&tem(qn,'longa','maior','mais','muitos','muito','quem','alguem','trabalhando','trabalha','dias'))&&!tem(qn,'domingo','domingos')) return respSequencia();
+    if(tem(qn,'conflito','conflitos','certa','certo','errada','errado','erro','erros','problema','problemas','confere','conferir','confira','revisa','revisar','valida','validar')&&tem(qn,'escala','folga','folgas','domingos','alguma','algum','tem','tudo','coisa','seguidos','esta','ta','certa','certo')&&!tem(qn,'planilha','arquivo')) return respConferir(qn);
+    if(tem(qn,'quantas','quantos')&&tem(qn,'folgas','folga')&&tem(qn,'semana')) return respFolgaSemana(qn);
+    if(tem(qn,'cobre','cobrir','cobrem','substitui','substituir','substituto')){
+      const P=pessoaDaFala(qn), pi=P!==null&&P>=0?P:pessoaCtx();
+      if(P===-2) return 'Achei mais de uma pessoa com esse nome. Escreva o nome e o sobrenome.';
+      if(pi==null) return 'Cobrir quem? Escreva o nome do colega (ou a matrícula) e eu mostro quem do mesmo cargo trabalha no dia.';
+      const al=diaAlvo(qn)||{dt:ctxEstado.listaData||dia0(hoje()),rot:'Hoje'}; if(!noMes(al.dt)) return foraMes(al);
+      const f=eq()[pi], iguais=ativos().filter(i=>i!==pi&&String(eq()[i].cargo||'')===String(f.cargo||'')&&trabalha(i,al.dt));
+      return `🤝 Se <b>${es(I.nome(pi))}</b> (${es(f.cargo||'sem cargo')}) folgar em ${fmtL(al.dt)}, o mesmo cargo tem <b>${iguais.length}</b> colega(s) trabalhando${iguais.length?': '+lista(iguais,12):''}.<br><small>Escala planejada; quem cobre de fato é decisão do encarregado.</small>`;
+    }
+    if(tem(qn,'balanco')&&tem(qn,'quem','quais')&&tem(qn,'faz','fazem','trabalha','trabalham')){
+      const {a,m}=anoMes(), b=seguro(()=>balancoDoMes(a,m),0);
+      if(!b) return `Não há <b>domingo de balanço</b> marcado em ${I.MES[m]} de ${a}. Marque no passo <b>Balanço</b> (datas de balanço) e eu respondo.`;
+      const x=exigeEscala(); if(x) return x;
+      return respDia({dt:new Date(a,m,b),rot:'Balanço'},'trab');
+    }
+    /* turnos */
+    if(tem(qn,'abertura','abrir','abre','abrem','fechamento','fechar','fecha','fecham','turno','manha','tarde','noite')&&!tem(qn,'regra','como','funciona')){ const r=respTurno(qn); if(r) return r; }
+    /* quem trabalha / folga numa data (amanhã, ontem, dia da semana, dia N) */
+    const al=diaAlvo(qn);
+    if(al&&!(al.rot==='Hoje'&&!tem(qn,'folga','folgar','folgam','descansa','descansam','descanso'))&&!tem(qn,'fixa','fixo')&&!tem(qn,'regra','como','funciona')){
+      const quer=tem(qn,'folga','folgas','folgar','folgam','descansa','descansam','descanso','livre','livres','de folga');
+      const trabq=tem(qn,'trabalha','trabalham','vem','vao','vai','escala','escalado','escalados','escalada','pessoal','gente','pega','pegam','mostre','mostra','quem','quantos','quantas');
+      if(quer&&(tem(qn,'quem','quais','quantos','quantas','tem alguem','alguem','funcionarios','pessoal','gente')||tk.length<=5)) return respDia(al,'folga');
+      if(tem(qn,'quantas','quantos')) return respDia(al,'conta',null,filtroCargo(qn));
+      if(trabq&&(tem(qn,'quem','quais','mostre','mostra','escala','pessoal','gente','funcionarios')||tk.length<=6)) return respDia(al,'trab');
+    }
+    if(tem(qn,'quem','quais')&&tem(qn,'folga','folgam','folgar','descansa','descansam','folgando')&&!tem(qn,'domingo','domingos','fixa','fixo','feriado','feriados','mes')&&!seguro(()=>I.pessoas(qn).length,0)&&!seguro(()=>I.domingos(qn).length,0)) return respDia({dt:dia0(hoje()),rot:'Hoje'},'folga');
+    /* fora do escopo (nenhuma palavra do assunto) */
+    const dominio=tk.some(x=>DOM.has(x))||seguro(()=>I.pessoas(qn).length,0)>0||seguro(()=>I.domingos(qn).length,0)>0;
+    if(!dominio&&tk.length>=3&&!tem(qn,'oi','ola','obrigado','obrigada','valeu','tchau')) return '🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta <b>escala de domingos e folgas</b>: respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.';
+    return null;
+  }
+
+  base.responder=responder;
+  window.v275Conversa={responder,estado:()=>JSON.parse(JSON.stringify({topic:ctxEstado.topic,lista:ctxEstado.lista,cand:ctxEstado.cand})),reset};
+  const g0=G.reset; G.reset=function(){ try{ g0&&g0.apply(this,arguments); }catch(e){} reset(); };
 })();
 
 </script>
