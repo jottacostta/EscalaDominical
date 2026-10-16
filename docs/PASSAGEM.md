@@ -25,7 +25,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas, pois ela fica desatualizada quando uma PR é criada, fechada ou incorporada. Já incorporadas ao `main`: #54 (Setores V262 + Encarregados V176, Assistente RH), #56 (AGENTS.md: hierarquia e seção 2.1), #59 (Setores V263 + Encarregados V177), #62 (Setores V264 + testes ARH-16 a ARH-24), #63 (Setores V265 + Encarregados V178) e #64 (Setores V266/V267). A #55 do ChatGPT (guia REA) foi fechada sem merge: as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V268**, Encarregados **V179**.
+- **Próximo número de versão:** Setores **V275**, Encarregados **V183**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -37,12 +37,18 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V267
+### Camadas documentadas até V274
 - **Assistente RH (V263/V264):** `juntar()` valida com `numOk`, `ymOk`, `horOk` e `objOk`. O salvamento usa `pend`; `gravarJa` roda em `pagehide` e `visibilitychange`. A `horOk` da V264 aceita hora 00–23 e minuto 00–59.
 - **Prévia V263:** `renderPreviaFolgasFeriado` usa `domPv`/`abertoPv`.
 - **Chat V265:** bloco “PERGUNTE AO ASSISTENTE RH”; API `window.v265Chat = {responder, perguntar, abrirChat}`. As diferenças ficam em `AP`; “por que não pode” usa `v234Sugestoes.auditoriaCandidato`. Para ampliar respostas, acrescente itens em `RESP`.
 - **Confirmação V266:** `window.v266Horarios = {precisa, confirmado, confirmar, pendentes, render}`. A troca grava em `horariosGeradosDomingo` e `estadoFinalMes`; confirmação em `estadoFinalMes.v266Confirmado` guarda assinatura do setor, mês e pessoas escaladas. A trava de Excel/Histórico captura clique no `document`.
 - **Horário por função V267:** `coberturaFuncao.hor = {chave:[{h,n}]}`; `salvarCfgFuncao`/`carregarCfgFuncao` têm `// V267`. Há embrulhos de `metasFuncaoUsuario` e `atribuirHorariosAutomaticosDomingo`; API `window.v267HorFuncao = {lista, definir, slots}`. `restaurarProjeto` restaura `window.horariosGeradosDomingo` de `estadoFinalMes`.
+- **V269 — confirmação na escala manual fora do par 2×1:** `window.v269Alt = {quebras, pendentes, responder, perguntar, sincronizar, estado, maos}`. Guarda confirmações em `estadoFinalMes.v269Alt` e `localStorage escalaSetores.v269Alt` / `escalaSetores.v269Maos`. Só pergunta quando o usuário marca manualmente; sugestões e “copiar domingo anterior” ficam de fora. Não colocar essa regra na auditoria ao vivo, pois ela pode desfazer a marcação.
+- **V270 — Gabriel:** `window.v270Gabriel = {nome, saudacao, saudacaoHtml, entender, responder, reset, contexto, relogio}` embrulha `window.v265Chat.responder`. PNL em JavaScript puro, saudação automática não persistida na conversa, contexto e datas pelo relógio do aparelho. `ctx.escolha` vale só para a mensagem seguinte. “Trabalhou” não significa presença: o app não tem ponto.
+- **V271 — leitura da planilha do RH:** `window.v271Planilha = {inventariar, htmlPrevia, aplicada, atual, ultima, resumoHtml, naoEntendiHtml, confereHtml}`; `localStorage escalaSetores.v271Planilha`. O inventário cobre abas, linhas, colunas, origem e totais; a prévia mostra “O que o Gabriel leu”. A leitura é local e não executa fórmulas/macros.
+- **V272 — chat móvel e feriados:** `window.v272Layout` e `window.v272Feriados`; layout adaptado ao celular e respostas sobre trabalho/folga com base no passo Feriados.
+- **V273 — memória do Gabriel:** `window.v273Memoria={registrar,exportar,importar,limpar,itens,estado}`; chaves `escalaSetores.v273Memoria` / `enc.v273Memoria`. Só registra eventos confiáveis, evita senha e campos ocultos; a memória vai ao histórico guardado, não ao rascunho automático. Eventos sintéticos de teste são ignorados.
+- **V274 — regime configurável:** `window.v274Regime = {estado, configurar, restaurar, maxSeguidos, resumo}` e função `maxSeguidosTrab()`. O padrão continua 6×1 (limite 6); a 5×2 permanece desligada. A configuração é guardada em `escalaSetores.v274Regime` / `enc.v274Regime`; abrir histórico não ativa o regime.
 
 **Como o arquivo é organizado:** um único HTML. O núcleo antigo (motor da escala, telas, passos) fica no meio do arquivo. Cada versão nova acrescenta **camadas** no fim:
 - um bloco `<style id="vNNN-assunto">` antes de `</head>`;
@@ -88,10 +94,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V178
+### Camadas documentadas até V182
 - **Assistente RH V177:** validação e salvamento equivalentes aos Setores; o objeto global também é `window.v262Assistente`, com chave própria do app.
 - **Prévia V177:** usa `window.v167Api.sel()` e `trabalhamNoBalanco`.
-- **Chat V178:** bloco compartilhado V265, com diferenças no objeto `AP`; “por que não pode” usa `window.v167.motivo`. Os Encarregados não têm horário de domingo por pessoa; V266/V267 não se aplicam.
+- **Chat V178 + Gabriel V179:** `window.v270Gabriel` adiciona nome, saudação, PNL, contexto e datas ao chat V265; “por que não pode” usa `window.v167.motivo`. O app não tem importador de XLSX; V271 não se aplica.
+- **V180/V181:** layout do chat para celular, respostas de feriados e memória local do Gabriel. Ganchos `window.v272Layout`, `window.v272Feriados` e `window.v273Memoria`; chave `enc.v273Memoria`.
+- **V182 — regime:** `window.v274Regime` e `maxSeguidosTrab()`; padrão 6×1, 5×2 desligada. Chave `enc.v274Regime`; abrir histórico não ativa o regime.
 
 - Mesmo padrão de camadas.
 - **Passos (V171, iguais aos do Setores):** 1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar. O “Mês” virou **📅 Mês e opções** (botão escondido `.mes-step-oculto`, como o ⚙️ do Setores): abre por ⋮ → Mês e opções ou pelo aviso `#v171Mes` no topo do Mês passado (`window.v171AbrirMes()`); a barra de baixo pula o índice 1. O **índice interno** (`v80GotoStep(n)`, `ir:n`, `data-step`) é a **posição do botão**: Equipe 0, Mês e opções 1, **Mês passado 2**, **Domingos 3** (`#domingosEtapa`, área `#v169DomArea`), **Feriados 4**, Gerar 5. `#coberturaCard` (grupos da V162) continua no HTML, escondido. Mudou de novo a ordem? Troque também os `ir:` de `destinoConformidade`/“O que falta”/marcos do Início e os `v80GotoStep` das camadas (procure por `v80GotoStep?.(` e `ir:`).
@@ -146,6 +154,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-16 — Atualização da documentação até Setores V274 / Encarregados V182 — ChatGPT
+- **O que mudou:** atualizados os mapas técnicos e as versões atuais/próximas; documentadas as camadas V269–V274 dos Setores e V179–V182 dos Encarregados; registrado o protocolo de testes do Gabriel da issue #78.
+- **Decisões preservadas:** regime 6×1 continua padrão; 5×2 desligada até confirmação legal e ordem do gerente. Não declarar testes executados sem relatório real. Para o Gabriel, separar conjunto de ajuste e conjunto cego, calcular o esperado com dados do app e usar somente dados fictícios.
+- **Escopo/testes:** somente `CHANGELOG.md`, `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt`; nenhum HTML nem `testes/rodar.js` alterado. Testes automatizados não executados neste ambiente; o CI desta PR precisa ser conferido.
+- **Referências:** [PR #69](https://github.com/jottacostta/EscalaDominical/pull/69), [PR #71](https://github.com/jottacostta/EscalaDominical/pull/71), [PR #72](https://github.com/jottacostta/EscalaDominical/pull/72), [PR #75](https://github.com/jottacostta/EscalaDominical/pull/75), [PR #76](https://github.com/jottacostta/EscalaDominical/pull/76), [PR #77](https://github.com/jottacostta/EscalaDominical/pull/77), [issue #68](https://github.com/jottacostta/EscalaDominical/issues/68), [issue #73](https://github.com/jottacostta/EscalaDominical/issues/73), [guia de testes #78](https://github.com/jottacostta/EscalaDominical/issues/78).
+- **Para continuar:** revisar documentação e resultado do CI; não fazer merge sem autorização explícita do gerente. — ChatGPT
 
 ### 2026-10-14 — Documentação dos PRs #59, #62, #63 e #64 — ChatGPT
 - **O que mudou:** documentadas Setores V263–V267 e Encarregados V177–V178 no CHANGELOG; atualizados os mapas técnicos, armadilhas e pendências desta passagem e o arquivo de início de conversa.
@@ -587,7 +602,8 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
-- **Assistente RH — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue.
+- **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
+- **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps da `main`, usar dados fictícios, calcular o esperado a partir do estado real do app, manter conjunto cego congelado, medir acerto/falsos positivos/alucinações e registrar versão, resultados e limites. A bateria de 66 perguntas da issue #68 é proposta/documentação até haver um relatório de execução.
 - **Manuais (Claude Docs):** ainda não mencionam o Assistente RH, o chat, a prévia com domingos nem os horários V266/V267. O Claude mantém os manuais; o gerente decide quando atualizar.
 
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.
