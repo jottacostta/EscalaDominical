@@ -1513,7 +1513,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1951,6 +1951,100 @@ async function testarRegime274(browser, app, nome, abrir, versaoMin){
     ok(!rr.s.ativo && rr.m === 6, 'abrir um histórico (mesmo de um mês em outro regime) NÃO liga a 5×2: o regime é decisão do gerente'); await o.ctx.close();
   } else ok(false, 'não consegui baixar o histórico para conferir o regime');
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
+async function testarConversa275(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — 🗣️ Gabriel: conversa, contexto e vocabulário (bateria da issue #68)`);
+  const enc = nome !== 'Setores', t = h => String(h).replace(/<br\s*\/?>/g, ' ').replace(/<\/li>/g, '; ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
+  const { p, erros, ctx } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1000);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(800);
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 240; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(a => a && a.length))) break; }
+  await p.waitForTimeout(800);
+  const R = async (qs, sab = true) => p.evaluate(([qs, sab]) => { if(sab) window.v270Gabriel.relogio = () => new Date(2026, 10, 14, 10, 30); window.v270Gabriel.reset(); return qs.map(q => String(window.v265Chat.responder(q))); }, [qs, sab]);
+  const antes = await p.evaluate(() => JSON.stringify([trabalhoDomingo, equipe.length]));
+  const info = await p.evaluate(() => { const at = equipe.map((f, i) => i).filter(i => String(equipe[i].situacao || 'A').toUpperCase() === 'A'); const dom15 = (trabalhoDomingo[15] || []).filter(i => at.includes(i));
+    const unico = equipe.findIndex(f => equipe.filter(g => String(g.nome).split(' ')[0] === String(f.nome).split(' ')[0]).length === 1);
+    return { n: equipe.length, at: at.length, d15: dom15.length, seg: (trabalhoDomingo[15] || []).slice(0, 2).map(i => equipe[i].nome), unico: equipe[unico] && equipe[unico].nome.split(' ')[0], ab: at.filter(i => /^ABERT/i.test(equipe[i].turno)).length, fe: at.filter(i => /^FECH/i.test(equipe[i].turno)).length }; });
+  // 1) dias: amanhã é domingo 15/11 (hoje simulado: sábado 14/11/2026)
+  let r = (await R(['Quem trabalha amanhã?', 'Quem vem amanhã?', 'Me mostra o pessoal escalado para amanhã.', 'qm ta escalado amanha', 'mostra a escalla de amanha'])).map(t);
+  ok(r.every(x => /Amanhã/.test(x) && /15\/11\/2026/.test(x) && new RegExp('\\b' + info.d15 + ' trabalham').test(x)), `“quem trabalha / vem / pessoal escalado amanhã” (5 formas, com erro de digitação) dão a mesma resposta: ${info.d15} trabalham em domingo 15/11 (igual à escala)`);
+  r = (await R(['Quem está de folga amanhã?', 'Quais funcionários descansam amanhã?', 'Quem tá de folga amanhã?'])).map(t);
+  ok(r.every(x => new RegExp('\\b' + (info.at - info.d15) + ' de folga').test(x)), `“de folga / descansam / tá de folga amanhã”: ${info.at - info.d15} de folga (ativos − escalados)`);
+  r = (await R(['tem alguem de folga na seg?', 'qnts pessoas trabalham sabado?', 'quem ta de folga?'])).map(t);
+  ok(/segunda-feira 16\/11\/2026/.test(r[0]) && /sábado 14\/11\/2026/.test(r[1]) && /\b\d+ trabalham e \d+ folgam \(de \d+ ativos\)/.test(r[1]) && /Hoje/.test(r[2]), 'dia da semana abreviado (“seg”), “qnts … sabado?” e “quem ta de folga?” (= hoje) são entendidos');
+  r = (await R(['Quem trabalhou nos últimos três domingos?'])).map(t);
+  ok(/Últimos 3 domingos/.test(r[0]) && /08\/11/.test(r[0]) && /01\/11/.test(r[0]) && /planejada/.test(r[0]), '“últimos três domingos”: 08/11, 01/11 e 25/10 pela escala planejada (sem inventar presença)');
+  // 2) turnos
+  r = (await R(['Quem faz abertura?', 'Quem fecha a loja?', 've quem fecha hj', 'Quantas pessoas trabalham no turno da manhã?'])).map(t);
+  const mA = r[0].match(/abertura: (\d+) trabalham/), mF = r[1].match(/fechamento: (\d+) trabalham/);
+  ok(mA && mF && +mA[1] <= info.ab && +mF[1] <= info.fe && +mA[1] + +mF[1] > 0 && /fechamento/.test(r[2]) && /abertura/.test(r[3]) && /não existe “manhã/.test(r[3]), `abertura (${mA && mA[1]}) e fechamento (${mF && mF[1]}) por turno cadastrado; “manhã” é traduzida para abertura dizendo isso`);
+  r = (await R(['Quem está no caixa no segundo turno?'])).map(t);
+  ok(enc ? /Não há ninguém com cargo parecido com “caixa”/.test(r[0]) : /cargo com “caixa”/.test(r[0]), enc ? 'cargo que não existe na equipe (“caixa”) é dito, sem inventar' : 'filtro por cargo (“caixa”) é aplicado e dito');
+  // 3) números da equipe
+  r = (await R(['Quantos funcionários tem?', 'Quantos colaboradores estão ativos?', 'Mostra os funcionários por horário e função.', 'Mostra os afastados e os emprestados.', 'tem funcionario afastado?'])).map(t);
+  ok(new RegExp('tem ' + info.n + ' pessoa').test(r[0]) && new RegExp(info.at + ' ativa').test(r[1]) && /Por horário/.test(r[2]) && /Ninguém afastado/.test(r[3]) && /Ninguém afastado/.test(r[4]), `“quantos funcionários” diz o conjunto contado (${info.n} cadastrados, ${info.at} ativos), lista por horário/função e afastados/emprestados`);
+  r = await p.evaluate(() => { const f = equipe[0]; const o = { s: f.situacao, d: f.situacaoDetalhe }; f.situacao = 'AF'; f.situacaoDetalhe = 'AFASTADO TESTE'; window.v270Gabriel.reset(); const a = String(window.v265Chat.responder('tem funcionario afastado?')).replace(/<[^>]+>/g, ''), n = equipe[0].nome.split(' ')[0]; f.situacao = o.s; f.situacaoDetalhe = o.d; return { a, n }; });
+  ok(r.a.toUpperCase().includes(r.n.toUpperCase()) && /AFASTADO TESTE/.test(r.a), 'quando alguém fica com situação AF o Gabriel lista a pessoa afastada');
+  // 4) conferências, sequência, cobertura
+  r = (await R(['Tem conflito de folga?', 'Essa escala tá certa?', 'Confere se tem alguma coisa errada.', 'confere os domingos seguidos'])).map(t);
+  ok(r.every(x => /nenhum problema/.test(x) && /cobertura mínima/.test(x)), 'conferência: “conflito de folga / escala certa / alguma coisa errada / domingos seguidos” rodam as regras do app e dizem que a cobertura mínima não está cadastrada');
+  r = await p.evaluate(() => { const ks = Object.keys(trabalhoDomingo).filter(d => (trabalhoDomingo[d] || []).length).slice(0, 3), i = trabalhoDomingo[ks[0]][0], bk = JSON.parse(JSON.stringify(trabalhoDomingo));
+    ks.forEach(d => { if(!trabalhoDomingo[d].includes(i)) trabalhoDomingo[d].push(i); }); window.v270Gabriel.reset(); const a = String(window.v265Chat.responder('Tem conflito de folga?')).replace(/<[^>]+>/g, ' '); trabalhoDomingo = bk; return a; });
+  ok(/aviso\(s\)/.test(r) && /(3 domingos consecutivos|3 domingos)/.test(r) && /não corrijo|Eu não corrijo/.test(r), 'com 3 domingos seguidos injetados o Gabriel acusa o problema e não corrige sozinho');
+  r = (await R(['Quem está com a sequência de trabalho mais longa?', 'Tem alguém trabalhando muitos dias seguidos?'])).map(t);
+  ok(/6 dias seguidos/.test(r[0]) && /Ninguém passa do limite de 6/.test(r[1]), 'maior sequência de dias seguidos e se alguém passa do limite 6×1');
+  r = await p.evaluate(() => { window.v274Regime.configurar({ ativo: true, maxSeguidos: 2 }); window.v270Gabriel.reset(); const a = String(window.v265Chat.responder('Tem alguém trabalhando muitos dias seguidos?')).replace(/<[^>]+>/g, ''); window.v274Regime.restaurar(); return a; });
+  ok(/passam do limite de 2/.test(r), 'o limite da sequência acompanha o regime (V274): com limite 2 muita gente passa');
+  r = (await R(['Qual dia está mais apertado de pessoal?', 'Compare a cobertura de segunda e sábado.', 'Tem algum turno descoberto?', 'Tem gente suficiente no setor?', 'Tá faltando funcionário em algum horário?'])).map(t);
+  ok(/menos gente/.test(r[0]) && /segunda-feira × sábado/.test(r[1]) && /turno/.test(r[2]) && r.every(x => /cobertura mínima/.test(x) && /não está cadastrada/.test(x)), 'cobertura: dia mais apertado, comparação segunda × sábado, turno descoberto — sempre dizendo que a cobertura mínima não está cadastrada');
+  ok(/feriado/i.test(r[2]) && !/segunda-feira 02\/11\/2026 \(0 trabalham\)/.test(r[0]), 'feriado sem ninguém marcado aparece como feriado, não como “dia mais apertado”');
+  // 5) contexto e conversa
+  r = (await R(['Qual a folga fixa da ' + info.unico + '?', 'Muda para terça.'])).map(t);
+  ok(r[1].toUpperCase().includes(info.unico.toUpperCase()) && /Editar equipe/.test(r[1]) && /não altero a escala/.test(r[1]), '“Muda para terça.” depois de falar de uma pessoa: o Gabriel orienta (Editar equipe) e diz que não altera a escala');
+  r = (await R(['Quem trabalha no domingo 15?', 'E o segundo?'])).map(t);
+  ok(r[1].toUpperCase().includes(info.seg[1].split(' ')[0]) && /2º da lista/.test(r[1]), '“E o segundo?” resolve pela lista que ele mostrou (2º escalado do domingo 15)');
+  r = (await R(['Como salvo a escala?', 'Pronto.'])).map(t);
+  ok(/Guardar histórico do mês/.test(r[0]) && /não consigo confirmar/.test(r[1]), '“Pronto.” depois de “como salvo” não presume sucesso: diz que não consegue confirmar o download');
+  r = (await R(['Como importo a planilha?', 'Não apareceu.'])).map(t);
+  ok(enc ? (/Equipe\.txt/.test(r[0]) && /Equipe\.txt/.test(r[1])) : (/Aplicar/.test(r[0]) && /Selecionar o arquivo ainda não é importar|prévia/.test(r[1])), '“Não apareceu.” depois de “como importo” diagnostica o passo (' + (enc ? 'Equipe.txt / Atualizar pelo ERP' : 'prévia e Aplicar') + ') em vez de “não entendi”');
+  r = (await R(['O que tem na planilha?', 'Já fiz.'])).map(t);
+  ok(!/Não entendi/.test(r[1]) && /planilha/.test(r[1]) && (enc ? /Encarregados/.test(r[0]) : /nenhuma planilha/.test(r[0])) && /equipe|pessoa/.test(r[1]), 'com equipe mas sem planilha: “O que tem na planilha?” + “Já fiz.” confere o estado real e não afirma que leu a planilha');
+  r = (await R(['Já selecionei o arquivo mas deu erro.'])).map(t);
+  ok(/\.xlsx/.test(r[0]) && /mensagem/.test(r[0]), '“deu erro” ao selecionar arquivo: causas comuns e pede o texto da mensagem');
+  // 6) vocabulário
+  const voc = await p.evaluate(() => { const E = window.v270Gabriel.entender; return { seg: E('compare segunda e sábado').texto, fala: E('Me fala o resultado').texto, ta: E('quem ta de folga').texto, dom: E('quem vem no domingão').texto, vcs: E('qts colaboradores').texto, quem: E('Quem trabaha domigo?').texto }; });
+  ok(/segunda/.test(voc.seg) && !/segundo/.test(voc.seg) && /\bfala\b/.test(voc.fala) && !/falta/.test(voc.fala) && /esta de folga/.test(voc.ta) && /domingo/.test(voc.dom) && /quantos colaboradores/.test(voc.vcs) && /trabalha domingo/.test(voc.quem), 'vocabulário: “segunda” não vira “segundo”, “fala” não vira “falta”, “tá” = “está”, “domingão” = domingo, “qts colaboradores”');
+  // 7) esclarecimentos e limites honestos
+  r = (await R(['Quem é ele?', 'Faz isso.', 'Qual é melhor?', 'Me fala o resultado.', 'Faz igual ao mês passado.'], false)).map(t);
+  ok(r.slice(0, 4).every(x => /\?|Qual|Fazer o quê|Melhor entre|Resultado de quê/.test(x) && !/Não entendi essa/.test(x)) && /Eu não copio nem altero/.test(r[4]), 'perguntas sem referente (“quem é ele?”, “faz isso”, “qual é melhor?”, “me fala o resultado”) viram pergunta de esclarecimento; “faz igual ao mês passado” diz o que dá para reaproveitar');
+  r = (await R(['Qual o salário da ' + info.unico + '?', 'Posso dispensar o intervalo de almoço?', 'Qual a capital da França?'], false)).map(t);
+  ok(/não está cadastrado/.test(r[0]) && /não está cadastrado/.test(r[1]) && /foge do que eu sei/.test(r[2]), 'salário/intervalo (regra trabalhista não cadastrada) e assunto fora do RH: o Gabriel não inventa');
+  r = (await R(['Quem trabalha amanhã?', 'Quem folga na segunda?'], false)).map(t);
+  ok(r.every(x => /Amanhã|Segunda/.test(x) && new RegExp('\\b' + (+x.match(/(\d+) (trabalham|de folga)/)[1]) + '\\b').test(x)), 'continuam funcionando sem o relógio simulado (data do aparelho)');
+  r = await p.evaluate(() => { window.v270Gabriel.relogio = () => new Date(2026, 11, 20, 9, 0); window.v270Gabriel.reset(); return String(window.v265Chat.responder('Quem trabalha amanhã?')).replace(/<[^>]+>/g, ''); });
+  ok(/escala aberta é de novembro de 2026/.test(r), 'data fora do mês aberto: o Gabriel diz qual mês está aberto em vez de inventar');
+  // 8) só leitura e sem erros
+  const depois = await p.evaluate(() => JSON.stringify([trabalhoDomingo, equipe.length]));
+  ok(antes === depois, 'nenhuma dessas perguntas alterou a escala nem a equipe (só leitura)');
+  ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+  // 9) planilha de verdade (Setores): “Já fiz” olha o estado real: nada → só selecionada (prévia) → aplicada
+  if(!enc){
+    const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'erp275_')), ARQ = escreverXlsx(path.join(dir, 'erp_fpre815_ficticio.xlsx'), erpFicticio());
+    const o = await novaPagina(browser); await o.p.goto('file://' + app); await o.p.waitForTimeout(1500); await o.p.click('#comeceFechar').catch(() => {});
+    const P = async q => o.p.evaluate(q => { return String(window.v265Chat.responder(q)).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ''); }, q);
+    const a1 = await P('O que tem na planilha?'), a2 = await P('Já fiz.');
+    ok(/Ainda não li nenhuma planilha/.test(a1) && /Ainda não vejo nem equipe nem planilha/.test(a2), 'sem nada: “Já fiz.” confere o estado real (não vejo equipe nem planilha) e explica que selecionar não é importar');
+    const [fc] = await Promise.all([o.p.waitForEvent('filechooser'), o.p.evaluate(() => document.getElementById('btnImportarERPHome').click())]); await fc.setFiles(ARQ); await o.p.waitForSelector('#erpModal', { timeout: 20000 });
+    const a3 = await P('Já fiz.');
+    ok(/ainda não aplicada/.test(a3) && /Aplicar/.test(a3), 'arquivo só na prévia: “Já fiz.” diz que a planilha foi lida mas ainda não aplicada (toque em Aplicar)');
+    await o.p.click('#erpAplicar'); await o.p.waitForTimeout(1200);
+    await P('O que tem na planilha?'); const a4 = await P('Pronto.'), a5 = await P('importei');
+    ok(/lida e aplicada/.test(a5) && /erp_fpre815_ficticio\.xlsx/.test(a5), 'depois de Aplicar: “importei” confirma e resume a planilha lida (arquivo, abas)');
+    ok(!o.erros.length, 'sem erro de JavaScript (planilha)' + (o.erros.length ? ': ' + o.erros[0] : '')); await o.ctx.close();
+  }
 }
 
 async function testarMemoria273(browser, app, nome, abrir, versaoMin){
