@@ -7,6 +7,8 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Escala de Setores
 
+- **V276** — GABRIEL NÃO ENCERRA COM “NÃO ENTENDI”: respostas sem correspondência recebem orientação contextual e pedido de detalhes; perguntas sobre o total de funcionários usam a equipe carregada. A bateria reprova se houver fallback genérico ou falha semântica de contagem. — *ChatGPT*
+- **V275** — GABRIEL: CONTEXTO DA CONVERSA E VOCABULÁRIO DO SUPERMERCADO; amplia o reconhecimento de linguagem cotidiana e correções contextuais. — *Claude*
 - **V274** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos. A 5×2 fica preparada, mas desligada; nada muda para quem usa e abrir histórico não liga o novo regime. — *Claude*
 - **V273** — MEMÓRIA DO GABRIEL: registra localmente ações confiáveis, permite consultar e apagar após confirmação e leva a memória ao histórico guardado, sem incluir dados sensíveis nem o rascunho automático. — *Claude*
 - **V272** — CHAT ADAPTADO AO CELULAR E PERGUNTAS SOBRE FERIADOS: o painel cabe na tela e Gabriel responde sobre quem trabalha ou folga conforme o passo de feriados. — *Claude*
@@ -144,6 +146,8 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Escala 2×1 de Encarregados
 
+- **V184** — GABRIEL NÃO ENCERRA COM “NÃO ENTENDI”: respostas sem correspondência recebem orientação contextual e pedido de detalhes; perguntas sobre o total de funcionários usam a equipe carregada. A bateria reprova se houver fallback genérico ou falha semântica de contagem. — *ChatGPT*
+- **V183** — GABRIEL: CONTEXTO DA CONVERSA E VOCABULÁRIO DO SUPERMERCADO; amplia o reconhecimento de linguagem cotidiana e correções contextuais. — *Claude*
 - **V182** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos; a 5×2 fica preparada, mas desligada até confirmação legal e ordem do gerente. — *Claude*
 - **V181** — MEMÓRIA DO GABRIEL: registro local de ações confiáveis, resumo e exclusão mediante confirmação; memória incluída no histórico guardado. — *Claude*
 - **V180** — CHAT ADAPTADO AO CELULAR E PERGUNTAS SOBRE FERIADOS: painel ajustado à tela móvel e respostas sobre trabalho/folga conforme o passo de feriados. — *Claude*

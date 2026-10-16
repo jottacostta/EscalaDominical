@@ -17,8 +17,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V275.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V183.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V276.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V184.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 14/10/2026 — topo do `AGENTS.md`):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o **subencarregado**. Nada por iniciativa própria sem autorização do gerente.
@@ -37,7 +37,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V274
+### Camadas documentadas até V276
+- **V276 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH (V263/V264):** `juntar()` valida com `numOk`, `ymOk`, `horOk` e `objOk`. O salvamento usa `pend`; `gravarJa` roda em `pagehide` e `visibilitychange`. A `horOk` da V264 aceita hora 00–23 e minuto 00–59.
 - **Prévia V263:** `renderPreviaFolgasFeriado` usa `domPv`/`abertoPv`.
 - **Chat V265:** bloco “PERGUNTE AO ASSISTENTE RH”; API `window.v265Chat = {responder, perguntar, abrirChat}`. As diferenças ficam em `AP`; “por que não pode” usa `v234Sugestoes.auditoriaCandidato`. Para ampliar respostas, acrescente itens em `RESP`.
@@ -94,7 +95,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V182
+### Camadas documentadas até V184
+- **V184 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH V177:** validação e salvamento equivalentes aos Setores; o objeto global também é `window.v262Assistente`, com chave própria do app.
 - **Prévia V177:** usa `window.v167Api.sel()` e `trabalhamNoBalanco`.
 - **Chat V178 + Gabriel V179:** `window.v270Gabriel` adiciona nome, saudação, PNL, contexto e datas ao chat V265; “por que não pode” usa `window.v167.motivo`. O app não tem importador de XLSX; V271 não se aplica.
@@ -154,6 +156,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-16 — Gabriel: resposta útil obrigatória — Setores V276 / Encarregados V184 — ChatGPT
+- **Causa raiz:** o fallback do chat terminava com “🤔 Não entendi essa”, e a bateria apenas contabilizava essas respostas, sem reprovar o CI. Também faltava tratamento semântico para perguntas sobre quantidade de funcionários.
+- **Correção:** preservadas as melhorias de linguagem da V275/V183 do Claude; a nova camada responde a quantidade com a equipe carregada e troca o fallback genérico por orientação contextual e pedido de detalhes. Não altera o motor de escala nem inventa regras.
+- **Testes:** a bateria reprova se houver qualquer resposta final “Não entendi” ou falha semântica na contagem. A execução do SHA atual precisa terminar e o relatório confirmar os critérios.
+- **Histórico da PR:** a main avançou com a PR #81 durante este trabalho; a correção foi reaplicada sobre a main atual para evitar conflito e preservar as mudanças do Claude. Nenhum merge desta PR foi feito.
+- **Assinado:** ChatGPT
 
 ### 2026-10-16 — Atualização da documentação até Setores V274 / Encarregados V182 — ChatGPT
 - **O que mudou:** atualizados os mapas técnicos e as versões atuais/próximas; documentadas as camadas V269–V274 dos Setores e V179–V182 dos Encarregados; registrado o protocolo de testes do Gabriel da issue #78.

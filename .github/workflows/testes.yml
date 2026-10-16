@@ -1,6 +1,5 @@
 # Roda os testes automáticos (testes/rodar.js, dados fictícios) em todo Pull Request, em todo push no main
-# e nos branches do ChatGPT (chatgpt/…). Serve para os dois assistentes (Claude e ChatGPT/Codex):
-# o resultado aparece no PR (aba Checks), verificável por qualquer um.
+# e nos branches do ChatGPT (chatgpt/…). Serve para os dois assistentes (Claude e ChatGPT/Codex): o resultado aparece no PR.
 name: Testes
 
 on:
@@ -33,6 +32,17 @@ jobs:
       - name: Suíte completa (12 meses de cada app)
         working-directory: testes
         run: npm run test:completo
+      - name: Bateria exploratória Gabriel — 500 perguntas nos dois apps
+        working-directory: testes
+        run: npm run test:gabriel-500
+      - name: Guardar relatório da bateria Gabriel
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-gabriel-500
+          path: testes/relatorio-gabriel-500.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Guardar captura da lista manual (V230)
         if: always()
         uses: actions/upload-artifact@v4

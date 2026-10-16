@@ -4,7 +4,8 @@
   "description": "Testes automáticos da Escala de Setores e da Escala 2×1 de Encarregados (dados fictícios).",
   "scripts": {
     "test": "node rodar.js",
-    "test:completo": "node rodar.js --completo"
+    "test:completo": "node rodar.js --completo",
+    "test:gabriel-500": "node bateria-gabriel-500.js"
   },
   "devDependencies": {
     "playwright": "^1.47.0"

@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V183</title>
+<title>Escala 2×1 — Encarregados V184</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V184 [ChatGPT] — 🤖 RESPOSTA ÚTIL: elimina “Não entendi” como resposta final, orienta o próximo passo quando não reconhece uma pergunta e responde a contagem da equipe a partir dos dados carregados. A bateria reprova se reaparecer resposta genérica ou falhar a validação semântica de quantidade. — ChatGPT
 V183 [Claude] — 🗣️ GABRIEL: CONTEXTO DA CONVERSA + VOCABULÁRIO DO SUPERMERCADO (pedido do dono, 16/10/2026: “faça os testes para procurar erro e corrigir, além de
        enriquecer o vocabulário do Gabriel”; bateria de 66 perguntas e o caso “já fiz” da issue #68). A bateria foi executada nos dois apps: a maior parte caía em “Não entendi essa” ou numa
        resposta de outro assunto (ex.: “quem trabalha amanhã?” listava todos os domingos; “me fala o resultado” virava “me falta”; “segunda” virava “segundo”). Agora: (1) CONTEXTO: “já fiz”, “pronto”,
@@ -2004,7 +2005,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V183 · 🗣️ Gabriel entende a conversa e fala o vocabulário do supermercado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V184 · 🤖 Gabriel responde com orientação útil</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10181,6 +10182,56 @@ function perguntarOrientacaoImpressao(cb){
   }catch(e){}
 })();
 
+</script>
+
+<script>
+/* ═════ V184 — 🤖 RESPOSTA ÚTIL DO GABRIEL ═════
+   O chat não encerra com “Não entendi”. Perguntas de quantidade respondem usando
+   a equipe carregada; nos demais casos sem correspondência, orienta o próximo passo
+   e pede contexto específico, sem inventar regra nem dado.
+*/
+(function(){
+  'use strict';
+  const base=window.v265Chat;
+  if(!base||typeof base.responder!=='function') return;
+  const original=base.responder;
+  const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  function quantidadePerguntada(texto){
+    const q=normalizar(texto),i=q.search(/\bquant(?:os|as|o|a)\b/);
+    if(i<0)return false;
+    const t=q.slice(i);
+    if(!/\b(funcionario|funcionarios|pessoa|pessoas|equipe|time|gente)\b/.test(t))return false;
+    if(/\b(domingo|domingos|feriado|laticinio|setor|setores|trabalha|trabalham|trabalhar|escalado|escalada|escala)\b/.test(t))return false;
+    return /\b(tem|ha|sao|estao|existe|existem|total|quantidade|conta|cadastrado|cadastrados|cadastrada|cadastradas)\b/.test(t);
+  }
+  function contarEquipe(){try{if(typeof equipe!=='undefined'&&Array.isArray(equipe))return equipe.length}catch(e){}return null}
+  function orientacao(texto){
+    const q=normalizar(texto);
+    if(/\b(domingo|domingos|2x1|balanco)\b/.test(q))return '📏 Posso orientar sobre domingos, regra 2×1 e balanço. Para conferir um caso específico, informe o nome da pessoa e a data do domingo. Exemplo: “Por que Ana não pode trabalhar em 18/10?”';
+    if(/\b(feriado|feriados)\b/.test(q))return '🎉 Para conferir trabalho e folga de feriado, abra o passo 4 — Feriados — e confira a pessoa e a data sugerida. Diga o nome e o feriado/data para eu orientar o caso concreto.';
+    if(/\b(folga|folgas|dsr|descanso)\b/.test(q))return '💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.';
+    if(/\b(equipe|funcionario|funcionarios|cadastro|setor|setores)\b/.test(q))return '👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.';
+    if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Gerar. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
+    if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
+    return '🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”';
+  }
+  function semResposta(resposta){
+    const limpa=normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' '));
+    return !limpa||/^nao entendi\b|^nao consegui entender\b|^nao compreendi\b/.test(limpa);
+  }
+  base.responder=function(texto){
+    try{
+      if(quantidadePerguntada(texto)){
+        const n=contarEquipe();
+        if(n===null||n===0)return '👥 Para informar a quantidade corretamente, primeiro carregue a equipe no passo 1 — Equipe.';
+        return '👥 A equipe atualmente carregada neste setor tem <b>'+n+'</b> funcionário(s) cadastrado(s). A contagem inclui todos os registros carregados, independentemente da situação.';
+      }
+      const resposta=original.call(base,texto);
+      return semResposta(resposta)?orientacao(texto):resposta;
+    }catch(e){console.warn('[V184 Gabriel]',e);return orientacao(texto)}
+  };
+  if(window.v270Gabriel)window.v270Gabriel.responder=base.responder;
+})();
 </script>
 
 </body>
