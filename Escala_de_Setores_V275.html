@@ -14806,6 +14806,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     `<li>📏 Explicar as <b>regras</b>: 6×1, domingos seguidos (2×1), DSR, feriado e balanço.</li>`+
     `<li>👥 Responder sobre a <b>escala aberta</b>: quem trabalha num domingo, por que alguém não pode, quantos domingos a pessoa fez, a folga fixa e o que falta.</li>`+
     `<li>📅 Dizer a <b>data de hoje</b> e a hora do aparelho, e quem estava <b>escalado</b> ou <b>folgou</b> no último domingo (só a escala planejada: eu não tenho registro de ponto).</li>`+
+    `<li>🕘 Dizer <b>quem trabalha, folga, abre ou fecha</b> num dia (hoje, amanhã, segunda…), contar a equipe (ativos, afastados, emprestados) e <b>conferir</b> a escala: sequência de dias seguidos e domingos seguidos. A <b>cobertura mínima</b> ainda não está cadastrada, então não digo se é “suficiente”.</li>`+
     `<li>🧭 Mostrar <b>como usar</b> cada passo do app.</li>`+
     `<li>💡 Dar <b>dicas</b> (aba Dicas) e aprender os costumes da equipe neste aparelho.</li></ul>`+
     `Entendo abreviações e erros de digitação simples. Se eu ficar na dúvida de qual pessoa você quis dizer, <b>eu pergunto</b>. Não altero a escala e não uso a internet.`;
@@ -15623,6 +15624,10 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     r=seguro(()=>intencao(t,qn,tk),null);
     if(typeof r==='string'&&r){ ctxEstado.ult=t; return r; }
     const ret=anterior(texto);
+    if(typeof ret==='string'&&ret.indexOf('Não entendi essa')>=0){   // só diz “foge do que eu sei” quando as camadas de baixo (identidade, hora, regras, planilha…) também não entenderam
+      const dominio=tk.some(x=>DOM.has(x))||seguro(()=>I.pessoas(qn).length,0)>0||seguro(()=>I.domingos(qn).length,0)>0;
+      if(!dominio&&tk.length>=3&&!tem(qn,'oi','ola','obrigado','obrigada','valeu','tchau')){ ctxEstado.ult=t; return '🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta <b>escala de domingos e folgas</b>: respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.'; }
+    }
     seguro(()=>{
       marcarTopico(t,ret);
       const s=String(ret);
@@ -15645,7 +15650,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(tem(qn,'ultimos','ultimas')&&tem(qn,'domingos')&&tem(qn,'tres','3','dois','2','quatro','4','cinco')&&tem(qn,'quem','quais','trabalhou','trabalharam','escalados','folgou')){ const nn=tem(qn,'dois','2')?2:(tem(qn,'quatro','4')?4:(tem(qn,'cinco')?5:3)); const x=exigeEscala(); return x||respUltimosDomingos(nn); }
     if(tem(qn,'escala','mostre','mostra')&&tem(qn,'domingo','domingos')&&tk.length<=6&&!tem(qn,'ultimo','proximo','passado','folga','folgam','folgou')&&!(seguro(()=>I.domingos(qn),[]).length)) return anterior('quem trabalha nos domingos');
     /* confirmações e problemas */
-    if(curto&&reConfirma.test(tk.join(' '))){
+    const escolhaPendente=!!seguro(()=>G.contexto().escolha,false);
+    if(curto&&!escolhaPendente&&reConfirma.test(tk.join(' '))){
       if(ctxEstado.topic==='planilha') return respConfirmaPlanilha();
       if(ctxEstado.topic==='salvar') return respConfirmaSalvar();
       if(ctxEstado.topic==='conflito') return 'Certo. Se já mudou algo, pergunte de novo “tem conflito de folga?” que eu confiro de novo.';
@@ -15706,7 +15712,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     /* turnos */
     if(tem(qn,'abertura','abrir','abre','abrem','fechamento','fechar','fecha','fecham','turno','manha','tarde','noite')&&!tem(qn,'regra','como','funciona')){ const r=respTurno(qn); if(r) return r; }
     /* quem trabalha / folga numa data (amanhã, ontem, dia da semana, dia N) */
-    const al=diaAlvo(qn);
+    const al=tem(qn,'feriado','feriados')?null:diaAlvo(qn);
     if(al&&!(al.rot==='Hoje'&&!tem(qn,'folga','folgar','folgam','descansa','descansam','descanso'))&&!tem(qn,'fixa','fixo')&&!tem(qn,'regra','como','funciona')){
       const quer=tem(qn,'folga','folgas','folgar','folgam','descansa','descansam','descanso','livre','livres','de folga');
       const trabq=tem(qn,'trabalha','trabalham','vem','vao','vai','escala','escalado','escalados','escalada','pessoal','gente','pega','pegam','mostre','mostra','quem','quantos','quantas');
@@ -15715,9 +15721,6 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       if(trabq&&(tem(qn,'quem','quais','mostre','mostra','escala','pessoal','gente','funcionarios')||tk.length<=6)) return respDia(al,'trab');
     }
     if(tem(qn,'quem','quais')&&tem(qn,'folga','folgam','folgar','descansa','descansam','folgando')&&!tem(qn,'domingo','domingos','fixa','fixo','feriado','feriados','mes')&&!seguro(()=>I.pessoas(qn).length,0)&&!seguro(()=>I.domingos(qn).length,0)) return respDia({dt:dia0(hoje()),rot:'Hoje'},'folga');
-    /* fora do escopo (nenhuma palavra do assunto) */
-    const dominio=tk.some(x=>DOM.has(x))||seguro(()=>I.pessoas(qn).length,0)>0||seguro(()=>I.domingos(qn).length,0)>0;
-    if(!dominio&&tk.length>=3&&!tem(qn,'oi','ola','obrigado','obrigada','valeu','tchau')) return '🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta <b>escala de domingos e folgas</b>: respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.';
     return null;
   }
 
