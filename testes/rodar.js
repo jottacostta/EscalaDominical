@@ -1149,7 +1149,9 @@ async function testarChatAssistente(browser, app, nome, abrir){
     const pq = C.responder(`por que ${pn} não pode no domingo ${d[2]}?`); out.porque = pq.includes('❌'); out.porqueTxt = txt(pq).slice(0, 160);
     out.regra = txt(C.responder('como funciona o 6x1')).includes('6 dias seguidos');
     out.feriado = /Feriados de|Não há feriado/.test(txt(C.responder('tem feriado esse mês?')));
-    out.naoEntendi = txt(C.responder('xpto qwerty')).includes('Não entendi');
+    const desconhecida=txt(C.responder('xpto qwerty'));
+    out.desconhecida = !/^(?:não entendi essa|não consegui entender|não compreendi)\b/i.test(desconhecida.trim()) && /posso ajudar|diga o assunto|exemplo/i.test(desconhecida);
+    out.capacidades = /consultar a equipe|explicar as regras|orientar a importa[cç][aã]o/i.test(txt(C.responder('o que você sabe fazer?')));
     out.falta = /falta/i.test(txt(C.responder('o que falta?')));
     if(enc) out.regraEnc = txt(C.responder('regras do domingo')).includes('3 pessoas'); else out.regraEnc = true;
     // tela: abrir, aba Perguntar, escrever e enviar
@@ -1160,7 +1162,8 @@ async function testarChatAssistente(browser, app, nome, abrir){
     out.rede = rede; window.fetch = f0; XMLHttpRequest.prototype.open = x0;
     return out; }, enc);
   ok(r.quem && r.quantos && r.porque, `chat responde com os dados da tela: quem trabalha no domingo (${r.quem}), quantos domingos a pessoa fez (${r.quantos}), por que não pode no 3º domingo seguido (${r.porque}: “${r.porqueTxt}”)`);
-  ok(r.regra && r.feriado && r.falta && r.regraEnc && r.naoEntendi, `chat responde regras, feriados e o que falta, e avisa quando não entende (6×1: ${r.regra}; feriados: ${r.feriado}; o que falta: ${r.falta}${enc ? `; regras do domingo: ${r.regraEnc}` : ''}; não entendi: ${r.naoEntendi})`);
+  ok(r.regra && r.feriado && r.falta && r.regraEnc && r.desconhecida, `chat responde regras, feriados, pendências e orienta quando não reconhece a pergunta (6×1: ${r.regra}; feriados: ${r.feriado}; o que falta: ${r.falta}${enc ? `; regras do domingo: ${r.regraEnc}` : ''}; orientação útil: ${r.desconhecida})`);
+  ok(r.capacidades, '“o que você sabe fazer?” lista capacidades reais do Gabriel');
   ok(r.aba && r.tela && r.voltaDicas, `tela: aba 💬 Perguntar abre o chat (${r.aba}), escrever e enviar mostra pergunta e resposta (${r.tela}), aba 💡 Dicas volta (${r.voltaDicas})`);
   ok(r.rede === 0, `o chat não usa a internet (pedidos de rede: ${r.rede})`);
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
@@ -1985,7 +1988,7 @@ async function testarConversa275(browser, app, nome, abrir, versaoMin){
   ok(enc ? /Não há ninguém com cargo parecido com “caixa”/.test(r[0]) : /cargo com “caixa”/.test(r[0]), enc ? 'cargo que não existe na equipe (“caixa”) é dito, sem inventar' : 'filtro por cargo (“caixa”) é aplicado e dito');
   // 3) números da equipe
   r = (await R(['Quantos funcionários tem?', 'Quantos colaboradores estão ativos?', 'Mostra os funcionários por horário e função.', 'Mostra os afastados e os emprestados.', 'tem funcionario afastado?'])).map(t);
-  ok(new RegExp('tem ' + info.n + ' pessoa').test(r[0]) && new RegExp(info.at + ' ativa').test(r[1]) && /Por horário/.test(r[2]) && /Ninguém afastado/.test(r[3]) && /Ninguém afastado/.test(r[4]), `“quantos funcionários” diz o conjunto contado (${info.n} cadastrados, ${info.at} ativos), lista por horário/função e afastados/emprestados`);
+  ok(new RegExp('tem ' + info.n + ' pessoa').test(r[0]) && new RegExp(info.at + '(?: pessoas)? ativa').test(r[1]) && /Por horário/.test(r[2]) && /Ninguém afastado/.test(r[3]) && /Ninguém afastado/.test(r[4]), `“quantos funcionários” diz o conjunto contado (${info.n} cadastrados, ${info.at} ativos), lista por horário/função e afastados/emprestados`);
   r = await p.evaluate(() => { const f = equipe[0]; const o = { s: f.situacao, d: f.situacaoDetalhe }; f.situacao = 'AF'; f.situacaoDetalhe = 'AFASTADO TESTE'; window.v270Gabriel.reset(); const a = String(window.v265Chat.responder('tem funcionario afastado?')).replace(/<[^>]+>/g, ''), n = equipe[0].nome.split(' ')[0]; f.situacao = o.s; f.situacaoDetalhe = o.d; return { a, n }; });
   ok(r.a.toUpperCase().includes(r.n.toUpperCase()) && /AFASTADO TESTE/.test(r.a), 'quando alguém fica com situação AF o Gabriel lista a pessoa afastada');
   // 4) conferências, sequência, cobertura

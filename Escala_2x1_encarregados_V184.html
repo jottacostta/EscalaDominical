@@ -10185,10 +10185,9 @@ function perguntarOrientacaoImpressao(cb){
 </script>
 
 <script>
-/* ═════ V184 — 🤖 RESPOSTA ÚTIL DO GABRIEL ═════
-   O chat não encerra com “Não entendi”. Perguntas de quantidade respondem usando
-   a equipe carregada; nos demais casos sem correspondência, orienta o próximo passo
-   e pede contexto específico, sem inventar regra nem dado.
+/* ═════ V184 Gabriel — 🤖 RESPOSTA ÚTIL DO GABRIEL ═════
+   Respostas de capacidade explícitas, contagem semântica da equipe e recuperação segura.
+   O fallback nunca afirma que entendeu quando não reconheceu; orienta o próximo passo.
 */
 (function(){
   'use strict';
@@ -10196,21 +10195,42 @@ function perguntarOrientacaoImpressao(cb){
   if(!base||typeof base.responder!=='function') return;
   const original=base.responder;
   const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+
+  function perguntaCapacidades(texto){
+    const q=normalizar(texto);
+    return /\b(o que|que|quais|como)\b.{0,40}\b(sabe fazer|consegue fazer|pode fazer|ajudar|ajuda|capacidades|habilidades)\b/.test(q)
+      || /\b(capacidades|habilidades|suas funcoes)\b/.test(q);
+  }
+  function respostaCapacidades(){
+    return '🤖 Posso consultar a equipe carregada e identificar quem está escalado ou de folga; explicar as regras disponíveis sobre domingos, balanço, feriados e regimes configurados; apontar conflitos e sequências que os dados da escala permitem verificar; e orientar a importação/edição da equipe, geração manual ou automática, horários, histórico e planilha Excel. Trabalho apenas com os dados deste aplicativo: escala planejada não comprova presença real, não altero a escala e não invento regras ou informações ausentes.';
+  }
   function quantidadePerguntada(texto){
     const q=normalizar(texto),i=q.search(/\bquant(?:os|as|o|a)\b/);
     if(i<0)return false;
     const t=q.slice(i);
-    if(!/\b(funcionario|funcionarios|pessoa|pessoas|equipe|time|gente)\b/.test(t))return false;
-    if(/\b(domingo|domingos|feriado|laticinio|setor|setores|trabalha|trabalham|trabalhar|escalado|escalada|escala)\b/.test(t))return false;
-    return /\b(tem|ha|sao|estao|existe|existem|total|quantidade|conta|cadastrado|cadastrados|cadastrada|cadastradas)\b/.test(t);
+    if(!/\b(funcionario|funcionarios|colaborador|colaboradores|pessoa|pessoas|equipe|time|gente|pessoal|empregado|empregados|trabalhador|trabalhadores)\b/.test(t))return false;
+    if(/\b(domingo|domingos|feriado|feriados|laticinio|setor|setores|trabalha|trabalham|trabalhar|escalado|escalada|escalados|escaladas|escala|turno|turnos|abertura|fechamento|horario|cargo|funcao)\b/.test(t))return false;
+    return /\b(tem|ha|sao|estao|existe|existem|total|quantidade|conta|cadastrado|cadastrados|cadastrada|cadastradas|ativo|ativos|ativa|ativas|afastado|afastados|afastada|afastadas|emprestado|emprestados|emprestada|emprestadas)\b/.test(t);
   }
-  function contarEquipe(){try{if(typeof equipe!=='undefined'&&Array.isArray(equipe))return equipe.length}catch(e){}return null}
+  function contarEquipe(){
+    try{
+      if(typeof equipe==='undefined'||!Array.isArray(equipe))return null;
+      const total=equipe.length;
+      const status=f=>String(f&&f.situacao||'A').toUpperCase().trim();
+      return {
+        total,
+        ativos:equipe.filter(f=>status(f)==='A').length,
+        afastados:equipe.filter(f=>status(f)==='AF').length,
+        emprestados:equipe.filter(f=>status(f)==='EP').length
+      };
+    }catch(e){return null}
+  }
   function orientacao(texto){
     const q=normalizar(texto);
     if(/\b(domingo|domingos|2x1|balanco)\b/.test(q))return '📏 Posso orientar sobre domingos, regra 2×1 e balanço. Para conferir um caso específico, informe o nome da pessoa e a data do domingo. Exemplo: “Por que Ana não pode trabalhar em 18/10?”';
     if(/\b(feriado|feriados)\b/.test(q))return '🎉 Para conferir trabalho e folga de feriado, abra o passo 4 — Feriados — e confira a pessoa e a data sugerida. Diga o nome e o feriado/data para eu orientar o caso concreto.';
     if(/\b(folga|folgas|dsr|descanso)\b/.test(q))return '💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.';
-    if(/\b(equipe|funcionario|funcionarios|cadastro|setor|setores)\b/.test(q))return '👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.';
+    if(/\b(equipe|funcionario|funcionarios|colaborador|colaboradores|cadastro|setor|setores)\b/.test(q))return '👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.';
     if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Gerar. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
     if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
     return '🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”';
@@ -10219,16 +10239,26 @@ function perguntarOrientacaoImpressao(cb){
     const limpa=normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' '));
     return !limpa||/^nao entendi\b|^nao consegui entender\b|^nao compreendi\b/.test(limpa);
   }
+  function falhaInterna(){
+    return '🤖 Ocorreu uma falha interna ao processar a pergunta. Tente reformulá-la com o nome da pessoa, a data ou o assunto que deseja conferir.';
+  }
   base.responder=function(texto){
     try{
+      if(perguntaCapacidades(texto))return respostaCapacidades();
       if(quantidadePerguntada(texto)){
-        const n=contarEquipe();
-        if(n===null||n===0)return '👥 Para informar a quantidade corretamente, primeiro carregue a equipe no passo 1 — Equipe.';
-        return '👥 A equipe atualmente carregada neste setor tem <b>'+n+'</b> funcionário(s) cadastrado(s). A contagem inclui todos os registros carregados, independentemente da situação.';
+        const d=contarEquipe(),q=normalizar(texto);
+        if(!d||d.total===0)return '👥 Para informar a quantidade corretamente, primeiro carregue a equipe no passo 1 — Equipe.';
+        if(/\b(afastado|afastados|afastada|afastadas)\b/.test(q))return '👥 Há <b>'+d.afastados+'</b> pessoas afastadas entre <b>'+d.total+'</b> cadastradas.';
+        if(/\b(emprestado|emprestados|emprestada|emprestadas)\b/.test(q))return '👥 Há <b>'+d.emprestados+'</b> pessoas emprestadas entre <b>'+d.total+'</b> cadastradas.';
+        if(/\b(ativo|ativos|ativa|ativas)\b/.test(q)&&!/\b(inativo|inativos|inativa|inativas)\b/.test(q))return '👥 Há <b>'+d.ativos+'</b> pessoas ativas entre <b>'+d.total+'</b> pessoas cadastradas.';
+        return '👥 A equipe tem <b>'+d.total+'</b> pessoas cadastradas: <b>'+d.ativos+'</b> ativas, <b>'+d.afastados+'</b> afastadas e <b>'+d.emprestados+'</b> emprestadas.';
       }
       const resposta=original.call(base,texto);
       return semResposta(resposta)?orientacao(texto):resposta;
-    }catch(e){console.warn('[V184 Gabriel]',e);return orientacao(texto)}
+    }catch(e){
+      console.warn('[V184 Gabriel]',e);
+      return falhaInterna();
+    }
   };
   if(window.v270Gabriel)window.v270Gabriel.responder=base.responder;
 })();
