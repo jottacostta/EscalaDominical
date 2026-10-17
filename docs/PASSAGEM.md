@@ -22,11 +22,11 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida e a do ano inteiro em todo PR, push no `main` e nos branches `chatgpt/**`. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 14/10/2026 — topo do `AGENTS.md`):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o **subencarregado**. Nada por iniciativa própria sem autorização do gerente.
-- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas, pois ela fica desatualizada quando uma PR é criada, fechada ou incorporada. Já incorporadas ao `main`: #54 (Setores V262 + Encarregados V176, Assistente RH), #56 (AGENTS.md: hierarquia e seção 2.1), #59 (Setores V263 + Encarregados V177), #62 (Setores V264 + testes ARH-16 a ARH-24), #63 (Setores V265 + Encarregados V178) e #64 (Setores V266/V267). A #55 do ChatGPT (guia REA) foi fechada sem merge: as ideias viraram a seção 2.1 do `AGENTS.md`.
+- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas, pois ela fica desatualizada quando uma PR é criada, fechada ou incorporada. Já incorporadas ao `main`: #54 (Setores V262 + Encarregados V176, Assistente RH), #56 (AGENTS.md: hierarquia e seção 2.1), #59 (Setores V263 + Encarregados V177), #62 (Setores V264 + testes ARH-16 a ARH-24), #63 (Setores V265 + Encarregados V178), #64 (Setores V266/V267) e #82 (documentação em seis pilares). A #55 do ChatGPT (guia REA) foi fechada sem merge: as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V275**, Encarregados **V183**.
-- **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano iniciados na PR documental #81 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; lacunas precisam ser verificadas contra código, testes e decisões do gerente.
+- **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano iniciados na PR documental #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; lacunas precisam ser verificadas contra código, testes e decisões do gerente.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -155,6 +155,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-17 — Auditoria da documentação dos seis pilares e correção de referências — ChatGPT
+- **O que foi conferido:** `AGENTS.md`, `CLAUDE.md`, `docs/PASSAGEM.md`, `docs/INICIO_NOVA_CONVERSA.txt`, `README.md`, `CHANGELOG.md`, os seis pilares e o workflow da PR #82.
+- **Achados confirmados:** Setores V275 e Encarregados V183 estão indicados nos documentos de estado; as cópias fixas são descritas como cópias das versões atuais. A passagem citava a PR #81 para os seis pilares, mas a PR que os incorporou foi a #82; referência corrigida. A passagem e o início de conversa precisam distinguir a documentação inicial da documentação validada.
+- **Limites desta auditoria:** os seis pilares continuam sendo mapas iniciais; não foram integralmente validados linha a linha contra os dois HTMLs e o conjunto completo de testes. Não declarar documentação técnica concluída antes desse confronto.
+- **Testes da PR #82:** na consulta, a suíte rápida terminou com sucesso e a suíte completa de 12 meses permanecia em execução; não há aprovação final confirmada nesta auditoria.
+- **Escopo:** somente documentação; nenhum HTML ou regra de negócio alterado. Não foi feito merge.
+- **Para continuar:** concluir a validação dos seis pilares contra o código e os testes; consultar o estado atualizado do workflow; registrar as lacunas concretas antes de declarar a documentação validada. — ChatGPT
 
 ### 2026-10-16 — Atualização da documentação até Setores V274 / Encarregados V182 — ChatGPT
 - **O que mudou:** atualizados os mapas técnicos e as versões atuais/próximas; documentadas as camadas V269–V274 dos Setores e V179–V182 dos Encarregados; registrado o protocolo de testes do Gabriel da issue #78.
@@ -603,6 +611,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
+- **Auditoria documental de 17/10/2026:** corrigir/validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com Setores V275, Encarregados V183 e `testes/rodar.js`. Esta auditoria confirmou que os seis pilares são iniciais, não validados por completo; não afirmar conclusão até registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
 - **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
 - **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps da `main`, usar dados fictícios, calcular o esperado a partir do estado real do app, manter conjunto cego congelado, medir acerto/falsos positivos/alucinações e registrar versão, resultados e limites. A bateria de 66 perguntas da issue #68 é proposta/documentação até haver um relatório de execução.
 - **Manuais (Claude Docs):** ainda não mencionam o Assistente RH, o chat, a prévia com domingos nem os horários V266/V267. O Claude mantém os manuais; o gerente decide quando atualizar.
