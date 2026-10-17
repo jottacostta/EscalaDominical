@@ -16019,7 +16019,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   base.responder=function(texto){
     try{
       const q=normalizar(texto);
-      if(/\bfolgas? fixas?\b/.test(q))return '💤 A folga fixa é o dia da semana definido no cadastro do funcionário para descanso regular. No passo 1 — Equipe — toque em ✏️ Editar equipe, selecione a pessoa e confira o campo Folga fixa. Se alterar o dia, gere a escala novamente.';
+      if(/\bfolgas? fixas?\b/.test(q)&&!(base.interno&&typeof base.interno.pessoas==='function'&&(()=>{try{return base.interno.pessoas(q).length>0}catch(e){return false}})()))return '💤 A folga fixa é o dia da semana definido no cadastro do funcionário para descanso regular. No passo 1 — Equipe — toque em ✏️ Editar equipe, selecione a pessoa e confira o campo Folga fixa. Se alterar o dia, gere a escala novamente.';
       if(perguntaCapacidades(texto))return original.call(base,texto);
       if(quantidadePerguntada(texto)){
         const d=contarEquipe(),q=normalizar(texto);

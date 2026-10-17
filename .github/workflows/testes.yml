@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: 22
       - name: Instalar o Playwright e o Chromium
+        id: instalar-playwright
         working-directory: testes
         run: |
           npm install --no-audit --no-fund
@@ -30,9 +31,11 @@ jobs:
         working-directory: testes
         run: npm test
       - name: Suíte completa (12 meses de cada app)
+        if: steps.instalar-playwright.outcome == 'success' && !cancelled()
         working-directory: testes
         run: npm run test:completo
       - name: Bateria exploratória Gabriel — 500 perguntas nos dois apps
+        if: steps.instalar-playwright.outcome == 'success' && !cancelled()
         working-directory: testes
         run: npm run test:gabriel-500
       - name: Guardar relatório da bateria Gabriel
