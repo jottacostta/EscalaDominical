@@ -11,6 +11,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
+- **V278** — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — *Manus*
 
 - **V277** — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP e preserva a pessoa citada em continuações como “Muda para terça”; orienta a editar sem alterar a escala. — *ChatGPT*
 - **V276** — GABRIEL NÃO ENCERRA COM “NÃO ENTENDI”: respostas sem correspondência recebem orientação contextual e pedido de detalhes; perguntas sobre o total de funcionários usam a equipe carregada. A bateria reprova se houver fallback genérico ou falha semântica de contagem. — *ChatGPT*
@@ -151,6 +152,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **V127** — correções: erro do motor 50% (inicioUnidade), alvo com liderança, virada de ano, histórico por matrícula/nome, sessão salva restaurada, sugestão de liderança 2×1, impressão/PDF, feriados extras.
 
 ## Escala 2×1 de Encarregados
+- **V186** — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — *Manus*
 
 - **V185** — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP, preserva a pessoa citada em continuações e mantém a orientação específica sobre liderança; não altera a escala. — *ChatGPT*
 - **V184** — GABRIEL NÃO ENCERRA COM “NÃO ENTENDI”: respostas sem correspondência recebem orientação contextual e pedido de detalhes; perguntas sobre o total de funcionários usam a equipe carregada. A bateria reprova se houver fallback genérico ou falha semântica de contagem. — *ChatGPT*

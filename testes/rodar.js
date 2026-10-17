@@ -1508,7 +1508,7 @@ async function testarSemTxt(browser, app, nome, dados){
     ok(!!versao && new RegExp('Versão V' + versao + ' · ').test(html),
       'versão visível no rodapé corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
     const hist = html.match(/<!-- HISTÓRICO DE VERSÕES[^\n]*\n([^\n]+)/);
-    ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT)\\] — ').test(hist[1]),
+    ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT|Manus)\\] — ').test(hist[1]),
       'primeira entrada do histórico corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
   }
   // a passagem de bastão (docs/PASSAGEM.md) tem que estar em dia com as versões atuais — AGENTS.md, seção 10
@@ -1516,9 +1516,9 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
-       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); }
+       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); } }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
   finally{ await browser.close(); }
   console.log(`\n${falhas ? '❌ ' + falhas + ' falha(s)' : '✅ Tudo certo'} — ${Math.round((Date.now() - t0) / 1000)} s`);
@@ -2045,7 +2045,7 @@ async function testarConversa275(browser, app, nome, abrir, versaoMin){
   r = (await R(['Quem é ele?', 'Faz isso.', 'Qual é melhor?', 'Me fala o resultado.', 'Faz igual ao mês passado.'], false)).map(t);
   ok(r.slice(0, 4).every(x => /\?|Qual|Fazer o quê|Melhor entre|Resultado de quê/.test(x) && !/Não entendi essa/.test(x)) && /Eu não copio nem altero/.test(r[4]), 'perguntas sem referente (“quem é ele?”, “faz isso”, “qual é melhor?”, “me fala o resultado”) viram pergunta de esclarecimento; “faz igual ao mês passado” diz o que dá para reaproveitar');
   r = (await R(['Qual o salário da ' + info.unico + '?', 'Posso dispensar o intervalo de almoço?', 'Qual a capital da França?'], false)).map(t);
-  ok(/não está cadastrado/.test(r[0]) && /não está cadastrado/.test(r[1]) && /foge do que eu sei/.test(r[2]), 'salário/intervalo (regra trabalhista não cadastrada) e assunto fora do RH: o Gabriel não inventa');
+  ok(/não está cadastrado/.test(r[0]) && /subgerente administrativo/.test(r[0]) && /não está cadastrado/.test(r[1]) && /subgerente administrativo/.test(r[1]) && /subgerente administrativo/.test(r[2]), 'salário, intervalo e assunto fora do app não são inventados e encaminham ao subgerente administrativo');
   r = (await R(['Quem trabalha amanhã?', 'Quem folga na segunda?'], false)).map(t);
   ok(r.every(x => /Amanhã|Segunda/.test(x) && new RegExp('\\b' + (+x.match(/(\d+) (trabalham|de folga)/)[1]) + '\\b').test(x)), 'continuam funcionando sem o relógio simulado (data do aparelho)');
   r = await p.evaluate(() => { window.v270Gabriel.relogio = () => new Date(2026, 11, 20, 9, 0); window.v270Gabriel.reset(); return String(window.v265Chat.responder('Quem trabalha amanhã?')).replace(/<[^>]+>/g, ''); });
@@ -2071,6 +2071,76 @@ async function testarConversa275(browser, app, nome, abrir, versaoMin){
   }
 }
 
+async function testarDialogosGabriel(browser, app, nome){
+  const version=+path.basename(app).match(/V(\d+)\.html$/)[1];
+  if(version < (nome==='Setores'?278:186)) return;
+  const enc=nome!=='Setores', label=enc?'expects_encarregados':'expects_setores';
+  console.log(`\n▶ ${nome} — 🤖 Gabriel: 250 perguntas em diálogos realistas`);
+  const fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'dialogos-gabriel.json'),'utf8'));
+  const {p,erros,ctx}=await novaPagina(browser);
+  await p.goto('file://'+app); await p.waitForTimeout(1200);
+  if(enc){
+    await p.click('.hero-cta').catch(()=>{}); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoTxt',path.join(DADOS,'encarregados_15_pares.txt'));
+  }else{
+    await p.click('#comeceFechar').catch(()=>{}); await p.click('[data-home-setor="Frente de Loja"]');
+    await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoTxt',path.join(DADOS,'setores_frente_de_loja_50.txt'));
+  }
+  await p.waitForTimeout(1800);
+  await mudarMes(p,10,2026); await p.waitForTimeout(600);
+  await p.evaluate(()=>{
+    document.querySelectorAll('.settings-backdrop').forEach(x=>x.hidden=true);
+    (window.v45GotoStep||window.v80GotoStep)?.(5,false);
+    document.getElementById('btnGerar')?.click();
+  });
+  for(let i=0;i<120;i++){
+    if(await p.evaluate(()=>Object.values(trabalhoDomingo||{}).some(a=>a&&a.length)))break;
+    await p.waitForTimeout(150);
+  }
+  const identity=await p.evaluate(()=>({version:String(window.v265Chat.responder('Qual sua versão?')||''),outside:String(window.v265Chat.responder('Qual a capital da França?')||''),regime:String(window.v265Chat.responder('Como vai ser a escala 5x2?')||'')}));
+  const normCheck=x=>String(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  ok(new RegExp('\\bV'+version+'\\b','i').test(identity.version),`${nome}: “Qual sua versão?” identifica V${version}`);
+  ok(normCheck(identity.outside).includes('subgerente administrativo'),`${nome}: dúvida fora do app encaminha ao subgerente administrativo`);
+  ok(/regime em vigor/.test(normCheck(identity.regime))&&/6/.test(identity.regime)&&/5/.test(identity.regime)&&/desligad/.test(normCheck(identity.regime)),`${nome}: explica 6×1 vigente e 5×2 preparada/desligada`);
+  const ferias=await p.evaluate(()=>{const f=equipe[0],sit=f.situacao,det=f.situacaoDetalhe;f.situacao='AF';f.situacaoDetalhe='FERIAS TESTE';window.v270Gabriel?.reset();const a=String(window.v265Chat.responder('Quem está de férias?')||'');f.situacao=sit;f.situacaoDetalhe=det;return {a,n:f.nome};});
+  ok(normCheck(ferias.a).includes(normCheck(ferias.n.split(/\s+/)[0]))&&normCheck(ferias.a).includes('ferias teste')&&!normCheck(ferias.a).includes('subgerente administrativo'),`${nome}: quem está de férias continua sendo respondido a partir do status da equipe`);
+  const initial=await p.evaluate(()=>JSON.stringify([equipe,trabalhoDomingo]));
+  let turns=0,empty=0,ununderstood=0,adminReferral=0,versionOk=0,semanticReferenceCount=0;
+  const misses=[];
+  for(const category of fixture.categories){
+    for(const dialogue of category.dialogues){
+      await p.evaluate(()=>{window.v270Gabriel?.reset();window.v275Conversa?.reset();});
+      for(const turn of dialogue.turns){
+        const answer=await p.evaluate(q=>String(window.v265Chat.responder(q)||''),turn.question);
+        const plain=answer.replace(/<br\s*\/?\s*>/gi,' ').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+        const nq=turn.question.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+        const na=plain.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+        turns++;
+        if(!plain){empty++;misses.push(`${category.name}/${dialogue.title}: resposta vazia a “${turn.question}”`);}
+        if(/^nao entendi\b|^nao consegui entender\b/.test(na)){ununderstood++;misses.push(`${category.name}/${dialogue.title}: “Não entendi” a “${turn.question}”`);}
+        if(/capital da franca|salario|ferias e intervalo|salario da ana|intervalo de almoco/.test(nq)){
+          semanticReferenceCount++;
+          if(!na.includes('subgerente administrativo')){misses.push(`${category.name}/${dialogue.title}: não encaminhou ao subgerente administrativo: “${turn.question}” → ${plain.slice(0,220)}`);}
+          else adminReferral++;
+        }
+        if(/\bversao\b/.test(nq)&&/\b(qual|sua|app|aplicativo|tela|v277|v185)\b/.test(nq)){
+          if(new RegExp('\\bV'+version+'\\b','i').test(plain))versionOk++;
+          else misses.push(`${category.name}/${dialogue.title}: versão esperada V${version}: “${turn.question}” → ${plain.slice(0,220)}`);
+        }
+      }
+    }
+  }
+  const final=await p.evaluate(()=>JSON.stringify([equipe,trabalhoDomingo]));
+  ok(turns===250&&empty===0,`${nome}: percorreu ${turns}/250 turnos em sequência; ${empty} respostas vazias`);
+  ok(ununderstood===0,`${nome}: zero respostas finais “Não entendi” nos 250 turnos`);
+  ok(semanticReferenceCount>0&&adminReferral===semanticReferenceCount,`${nome}: ${adminReferral}/${semanticReferenceCount} dúvidas de RH geral/fora do app encaminhadas ao subgerente administrativo`);
+  ok(versionOk>0,`${nome}: perguntas sobre a versão citam V${version} (${versionOk} conferências)`);
+  ok(initial===final,`${nome}: os 50 diálogos não alteram equipe nem escala`);
+  ok(!erros.length,`${nome}: sem erro JavaScript na bateria de diálogos${erros.length?': '+erros.slice(0,3).join(' | '):''}`);
+  if(misses.length) console.error(`  ⚠️ ${nome}: ${misses.length} achado(s) sem expectativa atendida:\n    ${misses.slice(0,12).join('\n    ')}`);
+  await ctx.close();
+}
 async function testarMemoria273(browser, app, nome, abrir, versaoMin){
   if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
   console.log(`\n▶ ${nome} — 🧠 memória do Gabriel e 🟢 aviso em 10 s`);
