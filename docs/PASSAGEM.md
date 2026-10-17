@@ -160,6 +160,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-17 — Gabriel: fala natural e dicionário RESP — Setores V277 / Encarregados V185 — ChatGPT
+- **Correção final:** restaurada a normalização `prepararPergunta()` (prefácios informais e formas faladas de 2×1/6×1/5×2) ao integrar a preservação remota de contexto da V270. As perguntas pessoais continuam identificando a pessoa em continuações curtas como “Muda para terça”.
+- **Dicionário:** dúvidas gerais sobre folga fixa agora usam aliases específicos no `RESP`, antes da chave genérica “descanso”; o wrapper deixou de interceptar essa FAQ diretamente. O chat orienta a editar equipe e não altera a escala.
+- **Regressões:** `testes/rodar.js` cobre prefácios, 2×1, FAQ geral, contexto/nome da pessoa e escala intacta. Teste focado de Chromium passou nos dois apps.
+- **Validação local:** `npm run test:completo` aprovado (911 s). `npm run test:gabriel-500` aprovado: 500 chamadas (250 por app), zero respostas vazias, “Não entendi”, exceções, erros JS ou falhas semânticas; equipe preservada e prova de mutação detectada. O relatório atualizado está em `testes/relatorio-gabriel-500.json`.
+- **Limites e próximos passos:** a bateria de 500 é exploratória, sem gabarito de acurácia; a preservação de estado cobre a equipe carregada, não uma escala gerada. Conferir os checks do GitHub após o push. Nenhum merge foi feito.
+- **Assinado:** ChatGPT
+
 ### 2026-10-17 — Gabriel: preservar pessoa em pedido curto — Setores V277 / Encarregados V185 — ChatGPT
 - **Causa raiz:** a camada V270 retornava diretamente em perguntas específicas (como a folga fixa) antes de executar `lembrar(n)`; por isso `G.contexto().pessoa` ficava vazio e o seguimento “Muda para terça” não identificava a pessoa citada.
 - **Correção:** registrar contexto antes das respostas diretas somente quando a pergunta contém uma pessoa única ou um domingo. A lógica apenas orienta o uso de Editar equipe; não altera o motor nem as regras da escala.
@@ -623,7 +631,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
 - **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
-- **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps da `main`, usar dados fictícios, calcular o esperado a partir do estado real do app, manter conjunto cego congelado, medir acerto/falsos positivos/alucinações e registrar versão, resultados e limites. A bateria de 66 perguntas da issue #68 é proposta/documentação até haver um relatório de execução.
+- **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps, usar dados fictícios, calcular o esperado a partir do estado real, manter conjunto cego congelado e medir acerto/falsos positivos/alucinações. `testes/relatorio-gabriel-500.json` documenta uma bateria exploratória aprovada (500 chamadas, 250 por app), mas não prova acurácia; testa respostas vazias/fallbacks, erros, verificações semânticas, estado da equipe e mutação. A bateria de 66 perguntas da issue #68 continua proposta/documentação até execução própria com gabarito verificável.
 - **Manuais (Claude Docs):** ainda não mencionam o Assistente RH, o chat, a prévia com domingos nem os horários V266/V267. O Claude mantém os manuais; o gerente decide quando atualizar.
 
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.

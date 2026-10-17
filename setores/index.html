@@ -15963,8 +15963,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 </script>
 
 <script>
-/* ═════ V277 Gabriel — 🤖 FALA NATURAL, RESP E CONTEXTO INDIVIDUAL ═════
-   Respostas de capacidade explícitas, contagem semântica da equipe e recuperação segura.
+/* ═════ V277 Gabriel — 🤖 FALA NATURAL E CONTEXTO ═════
+   Respostas de capacidade explícitas, contagem semântica e normalização de fala; FAQs estáticas ficam no dicionário RESP.
    O fallback nunca afirma que entendeu quando não reconheceu; orienta o próximo passo.
 */
 (function(){
@@ -15974,6 +15974,26 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const original=base.responder;
   const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 
+  function prepararPergunta(texto){
+    const original=String(texto==null?'':texto), prefacios=[
+      /^(?:preciso confirmar isso para montar a escala corretamente|para confirmar isso|só para confirmar)\s*[,;:—-]?\s*/i,
+      /^(?:vc|você|cê)\s+sabe(?:\s+me dizer)?\s*[,;:?—-]?\s*/i,
+      /^(?:rapidinho|por favor|uma pergunta|só uma pergunta)\s*[,;:—-]?\s*/i,
+      /^(?:ô|ei|olha|escuta)\s*[,!:]\s*/i
+    ];
+    let pergunta=original.trim(), antes;
+    do{
+      antes=pergunta;
+      for(const re of prefacios){ if(re.test(pergunta)){ pergunta=pergunta.replace(re,'').trim(); break; } }
+    }while(pergunta!==antes);
+    pergunta=pergunta
+      .replace(/\b2\s+por\s+1\b/gi,'2x1')
+      .replace(/\b(?:dois|duas)\s+por\s+(?:um|uma)\b/gi,'2x1')
+      .replace(/\b6\s+por\s+1\b|\bseis\s+por\s+um\b/gi,'6x1')
+      .replace(/\b5\s+por\s+2\b|\bcinco\s+por\s+dois\b/gi,'5x2')
+      .trim();
+    return pergunta||original;
+  }
   function perguntaCapacidades(texto){
     const q=normalizar(texto);
     return /\b(o que|que|quais|como)\b.{0,40}\b(sabe fazer|consegue fazer|pode fazer|ajudar|ajuda|capacidades|habilidades)\b/.test(q)
@@ -16015,25 +16035,26 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function semResposta(resposta){
     const limpa=normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' '));
-    return !limpa||/\bnao entendi(?: essa)?\b|\bnao consegui entender\b|\bnao compreendi\b/.test(limpa);
+    return !limpa||/^nao entendi\b|^nao consegui entender\b|^nao compreendi\b/.test(limpa);
   }
   function falhaInterna(){
     return '🤖 Ocorreu uma falha interna ao processar a pergunta. Tente reformulá-la com o nome da pessoa, a data ou o assunto que deseja conferir.';
   }
   base.responder=function(texto){
     try{
-      const q=normalizar(texto);
-      if(perguntaCapacidades(texto))return original.call(base,texto);
-      if(quantidadePerguntada(texto)){
-        const d=contarEquipe(),q=normalizar(texto);
+      const pergunta=prepararPergunta(texto);
+      const q=normalizar(pergunta);
+      if(perguntaCapacidades(pergunta))return original.call(base,pergunta);
+      if(quantidadePerguntada(pergunta)){
+        const d=contarEquipe();
         if(!d||d.total===0)return '👥 Para informar a quantidade corretamente, primeiro carregue a equipe no passo 1 — Equipe.';
         if(/\b(afastado|afastados|afastada|afastadas)\b/.test(q))return '👥 Há <b>'+d.afastados+'</b> pessoas afastadas entre <b>'+d.total+'</b> cadastradas.';
         if(/\b(emprestado|emprestados|emprestada|emprestadas)\b/.test(q))return '👥 Há <b>'+d.emprestados+'</b> pessoas emprestadas entre <b>'+d.total+'</b> cadastradas.';
         if(/\b(ativo|ativos|ativa|ativas)\b/.test(q)&&!/\b(inativo|inativos|inativa|inativas)\b/.test(q))return '👥 Há <b>'+d.ativos+'</b> pessoas ativas entre <b>'+d.total+'</b> pessoas cadastradas.';
         return '👥 A equipe tem <b>'+d.total+'</b> pessoas cadastradas: <b>'+d.ativos+'</b> ativas, <b>'+d.afastados+'</b> afastadas e <b>'+d.emprestados+'</b> emprestadas.';
       }
-      const resposta=original.call(base,texto);
-      return semResposta(resposta)?orientacao(texto):resposta;
+      const resposta=original.call(base,pergunta);
+      return semResposta(resposta)?orientacao(pergunta):resposta;
     }catch(e){
       console.warn('[V277 Gabriel]',e);
       return falhaInterna();
