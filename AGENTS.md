@@ -163,30 +163,31 @@ Cada conferência tem que poder **falhar** de verdade (nunca compare um valor co
 ## 8. Git e Pull Request
 
 - **Nunca** faça push direto no `main`. Crie um branch: `chatgpt/<assunto-curto>` (ex.: `chatgpt/filtro-por-cargo`).
-- Um assunto por PR. Título no formato: `[ChatGPT] Setores V223: <o que muda>` (ou `[Claude] …` — veja a seção 9).
+- Um assunto por PR. Trabalho executado por Manus: título `[Manus] Setores V223: <o que muda>`; trabalho do Claude: `[Claude] …`. PRs antigos com prefixo `[ChatGPT]` permanecem históricos.
 - Descrição do PR em português, com três partes: **O que muda**, **Testes** (o que foi testado e o resultado do `npm test`) e **Para quem continuar** (seção 10).
 - Quem decide o merge é o dono do projeto. Depois do merge, o GitHub Pages atualiza o site sozinho em 1–2 minutos.
 
 ## 9. Assinatura (obrigatório) — para cada um saber o que o outro fez
 
-Cada assistente **assina tudo o que faz** com o próprio nome: **Claude** ou **ChatGPT**.
+Cada assistente **assina tudo o que faz** com o próprio nome: **Claude** ou **Manus**. O ChatGPT/Codex executado por Manus usa a assinatura Manus.
 
-| Onde | Como assinar (exemplo do Claude; o ChatGPT troca por “ChatGPT”) |
+| Onde | Como assinar (Manus usa “Manus”; Claude usa “Claude”) |
 |---|---|
-| Título do PR | começa com `[Claude]` — ex.: `[Claude] Setores V229: …` |
-| Fim da descrição do PR | linha `Assinado: Claude` |
-| Mensagem de commit | última linha `Assinado: Claude` |
-| `CHANGELOG.md` | a entrada da versão termina com `— *Claude*` |
-| `HISTÓRICO DE VERSÕES` no app | a linha da versão começa com `V229 [Claude] — …` |
-| Comentário no GitHub | termina com `— Claude` |
+| Título do PR | começa com `[Manus]` ou `[Claude]`, conforme o autor |
+| Fim da descrição do PR | linha `Assinado: Manus` ou `Assinado: Claude` |
+| Mensagem de commit | última linha `Assinado: Manus` ou `Assinado: Claude` |
+| `CHANGELOG.md` | a entrada da versão termina com `— *Manus*` ou `— *Claude*` |
+| `HISTÓRICO DE VERSÕES` no app | a linha da versão começa com `Vnnn [Manus] — …` ou `Vnnn [Claude] — …` |
+| Comentário no GitHub | termina com `— Manus` ou `— Claude` |
 
+- Instrução do gerente (17/10/2026): o trabalho de Manus assina como **Manus**. Não reescreva assinaturas ou commits já publicados sem pedido; registros antigos permanecem históricos.
 - Antes de começar, leia as assinaturas no `git log` e no `CHANGELOG.md` para saber **quem fez o quê**.
 - **Nunca** assine pelo outro nem apague a assinatura do outro. Se aproveitar uma ideia do outro, diga isso
   (ex.: “ideia do ChatGPT”).
 
 ## 10. Passagem de bastão (obrigatório) — deixe tudo explicado para o outro continuar
 
-O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compartilhado entre Claude e ChatGPT.
+O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compartilhado entre Claude e Manus (ChatGPT/Codex).
 
 - **Antes de começar:** leia o `docs/PASSAGEM.md` inteiro: estado atual, mapa técnico (onde fica cada coisa no código),
   armadilhas que já aconteceram, diário e pendências.
@@ -194,12 +195,12 @@ O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compar
   1. atualize a seção **1. Estado atual** (versões, PRs/branches abertos, próximo número de versão);
   2. acrescente uma entrada **no topo** da seção **5. Diário**, no modelo de lá: o que mudou e por quê, onde no código
      (bloco `Vnnn`, funções, chaves do `localStorage`, campos do histórico), como foi testado e o que falta para continuar.
-     Assine (`— Claude` ou `— ChatGPT`);
+     Assine (`— Claude` ou `— Manus`);
   3. atualize as **pendências** (seção 6), e as **armadilhas** (seção 4) se algo quebrou e você descobriu por quê;
   4. se criou função/gancho novo (`window.vNNN…`) ou variável global nova, acrescente no **mapa técnico** (seções 2–3).
 - A descrição do PR termina com a parte **“Para quem continuar”**: o que ficou pronto, o que falta e os cuidados.
 - O teste automático confere se o `docs/PASSAGEM.md` cita a versão atual de cada app.
-- **Pergunte antes de atualizar a documentação** (pedido do dono, 13/10/2026 — vale para Claude e ChatGPT): antes de
+- **Pergunte antes de atualizar a documentação** (pedido do dono, 13/10/2026 — vale para Claude e Manus): antes de
   mexer no diário/pendências do `docs/PASSAGEM.md`, no `CHANGELOG.md`, no `docs/INICIO_NOVA_CONVERSA.txt` ou nos
   manuais, pergunte ao dono: “Quer que eu atualize a documentação agora ou no próximo PR?” e só faça depois da resposta.
   Sem perguntar, só o nome do arquivo da versão atual no `README.md` e no `docs/PASSAGEM.md` (o teste exige). Esta regra

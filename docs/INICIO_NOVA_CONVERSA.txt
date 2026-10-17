@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 17/10/2026, com a Setores V277 · Encarregados V185 e auditoria dos seis pilares. Assinado: ChatGPT
+Atualizado em 17/10/2026, com a Setores V277 · Encarregados V185 e auditoria dos seis pilares. Assinado: Manus
 
 COMO USAR ESTE ARQUIVO
 ----------------------
@@ -48,8 +48,8 @@ está pendente, e espere o meu pedido."
   Downloads no APK vão por Android.salvarArquivo (V237/V168). Ver armadilha no PASSAGEM.
 - Dois assistentes trabalham no mesmo repositório:
   · Claude → título do PR "[Claude] …" · branch muda por conversa (ccr-…, claude/… ou outro) · assina "Claude"
-  · ChatGPT (Codex) → título do PR "[ChatGPT] …" · branches chatgpt/… · assina "ChatGPT"
-  Para saber de quem é um PR, olhe o TÍTULO ([Claude] / [ChatGPT]), não o nome do branch.
+  · Manus (ChatGPT/Codex) → título do PR "[Manus] …" · branches chatgpt/… · assina "Manus"
+  Para saber de quem é um PR, olhe o TÍTULO ([Claude] / [Manus]); [ChatGPT] identifica PRs antigos.
   Sempre partir do main mais novo e não sobrescrever o trabalho do outro. PR do outro: revisar de verdade
   (gerar uma escala e olhar a tela), e se precisar de ajuste, propor ao dono antes (ex.: PR #39 → V244).
 

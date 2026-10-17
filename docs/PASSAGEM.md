@@ -23,7 +23,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida, a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 14/10/2026 — topo do `AGENTS.md`):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o **subencarregado**. Nada por iniciativa própria sem autorização do gerente.
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
-- **PR #80 (ChatGPT):** Setores V277 / Encarregados V185 — fala natural, dicionário RESP, contexto do Gabriel e bateria exploratória de 500; consulte o GitHub para o estado do merge.
+- **PR #80 (Manus):** Setores V277 / Encarregados V185 — fala natural, dicionário RESP, contexto do Gabriel e bateria exploratória de 500; consulte o GitHub para o estado do merge.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V278**, Encarregados **V186**.
@@ -162,28 +162,35 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
-### 2026-10-17 — Integração documental da main para a PR #80 — ChatGPT
+### 2026-10-17 — Diretriz de assinatura Manus — Manus
+- **Pedido do gerente:** o trabalho executado por este agente deve ser assinado como Manus.
+- **Aplicação:** atualizadas as regras em `AGENTS.md` e `docs/INICIO_NOVA_CONVERSA.txt`, além das novas entradas da PR #80. O título e a descrição da PR também passam a identificar Manus.
+- **Histórico:** commits e assinaturas de versões anteriores à orientação permanecem intactos; os HTMLs e seus números de versão não foram alterados por esta correção de assinatura.
+- **Validação:** por ser uma atualização documental, o workflow completo precisa passar no novo SHA antes do merge.
+- **Assinado:** Manus
+
+### 2026-10-17 — Integração documental da main para a PR #80 — Manus
 - **Checks anteriores:** a execução GitHub Actions [#39027062668](https://github.com/jottacostta/EscalaDominical/actions/runs/39027062668) passou no SHA `546fc61a6ba6a0369d83543f7e94b0ee978406d1`: suíte rápida, completa de 12 meses e bateria Gabriel 500.
 - **Conflito:** enquanto os checks rodavam, a `main` avançou até `a660dc7` (PRs #82–#85). A verificação do GitHub apontou conflito apenas em `docs/INICIO_NOVA_CONVERSA.txt` e `docs/PASSAGEM.md`; os apps não conflitaram e não havia outra PR aberta.
 - **Resolução:** integrada a `main` na branch da PR sem force-push. Foram preservados os mapas de V277/V185 e o relatório do Gabriel, junto com os seis pilares, a auditoria documental e o portal da `main`. `README.md` e `CHANGELOG.md` mesclaram automaticamente.
-- **Próximo passo:** publicar o commit de integração, aguardar novos checks no SHA resultante e só então concluir o merge autorizado.
-- **Assinado:** ChatGPT
+- **Próximo passo:** aguardar os checks do commit documental mais recente e só então concluir o merge autorizado.
+- **Assinado:** Manus
 
-### 2026-10-17 — Gabriel: fala natural e dicionário RESP — Setores V277 / Encarregados V185 — ChatGPT
+### 2026-10-17 — Gabriel: fala natural e dicionário RESP — Setores V277 / Encarregados V185 — Manus
 - **Correção final:** restaurada a normalização `prepararPergunta()` (prefácios informais e formas faladas de 2×1/6×1/5×2) ao integrar a preservação remota de contexto da V270. As perguntas pessoais continuam identificando a pessoa em continuações curtas como “Muda para terça”.
 - **Dicionário:** dúvidas gerais sobre folga fixa agora usam aliases específicos no `RESP`, antes da chave genérica “descanso”; o wrapper deixou de interceptar essa FAQ diretamente. O chat orienta a editar equipe e não altera a escala.
 - **Regressões:** `testes/rodar.js` cobre prefácios, 2×1, FAQ geral, contexto/nome da pessoa e escala intacta. Teste focado de Chromium passou nos dois apps.
 - **Validação local:** `npm run test:completo` aprovado (911 s). `npm run test:gabriel-500` aprovado: 500 chamadas (250 por app), zero respostas vazias, “Não entendi”, exceções, erros JS ou falhas semânticas; equipe preservada e prova de mutação detectada. O relatório atualizado está em `testes/relatorio-gabriel-500.json`.
 - **Limites e próximos passos:** a bateria de 500 é exploratória, sem gabarito de acurácia; a preservação de estado cobre a equipe carregada, não uma escala gerada. Conferir os checks do GitHub após o push. Nenhum merge foi feito.
-- **Assinado:** ChatGPT
+- **Assinado:** Manus
 
-### 2026-10-17 — Gabriel: preservar pessoa em pedido curto — Setores V277 / Encarregados V185 — ChatGPT
+### 2026-10-17 — Gabriel: preservar pessoa em pedido curto — Setores V277 / Encarregados V185 — Manus
 - **Causa raiz:** a camada V270 retornava diretamente em perguntas específicas (como a folga fixa) antes de executar `lembrar(n)`; por isso `G.contexto().pessoa` ficava vazio e o seguimento “Muda para terça” não identificava a pessoa citada.
 - **Correção:** registrar contexto antes das respostas diretas somente quando a pergunta contém uma pessoa única ou um domingo. A lógica apenas orienta o uso de Editar equipe; não altera o motor nem as regras da escala.
 - **Regressão:** o teste existente pergunta “Qual a folga fixa de X?” e depois “Muda para terça”; exige nome da pessoa, orientação para Editar equipe e aviso de que o Gabriel não altera a escala.
 - **Execução anterior:** a #377 (SHA `daf361a005c5d566485f32213b0db3b2741e36ab`) reprovou as suítes rápida e completa nesse caso nos dois apps. A bateria Gabriel 500 passou no mesmo SHA: 500 chamadas (250 por app), zero fallbacks, zero falhas semânticas, zero respostas vazias/exceções/erros JS, equipe preservada e mutação detectada/restaurada.
 - **Validação pendente:** conferir suíte rápida, completa e relatório da bateria vinculados ao SHA desta versão. Nenhum merge autorizado ou executado.
-- **Assinado:** ChatGPT
+- **Assinado:** Manus
 
 ### 2026-10-16 — Gabriel: resposta útil obrigatória — Setores V276 / Encarregados V184 — ChatGPT
 - **Causa raiz:** o fallback do chat terminava com “🤔 Não entendi essa”, e a bateria apenas contabilizava essas respostas, sem reprovar o CI. Também faltava tratamento semântico para perguntas sobre quantidade de funcionários.
