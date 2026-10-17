@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 17/10/2026, com a Setores V275 · Encarregados V183. Assinado: ChatGPT
+Atualizado em 17/10/2026, com a Setores V275 · Encarregados V183 e auditoria documental. Assinado: ChatGPT
 
 COMO USAR ESTE ARQUIVO
 ----------------------
@@ -55,7 +55,7 @@ está pendente, e espere o meu pedido."
 
 
 3. ESTADO ATUAL (atualize a cada mudança)
-- Documentação em seis pilares iniciada: `docs/PRD.md`, `docs/TRD.md`, `docs/FLUXOS.md`, `docs/DESIGN_SYSTEM.md`, `docs/MODELO_DADOS.md` e `docs/PLANO.md`. São mapas iniciais; conferir pendências no código e nos testes.
+- Documentação em seis pilares iniciada pela PR #82: `docs/PRD.md`, `docs/TRD.md`, `docs/FLUXOS.md`, `docs/DESIGN_SYSTEM.md`, `docs/MODELO_DADOS.md` e `docs/PLANO.md`. Auditoria de 17/10/2026 confirmou que ainda são mapas iniciais, não validados integralmente contra o código e os testes. Não declarar documentação concluída sem essa validação e sem conferir o workflow da PR #82.
 -----------------------------------------
 - Setores: V275 (próxima: V276).  Encarregados: V183 (próxima: V184).
 - PRs abertas: consulte a aba Pull requests do GitHub; não registre uma contagem fixa neste arquivo, pois ela fica desatualizada após cada criação, fechamento ou merge.
