@@ -1,7 +1,7 @@
 # Como ligar o ChatGPT/Codex (Subencarregado) ao GitHub sob coordenação de Manus
 
 Este guia mostra como o **ChatGPT/Codex**, no papel de **Subencarregado**, atualiza o repositório **jottacostta/EscalaDominical**.
-Manus é o Coordenador de Projetos e Claude é o Encarregado; ambos seguem a coordenação autorizada por Jonatas, Gerente de Projetos.
+Manus é o Coordenador de Projetos e Claude é o Encarregado; ambos seguem a coordenação autorizada por JottaCostta, Gerente de Projetos.
 As regras completas estão em [`AGENTS.md`](../AGENTS.md).
 
 > As telas do ChatGPT mudam com frequência. Se algum nome de menu estiver diferente (ex.: “Apps” × “Conectores” ×
@@ -48,7 +48,7 @@ Comece **toda** tarefa com este texto (copie e cole) e depois descreva o que voc
 
 ```
 Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md e o docs/PASSAGEM.md inteiros e siga todas as regras:
-- parta do main mais recente e confira PRs abertas de Manus (título [Manus]) e Claude (título [Claude]) que mexam no mesmo app; siga a coordenação de Manus e as autorizações de Jonatas;
+- parta do main mais recente e confira PRs abertas de Manus (título [Manus]) e Claude (título [Claude]) que mexam no mesmo app; siga a coordenação de Manus e as autorizações de JottaCostta;
 - crie uma VERSÃO NOVA do app (próximo número), com a linha no HISTÓRICO DE VERSÕES, mova a versão anterior
   para versoes_anteriores/, copie a nova para setores/index.html ou encarregados/index.html e atualize
   CHANGELOG.md e README.md;
@@ -91,12 +91,12 @@ Dicas para pedir:
 
 ## Parte 4 — Hierarquia e coordenação de projetos
 
-- **Jonatas é o Gerente de Projetos; Manus é o Coordenador; Claude é o Encarregado; ChatGPT/Codex é o Subencarregado.** Jonatas decide e autoriza; Manus coordena os dois cargos subordinados.
+- **JottaCostta é o Gerente de Projetos; Manus é o Coordenador; Claude é o Encarregado; ChatGPT/Codex é o Subencarregado.** JottaCostta decide e autoriza; Manus coordena os dois cargos subordinados.
 - **Todos partem sempre do `main` mais recente.** Antes de começar, confira o que já está no repositório e as PRs abertas.
 - **Não trabalhem no mesmo app ao mesmo tempo.** Manus coordena a distribuição; se Claude tiver uma PR aberta no Setores, ChatGPT/Codex aguarda ou trabalha em outro app somente dentro do escopo aprovado.
 - **Número de versão:** quem entrar no `main` por último renumera sua versão, se o número já tiver sido usado.
 - **Conflito no Pull Request** (o GitHub avisa “This branch has conflicts”): Manus coordena a resolução com Claude e ChatGPT/Codex, preservando as mudanças e repetindo os testes.
-- **Quando Claude ou ChatGPT/Codex estiver bloqueado**, Manus informa Jonatas e só continua dentro da autorização recebida; ao retornar, o assistente segue a coordenação e lê o `CHANGELOG.md` para continuar da versão mais nova.
+- **Quando Claude ou ChatGPT/Codex estiver bloqueado**, Manus informa JottaCostta e só continua dentro da autorização recebida; ao retornar, o assistente segue a coordenação e lê o `CHANGELOG.md` para continuar da versão mais nova.
 
 ---
 

@@ -21,13 +21,13 @@ está pendente, e espere o meu pedido."
 
 1. QUEM É O DONO E COMO FALAR COM ELE
 -------------------------------------
-- Dono do projeto: Jonatas (GitHub jottacostta). Não é programador; usa os apps na loja e no celular.
+- Dono do projeto: JottaCostta (GitHub jottacostta). Não é programador; usa os apps na loja e no celular.
 - Falar EXCLUSIVAMENTE em português do Brasil, frases curtas, sem termo técnico. Explicar o resultado,
   não o código. Mostrar capturas de tela (sempre com dados fictícios) quando mudar tela.
 - Ele costuma pedir em mensagens curtas ("Faça a merge", "Verifique as PR abertas", um print com um
   problema). Quando a regra de negócio não estiver clara, perguntar com opções curtas.
-- HIERARQUIA (pedido do dono, 17/10/2026): Jonatas é o GERENTE DE PROJETOS; Manus é o COORDENADOR; Claude é o ENCARREGADO; ChatGPT é o SUBENCARREGADO.
-  Ambos seguem a coordenação de Manus; Jonatas mantém a decisão e autorização finais.
+- HIERARQUIA (pedido do dono, 17/10/2026): JottaCostta é o GERENTE DE PROJETOS; Manus é o COORDENADOR; Claude é o ENCARREGADO; ChatGPT é o SUBENCARREGADO.
+  Ambos seguem a coordenação de Manus; JottaCostta mantém a decisão e autorização finais.
 - DOCUMENTAÇÃO: antes de atualizar, perguntar "Quer que eu atualize a documentação agora ou no próximo PR?".
 - MERGE: só quando ele pedir com essas palavras ("Faça a merge"). Antes do merge, conferir que os testes do
   GitHub (Checks) estão verdes no último commit do PR.
@@ -46,12 +46,12 @@ está pendente, e espere o meu pedido."
     https://jottacostta.github.io/EscalaDominical/encarregados/
 - O dono também usa os apps como APK (feito com o app dele, ApkForja, em "modo site" = WebView do link).
   Downloads no APK vão por Android.salvarArquivo (V237/V168). Ver armadilha no PASSAGEM.
-- Papéis no repositório: Manus (Coordenador), Claude (Encarregado) e ChatGPT/Codex (Subencarregado); Jonatas é o Gerente de Projetos.
+- Papéis no repositório: Manus (Coordenador), Claude (Encarregado) e ChatGPT/Codex (Subencarregado); JottaCostta é o Gerente de Projetos.
   · Manus → título do PR "[Manus] …" · assina "Manus"
   · Claude → título do PR "[Claude] …" · branch varia (ccr-…, claude/… ou outro) · assina "Claude"
   · ChatGPT/Codex → título do PR "[ChatGPT] …" · branch técnico chatgpt/… · assina "ChatGPT"
   Para saber de quem é um PR, olhe o TÍTULO ([Manus] / [Claude] / [ChatGPT]); o prefixo do branch não define o cargo.
-  Todos partem do main mais novo e não sobrescrevem trabalho alheio; Manus coordena e consulta Jonatas para decisões fora do escopo aprovado.
+  Todos partem do main mais novo e não sobrescrevem trabalho alheio; Manus coordena e consulta JottaCostta para decisões fora do escopo aprovado.
 
 
 3. ESTADO ATUAL (atualize a cada mudança)

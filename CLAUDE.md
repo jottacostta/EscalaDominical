@@ -3,10 +3,10 @@
 Siga todas as regras de [`AGENTS.md`](AGENTS.md) (versionamento, padrão de código, regras de negócio, testes, privacidade e Git).
 
 Lembretes para o Claude:
-- **Hierarquia (pedido do dono, 17/10/2026):** Jonatas é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. Siga a coordenação de Manus; Jonatas mantém a decisão e autorização finais.
+- **Hierarquia (pedido do dono, 17/10/2026):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. Siga a coordenação de Manus; JottaCostta mantém a decisão e autorização finais.
 - **Manus coordena os projetos; ChatGPT/Codex ocupa o cargo de Subencarregado.** Antes de qualquer mudança, faça
   `git fetch origin main`, veja `git log origin/main` e o topo do `CHANGELOG.md`, e parta da versão mais nova — sem sobrescrever
-  o trabalho coordenado por Manus ou autorizado por Jonatas.
+  o trabalho coordenado por Manus ou autorizado por JottaCostta.
 - Rode `testes/rodar.js` antes e depois da mudança.
 - **Assine sempre como Claude** (seção 9 do AGENTS.md): título do PR `[Claude] …`, `Assinado: Claude` no commit e no PR,
   `— *Claude*` no CHANGELOG e `Vnnn [Claude] —` no HISTÓRICO DE VERSÕES. Manus assina `Manus`; ChatGPT/Codex assina `ChatGPT`.

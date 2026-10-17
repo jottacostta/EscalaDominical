@@ -6,12 +6,12 @@ Escreva sempre em **português do Brasil**, com linguagem simples (quem usa o ap
 > **Regra de ouro do dono (UX/UI):** o app tem que ser fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Toda mudança de tela segue a seção 4.1.
 
 > **Hierarquia (pedido do dono, 17/10/2026; substitui a definição de 14/10/2026):**
-> - **Gerente de Projetos:** Jonatas, o dono; mantém a decisão e autorização finais.
+> - **Gerente de Projetos:** JottaCostta, o dono; mantém a decisão e autorização finais.
 > - **Coordenador de Projetos:** Manus; coordena os dois cargos subordinados dentro do escopo autorizado pelo gerente.
 > - **Encarregado:** Claude; segue a coordenação de Manus.
 > - **Subencarregado:** ChatGPT/Codex; segue a coordenação de Manus.
 >
-> **Nada é feito por iniciativa própria** (nem por Manus, Claude ou ChatGPT) **sem autorização de Jonatas**: mudanças de código,
+> **Nada é feito por iniciativa própria** (nem por Manus, Claude ou ChatGPT) **sem autorização de JottaCostta**: mudanças de código,
 > documentação, merge, abrir ou fechar PR. Manus coordena a execução autorizada. Dúvidas ou discordâncias voltam ao gerente.
 
 ## 1. O que é o projeto
