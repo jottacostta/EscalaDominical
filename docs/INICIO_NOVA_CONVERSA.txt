@@ -54,7 +54,8 @@ está pendente, e espere o meu pedido."
   (gerar uma escala e olhar a tela), e se precisar de ajuste, propor ao dono antes (ex.: PR #39 → V244).
 
 
-3. ESTADO ATUAL (atualize a cada mudança)\n- Documentação em seis pilares iniciada: `docs/PRD.md`, `docs/TRD.md`, `docs/FLUXOS.md`, `docs/DESIGN_SYSTEM.md`, `docs/MODELO_DADOS.md` e `docs/PLANO.md`. São mapas iniciais; conferir pendências no código e nos testes.
+3. ESTADO ATUAL (atualize a cada mudança)
+- Documentação em seis pilares iniciada: `docs/PRD.md`, `docs/TRD.md`, `docs/FLUXOS.md`, `docs/DESIGN_SYSTEM.md`, `docs/MODELO_DADOS.md` e `docs/PLANO.md`. São mapas iniciais; conferir pendências no código e nos testes.
 -----------------------------------------
 - Setores: V275 (próxima: V276).  Encarregados: V183 (próxima: V184).
 - PRs abertas: consulte a aba Pull requests do GitHub; não registre uma contagem fixa neste arquivo, pois ela fica desatualizada após cada criação, fechamento ou merge.
