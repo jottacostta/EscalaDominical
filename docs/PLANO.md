@@ -2,6 +2,9 @@
 
 **Status:** plano inicial de documentação e qualidade. Prioridades de produto e alterações de comportamento continuam sob decisão do gerente.
 
+## Auditoria documental — 17/10/2026
+A revisão confirmou que os seis pilares são mapas iniciais. Antes de marcar a documentação como concluída, confrontar cada um com os apps atuais (Setores V275 e Encarregados V183), os validadores/serializadores e `testes/rodar.js`. Registrar, por documento, evidência verificada, divergências e testes relacionados. A PR #82 foi incorporada, mas na consulta desta auditoria sua suíte completa ainda estava em execução; conferir o resultado final antes de registrar aprovação.
+
 ## Frentes
 ### P0 — Governança
 Ler `AGENTS.md`, conferir PRs abertos e mudanças concorrentes, não sobrescrever trabalho alheio e nunca fazer merge sem autorização explícita.
