@@ -156,6 +156,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-17 — Portal inicial com acesso aos dois aplicativos — ChatGPT
+- **O que mudou:** criado `index.html` na raiz como página de entrada responsiva, com identidade visual azul/amarelo, dois cartões e links fixos para a Escala de Setores e a Escala 2×1 de Encarregados.
+- **Escopo:** somente página de navegação; os dois aplicativos continuam independentes e não foram alterados. O HTML/CSS não depende de bibliotecas externas.
+- **Como testar:** conferir os destinos dos links, layout em celular/computador, foco visível por teclado e ausência de dependências externas; validar os checks automáticos no GitHub antes do merge.
+- **Para continuar:** esta alteração parte da `main` atual, após incorporação da PR #83. — ChatGPT
+
 ### 2026-10-17 — Auditoria da documentação dos seis pilares e correção de referências — ChatGPT
 - **O que foi conferido:** `AGENTS.md`, `CLAUDE.md`, `docs/PASSAGEM.md`, `docs/INICIO_NOVA_CONVERSA.txt`, `README.md`, `CHANGELOG.md`, os seis pilares e o workflow da PR #82.
 - **Achados confirmados:** Setores V275 e Encarregados V183 estão indicados nos documentos de estado; as cópias fixas são descritas como cópias das versões atuais. A passagem citava a PR #81 para os seis pilares, mas a PR que os incorporou foi a #82; referência corrigida. A passagem e o início de conversa precisam distinguir a documentação inicial da documentação validada.
