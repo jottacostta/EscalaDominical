@@ -22,8 +22,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida, a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 17/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. JottaCostta mantém a decisão e autorização finais.
-- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
-- **PR #86 (Manus):** hierarquia e assinaturas documentadas; branch `chatgpt/hierarquia-manus`, checks e revisão pendentes. Não mesclar sem autorização de JottaCostta.
+- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
+- **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
 - **PR #80 (Manus):** mesclada em 17/10/2026; merge commit `854fcc8`. O branch `chatgpt/gabriel-bateria-500` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
@@ -163,11 +163,17 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-17 — Correção do estado pós-merge da PR #86 — Manus
+- **O que mudou:** a seção de estado e o registro da hierarquia agora indicam que a PR #86 foi mesclada no commit `923da8e`, sem apagar o branch.
+- **Escopo e validação:** apenas `docs/PASSAGEM.md`; `git diff --check` e conferência das referências. `npm test` não foi repetido porque não houve mudança de código; os checks da PR #86 já passaram.
+- **Continuidade:** esta correção seguirá em PR própria para revisão. Nenhum merge foi solicitado ou executado para ela.
+- **Assinado:** Manus
+
 ### 2026-10-17 — Hierarquia e assinaturas dos assistentes — Manus
 - **Pedido de JottaCostta:** Gerente de Projetos → Manus (Coordenador de Projetos) → Claude (Encarregado) e ChatGPT/Codex (Subencarregado).
 - **O que mudou:** alinhados `AGENTS.md`, `CLAUDE.md`, `docs/INICIO_NOVA_CONVERSA.txt`, este arquivo e `docs/CHATGPT_COPILOTO.md`, incluindo cargos, coordenação, identificação de PR e assinatura própria. Nenhum código, versão de app, `README.md` ou `CHANGELOG.md` foi alterado.
-- **Validação:** `git diff --check` passou e `npm test` passou em execução limpa (858 segundos). A tentativa anterior interrompida não foi contabilizada.
-- **Continuidade:** a PR #86 aguarda os checks do GitHub e a revisão de JottaCostta. Nenhum merge foi solicitado ou executado.
+- **Validação:** `git diff --check` e `npm test` passaram localmente (858 segundos); os quatro checks do GitHub passaram no SHA `b5212bd` antes do merge.
+- **Continuidade:** a PR #86 foi mesclada em 17/10/2026 no merge commit `923da8e`; o branch `chatgpt/hierarquia-manus` foi mantido.
 - **Assinado:** Manus
 
 ### 2026-10-17 — Diretriz de assinatura Manus — Manus
