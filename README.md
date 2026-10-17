@@ -17,6 +17,12 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 | [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V274 e V150–V182), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com o Claude ou o ChatGPT |
+| [`docs/PRD.md`](docs/PRD.md) | produto, usuários, requisitos e aceitação |
+| [`docs/TRD.md`](docs/TRD.md) | arquitetura e requisitos técnicos |
+| [`docs/FLUXOS.md`](docs/FLUXOS.md) | fluxos do usuário e erros |
+| [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | princípios visuais e componentes |
+| [`docs/MODELO_DADOS.md`](docs/MODELO_DADOS.md) | dados, persistência e privacidade |
+| [`docs/PLANO.md`](docs/PLANO.md) | frentes e critérios de conclusão |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
 | Manuais de uso (Claude Docs) | [Manual do Encarregado](https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726) · [Manual da Escala de Setores](https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197) · [Roteiro do Beta](https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9) — com prints de dados fictícios |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (ChatGPT/Codex e Claude) |

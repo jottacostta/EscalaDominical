@@ -5,6 +5,10 @@ Cada entrada é assinada por quem fez: — *Claude* ou — *ChatGPT* (a partir d
 Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo).
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
+## Documentação
+
+- **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
+
 ## Escala de Setores
 
 - **V274** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos. A 5×2 fica preparada, mas desligada; nada muda para quem usa e abrir histórico não liga o novo regime. — *Claude*
