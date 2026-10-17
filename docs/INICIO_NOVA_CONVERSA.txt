@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 16/10/2026, com a Setores V274 · Encarregados V182. Assinado: ChatGPT
+Atualizado em 17/10/2026, com a Setores V277 · Encarregados V185. Assinado: ChatGPT
 
 COMO USAR ESTE ARQUIVO
 ----------------------
@@ -56,7 +56,7 @@ está pendente, e espere o meu pedido."
 
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
-- Setores: V274 (próxima: V275).  Encarregados: V182 (próxima: V183).
+- Setores: V277 (próxima: V278).  Encarregados: V185 (próxima: V186).
 - PRs abertas: consulte a aba Pull requests do GitHub; não registre uma contagem fixa neste arquivo, pois ela fica desatualizada após cada criação, fechamento ou merge.
   Já no `main`: #54, #56, #59, #62, #63, #64, #69 (Setores V269), #71 (Setores V270), #72 (Encarregados V179), #75 (Setores V271), #76 (Setores V272–V273 / Encarregados V180–V181) e #77 (Setores V274 / Encarregados V182). #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`. Consulte o GitHub para o estado atual das PRs.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
@@ -80,8 +80,8 @@ está pendente, e espere o meu pedido."
     sugestão divide as operadoras em abertura, intermediária (10h) e fechamento · V254 Editar equipe:
     turno vazio vem do horário e o aviso traz o nome da pessoa · V255 função sem A/B (Promotor A e B
     juntos) e grupo Jovem aprendiz · V256 cartão próprio 🎓 Jovem Aprendiz, separado do ADM Geral · V257 nome do setor no arquivo Excel · V258 1 promotor por domingo e cartazista sem domingo · V259 aviso em “Por grupos” quando há menos de 6 pessoas · V260 importação do ERP sem opção de bloquear domingo (aprendizes e cartazista continuam bloqueados) · V261 cópia do app ao tocar na logo · V262 🤖 Assistente RH (botão flutuante com dicas; aprende como o encarregado monta a escala).
-  · Setores V263 prévia com domingos + Assistente RH mais robusto · V264 valida hora real + testes ARH-16 a ARH-24 · V265 chat offline · V266 confirmação de horário · V267 horário por função + histórico · V269 confirmação de par 2×1 na escala manual · V270 Gabriel (saudação, PNL, contexto e datas) · V271 inventário/leitura da planilha do RH · V272 chat móvel + feriados · V273 memória local do Gabriel · V274 regime configurável, 6×1 padrão e 5×2 desligada.
-  · Encarregados V177 prévia com domingos + Assistente RH mais robusto · V178 chat offline · V179 Gabriel (saudação, PNL, contexto e datas) · V180 chat móvel + feriados · V181 memória local do Gabriel · V182 regime configurável, 6×1 padrão e 5×2 desligada.
+  · Setores V263 prévia com domingos + Assistente RH mais robusto · V264 valida hora real + testes ARH-16 a ARH-24 · V265 chat offline · V266 confirmação de horário · V267 horário por função + histórico · V269 confirmação de par 2×1 na escala manual · V270 Gabriel (saudação, PNL, contexto e datas) · V271 inventário/leitura da planilha do RH · V272 chat móvel + feriados · V273 memória local do Gabriel · V274 regime configurável, 6×1 padrão e 5×2 desligada · V275 contexto e vocabulário do Gabriel · V276 respostas úteis e contagens semânticas · V277 fala natural, sinônimos “2 por 1”, explicação de folga fixa e contexto pessoal preservado.
+  · Encarregados V177 prévia com domingos + Assistente RH mais robusto · V178 chat offline · V179 Gabriel (saudação, PNL, contexto e datas) · V180 chat móvel + feriados · V181 memória local do Gabriel · V182 regime configurável, 6×1 padrão e 5×2 desligada · V183 contexto e vocabulário do Gabriel · V184 respostas úteis e contagens semânticas · V185 fala natural, sinônimos “2 por 1”, explicação de folga fixa, resposta de liderança e contexto pessoal preservado.
   · Encarregados V167 escala à mão · V168 downloads no APK · V169–V171 ordem dos passos · V172 data de
     admissão dd/mm/aaaa · V173 sem Equipe.txt na tela · V174 folga da virada do mês (10 dias seguidos!), mês com
     balanço sem 3 domingos seguidos, aviso de 3 domingos certo · V175 datas de balanço num quadro (sem .txt) · V176 🤖 Assistente RH (igual ao Setores V262).

@@ -11,7 +11,7 @@
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
-V185 [ChatGPT] — CONTEXTO INDIVIDUAL PRESERVADO: perguntas respondidas diretamente mantêm a pessoa citada para continuações como “Muda para terça”. O Gabriel orienta a edição sem alterar a escala. — ChatGPT
+V185 [ChatGPT] — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP, preserva a pessoa citada em continuações e mantém a orientação específica sobre liderança; não altera a escala. — ChatGPT
 V184 [ChatGPT] — 🤖 RESPOSTA ÚTIL: elimina “Não entendi” como resposta final, orienta o próximo passo quando não reconhece uma pergunta e responde a contagem da equipe a partir dos dados carregados. A bateria reprova se reaparecer resposta genérica ou falhar a validação semântica de quantidade. — ChatGPT
 V183 [Claude] — 🗣️ GABRIEL: CONTEXTO DA CONVERSA + VOCABULÁRIO DO SUPERMERCADO (pedido do dono, 16/10/2026: “faça os testes para procurar erro e corrigir, além de
        enriquecer o vocabulário do Gabriel”; bateria de 66 perguntas e o caso “já fiz” da issue #68). A bateria foi executada nos dois apps: a maior parte caía em “Não entendi essa” ou numa
@@ -2006,7 +2006,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V185 · 🤖 Gabriel preserva o contexto da conversa</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V185 · 🤖 fala natural e contexto preservado</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -8971,6 +8971,7 @@ function perguntarOrientacaoImpressao(cb){
   const RESP=[
     {k:['6x1','6 x 1','7 dias','sete dias','seis dias','dias seguidos','dia seguido'],r:'📏 <b>Regra do 6×1:</b> ninguém trabalha mais de <b>6 dias seguidos</b>. Depois de 6 dias, tem que ter uma folga. O app confere sozinho e avisa em vermelho se alguém passar disso.'},
     {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção.':'')},
+    {k:['folga fixa','folgas fixas','dia fixo de folga','dia de folga fixo','dia de folga fixa','descanso fixo','dia de descanso fixo'],r:'💤 <b>Folga fixa:</b> é o dia da semana definido no cadastro para descanso regular. Para consultar ou alterar, use o passo <b>1 Equipe → ✏️ Editar equipe</b> e confira o campo <b>Folga fixa</b>; depois gere a escala novamente.'},
     {k:['dsr','folga da semana','descanso semanal','descanso'],r:'💤 <b>Folga da semana (DSR):</b> quem trabalha no domingo ganha uma folga durante a semana. O app calcula sozinho quando você toca em <b>Gerar</b>, e ela aparece como <b>FOLGA</b> na escala e na prévia.'},
     {k:['feriado','feriados','compensa*','folga do feriado','folga de feriado'],r:'🎉 <b>Feriado:</b> no passo <b>4 Feriados</b>, marque quem vai trabalhar. Quem trabalha ganha <b>uma folga em outro dia</b>: o app sugere a data, e você toca em <b>✅ Aceitar</b> ou <b>🔄 Outra data</b>. A folga nunca cai no dia da folga fixa.'+(APP==='enc'?' O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções.':'')+' Para ver o mês inteiro, abra a <b>📅 Prévia das folgas</b>.'},
     {k:['balanco'],r:APP==='setores'?'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>⚙️ Configurações → 📦 Domingos de balanço</b>. Ele é exceção na regra dos domingos seguidos.':'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>📅 Mês e opções → Mais opções → 📦 Domingos de balanço</b>. No balanço, <b>todos trabalham</b>.'},
@@ -10208,7 +10209,7 @@ function perguntarOrientacaoImpressao(cb){
 </script>
 
 <script>
-/* ═════ V185 Gabriel — 🤖 CONTEXTO PRESERVADO E RESPOSTA ÚTIL ═════
+/* ═════ V185 Gabriel — 🤖 FALA NATURAL, RESP E CONTEXTO INDIVIDUAL ═════
    Respostas de capacidade explícitas, contagem semântica da equipe e recuperação segura.
    O fallback nunca afirma que entendeu quando não reconheceu; orienta o próximo passo.
 */
@@ -10269,7 +10270,6 @@ function perguntarOrientacaoImpressao(cb){
     try{
       const q=normalizar(texto);
       if(/\bquantas? pessoas\b/.test(q)&&/\btrabalham?\b/.test(q)&&/\bdomingos?\b/.test(q)&&/\bencarregad\w*\b/.test(q))return '⭐ A quantidade de pessoas na liderança de domingo não é fixa: no passo 3 — Domingos, quadro ③ Quem lidera, você pode selecionar uma, várias pessoas ou organizar por turno (abertura e fechamento). Para confirmar um domingo específico, confira as pessoas selecionadas nessa data.';
-      if(/\bfolgas? fixas?\b/.test(q)&&!(base.interno&&typeof base.interno.pessoas==='function'&&(()=>{try{return base.interno.pessoas(q).length>0}catch(e){return false}})()))return '💤 A folga fixa é o dia da semana definido no cadastro do funcionário para descanso regular. No passo 1 — Equipe — toque em ✏️ Editar equipe, selecione a pessoa e confira o campo Folga fixa. Se alterar o dia, gere a escala novamente.';
       if(perguntaCapacidades(texto))return original.call(base,texto);
       if(quantidadePerguntada(texto)){
         const d=contarEquipe(),q=normalizar(texto);

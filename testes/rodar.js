@@ -2005,8 +2005,29 @@ async function testarConversa275(browser, app, nome, abrir, versaoMin){
   ok(/menos gente/.test(r[0]) && /segunda-feira × sábado/.test(r[1]) && /turno/.test(r[2]) && r.every(x => /cobertura mínima/.test(x) && /não está cadastrada/.test(x)), 'cobertura: dia mais apertado, comparação segunda × sábado, turno descoberto — sempre dizendo que a cobertura mínima não está cadastrada');
   ok(/feriado/i.test(r[2]) && !/segunda-feira 02\/11\/2026 \(0 trabalham\)/.test(r[0]), 'feriado sem ninguém marcado aparece como feriado, não como “dia mais apertado”');
   // 5) contexto e conversa
+  const estadoAntesFolga = await p.evaluate(() => JSON.stringify([equipe, trabalhoDomingo]));
   r = (await R(['Qual a folga fixa da ' + info.unico + '?', 'Muda para terça.'])).map(t);
-  ok(r[1].toUpperCase().includes(info.unico.toUpperCase()) && /Editar equipe/.test(r[1]) && /não altero a escala/.test(r[1]), '“Muda para terça.” depois de falar de uma pessoa: o Gabriel orienta (Editar equipe) e diz que não altera a escala');
+  const estadoDepoisFolga = await p.evaluate(() => JSON.stringify([equipe, trabalhoDomingo]));
+  ok(r[1].toUpperCase().includes(info.unico.toUpperCase()) && /Editar equipe/.test(r[1]) && /não altero a escala/.test(r[1]) && estadoAntesFolga === estadoDepoisFolga, '“Muda para terça.” preserva o nome e a escala; o Gabriel orienta (Editar equipe), sem alterar dados');
+  r = await p.evaluate(qs => qs.map(q => { window.v270Gabriel.reset(); return String(window.v265Chat.responder(q)).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ' '); }), [
+    'Como funcionam as folgas fixas?', 'Vc sabe como funciona o dia de folga fixo?', 'Rapidinho: o que significa descanso fixo?'
+  ]);
+  ok(r.every(x => /dia da semana definido/.test(x) && /Editar equipe/.test(x) && /gere a escala novamente/.test(x) && !/Não entendi/i.test(x)), 'perguntas gerais sobre folga fixa e seus sinônimos recebem explicação sem desviar a conversa pessoal');
+  r = await p.evaluate(qs => qs.map(q => { window.v270Gabriel.reset(); return String(window.v265Chat.responder(q)).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ' '); }), [
+    'Como funciona a escala manual?', 'Ô, como funciona a escala manual?', 'Vc sabe como funciona a escala manual?',
+    'Rapidinho: como funciona a escala manual?', 'Preciso confirmar isso para montar a escala corretamente: como funciona a escala manual?'
+  ]);
+  ok(r.every(x => /Jeitos de montar os domingos/.test(x) && /Mist[oa]/.test(x) && !/Passo a passo|o que eu sei fazer/i.test(x)), 'os prefácios “Ô”, “Vc sabe”, “Rapidinho” e “Preciso confirmar” não desviam a pergunta sobre escala manual');
+  if(enc){
+    r = await p.evaluate(qs => qs.map(q => { window.v270Gabriel.reset(); return String(window.v265Chat.responder(q)).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ' '); }), [
+      'Quantas pessoas trabalham no domingo na escala dos encarregados?', 'Vc sabe quantas pessoas trabalham no domingo na escala dos encarregados?'
+    ]);
+    ok(r.every(x => /quantidade de pessoas na liderança/i.test(x) && /Quem lidera/.test(x)), 'a pergunta sobre liderança responde com a regra dos Encarregados, mesmo com “Vc sabe”');
+  }
+  r = await p.evaluate(qs => qs.map(q => { window.v270Gabriel.reset(); return String(window.v265Chat.responder(q)).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ' '); }), [
+    'Como funciona a escala 2x1?', 'Como funciona a escala 2 por 1?', 'Como funciona a escala dois por um?'
+  ]);
+  ok(r.every(x => /Domingos seguidos/i.test(x) && /2×1/.test(x) && /3/.test(x)), '“2x1”, “2 por 1” e “dois por um” consultam a mesma regra de domingos seguidos');
   r = (await R(['Quem trabalha no domingo 15?', 'E o segundo?'])).map(t);
   ok(r[1].toUpperCase().includes(info.seg[1].split(' ')[0]) && /2º da lista/.test(r[1]), '“E o segundo?” resolve pela lista que ele mostrou (2º escalado do domingo 15)');
   r = (await R(['Como salvo a escala?', 'Pronto.'])).map(t);

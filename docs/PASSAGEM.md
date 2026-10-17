@@ -38,7 +38,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
 ### Camadas documentadas até V277
-- **V277 — Continuação com contexto individual:** antes de uma resposta direta, a camada V270 registra a pessoa única mencionada. Assim, “Qual a folga fixa de X?” → “Muda para terça” mantém X como referência; a resposta só orienta em Editar equipe e nunca altera a escala.
+- **V277 — fala natural, dicionário e contexto:** `prepararPergunta()` remove prefácios e normaliza “2 por 1”/“dois por um”; as dúvidas gerais sobre folga fixa usam aliases específicos em `RESP`, antes da chave genérica “descanso”; a camada V270 registra a pessoa única citada antes de respostas diretas. Continuações como “Muda para terça” mantêm essa pessoa, e o chat só orienta a usar `Editar equipe`, sem alterar a escala.
 - **V276 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH (V263/V264):** `juntar()` valida com `numOk`, `ymOk`, `horOk` e `objOk`. O salvamento usa `pend`; `gravarJa` roda em `pagehide` e `visibilitychange`. A `horOk` da V264 aceita hora 00–23 e minuto 00–59.
 - **Prévia V263:** `renderPreviaFolgasFeriado` usa `domPv`/`abertoPv`.
@@ -97,7 +97,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
 ### Camadas documentadas até V185
-- **V185 — Continuação com contexto individual:** mesma correção da V277 dos Setores na camada V270; perguntas respondidas diretamente não podem deixar `G.contexto().pessoa` vazio quando citaram uma pessoa única.
+- **V185 — fala natural, dicionário e contexto:** mesma normalização e entrada específica em `RESP` da V277; a camada V270 registra a pessoa única antes de respostas diretas e mantém o contexto de continuações. A orientação sobre liderança continua específica; o chat apenas indica `Editar equipe` e não altera a escala.
 - **V184 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH V177:** validação e salvamento equivalentes aos Setores; o objeto global também é `window.v262Assistente`, com chave própria do app.
 - **Prévia V177:** usa `window.v167Api.sel()` e `trabalhamNoBalanco`.

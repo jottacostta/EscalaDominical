@@ -7,7 +7,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Escala de Setores
 
-- **V277** — GABRIEL PRESERVA O CONTEXTO INDIVIDUAL: perguntas específicas sobre uma pessoa mantêm a referência para continuações curtas como “Muda para terça”. O assistente orienta a edição e não altera a escala. — *ChatGPT*
+- **V277** — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP e preserva a pessoa citada em continuações como “Muda para terça”; orienta a editar sem alterar a escala. — *ChatGPT*
 - **V276** — GABRIEL NÃO ENCERRA COM “NÃO ENTENDI”: respostas sem correspondência recebem orientação contextual e pedido de detalhes; perguntas sobre o total de funcionários usam a equipe carregada. A bateria reprova se houver fallback genérico ou falha semântica de contagem. — *ChatGPT*
 - **V275** — GABRIEL: CONTEXTO DA CONVERSA E VOCABULÁRIO DO SUPERMERCADO; amplia o reconhecimento de linguagem cotidiana e correções contextuais. — *Claude*
 - **V274** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos. A 5×2 fica preparada, mas desligada; nada muda para quem usa e abrir histórico não liga o novo regime. — *Claude*
@@ -147,7 +147,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Escala 2×1 de Encarregados
 
-- **V185** — GABRIEL PRESERVA O CONTEXTO INDIVIDUAL: perguntas específicas sobre uma pessoa mantêm a referência para continuações curtas como “Muda para terça”. O assistente orienta a edição e não altera a escala. — *ChatGPT*
+- **V185** — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP, preserva a pessoa citada em continuações e mantém a orientação específica sobre liderança; não altera a escala. — *ChatGPT*
 - **V184** — GABRIEL NÃO ENCERRA COM “NÃO ENTENDI”: respostas sem correspondência recebem orientação contextual e pedido de detalhes; perguntas sobre o total de funcionários usam a equipe carregada. A bateria reprova se houver fallback genérico ou falha semântica de contagem. — *ChatGPT*
 - **V183** — GABRIEL: CONTEXTO DA CONVERSA E VOCABULÁRIO DO SUPERMERCADO; amplia o reconhecimento de linguagem cotidiana e correções contextuais. — *Claude*
 - **V182** — REGIME CONFIGURÁVEL, 6×1 COMO PADRÃO: centraliza o limite de dias seguidos; a 5×2 fica preparada, mas desligada até confirmação legal e ordem do gerente. — *Claude*
