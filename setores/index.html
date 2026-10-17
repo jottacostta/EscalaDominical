@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V276</title>
+<title>Escala de Setores — V277</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V277 [ChatGPT] — CONTEXTO INDIVIDUAL PRESERVADO: perguntas respondidas diretamente mantêm a pessoa citada para continuações como “Muda para terça”. O Gabriel orienta a edição sem alterar a escala. — ChatGPT
 V276 [ChatGPT] — 🤖 RESPOSTA ÚTIL: elimina “Não entendi” como resposta final, orienta o próximo passo quando não reconhece uma pergunta e responde a contagem da equipe a partir dos dados carregados. A bateria reprova se reaparecer resposta genérica ou falhar a validação semântica de quantidade. — ChatGPT
 V275 [Claude] — 🗣️ GABRIEL: CONTEXTO DA CONVERSA + VOCABULÁRIO DO SUPERMERCADO (pedido do dono, 16/10/2026: “faça os testes para procurar erro e corrigir, além de
        enriquecer o vocabulário do Gabriel”; bateria de 66 perguntas e o caso “já fiz” da issue #68). A bateria foi executada nos dois apps: a maior parte caía em “Não entendi essa” ou numa
@@ -2678,7 +2679,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V276 · 🤖 Gabriel responde com orientação útil</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V277 · 🤖 Gabriel preserva o contexto da conversa</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -14999,6 +15000,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const esc=ctx.escolha?resolverEscolha(n):null; if(esc) return esc;
     }
     const qn=n.qn, tk=n.tokens;
+    // V277: preserve the person cited even when an earlier intent returns directly.
+    if (I.pessoas(qn).length === 1 || I.domingos(qn).length) seguro(()=>lembrar(n));
     if(ehIdentidade(qn,tk)) return TXT_NOME;
     if(ehCapacidades(qn,tk)) return window.v271Planilha?TXT_FAZ.replace('</ul>','<li>📄 Contar o que li da planilha do RH: abas, linhas, totais e o que não entendi.</li></ul>'):TXT_FAZ;   // V271
     if(ehHora(qn)) return respHora();
@@ -15959,7 +15962,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 </script>
 
 <script>
-/* ═════ V276 Gabriel — 🤖 RESPOSTA ÚTIL DO GABRIEL ═════
+/* ═════ V277 Gabriel — 🤖 CONTEXTO PRESERVADO E RESPOSTA ÚTIL ═════
    Respostas de capacidade explícitas, contagem semântica da equipe e recuperação segura.
    O fallback nunca afirma que entendeu quando não reconheceu; orienta o próximo passo.
 */
@@ -16032,7 +16035,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const resposta=original.call(base,texto);
       return semResposta(resposta)?orientacao(texto):resposta;
     }catch(e){
-      console.warn('[V276 Gabriel]',e);
+      console.warn('[V277 Gabriel]',e);
       return falhaInterna();
     }
   };

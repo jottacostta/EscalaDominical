@@ -17,15 +17,15 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V276.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V184.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V277.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V185.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida, a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 14/10/2026 — topo do `AGENTS.md`):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o **subencarregado**. Nada por iniciativa própria sem autorização do gerente.
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas, pois ela fica desatualizada quando uma PR é criada, fechada ou incorporada. Já incorporadas ao `main`: #54 (Setores V262 + Encarregados V176, Assistente RH), #56 (AGENTS.md: hierarquia e seção 2.1), #59 (Setores V263 + Encarregados V177), #62 (Setores V264 + testes ARH-16 a ARH-24), #63 (Setores V265 + Encarregados V178) e #64 (Setores V266/V267). A #55 do ChatGPT (guia REA) foi fechada sem merge: as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V277**, Encarregados **V185**.
+- **Próximo número de versão:** Setores **V278**, Encarregados **V186**.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
   - Manual da Escala de Setores (V246): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
@@ -37,7 +37,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V276
+### Camadas documentadas até V277
+- **V277 — Continuação com contexto individual:** antes de uma resposta direta, a camada V270 registra a pessoa única mencionada. Assim, “Qual a folga fixa de X?” → “Muda para terça” mantém X como referência; a resposta só orienta em Editar equipe e nunca altera a escala.
 - **V276 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH (V263/V264):** `juntar()` valida com `numOk`, `ymOk`, `horOk` e `objOk`. O salvamento usa `pend`; `gravarJa` roda em `pagehide` e `visibilitychange`. A `horOk` da V264 aceita hora 00–23 e minuto 00–59.
 - **Prévia V263:** `renderPreviaFolgasFeriado` usa `domPv`/`abertoPv`.
@@ -95,7 +96,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V184
+### Camadas documentadas até V185
+- **V185 — Continuação com contexto individual:** mesma correção da V277 dos Setores na camada V270; perguntas respondidas diretamente não podem deixar `G.contexto().pessoa` vazio quando citaram uma pessoa única.
 - **V184 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH V177:** validação e salvamento equivalentes aos Setores; o objeto global também é `window.v262Assistente`, com chave própria do app.
 - **Prévia V177:** usa `window.v167Api.sel()` e `trabalhamNoBalanco`.
@@ -128,6 +130,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Horário gerado no histórico (V267):** fica em `resultado.estadoFinalMes.horariosGeradosDomingo`; antes da V267 não voltava ao abrir o histórico.
 - **Configuração do setor vs. histórico (V267):** `coberturaFuncaoSetor` só entra do arquivo se o aparelho ainda não tiver configuração daquele setor; a configuração do aparelho prevalece.
 
+- **Contexto do Gabriel (V277/V185):** respostas diretas de intenções podem retornar antes do `lembrar(n)` da camada V270. Registre a pessoa única citada antes desses retornos; não chame `lembrar` indiscriminadamente em perguntas curtas, pois isso pode apagar o contexto. Regressão obrigatória: “Qual a folga fixa de X?” seguido de “Muda para terça” precisa mencionar X, orientar `Editar equipe` e declarar que o chat não altera a escala.
 - **Procurar a pessoa num aviso:** os avisos têm formatos diferentes (`dd/mm/aaaa: Nome ficaria…`, `Nome: sequência…`, `dd/mm/aaaa: Nome: folga fixa a definir…`). Não exija `Nome:`. Use a função `cita` da V228, que também separa nomes parecidos ("Ana Silva" × "Ana Silva Souza").
 - **Desfazer uma marcação na escala à mão:** não clique de novo no checkbox, porque o cartão pode ter sido redesenhado. Mexa direto em `selecaoManualDomingo` / `horariosManuaisDomingo` e chame `renderSelecaoDomingosGeracao()`.
 - **Índices do histórico ("snapshot")** se referem ao setor daquele snapshot, não ao setor aberto.
@@ -156,6 +159,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-17 — Gabriel: preservar pessoa em pedido curto — Setores V277 / Encarregados V185 — ChatGPT
+- **Causa raiz:** a camada V270 retornava diretamente em perguntas específicas (como a folga fixa) antes de executar `lembrar(n)`; por isso `G.contexto().pessoa` ficava vazio e o seguimento “Muda para terça” não identificava a pessoa citada.
+- **Correção:** registrar contexto antes das respostas diretas somente quando a pergunta contém uma pessoa única ou um domingo. A lógica apenas orienta o uso de Editar equipe; não altera o motor nem as regras da escala.
+- **Regressão:** o teste existente pergunta “Qual a folga fixa de X?” e depois “Muda para terça”; exige nome da pessoa, orientação para Editar equipe e aviso de que o Gabriel não altera a escala.
+- **Execução anterior:** a #377 (SHA `daf361a005c5d566485f32213b0db3b2741e36ab`) reprovou as suítes rápida e completa nesse caso nos dois apps. A bateria Gabriel 500 passou no mesmo SHA: 500 chamadas (250 por app), zero fallbacks, zero falhas semânticas, zero respostas vazias/exceções/erros JS, equipe preservada e mutação detectada/restaurada.
+- **Validação pendente:** conferir suíte rápida, completa e relatório da bateria vinculados ao SHA desta versão. Nenhum merge autorizado ou executado.
+- **Assinado:** ChatGPT
 
 ### 2026-10-16 — Gabriel: resposta útil obrigatória — Setores V276 / Encarregados V184 — ChatGPT
 - **Causa raiz:** o fallback do chat terminava com “🤔 Não entendi essa”, e a bateria apenas contabilizava essas respostas, sem reprovar o CI. Também faltava tratamento semântico para perguntas sobre quantidade de funcionários.
