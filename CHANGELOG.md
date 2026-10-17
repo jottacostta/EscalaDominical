@@ -5,6 +5,11 @@ Cada entrada é assinada por quem fez: — *Claude* ou — *ChatGPT* (a partir d
 Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo).
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
+## Documentação
+
+- **17/10/2026** — Auditoria documental: corrigida em `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt` a referência dos seis pilares para a PR #82. Os seis documentos permanecem iniciais e precisam de validação contra os apps e os testes; workflow da PR #82 ainda sem resultado final confirmado na consulta. — *ChatGPT*
+- **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
+
 ## Escala de Setores
 
 - **V277** — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP e preserva a pessoa citada em continuações como “Muda para terça”; orienta a editar sem alterar a escala. — *ChatGPT*
