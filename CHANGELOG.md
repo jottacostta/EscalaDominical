@@ -7,6 +7,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Documentação
 
+- **17/10/2026** — Auditoria documental: corrigida em `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt` a referência dos seis pilares para a PR #82. Os seis documentos permanecem iniciais e precisam de validação contra os apps e os testes; workflow da PR #82 ainda sem resultado final confirmado na consulta. — *ChatGPT*
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
