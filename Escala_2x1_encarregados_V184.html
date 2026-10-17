@@ -10257,13 +10257,16 @@ function perguntarOrientacaoImpressao(cb){
   }
   function semResposta(resposta){
     const limpa=normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' '));
-    return !limpa||/^nao entendi\b|^nao consegui entender\b|^nao compreendi\b/.test(limpa);
+    return !limpa||/\bnao entendi(?: essa)?\b|\bnao consegui entender\b|\bnao compreendi\b/.test(limpa);
   }
   function falhaInterna(){
     return '🤖 Ocorreu uma falha interna ao processar a pergunta. Tente reformulá-la com o nome da pessoa, a data ou o assunto que deseja conferir.';
   }
   base.responder=function(texto){
     try{
+      const q=normalizar(texto);
+      if(/\bquantas? pessoas\b/.test(q)&&/\btrabalham?\b/.test(q)&&/\bdomingos?\b/.test(q)&&/\bencarregad\w*\b/.test(q))return '⭐ A quantidade de pessoas na liderança de domingo não é fixa: no passo 3 — Domingos, quadro ③ Quem lidera, você pode selecionar uma, várias pessoas ou organizar por turno (abertura e fechamento). Para confirmar um domingo específico, confira as pessoas selecionadas nessa data.';
+      if(/\bfolgas? fixas?\b/.test(q))return '💤 A folga fixa é o dia da semana definido no cadastro do funcionário para descanso regular. No passo 1 — Equipe — toque em ✏️ Editar equipe, selecione a pessoa e confira o campo Folga fixa. Se alterar o dia, gere a escala novamente.';
       if(perguntaCapacidades(texto))return original.call(base,texto);
       if(quantidadePerguntada(texto)){
         const d=contarEquipe(),q=normalizar(texto);
