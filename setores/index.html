@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V277</title>
+<title>Escala de Setores — V278</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V278 [Manus] — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — Manus
 V277 [ChatGPT] — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP e preserva a pessoa citada em continuações como “Muda para terça”; orienta a editar sem alterar a escala. — ChatGPT
 V276 [ChatGPT] — 🤖 RESPOSTA ÚTIL: elimina “Não entendi” como resposta final, orienta o próximo passo quando não reconhece uma pergunta e responde a contagem da equipe a partir dos dados carregados. A bateria reprova se reaparecer resposta genérica ou falhar a validação semântica de quantidade. — ChatGPT
 V275 [Claude] — 🗣️ GABRIEL: CONTEXTO DA CONVERSA + VOCABULÁRIO DO SUPERMERCADO (pedido do dono, 16/10/2026: “faça os testes para procurar erro e corrigir, além de
@@ -2679,7 +2680,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V277 · 🤖 fala natural e contexto preservado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V278 · 🤖 versão identificada, 5×2 explicada e assuntos fora do app encaminhados ao subgerente administrativo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3178,7 +3179,7 @@ function parseEquipeLinha(linha){
 function parseEquipe(txt){
  txt=String(txt||'').replace(/^\uFEFF/,'').replace(/\r/g,'');
  const linhas=txt.split('\n').map(x=>x.trim()).filter(Boolean);
- 
+
  // Validação estrutural: uma matrícula identifica um único funcionário no cadastro.
  // Se houver duplicidade no Equipe.txt, o arquivo inteiro é rejeitado para evitar
  // ambiguidades no histórico, grupos, escala e demais estados que usam matrícula.
@@ -10501,7 +10502,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const porFunc=linhasPor(f=>funcaoDoCargo(f.cargo),(a,b)=>b.n-a.n||a.k.localeCompare(b.k),'Por função','fn');
     const porHor=linhasPor(f=>chaveHorario(f.horario).k,ordem==='qtd'?(a,b)=>b.n-a.n||a.k.localeCompare(b.k):(a,b)=>chaveHorario(a.k).ord-chaveHorario(b.k).ord,'Por horário','hor');
     /* destaques */
-    const ins=[]; 
+    const ins=[];
     if(ordSit.length) ins.push(`<li>📌 Situação mais comum: <b>${esc(ordSit[0])}</b> — ${sits.get(ordSit[0])} ${plural(sits.get(ordSit[0]),'pessoa','pessoas')} (${Math.round(sits.get(ordSit[0])/afast.length*100)}% dos afastados).</li>`);
     if(porFunc.l.length) ins.push(`<li>👥 Função com mais afastados: <b>${esc(porFunc.l[0].k)}</b> — ${porFunc.l[0].n} de ${porFunc.l[0].total} (${Math.round(porFunc.l[0].n/porFunc.l[0].total*100)}% da função).</li>`);
     const taxa=porFunc.l.filter(x=>x.total>=5).sort((a,b)=>b.n/b.total-a.n/a.total)[0]; if(taxa&&(!porFunc.l.length||taxa.k!==porFunc.l[0].k)) ins.push(`<li>⚠️ Maior proporção de afastados: <b>${esc(taxa.k)}</b> — ${Math.round(taxa.n/taxa.total*100)}% (${taxa.n} de ${taxa.total}).</li>`);
@@ -15709,7 +15710,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(tem(qn,'tirar','tiro')&&tem(qn,'duas','dois','essas','esses')&&tem(qn,'mesmo','mesma')) return 'Quais pessoas e qual dia? Escreva os dois nomes e o dia (ex.: “e se Ana e João folgarem no dia 15?”). Eu não consigo simular sem saber quem; e eu só leio, não altero a escala.';
     /* assuntos trabalhistas e fora do escopo */
     const trab=tk.filter(x=>TRAB.includes(x));
-    if(trab.length&&!tem(qn,'folga','domingo','escala')) return `🧾 Sobre <b>${es(trab[0])}</b>: esse assunto <b>não está cadastrado no app</b> (eu não guardo salário, férias, intervalo, hora extra nem benefícios) e eu não vou chutar uma regra trabalhista. Confirme com o RH ou o jurídico. O que o app confere é: 6×1, domingos seguidos (2×1), DSR, feriado e balanço.`;
+    const consultaSituacao=tem(qn,'ferias','afastado','afastados','afastada','afastadas','emprestado','emprestados','emprestada','emprestadas','cedido','cedidos','cedida','transferido','transferidos','inativo','inativos')&&tem(qn,'quem','quais','tem','mostre','mostra','lista','liste','ha','existe','algum','alguem','quantos','quantas');
+    if(trab.length&&!tem(qn,'folga','domingo','escala')&&!consultaSituacao) return `🧾 Sobre <b>${es(trab[0])}</b>: esse assunto <b>não está cadastrado no app</b> (eu não guardo salário, férias, intervalo, hora extra nem benefícios) e eu não vou chutar uma regra trabalhista. Confirme com o RH ou o jurídico. O que o app confere é: 6×1, domingos seguidos (2×1), DSR, feriado e balanço.`;
     /* números e listas da equipe */
     if(tem(qn,'quantos','quantas','total','numero')&&tem(qn,'funcionarios','colaboradores','pessoas','gente','equipe','empregados')&&!/ (domingo|sabado|segunda|terca|quarta|quinta|sexta|amanha|hoje|dia) /.test(qn)&&!tem(qn,'turno','abertura','fechamento','manha','tarde')) return respQuantos(qn);
     if(tem(qn,'afastado','afastados','afastada','emprestado','emprestados','emprestada','cedido','cedidos','cedida','transferido','transferidos','ferias','inativos')&&(tem(qn,'quem','quais','tem','mostre','mostra','lista','liste','ha','existe','algum','alguem','quantos')||tk.length<=4)) return respSituacao(qn);
@@ -15963,7 +15965,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 </script>
 
 <script>
-/* ═════ V277 Gabriel — 🤖 FALA NATURAL E CONTEXTO ═════
+/* ═════ V278 Gabriel — 🤖 FALA NATURAL E CONTEXTO ═════
    Respostas de capacidade explícitas, contagem semântica e normalização de fala; FAQs estáticas ficam no dicionário RESP.
    O fallback nunca afirma que entendeu quando não reconheceu; orienta o próximo passo.
 */
@@ -16033,9 +16035,20 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
     return '🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”';
   }
+  function versaoPerguntada(texto){
+    const q=normalizar(texto);
+    return /\bversao\b/.test(q)&&/\b(qual|sua|este|esta|app|aplicativo|atual|numero)\b/.test(q);
+  }
+  function respostaVersao(){
+    const v=(String(document.title).match(/\bV\d+\b/i)||[])[0];
+    return v?'📱 Este aplicativo está na versão <b>'+v+'</b>.':'📱 Não consegui confirmar a versão desta tela agora.';
+  }
   function semResposta(resposta){
     const limpa=normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' '));
     return !limpa||/^nao entendi\b|^nao consegui entender\b|^nao compreendi\b/.test(limpa);
+  }
+  function foraDoApp(resposta){
+    return /^isso foge do que eu sei\b/.test(normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' ')));
   }
   function falhaInterna(){
     return '🤖 Ocorreu uma falha interna ao processar a pergunta. Tente reformulá-la com o nome da pessoa, a data ou o assunto que deseja conferir.';
@@ -16044,6 +16057,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     try{
       const pergunta=prepararPergunta(texto);
       const q=normalizar(pergunta);
+      if(versaoPerguntada(pergunta))return respostaVersao();
+      if(/\b(5x2|cinco por dois)\b/.test(q)&&/\b(escala|regime|trabalh|folga|funcionar|funciona|vai ser)\b/.test(q)&&window.v274Regime?.resumo)
+        return '📏 '+window.v274Regime.resumo();
       if(perguntaCapacidades(pergunta))return original.call(base,pergunta);
       if(quantidadePerguntada(pergunta)){
         const d=contarEquipe();
@@ -16054,9 +16070,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         return '👥 A equipe tem <b>'+d.total+'</b> pessoas cadastradas: <b>'+d.ativos+'</b> ativas, <b>'+d.afastados+'</b> afastadas e <b>'+d.emprestados+'</b> emprestadas.';
       }
       const resposta=original.call(base,pergunta);
+      if(foraDoApp(resposta))return '🤖 Essa dúvida não está relacionada às funções e regras deste aplicativo. Procure o subgerente administrativo para confirmar.';
+      if(/confirme com o rh ou o juridico/.test(normalizar(String(resposta))))return String(resposta).replace(/Confirme com o RH ou o jurídico\./i,'Procure o subgerente administrativo para confirmar.');
       return semResposta(resposta)?orientacao(pergunta):resposta;
     }catch(e){
-      console.warn('[V277 Gabriel]',e);
+      console.warn('[V278 Gabriel]',e);
       return falhaInterna();
     }
   };

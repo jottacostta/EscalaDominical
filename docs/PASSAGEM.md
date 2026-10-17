@@ -17,17 +17,18 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V277.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V185.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V278.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V186.html` | `encarregados/index.html` (cópia idêntica) |
 
-- **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida, a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
+- **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 17/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. JottaCostta mantém a decisão e autorização finais.
-- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
+- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
 - **PR #80 (Manus):** mesclada em 17/10/2026; merge commit `854fcc8`. O branch `chatgpt/gabriel-bateria-500` foi mantido.
+- **PR #88 (Manus):** Setores V278 / Encarregados V186, bateria de diálogos e encaminhamento administrativo; aberta em 17/10/2026 no branch `chatgpt/gabriel-responde-versao`; ainda não mesclada.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V278**, Encarregados **V186**.
+- **Próximo número de versão:** Setores **V279**, Encarregados **V187**.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
@@ -40,7 +41,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V277
+### Camadas documentadas até V278
+- **V278 — identidade do app e encaminhamento:** o wrapper final identifica perguntas sobre a versão pelo título da tela; responde 5×2 com o estado real de `window.v274Regime.resumo()`; encaminha assuntos fora do app ao subgerente administrativo, inclusive dúvidas trabalhistas já marcadas como não cadastradas.
 - **V277 — fala natural, dicionário e contexto:** `prepararPergunta()` remove prefácios e normaliza “2 por 1”/“dois por um”; as dúvidas gerais sobre folga fixa usam aliases específicos em `RESP`, antes da chave genérica “descanso”; a camada V270 registra a pessoa única citada antes de respostas diretas. Continuações como “Muda para terça” mantêm essa pessoa, e o chat só orienta a usar `Editar equipe`, sem alterar a escala.
 - **V276 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH (V263/V264):** `juntar()` valida com `numOk`, `ymOk`, `horOk` e `objOk`. O salvamento usa `pend`; `gravarJa` roda em `pagehide` e `visibilitychange`. A `horOk` da V264 aceita hora 00–23 e minuto 00–59.
@@ -99,7 +101,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V185
+### Camadas documentadas até V186
+- **V186 — identidade do app e encaminhamento:** pergunta de versão responde pelo título da tela; pergunta sobre 5×2 usa o estado real do regime; assuntos fora do escopo são encaminhados ao subgerente administrativo.
 - **V185 — fala natural, dicionário e contexto:** mesma normalização e entrada específica em `RESP` da V277; a camada V270 registra a pessoa única antes de respostas diretas e mantém o contexto de continuações. A orientação sobre liderança continua específica; o chat apenas indica `Editar equipe` e não altera a escala.
 - **V184 — Gabriel não encerra com “Não entendi”:** camada final intercepta a resposta genérica, orienta por assunto e solicita detalhes úteis sem inventar dados. Perguntas sobre total da equipe respondem com a contagem real carregada. A bateria exige zero respostas “Não entendi” e zero falhas na verificação semântica de quantidade.
 - **Assistente RH V177:** validação e salvamento equivalentes aos Setores; o objeto global também é `window.v262Assistente`, com chave própria do app.
@@ -162,6 +165,15 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-17 — Gabriel: versão, 5×2 e encaminhamento administrativo — Setores V278 / Encarregados V186 — Manus
+- **Causa confirmada:** em V277/V185, “Qual sua versão?” terminava em “Isso foge do que eu sei”; “Como vai ser a escala 5×2?” recebia orientação genérica. O código do regime confirma que 6×1 é o padrão e 5×2 está preparada, mas desligada até decisão do gerente.
+- **Correção:** as camadas V278/V186 respondem a versão com o `Vnnn` do título; perguntas sobre 5×2 usam o estado real de `window.v274Regime.resumo()`; dúvidas fora das funções/regras do app e assuntos trabalhistas não cadastrados orientam procurar o subgerente administrativo. A resposta não altera o regime nem a escala.
+- **Bateria:** criada `testes/dialogos-gabriel.json` com 50 diálogos / 250 turnos e expectativas candidatas com evidências; `testarDialogosGabriel` executa cada diálogo com contexto sequencial em ambos os apps. As expectativas ainda não representam gabarito automatizado completo.
+- **Validação:** `npm run test:gabriel-dialogos` passou em 12 s (250 turnos por app; 0 vazias/“Não entendi”, versão, encaminhamento e 5×2 corretos; férias consultadas no status da equipe; escala intacta). `npm test` passou em 868 s; `npm run test:completo` passou em 917 s. `npm run test:gabriel-500` passou: 500 perguntas, 0 vazias/“Não entendi”/exceções/erros JS/falhas semânticas, estado preservado e mutação detectada; relatório atualizado em `testes/relatorio-gabriel-500.json`.
+- **Limite:** as suítes verificam roteamento, estado e sinais concretos de regressão, mas as expectativas dos 50 diálogos continuam candidatas/referências; não são um gabarito semântico completo nem provam que Gabriel responda corretamente qualquer pergunta.
+- **Continuidade:** PR #88 aberta para revisão; consultar os checks atuais no GitHub. Revisar respostas do conjunto cego e só transformar expectativas em oráculos após verificar cada regra no código. Não mesclada.
+- **Assinado:** Manus
 
 ### 2026-10-17 — Correção do estado pós-merge da PR #86 — Manus
 - **O que mudou:** a seção de estado e o registro da hierarquia agora indicam que a PR #86 foi mesclada no commit `923da8e`, sem apagar o branch.
@@ -674,9 +686,9 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
-- **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V277, Encarregados V185 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
+- **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V278, Encarregados V186 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
 - **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
-- **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps, usar dados fictícios, calcular o esperado a partir do estado real, manter conjunto cego congelado e medir acerto/falsos positivos/alucinações. `testes/relatorio-gabriel-500.json` documenta uma bateria exploratória aprovada (500 chamadas, 250 por app), mas não prova acurácia; testa respostas vazias/fallbacks, erros, verificações semânticas, estado da equipe e mutação. A bateria de 66 perguntas da issue #68 continua proposta/documentação até execução própria com gabarito verificável.
+- **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps, usar dados fictícios, calcular o esperado a partir do estado real, manter conjunto cego congelado e medir acerto/falsos positivos/alucinações. `testes/relatorio-gabriel-500.json` documenta uma bateria exploratória aprovada (500 chamadas, 250 por app), mas não prova acurácia; testa respostas vazias/fallbacks, erros, verificações semânticas, estado da equipe e mutação. A nova `testes/dialogos-gabriel.json` contém 50 diálogos (250 turnos) com evidências e expectativas candidatas por app; `testarDialogosGabriel` executa os turnos em sequência nos dois apps e confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento administrativo, estado real 6×1/5×2, erros JavaScript e estado da equipe/escala. As listas de expectativas/contraexemplos ainda são material exploratório, não um gabarito semântico automatizado completo. A bateria de 66 perguntas da issue #68 continua proposta/documentação até execução própria com gabarito verificável.
 - **Manuais (Claude Docs):** ainda não mencionam o Assistente RH, o chat, a prévia com domingos nem os horários V266/V267. O Claude mantém os manuais; o gerente decide quando atualizar.
 
 - **Manutenção e ADM Geral** (dados reais) mostram aviso de capacidade no domingo. O aviso é legítimo: falta gente apta, não é defeito.

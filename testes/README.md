@@ -32,3 +32,8 @@ npm run test:completo    # o ano inteiro de cada app (~5 min)
 - lembrete de guardar o histórico, nome do arquivo `Historico_Encarregados_mm_aaaa.json`.
 
 O teste termina com `✅ Tudo certo` (código 0) ou com a lista do que falhou (código 1).
+
+
+### Diálogos amplos do Gabriel
+
+Execute `npm run test:gabriel-dialogos` para rodar apenas a bateria de diálogos. A suíte rápida (`npm test`) também executa 50 diálogos (250 turnos) em cada app usando `dialogos-gabriel.json` e dados fictícios. As respostas são testadas em sequência para preservar o contexto. A suíte confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento ao subgerente administrativo, consulta de férias pelo status da equipe, estado real 6×1/5×2, erros JavaScript e preservação da equipe/escala. As expectativas e contraexemplos descritos no JSON são referências para revisão; ainda não formam um gabarito semântico automatizado completo.
