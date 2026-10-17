@@ -1,8 +1,8 @@
-# Como ligar o ChatGPT ao GitHub e trabalhar em dupla com o Claude
+# Como ligar o ChatGPT/Codex (Subencarregado) ao GitHub sob coordenação de Manus
 
-Este guia mostra como deixar o **ChatGPT** fazer atualizações no repositório **jottacostta/EscalaDominical**
-seguindo o mesmo padrão do Claude. As regras do projeto estão em [`AGENTS.md`](../AGENTS.md) — o ChatGPT (Codex) lê esse
-arquivo sozinho em toda tarefa.
+Este guia mostra como o **ChatGPT/Codex**, no papel de **Subencarregado**, atualiza o repositório **jottacostta/EscalaDominical**.
+Manus é o Coordenador de Projetos e Claude é o Encarregado; ambos seguem a coordenação autorizada por JottaCostta, Gerente de Projetos.
+As regras completas estão em [`AGENTS.md`](../AGENTS.md).
 
 > As telas do ChatGPT mudam com frequência. Se algum nome de menu estiver diferente (ex.: “Apps” × “Conectores” ×
 > “Plugins”), procure a opção equivalente. Codex no ChatGPT exige um plano pago (Plus, Pro, Team/Business ou Enterprise).
@@ -42,13 +42,13 @@ e conecte de novo. Repositórios novos podem levar uns 5 minutos para aparecer.
 
 ---
 
-## Parte 2 — Como pedir uma mudança ao ChatGPT (Codex)
+## Parte 2 — Como pedir uma mudança ao ChatGPT/Codex (Subencarregado)
 
 Comece **toda** tarefa com este texto (copie e cole) e depois descreva o que você quer:
 
 ```
 Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md e o docs/PASSAGEM.md inteiros e siga todas as regras:
-- parta do main mais recente e confira se há PR aberto do Claude (título começa com [Claude]; o branch pode ser ccr-…, claude/… ou outro) mexendo no mesmo app;
+- parta do main mais recente e confira PRs abertas de Manus (título [Manus]) e Claude (título [Claude]) que mexam no mesmo app; siga a coordenação de Manus e as autorizações de JottaCostta;
 - crie uma VERSÃO NOVA do app (próximo número), com a linha no HISTÓRICO DE VERSÕES, mova a versão anterior
   para versoes_anteriores/, copie a nova para setores/index.html ou encarregados/index.html e atualize
   CHANGELOG.md e README.md;
@@ -60,11 +60,10 @@ Repositório jottacostta/EscalaDominical. Antes de tudo, leia o AGENTS.md e o do
   abra o PR mesmo assim e confira o teste "Testes" na aba Checks do PR: só está pronto quando ficar verde;
 - nunca coloque planilha do RH, históricos ou nomes de funcionários no repositório;
 - branch chatgpt/<assunto>, PR em português com "O que muda", "Testes" e "Para quem continuar";
-- ASSINE TUDO como ChatGPT (seção 9 do AGENTS.md): título do PR "[ChatGPT] …", linha "Assinado: ChatGPT"
-  no commit e no PR, "— *ChatGPT*" no CHANGELOG e "Vnnn [ChatGPT] —" no HISTÓRICO DE VERSÕES.
-  O Claude assina "Claude": leia as assinaturas para saber quem fez o quê;
+- ASSINE como ChatGPT (seção 9 do AGENTS.md): título "[ChatGPT] …" e linha "Assinado: ChatGPT" no commit e no PR.
+  Manus assina "Manus" e coordena; Claude assina "Claude" e ocupa o cargo de Encarregado. Leia as assinaturas para saber quem fez o quê;
 - atualize o docs/PASSAGEM.md (estado atual + entrada no Diário: o que mudou, onde no código, como testou, o que falta)
-  e termine o PR com a parte "Para quem continuar", para o Claude dar continuidade.
+  e termine o PR com a parte "Para quem continuar", para Manus coordenar a continuidade com Claude.
 
 O que eu quero agora: <descreva aqui a mudança>
 ```
@@ -90,16 +89,14 @@ Dicas para pedir:
 
 ---
 
-## Parte 4 — Trabalhando em dupla (ChatGPT + Claude)
+## Parte 4 — Hierarquia e coordenação de projetos
 
-- **Os dois partem sempre do `main` mais recente.** Antes de começar, cada um olha o que o outro já colocou lá.
-- **Não trabalhem no mesmo app ao mesmo tempo.** Se o Claude estiver com um PR aberto no Setores (título `[Claude] …`; branch `ccr-…`, `claude/…` ou outro),
-  deixe o ChatGPT mexer no Encarregados, ou espere o merge.
-- **Número de versão:** quem entrar no `main` por último renumera a sua versão, se o número já tiver sido usado.
-- **Conflito no Pull Request** (o GitHub avisa “This branch has conflicts”): peça ao assistente dono do PR para
-  “trazer o main para o branch e resolver o conflito, mantendo as mudanças dos dois”, e rodar os testes de novo.
-- **Quando o Claude estiver bloqueado** (sem acesso, fora do ar), o ChatGPT segue o mesmo padrão; quando o Claude voltar,
-  ele lê o `CHANGELOG.md` e continua a partir da versão mais nova.
+- **JottaCostta é o Gerente de Projetos; Manus é o Coordenador; Claude é o Encarregado; ChatGPT/Codex é o Subencarregado.** JottaCostta decide e autoriza; Manus coordena os dois cargos subordinados.
+- **Todos partem sempre do `main` mais recente.** Antes de começar, confira o que já está no repositório e as PRs abertas.
+- **Não trabalhem no mesmo app ao mesmo tempo.** Manus coordena a distribuição; se Claude tiver uma PR aberta no Setores, ChatGPT/Codex aguarda ou trabalha em outro app somente dentro do escopo aprovado.
+- **Número de versão:** quem entrar no `main` por último renumera sua versão, se o número já tiver sido usado.
+- **Conflito no Pull Request** (o GitHub avisa “This branch has conflicts”): Manus coordena a resolução com Claude e ChatGPT/Codex, preservando as mudanças e repetindo os testes.
+- **Quando Claude ou ChatGPT/Codex estiver bloqueado**, Manus informa JottaCostta e só continua dentro da autorização recebida; ao retornar, o assistente segue a coordenação e lê o `CHANGELOG.md` para continuar da versão mais nova.
 
 ---
 
