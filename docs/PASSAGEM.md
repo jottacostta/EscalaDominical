@@ -1,11 +1,11 @@
 # Passagem de bastão — o que foi feito e como continuar
 
-Este arquivo existe para que **Claude e ChatGPT continuem o trabalho um do outro** sem precisar perguntar nada.
+Este arquivo existe para que **Manus (Coordenador), Claude (Encarregado) e ChatGPT (Subencarregado)** continuem o trabalho um do outro sem perder contexto.
 **Leia este arquivo inteiro antes de começar** e **atualize-o em toda mudança** (regra da seção 10 do [`AGENTS.md`](../AGENTS.md)).
 
 Como atualizar (toda mudança, inclusive só de documentação):
 1. Atualize a seção **1. Estado atual** (versões, PRs/branches abertos).
-2. Acrescente uma entrada **no topo** da seção **5. Diário**, no modelo que está lá, assinada (`— Claude` ou `— ChatGPT`).
+2. Acrescente uma entrada **no topo** da seção **5. Diário**, no modelo que está lá, assinada (`— Manus`, `— Claude` ou `— ChatGPT`).
 3. Se resolveu ou criou uma pendência, atualize a seção **6. Pendências**.
 4. Se descobriu uma armadilha (algo que quebrou e por quê), acrescente na seção **4**.
 
@@ -21,9 +21,9 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V185.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida, a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
-- **Hierarquia (pedido do dono, 14/10/2026 — topo do `AGENTS.md`):** o dono é o **gerente**, o Claude é o **encarregado** e o ChatGPT é o **subencarregado**. Nada por iniciativa própria sem autorização do gerente.
-- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
-- **PR #80 (Manus):** Setores V277 / Encarregados V185 — fala natural, dicionário RESP, contexto do Gabriel e bateria exploratória de 500; consulte o GitHub para o estado do merge.
+- **Hierarquia (pedido do dono, 17/10/2026 — topo do `AGENTS.md`):** Jonatas é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. Jonatas mantém a decisão e autorização finais.
+- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
+- **PR #80 (Manus):** mesclada em 17/10/2026; merge commit `854fcc8`. O branch `chatgpt/gabriel-bateria-500` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V278**, Encarregados **V186**.
@@ -161,6 +161,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-17 — Hierarquia e assinaturas dos assistentes — Manus
+- **Pedido de Jonatas:** Gerente de Projetos → Manus (Coordenador de Projetos) → Claude (Encarregado) e ChatGPT/Codex (Subencarregado).
+- **O que mudou:** alinhados `AGENTS.md`, `CLAUDE.md`, `docs/INICIO_NOVA_CONVERSA.txt`, este arquivo e `docs/CHATGPT_COPILOTO.md`, incluindo cargos, coordenação, identificação de PR e assinatura própria. Nenhum código, versão de app, `README.md` ou `CHANGELOG.md` foi alterado.
+- **Validação:** `git diff --check` passou e `npm test` passou em execução limpa (858 segundos). A tentativa anterior interrompida não foi contabilizada.
+- **Continuidade:** conferir os checks do novo PR antes de considerar o trabalho pronto. Nenhum merge foi solicitado ou executado.
+- **Assinado:** Manus
 
 ### 2026-10-17 — Diretriz de assinatura Manus — Manus
 - **Pedido do gerente:** o trabalho executado por este agente deve ser assinado como Manus.

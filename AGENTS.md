@@ -1,18 +1,18 @@
-# Regras do projeto EscalaDominical (para qualquer assistente de IA: ChatGPT/Codex, Claude e outros)
+# Regras do projeto EscalaDominical (para Manus, Claude, ChatGPT/Codex e outros assistentes)
 
-Este arquivo é lido automaticamente pelo Codex do ChatGPT em toda tarefa. **Siga tudo o que está aqui.**
+Todos os assistentes do projeto devem ler este arquivo em toda tarefa. **Siga tudo o que está aqui.**
 Escreva sempre em **português do Brasil**, com linguagem simples (quem usa o app é gestor de loja, não programador).
 
 > **Regra de ouro do dono (UX/UI):** o app tem que ser fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Toda mudança de tela segue a seção 4.1.
 
-> **Hierarquia (pedido do dono, 14/10/2026):**
-> - **Gerente:** o dono do projeto. Só ele decide e autoriza.
-> - **Encarregado:** Claude.
-> - **Subencarregado:** ChatGPT — subordinado do Claude.
+> **Hierarquia (pedido do dono, 17/10/2026; substitui a definição de 14/10/2026):**
+> - **Gerente de Projetos:** Jonatas, o dono; mantém a decisão e autorização finais.
+> - **Coordenador de Projetos:** Manus; coordena os dois cargos subordinados dentro do escopo autorizado pelo gerente.
+> - **Encarregado:** Claude; segue a coordenação de Manus.
+> - **Subencarregado:** ChatGPT/Codex; segue a coordenação de Manus.
 >
-> **Nada é feito por iniciativa própria** (nem pelo Claude, nem pelo ChatGPT) **sem autorização do gerente**: mudança de código,
-> documentação, merge, abrir ou fechar PR. Na dúvida, pergunte ao gerente antes. O ChatGPT segue também as orientações do
-> Claude e, se discordar, explica o motivo no PR para o gerente decidir.
+> **Nada é feito por iniciativa própria** (nem por Manus, Claude ou ChatGPT) **sem autorização de Jonatas**: mudanças de código,
+> documentação, merge, abrir ou fechar PR. Manus coordena a execução autorizada. Dúvidas ou discordâncias voltam ao gerente.
 
 ## 1. O que é o projeto
 
@@ -30,8 +30,8 @@ Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo
 
 1. Puxe o `main` mais recente (`git fetch origin main`) e trabalhe a partir dele.
 2. Veja o que mudou desde a última vez: `git log --oneline -15 origin/main`, o topo do `CHANGELOG.md` e o **`docs/PASSAGEM.md`** (seção 10).
-3. Veja se há Pull Requests abertos de outro assistente. **Reconheça pelo título**: `[Claude] …` ou `[ChatGPT] …`
-   (o branch do Claude muda de conversa para conversa: `ccr-…`, `claude/…` ou outro; o do ChatGPT é `chatgpt/…`).
+3. Veja se há Pull Requests abertos de outros assistentes. **Reconheça pelo título**: `[Manus] …`, `[Claude] …` ou `[ChatGPT] …`.
+   O prefixo do branch pode ser `chatgpt/…`; ele não define o cargo nem a assinatura.
    Se houver PR aberto mexendo no mesmo app, **espere ele entrar no main** ou combine com o dono do projeto.
 4. Descubra qual é a **versão atual** de cada app pelo nome do arquivo na raiz (ex.: `Escala_de_Setores_V222.html`).
 5. Numa **conversa nova**, leia também [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) (regras de continuidade, estado e pendências) e mantenha esse arquivo atualizado.
@@ -163,31 +163,30 @@ Cada conferência tem que poder **falhar** de verdade (nunca compare um valor co
 ## 8. Git e Pull Request
 
 - **Nunca** faça push direto no `main`. Crie um branch: `chatgpt/<assunto-curto>` (ex.: `chatgpt/filtro-por-cargo`).
-- Um assunto por PR. Trabalho executado por Manus: título `[Manus] Setores V223: <o que muda>`; trabalho do Claude: `[Claude] …`. PRs antigos com prefixo `[ChatGPT]` permanecem históricos.
+- Um assunto por PR. Trabalho de Manus: título `[Manus] Setores V223: <o que muda>`; Claude: `[Claude] …`; ChatGPT/Codex: `[ChatGPT] …`.
 - Descrição do PR em português, com três partes: **O que muda**, **Testes** (o que foi testado e o resultado do `npm test`) e **Para quem continuar** (seção 10).
 - Quem decide o merge é o dono do projeto. Depois do merge, o GitHub Pages atualiza o site sozinho em 1–2 minutos.
 
 ## 9. Assinatura (obrigatório) — para cada um saber o que o outro fez
 
-Cada assistente **assina tudo o que faz** com o próprio nome: **Claude** ou **Manus**. O ChatGPT/Codex executado por Manus usa a assinatura Manus.
+Cada assistente **assina tudo o que faz** com o próprio nome: **Manus**, **Claude** ou **ChatGPT**. Manus é Coordenador; Claude é Encarregado; ChatGPT/Codex é Subencarregado.
 
-| Onde | Como assinar (Manus usa “Manus”; Claude usa “Claude”) |
+| Onde | Como assinar |
 |---|---|
-| Título do PR | começa com `[Manus]` ou `[Claude]`, conforme o autor |
-| Fim da descrição do PR | linha `Assinado: Manus` ou `Assinado: Claude` |
-| Mensagem de commit | última linha `Assinado: Manus` ou `Assinado: Claude` |
-| `CHANGELOG.md` | a entrada da versão termina com `— *Manus*` ou `— *Claude*` |
-| `HISTÓRICO DE VERSÕES` no app | a linha da versão começa com `Vnnn [Manus] — …` ou `Vnnn [Claude] — …` |
-| Comentário no GitHub | termina com `— Manus` ou `— Claude` |
+| Título do PR | `[Manus]`, `[Claude]` ou `[ChatGPT]`, conforme o autor |
+| Fim da descrição do PR | `Assinado: Manus`, `Assinado: Claude` ou `Assinado: ChatGPT` |
+| Mensagem de commit | última linha com a assinatura do autor |
+| `CHANGELOG.md` | a entrada termina com `— *Manus*`, `— *Claude*` ou `— *ChatGPT*` |
+| `HISTÓRICO DE VERSÕES` no app | a linha começa com `Vnnn [Manus] —`, `Vnnn [Claude] —` ou `Vnnn [ChatGPT] —` |
+| Comentário no GitHub | termina com o nome do autor (`— Manus`, `— Claude` ou `— ChatGPT`) |
 
-- Instrução do gerente (17/10/2026): o trabalho de Manus assina como **Manus**. Não reescreva assinaturas ou commits já publicados sem pedido; registros antigos permanecem históricos.
+- Instrução do gerente (17/10/2026): este agente assina como **Manus**; Claude e ChatGPT/Codex assinam com os próprios nomes. Não reescreva assinaturas ou commits já publicados sem pedido; registros antigos permanecem históricos.
 - Antes de começar, leia as assinaturas no `git log` e no `CHANGELOG.md` para saber **quem fez o quê**.
-- **Nunca** assine pelo outro nem apague a assinatura do outro. Se aproveitar uma ideia do outro, diga isso
-  (ex.: “ideia do ChatGPT”).
+- **Nunca** assine pelo outro nem apague a assinatura do outro. Se aproveitar uma ideia alheia, dê o crédito com o nome correto.
 
 ## 10. Passagem de bastão (obrigatório) — deixe tudo explicado para o outro continuar
 
-O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compartilhado entre Claude e Manus (ChatGPT/Codex).
+O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno compartilhado por Manus (Coordenador), Claude (Encarregado) e ChatGPT (Subencarregado).
 
 - **Antes de começar:** leia o `docs/PASSAGEM.md` inteiro: estado atual, mapa técnico (onde fica cada coisa no código),
   armadilhas que já aconteceram, diário e pendências.
@@ -195,7 +194,7 @@ O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno de trabalho compar
   1. atualize a seção **1. Estado atual** (versões, PRs/branches abertos, próximo número de versão);
   2. acrescente uma entrada **no topo** da seção **5. Diário**, no modelo de lá: o que mudou e por quê, onde no código
      (bloco `Vnnn`, funções, chaves do `localStorage`, campos do histórico), como foi testado e o que falta para continuar.
-     Assine (`— Claude` ou `— Manus`);
+     Assine (`— Manus`, `— Claude` ou `— ChatGPT`);
   3. atualize as **pendências** (seção 6), e as **armadilhas** (seção 4) se algo quebrou e você descobriu por quê;
   4. se criou função/gancho novo (`window.vNNN…`) ou variável global nova, acrescente no **mapa técnico** (seções 2–3).
 - A descrição do PR termina com a parte **“Para quem continuar”**: o que ficou pronto, o que falta e os cuidados.
