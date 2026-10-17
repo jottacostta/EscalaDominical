@@ -7,10 +7,12 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V275</title>
+<title>Escala de Setores — V277</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V277 [ChatGPT] — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP e preserva a pessoa citada em continuações como “Muda para terça”; orienta a editar sem alterar a escala. — ChatGPT
+V276 [ChatGPT] — 🤖 RESPOSTA ÚTIL: elimina “Não entendi” como resposta final, orienta o próximo passo quando não reconhece uma pergunta e responde a contagem da equipe a partir dos dados carregados. A bateria reprova se reaparecer resposta genérica ou falhar a validação semântica de quantidade. — ChatGPT
 V275 [Claude] — 🗣️ GABRIEL: CONTEXTO DA CONVERSA + VOCABULÁRIO DO SUPERMERCADO (pedido do dono, 16/10/2026: “faça os testes para procurar erro e corrigir, além de
        enriquecer o vocabulário do Gabriel”; bateria de 66 perguntas e o caso “já fiz” da issue #68). A bateria foi executada nos dois apps: a maior parte caía em “Não entendi essa” ou numa
        resposta de outro assunto (ex.: “quem trabalha amanhã?” listava todos os domingos; “me fala o resultado” virava “me falta”; “segunda” virava “segundo”). Agora: (1) CONTEXTO: “já fiz”, “pronto”,
@@ -2677,7 +2679,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V275 · 🗣️ Gabriel entende a conversa e fala o vocabulário do supermercado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V277 · 🤖 fala natural e contexto preservado</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -14216,6 +14218,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const RESP=[
     {k:['6x1','6 x 1','7 dias','sete dias','seis dias','dias seguidos','dia seguido'],r:'📏 <b>Regra do 6×1:</b> ninguém trabalha mais de <b>6 dias seguidos</b>. Depois de 6 dias, tem que ter uma folga. O app confere sozinho e avisa em vermelho se alguém passar disso.'},
     {k:['2x1','2 x 1','3 domingos','tres domingos','terceiro domingo','domingos seguidos','domingo seguido','dois domingos'],r:'📏 <b>Domingos seguidos (2×1):</b> a pessoa trabalha no máximo <b>2 domingos seguidos</b>; o 3º é folga. Conta também os <b>2 últimos domingos do mês passado</b> — por isso preencha o passo <b>2 Mês passado</b>.'+(APP==='setores'?' O domingo de balanço é exceção. Na <b>escala Manual</b> você pode alternar fora do par 2×1 (ex.: Eduardo no 1º domingo, Maria no 2º): o app pergunta se você está ciente e se responsabiliza. <b>3 domingos seguidos continua proibido.</b>':'')},
+    {k:['folga fixa','folgas fixas','dia fixo de folga','dia de folga fixo','dia de folga fixa','descanso fixo','dia de descanso fixo'],r:'💤 <b>Folga fixa:</b> é o dia da semana definido no cadastro para descanso regular. Para consultar ou alterar, use o passo <b>1 Equipe → ✏️ Editar equipe</b> e confira o campo <b>Folga fixa</b>; depois gere a escala novamente.'},
     {k:['dsr','folga da semana','descanso semanal','descanso'],r:'💤 <b>Folga da semana (DSR):</b> quem trabalha no domingo ganha uma folga durante a semana. O app calcula sozinho quando você toca em <b>Gerar</b>, e ela aparece como <b>FOLGA</b> na escala e na prévia.'},
     {k:['feriado','feriados','compensa*','folga do feriado','folga de feriado'],r:'🎉 <b>Feriado:</b> no passo <b>4 Feriados</b>, marque quem vai trabalhar. Quem trabalha ganha <b>uma folga em outro dia</b>: o app sugere a data, e você toca em <b>✅ Aceitar</b> ou <b>🔄 Outra data</b>. A folga nunca cai no dia da folga fixa.'+(APP==='enc'?' O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções.':'')+' Para ver o mês inteiro, abra a <b>📅 Prévia das folgas</b>.'},
     {k:['balanco'],r:APP==='setores'?'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>⚙️ Configurações → 📦 Domingos de balanço</b>. Ele é exceção na regra dos domingos seguidos.':'📦 <b>Domingo de balanço:</b> acontece em janeiro, março, junho e setembro. Escolha o domingo em <b>📅 Mês e opções → Mais opções → 📦 Domingos de balanço</b>. No balanço, <b>todos trabalham</b>.'},
@@ -14998,6 +15001,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const esc=ctx.escolha?resolverEscolha(n):null; if(esc) return esc;
     }
     const qn=n.qn, tk=n.tokens;
+    // V277: preserve the person cited even when an earlier intent returns directly.
+    if (I.pessoas(qn).length === 1 || I.domingos(qn).length) seguro(()=>lembrar(n));
     if(ehIdentidade(qn,tk)) return TXT_NOME;
     if(ehCapacidades(qn,tk)) return window.v271Planilha?TXT_FAZ.replace('</ul>','<li>📄 Contar o que li da planilha do RH: abas, linhas, totais e o que não entendi.</li></ul>'):TXT_FAZ;   // V271
     if(ehHora(qn)) return respHora();
@@ -15641,6 +15646,26 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 
   function intencao(t,qn,tk){
     const curto=tk.length<=4;
+    /* V276: perguntas sobre capacidades têm prioridade sobre as intenções de planilha.
+       Evita que “o que você sabe fazer?” caia no diagnóstico de planilha não lida. */
+    const perguntaCapacidades=(
+      ((qn.includes(' o que ')||qn.includes(' no que ')||qn.includes(' em que ')) &&
+       tem(qn,'sabe','consegue','faz','fazer','ajudar','ajuda','responder')) ||
+      tem(qn,'capacidades','comandos','menu')
+    ) && !(tem(qn,'quem','quais')&&tem(qn,'trabalha','trabalham','escalado','escalados','vem','vai'));
+    if(perguntaCapacidades){
+      const extraCapacidade=SETORES
+        ? '<li>📄 Ler e conferir a planilha do RH após importar e aplicar: abas, linhas, totais e itens não interpretados.</li>'
+        : '<li>🧾 Orientar a atualização de datas de admissão pelo ERP e carregar a equipe por arquivo, histórico ou edição. O inventário completo de planilhas não está disponível neste app.</li>';
+      return '🤖 <b>Gabriel</b> — o que eu sei fazer:<ul>'+
+        '<li>📏 Explicar as regras cadastradas: 6×1, domingos seguidos, DSR, feriados e balanço.</li>'+
+        '<li>👥 Consultar a equipe e a escala aberta: quem trabalha ou folga, domingos por pessoa, afastados, emprestados e o que falta.</li>'+
+        '<li>📅 Informar a data e hora do aparelho, e orientar o uso dos passos do aplicativo.</li>'+
+        '<li>🔎 Ajudar a conferir as regras e apontar limitações quando um dado necessário não está cadastrado.</li>'+
+        extraCapacidade+
+        '<li>💬 Entender abreviações simples e pedir esclarecimento quando houver ambiguidade.</li></ul>'+
+        'Sou um assistente local de RH. Não altero a escala nem invento dados ou regras.';
+    }
     /* planilha / importar / salvar / lista da equipe / últimos domingos */
     if(tem(qn,'planilha','arquivo','excel','xlsx','quadro')&&tem(qn,'importo','importar','importa','carrego','carregar','abro','abrir','subo','subir','envio','enviar','anexo','anexar','coloco','colocar')&&tem(qn,'como','onde','qual','posso','devo')) return respComoImportar();
     if(tem(qn,'salvo','salvar','guardo','guardar','salva','guarda','baixo','baixar')&&tem(qn,'escala','historico','mes','planilha')&&tem(qn,'como','onde','qual','posso','devo')&&!tem(qn,'importar','importo')) return respComoSalvar();
@@ -15935,6 +15960,108 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }catch(e){}
 })();
 
+</script>
+
+<script>
+/* ═════ V277 Gabriel — 🤖 FALA NATURAL E CONTEXTO ═════
+   Respostas de capacidade explícitas, contagem semântica e normalização de fala; FAQs estáticas ficam no dicionário RESP.
+   O fallback nunca afirma que entendeu quando não reconheceu; orienta o próximo passo.
+*/
+(function(){
+  'use strict';
+  const base=window.v265Chat;
+  if(!base||typeof base.responder!=='function') return;
+  const original=base.responder;
+  const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+
+  function prepararPergunta(texto){
+    const original=String(texto==null?'':texto), prefacios=[
+      /^(?:preciso confirmar isso para montar a escala corretamente|para confirmar isso|só para confirmar)\s*[,;:—-]?\s*/i,
+      /^(?:vc|você|cê)\s+sabe(?:\s+me dizer)?\s*[,;:?—-]?\s*/i,
+      /^(?:rapidinho|por favor|uma pergunta|só uma pergunta)\s*[,;:—-]?\s*/i,
+      /^(?:ô|ei|olha|escuta)\s*[,!:]\s*/i
+    ];
+    let pergunta=original.trim(), antes;
+    do{
+      antes=pergunta;
+      for(const re of prefacios){ if(re.test(pergunta)){ pergunta=pergunta.replace(re,'').trim(); break; } }
+    }while(pergunta!==antes);
+    pergunta=pergunta
+      .replace(/\b2\s+por\s+1\b/gi,'2x1')
+      .replace(/\b(?:dois|duas)\s+por\s+(?:um|uma)\b/gi,'2x1')
+      .replace(/\b6\s+por\s+1\b|\bseis\s+por\s+um\b/gi,'6x1')
+      .replace(/\b5\s+por\s+2\b|\bcinco\s+por\s+dois\b/gi,'5x2')
+      .trim();
+    return pergunta||original;
+  }
+  function perguntaCapacidades(texto){
+    const q=normalizar(texto);
+    return /\b(o que|que|quais|como)\b.{0,40}\b(sabe fazer|consegue fazer|pode fazer|ajudar|ajuda|capacidades|habilidades)\b/.test(q)
+      || /\b(capacidades|habilidades|suas funcoes)\b/.test(q);
+  }
+  function respostaCapacidades(){
+    return '🤖 Posso consultar a equipe carregada e identificar quem está escalado ou de folga; explicar as regras disponíveis sobre domingos, balanço, feriados e regimes configurados; apontar conflitos e sequências que os dados da escala permitem verificar; e orientar a importação/edição da equipe, geração manual ou automática, horários, histórico e planilha Excel. Trabalho apenas com os dados deste aplicativo: escala planejada não comprova presença real, não altero a escala e não invento regras ou informações ausentes.';
+  }
+  function quantidadePerguntada(texto){
+    const q=normalizar(texto),i=q.search(/\bquant(?:os|as|o|a)\b/);
+    if(i<0)return false;
+    const t=q.slice(i);
+    if(!/\b(funcionario|funcionarios|colaborador|colaboradores|pessoa|pessoas|equipe|time|gente|pessoal|empregado|empregados|trabalhador|trabalhadores)\b/.test(t))return false;
+    if(/\b(domingo|domingos|feriado|feriados|laticinio|setor|setores|trabalha|trabalham|trabalhar|escalado|escalada|escalados|escaladas|escala|turno|turnos|abertura|fechamento|horario|cargo|funcao)\b/.test(t))return false;
+    return /\b(tem|ha|sao|estao|existe|existem|total|quantidade|conta|cadastrado|cadastrados|cadastrada|cadastradas|ativo|ativos|ativa|ativas|afastado|afastados|afastada|afastadas|emprestado|emprestados|emprestada|emprestadas)\b/.test(t);
+  }
+  function contarEquipe(){
+    try{
+      if(typeof equipe==='undefined'||!Array.isArray(equipe))return null;
+      const total=equipe.length;
+      const status=f=>String(f&&f.situacao||'A').toUpperCase().trim();
+      return {
+        total,
+        ativos:equipe.filter(f=>status(f)==='A').length,
+        afastados:equipe.filter(f=>status(f)==='AF').length,
+        emprestados:equipe.filter(f=>status(f)==='EP').length
+      };
+    }catch(e){return null}
+  }
+  function orientacao(texto){
+    const q=normalizar(texto);
+    if(/\b(domingo|domingos|2x1|balanco)\b/.test(q))return '📏 Posso orientar sobre domingos, regra 2×1 e balanço. Para conferir um caso específico, informe o nome da pessoa e a data do domingo. Exemplo: “Por que Ana não pode trabalhar em 18/10?”';
+    if(/\b(feriado|feriados)\b/.test(q))return '🎉 Para conferir trabalho e folga de feriado, abra o passo 4 — Feriados — e confira a pessoa e a data sugerida. Diga o nome e o feriado/data para eu orientar o caso concreto.';
+    if(/\b(folga|folgas|dsr|descanso)\b/.test(q))return '💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.';
+    if(/\b(equipe|funcionario|funcionarios|colaborador|colaboradores|cadastro|setor|setores)\b/.test(q))return '👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.';
+    if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Gerar. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
+    if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
+    return '🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”';
+  }
+  function semResposta(resposta){
+    const limpa=normalizar(String(resposta==null?'':resposta).replace(/<[^>]*>/g,' '));
+    return !limpa||/^nao entendi\b|^nao consegui entender\b|^nao compreendi\b/.test(limpa);
+  }
+  function falhaInterna(){
+    return '🤖 Ocorreu uma falha interna ao processar a pergunta. Tente reformulá-la com o nome da pessoa, a data ou o assunto que deseja conferir.';
+  }
+  base.responder=function(texto){
+    try{
+      const pergunta=prepararPergunta(texto);
+      const q=normalizar(pergunta);
+      if(perguntaCapacidades(pergunta))return original.call(base,pergunta);
+      if(quantidadePerguntada(pergunta)){
+        const d=contarEquipe();
+        if(!d||d.total===0)return '👥 Para informar a quantidade corretamente, primeiro carregue a equipe no passo 1 — Equipe.';
+        if(/\b(afastado|afastados|afastada|afastadas)\b/.test(q))return '👥 Há <b>'+d.afastados+'</b> pessoas afastadas entre <b>'+d.total+'</b> cadastradas.';
+        if(/\b(emprestado|emprestados|emprestada|emprestadas)\b/.test(q))return '👥 Há <b>'+d.emprestados+'</b> pessoas emprestadas entre <b>'+d.total+'</b> cadastradas.';
+        if(/\b(ativo|ativos|ativa|ativas)\b/.test(q)&&!/\b(inativo|inativos|inativa|inativas)\b/.test(q))return '👥 Há <b>'+d.ativos+'</b> pessoas ativas entre <b>'+d.total+'</b> pessoas cadastradas.';
+        return '👥 A equipe tem <b>'+d.total+'</b> pessoas cadastradas: <b>'+d.ativos+'</b> ativas, <b>'+d.afastados+'</b> afastadas e <b>'+d.emprestados+'</b> emprestadas.';
+      }
+      const resposta=original.call(base,pergunta);
+      return semResposta(resposta)?orientacao(pergunta):resposta;
+    }catch(e){
+      console.warn('[V277 Gabriel]',e);
+      return falhaInterna();
+    }
+  };
+  if(window.v270Gabriel)window.v270Gabriel.responder=base.responder;
+})();
 </script>
 
 </body>

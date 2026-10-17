@@ -1,6 +1,5 @@
 # Roda os testes automáticos (testes/rodar.js, dados fictícios) em todo Pull Request, em todo push no main
-# e nos branches do ChatGPT (chatgpt/…). Serve para os dois assistentes (Claude e ChatGPT/Codex):
-# o resultado aparece no PR (aba Checks), verificável por qualquer um.
+# e nos branches do ChatGPT (chatgpt/…). Serve para os dois assistentes (Claude e ChatGPT/Codex): o resultado aparece no PR.
 name: Testes
 
 on:
@@ -23,6 +22,7 @@ jobs:
         with:
           node-version: 22
       - name: Instalar o Playwright e o Chromium
+        id: instalar-playwright
         working-directory: testes
         run: |
           npm install --no-audit --no-fund
@@ -31,8 +31,21 @@ jobs:
         working-directory: testes
         run: npm test
       - name: Suíte completa (12 meses de cada app)
+        if: steps.instalar-playwright.outcome == 'success' && !cancelled()
         working-directory: testes
         run: npm run test:completo
+      - name: Bateria exploratória Gabriel — 500 perguntas nos dois apps
+        if: steps.instalar-playwright.outcome == 'success' && !cancelled()
+        working-directory: testes
+        run: npm run test:gabriel-500
+      - name: Guardar relatório da bateria Gabriel
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-gabriel-500
+          path: testes/relatorio-gabriel-500.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Guardar captura da lista manual (V230)
         if: always()
         uses: actions/upload-artifact@v4
