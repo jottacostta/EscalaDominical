@@ -3,7 +3,7 @@
 Cada entrada é assinada por quem fez: — *Claude* ou — *ChatGPT* (a partir da V228; veja a seção 9 do `AGENTS.md`).
 
 Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo).
-As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
+As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).\n\n## Documentação\n\n- **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
 
