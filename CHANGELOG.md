@@ -1,16 +1,19 @@
 # Histórico de mudanças
 
-Cada entrada é assinada por quem fez: — *Manus*, — *Claude* ou — *ChatGPT* (a partir da V228; veja a seção 9 do `AGENTS.md`).
+Cada entrada é assinada por quem fez: — *Manus*, — *Claude*, — *ChatGPT* ou — *Grok* (a partir da V228; veja a seção 9 do `AGENTS.md`).
 
 Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓRICO DE VERSÕES` no topo de cada arquivo).
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Documentação
 
+- **18/10/2026** — Hierarquia atualizada: inclui Auxiliar de Projeto (Grok), subordinado ao ChatGPT. Atualizados AGENTS.md, PASSAGEM.md e INICIO_NOVA_CONVERSA.txt. — *Grok*
 - **17/10/2026** — Auditoria documental: corrigida em `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt` a referência dos seis pilares para a PR #82. Os seis documentos permanecem iniciais e precisam de validação contra os apps e os testes; workflow da PR #82 ainda sem resultado final confirmado na consulta. — *ChatGPT*
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
+- **V284** — 🤖 GABRIEL RECONHECE NOME SOZINHO: quando o usuário digita só o nome de alguém da equipe, o Gabriel confirma que encontrou a pessoa e pergunta o que deseja saber (folga, domingo, horário, função…), em vez da resposta genérica. Não altera a escala. — *Grok*
+- **V283** — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — *Manus*
 - **V283** — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — *Manus*
 - **V282** — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — *Manus*
 - **V281** — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL: responde que a liderança no domingo é opcional, que a escala continua podendo ser gerada sem ela e que o aviso amarelo pede concordância depois da geração; explica os botões “Sim, concordo” e “Voltar e escolher liderança”. — *Manus*
@@ -157,6 +160,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **V127** — correções: erro do motor 50% (inicioUnidade), alvo com liderança, virada de ano, histórico por matrícula/nome, sessão salva restaurada, sugestão de liderança 2×1, impressão/PDF, feriados extras.
 
 ## Escala 2×1 de Encarregados
+- **V188** — 🤖 GABRIEL RECONHECE NOME SOZINHO: quando o usuário digita só o nome de alguém da equipe, o Gabriel confirma que encontrou a pessoa e pergunta o que deseja saber, em vez da resposta genérica. Não altera a escala. — *Grok*
 - **V187** — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — *Manus*
 - **V186** — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — *Manus*
 
