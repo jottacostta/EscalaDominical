@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V280</title>
+<title>Escala de Setores — V283</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V283 [Manus] — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — Manus
+V282 [Manus] — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — Manus
+V281 [Manus] — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL: responde que a liderança no domingo é opcional, que a escala continua podendo ser gerada sem ela e que o aviso amarelo pede concordância depois da geração; os dois botões são explicados em linguagem simples. — Manus
 V280 [Manus] — ⚠️ AVISO DE LIDERANÇA SEM ESCOLHA: a liderança continua opcional e não transforma a escala em erro; a escala é gerada e, se um domingo normal ficou sem liderança, aparece um aviso amarelo para o encarregado conferir e concordar. A decisão fica registrada no resultado e no histórico do mês. — Manus
 V279 [Manus] — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — Manus
 V278 [Manus] — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — Manus
@@ -2645,7 +2648,8 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
     <button type="button" class="erp-btn" id="btnImportarERPHome">📥 Importar funcionários (planilha do RH)</button>
     <button type="button" class="erp-btn" id="btnTourHome" style="margin-left:8px">🎓 Como usar</button>
     <button type="button" class="erp-btn" id="btnVerVisaoLoja" style="margin-left:8px">📊 Resumo da loja</button>
-    <button type="button" class="erp-btn" id="btnFonteBaseHome" style="margin-left:8px">📍 Local da planilha <small id="fonteMiniHome" style="font-weight:600;opacity:.85"></small></button></div>
+    <button type="button" class="erp-btn" id="btnFonteBaseHome" style="margin-left:8px">📍 Local da planilha <small id="fonteMiniHome" style="font-weight:600;opacity:.85"></small></button>
+    <button type="button" class="erp-btn" id="btnAtualizarPaginaHome" style="margin-left:8px">🔄 Atualizar página</button></div>
   <section id="homeComece" class="comece" hidden>
     <h2>👋 Bem-vindo! Por onde começar?</h2>
     <ol class="comece-passos">
@@ -2660,14 +2664,14 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
     <h2>📊 Resumo da loja</h2>
     <p class="sub">Todos os setores juntos: veja em quais horários e em quais dias da semana há mais e menos gente, para planejar mudanças.</p>
     <div id="homeKpis" class="home-kpis"></div>
+    <div class="dist-bloco dist-largo" id="homeDistAreas" style="margin-bottom:12px"></div>
+    <div class="dist-bloco dist-largo" id="homeDistAfastados" style="margin-bottom:12px"></div>
+    <div class="dist-bloco dist-largo" id="homeDistTempo" style="margin-bottom:12px"></div>
     <div class="dist-ctrl" id="homeDistCtrl">
       <label>Função <select id="homeDistFuncao"><option value="">Todas as funções</option></select></label>
       <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="homeDistAprendiz"> Incluir jovens aprendizes</label>
       <label>Ordenar horários <select id="homeDistOrdem"><option value="hora">Por horário</option><option value="qtd">Por quantidade</option></select></label>
     </div>
-    <div class="dist-bloco dist-largo" id="homeDistAreas" style="margin-bottom:12px"></div>
-    <div class="dist-bloco dist-largo" id="homeDistAfastados" style="margin-bottom:12px"></div>
-    <div class="dist-bloco dist-largo" id="homeDistTempo" style="margin-bottom:12px"></div>
     <div class="dist-grid"><div class="dist-bloco" id="homeDistHorarios"></div><div class="dist-bloco" id="homeDistFolgas"></div></div>
     <div class="dist-bloco dist-largo" id="homeDistMapa"></div>
   </section>
@@ -2693,7 +2697,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V280 · ⚠️ confirmação quando um domingo fica sem liderança</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V283 · ⚠️ confirmação quando um domingo fica sem liderança</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16262,6 +16266,41 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }catch(e){ console.warn('[V280 liderança]',e); }
   }
   window.v280Lideranca={semLideranca,interceptar,posGeracao,sincronizar,confirmado,estado:()=>aceitos};
+})();
+</script>
+<script>
+/* ═════ V281 — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL ═════
+   A tela V280 já mostra o aviso; esta camada faz o Gabriel explicar a mesma regra
+   quando o usuário pergunta se a liderança é obrigatória ou o que ocorre sem ela.
+*/
+(function(){
+  'use strict';
+  const chat=window.v265Chat;
+  if(!chat||typeof chat.responder!=='function')return;
+  const anterior=chat.responder;
+  const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const perguntaDaRegra=q=>/\blideranc(?:a|as)\b|\blider\b|\bencarregad\w*\b|\bsubencarregad\w*\b/.test(q)
+    && /\b(obrigator\w*|precis\w*|exig\w*|faltar\w*|ausent\w*|sem\b|como funciona|regra|opcional)\b/.test(q);
+  const resposta='⭐ <b>A liderança do domingo é opcional.</b> A escala pode ser gerada mesmo sem Encarregado, Subencarregado ou Líder. Depois de gerar, aparece um aviso amarelo: toque em <b>✅ Sim, concordo</b> para registrar a decisão ou em <b>↩ Voltar e escolher liderança</b> para ajustar o passo 3 — Domingos, quadro ③ Quem lidera.';
+  chat.responder=function(texto){
+    try{
+      const app=String(chat.interno?.APP||'').toLowerCase(), q=normalizar(texto);
+      if(app==='setores'&&perguntaDaRegra(q))return resposta;
+    }catch(e){ console.warn('[V281 Gabriel]',e); }
+    return anterior.call(chat,texto);
+  };
+  if(window.v270Gabriel)window.v270Gabriel.responder=chat.responder;
+})();
+</script>
+<script>
+/* ═════ V283 — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL ═════
+   Atalho simples para recarregar o app quando o usuário quiser conferir a versão
+   mais nova ou limpar uma tela que ficou parada, sem mudar dados guardados.
+*/
+(function(){
+  'use strict';
+  const botao=document.getElementById('btnAtualizarPaginaHome');
+  if(botao)botao.addEventListener('click',()=>location.reload());
 })();
 </script>
 </body>
