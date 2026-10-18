@@ -1,11 +1,11 @@
 # Passagem de bastão — o que foi feito e como continuar
 
-Este arquivo existe para que **Manus (Coordenador), Claude (Encarregado) e ChatGPT (Subencarregado)** continuem o trabalho um do outro sem perder contexto.
+Este arquivo existe para que **Manus (Coordenador), Claude (Encarregado), ChatGPT (Subencarregado) e Grok (Auxiliar de Projeto)** continuem o trabalho um do outro sem perder contexto.
 **Leia este arquivo inteiro antes de começar** e **atualize-o em toda mudança** (regra da seção 10 do [`AGENTS.md`](../AGENTS.md)).
 
 Como atualizar (toda mudança, inclusive só de documentação):
 1. Atualize a seção **1. Estado atual** (versões, PRs/branches abertos).
-2. Acrescente uma entrada **no topo** da seção **5. Diário**, no modelo que está lá, assinada (`— Manus`, `— Claude` ou `— ChatGPT`).
+2. Acrescente uma entrada **no topo** da seção **5. Diário**, no modelo que está lá, assinada (`— Manus`, `— Claude`, `— ChatGPT` ou `— Grok`).
 3. Se resolveu ou criou uma pendência, atualize a seção **6. Pendências**.
 4. Se descobriu uma armadilha (algo que quebrou e por quê), acrescente na seção **4**.
 
@@ -21,7 +21,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V187.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
-- **Hierarquia (pedido do dono, 17/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. JottaCostta mantém a decisão e autorização finais.
+- **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
 - **PR #80 (Manus):** mesclada em 17/10/2026; merge commit `854fcc8`. O branch `chatgpt/gabriel-bateria-500` foi mantido.
