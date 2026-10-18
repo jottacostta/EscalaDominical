@@ -1,10 +1,10 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 17/10/2026, com a Setores V279 · Encarregados V187, a separação de intenções e o merge da PR #88. Assinado: Manus
+Atualizado em 18/10/2026, com a Setores V283 · Encarregados V187, a confirmação pós-geração para domingo sem liderança, a explicação dessa regra pelo Gabriel, a ordem corrigida dos filtros e o botão de atualização da área inicial. Assinado: Manus
 
 COMO USAR ESTE ARQUIVO
 ----------------------
-Numa conversa nova (Manus, Claude ou ChatGPT/Codex), cole a mensagem do item 0 abaixo. Ela manda o assistente ler este
+Numa conversa nova (Manus, Claude, ChatGPT/Codex ou Grok), cole a mensagem do item 0 abaixo. Ela manda o assistente ler este
 arquivo e os outros documentos do repositório antes de fazer qualquer coisa. Mantenha este arquivo atualizado:
 quando algo aqui mudar (versão, regra, pendência), atualize no mesmo PR da mudança.
 
@@ -26,7 +26,7 @@ está pendente, e espere o meu pedido."
   não o código. Mostrar capturas de tela (sempre com dados fictícios) quando mudar tela.
 - Ele costuma pedir em mensagens curtas ("Faça a merge", "Verifique as PR abertas", um print com um
   problema). Quando a regra de negócio não estiver clara, perguntar com opções curtas.
-- HIERARQUIA (pedido do dono, 17/10/2026): JottaCostta é o GERENTE DE PROJETOS; Manus é o COORDENADOR; Claude é o ENCARREGADO; ChatGPT é o SUBENCARREGADO.
+- HIERARQUIA (atualizada em 18/10/2026): JottaCostta é o GERENTE DE PROJETOS; Manus é o COORDENADOR; Claude é o ENCARREGADO; ChatGPT é o SUBENCARREGADO; Grok é o AUXILIAR DE PROJETO (subordinado ao ChatGPT).
   Ambos seguem a coordenação de Manus; JottaCostta mantém a decisão e autorização finais.
 - DOCUMENTAÇÃO: antes de atualizar, perguntar "Quer que eu atualize a documentação agora ou no próximo PR?".
 - MERGE: só quando ele pedir com essas palavras ("Faça a merge"). Antes do merge, conferir que os testes do
@@ -46,20 +46,20 @@ está pendente, e espere o meu pedido."
     https://jottacostta.github.io/EscalaDominical/encarregados/
 - O dono também usa os apps como APK (feito com o app dele, ApkForja, em "modo site" = WebView do link).
   Downloads no APK vão por Android.salvarArquivo (V237/V168). Ver armadilha no PASSAGEM.
-- Papéis no repositório: Manus (Coordenador), Claude (Encarregado) e ChatGPT/Codex (Subencarregado); JottaCostta é o Gerente de Projetos.
+- Papéis no repositório: Manus (Coordenador), Claude (Encarregado), ChatGPT/Codex (Subencarregado) e Grok (Auxiliar de Projeto); JottaCostta é o Gerente de Projetos.
   · Manus → título do PR "[Manus] …" · assina "Manus"
   · Claude → título do PR "[Claude] …" · branch varia (ccr-…, claude/… ou outro) · assina "Claude"
   · ChatGPT/Codex → título do PR "[ChatGPT] …" · branch técnico chatgpt/… · assina "ChatGPT"
-  Para saber de quem é um PR, olhe o TÍTULO ([Manus] / [Claude] / [ChatGPT]); o prefixo do branch não define o cargo.
+  Para saber de quem é um PR, olhe o TÍTULO ([Manus] / [Claude] / [ChatGPT] / [Grok]); o prefixo do branch não define o cargo.
   Todos partem do main mais novo e não sobrescrevem trabalho alheio; Manus coordena e consulta JottaCostta para decisões fora do escopo aprovado.
 
 
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
 - Documentação em seis pilares iniciada pela PR #82: `docs/PRD.md`, `docs/TRD.md`, `docs/FLUXOS.md`, `docs/DESIGN_SYSTEM.md`, `docs/MODELO_DADOS.md` e `docs/PLANO.md`. A auditoria de 17/10/2026 confirmou que ainda são mapas iniciais, não validados integralmente contra o código e os testes. Não declarar documentação concluída sem essa validação e sem conferir o workflow da PR #82.
-- Setores: V279 (próxima: V280).  Encarregados: V187 (próxima: V188).
+- Setores: V283 (próxima: V284).  Encarregados: V187 (próxima: V188).
 - PRs abertas: consulte a aba Pull requests do GitHub; não registre uma contagem fixa neste arquivo, pois ela fica desatualizada após cada criação, fechamento ou merge.
-  Já no `main`: #54, #56, #59, #62, #63, #64, #69 (Setores V269), #71 (Setores V270), #72 (Encarregados V179), #75 (Setores V271), #76 (Setores V272–V273 / Encarregados V180–V181), #77 (Setores V274 / Encarregados V182), #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages), #86 (hierarquia), #87 (correção pós-merge da #86) e #88 (Gabriel V279/V187: separação de intenções, mesclada em 17/10/2026 no commit 8f1e2fb; branch mantido). #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`. Consulte o GitHub para o estado atual das PRs.
+  Já no `main`: #54, #56, #59, #62, #63, #64, #69 (Setores V269), #71 (Setores V270), #72 (Encarregados V179), #75 (Setores V271), #76 (Setores V272–V273 / Encarregados V180–V181), #77 (Setores V274 / Encarregados V182), #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages), #86 (hierarquia) e #87 (correção pós-merge da #86). PR #88 mesclada: novas regras de intenção do Gabriel em V279/V187. #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`. Consulte o GitHub para o estado atual das PRs.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
   (Setores: ⚙️ Configurações fora da barra; Encarregados: 📅 Mês e opções fora da barra.)
 - Manuais (Claude Docs, mantidos pelo Claude por decisão do dono):
@@ -81,7 +81,7 @@ está pendente, e espere o meu pedido."
     sugestão divide as operadoras em abertura, intermediária (10h) e fechamento · V254 Editar equipe:
     turno vazio vem do horário e o aviso traz o nome da pessoa · V255 função sem A/B (Promotor A e B
     juntos) e grupo Jovem aprendiz · V256 cartão próprio 🎓 Jovem Aprendiz, separado do ADM Geral · V257 nome do setor no arquivo Excel · V258 1 promotor por domingo e cartazista sem domingo · V259 aviso em “Por grupos” quando há menos de 6 pessoas · V260 importação do ERP sem opção de bloquear domingo (aprendizes e cartazista continuam bloqueados) · V261 cópia do app ao tocar na logo · V262 🤖 Assistente RH (botão flutuante com dicas; aprende como o encarregado monta a escala).
-  · Setores V263 prévia com domingos + Assistente RH mais robusto · V264 valida hora real + testes ARH-16 a ARH-24 · V265 chat offline · V266 confirmação de horário · V267 horário por função + histórico · V269 confirmação de par 2×1 na escala manual · V270 Gabriel (saudação, PNL, contexto e datas) · V271 inventário/leitura da planilha do RH · V272 chat móvel + feriados · V273 memória local do Gabriel · V274 regime configurável, 6×1 padrão e 5×2 desligada · V275 contexto e vocabulário do Gabriel · V276 respostas úteis e contagens semânticas · V277 fala natural, sinônimos “2 por 1”, explicação de folga fixa e contexto pessoal preservado · V279 separação de intenção interna/externa, esclarecimento de ambiguidades e limite para perguntas desconhecidas.
+  · Setores V263 prévia com domingos + Assistente RH mais robusto · V264 valida hora real + testes ARH-16 a ARH-24 · V265 chat offline · V266 confirmação de horário · V267 horário por função + histórico · V269 confirmação de par 2×1 na escala manual · V270 Gabriel (saudação, PNL, contexto e datas) · V271 inventário/leitura da planilha do RH · V272 chat móvel + feriados · V273 memória local do Gabriel · V274 regime configurável, 6×1 padrão e 5×2 desligada · V275 contexto e vocabulário do Gabriel · V276 respostas úteis e contagens semânticas · V277 fala natural, sinônimos “2 por 1”, explicação de folga fixa e contexto pessoal preservado · V279 separação de intenção interna/externa, esclarecimento de ambiguidades e limite para perguntas desconhecidas · V280 confirmação explícita para domingo normal sem liderança · V281 Gabriel explica que a liderança é opcional e como responder ao aviso · V282 filtros da área inicial depois do card de tempo de serviço · V283 botão para atualizar a página ao lado do local da planilha.
   · Encarregados V177 prévia com domingos + Assistente RH mais robusto · V178 chat offline · V179 Gabriel (saudação, PNL, contexto e datas) · V180 chat móvel + feriados · V181 memória local do Gabriel · V182 regime configurável, 6×1 padrão e 5×2 desligada · V183 contexto e vocabulário do Gabriel · V184 respostas úteis e contagens semânticas · V185 fala natural, sinônimos “2 por 1”, explicação de folga fixa, resposta de liderança e contexto pessoal preservado · V187 separação de intenção interna/externa, esclarecimento de ambiguidades e limite para perguntas desconhecidas.
   · Encarregados V167 escala à mão · V168 downloads no APK · V169–V171 ordem dos passos · V172 data de
     admissão dd/mm/aaaa · V173 sem Equipe.txt na tela · V174 folga da virada do mês (10 dias seguidos!), mês com
@@ -135,8 +135,8 @@ antes de </body>, e grava a versão nova. Mudar o mínimo; nunca reformatar o ar
 7. GIT, PR E ASSINATURA
 -----------------------
 - Nunca push direto no main. Use o branch indicado pela sessão; o prefixo técnico (por exemplo, `chatgpt/…`) não define cargo nem assinatura.
-- Commit: termina com `Assinado: Manus`, `Assinado: Claude` ou `Assinado: ChatGPT`, conforme quem realizou o trabalho.
-- PR: título `[Manus] …`, `[Claude] …` ou `[ChatGPT] …`; corpo em português com "O que muda", "Testes" e "Para quem
+- Commit: termina com `Assinado: Manus`, `Assinado: Claude`, `Assinado: ChatGPT` ou `Assinado: Grok`, conforme quem realizou o trabalho.
+- PR: título `[Manus] …`, `[Claude] …`, `[ChatGPT] …` ou `[Grok] …`; corpo em português com "O que muda", "Testes" e "Para quem
   continuar", encerrado com `Assinado: <autor>`. Um assunto por PR.
 - Depois de abrir o PR: acompanhar os Checks; se ficar vermelho, consertar e mandar de novo (não esperar
   o dono pedir). Merge só quando o dono pedir.
@@ -208,28 +208,4 @@ Os dois
 - liderTurno() manda nos outros modos: para trocar de modo use definirModoLideranca.
 - A caixa do Equipe.txt e o #btnGerarEquipeTxt estão só escondidos: não apagar (leitor antigo e testes usam).
 - Trocar número de passo nos textos: proteger comentários/histórico (o HISTÓRICO não muda).
-- Link do site com versão antiga = cache (Ctrl+F5). APK modo site não baixa blob: (usar a ponte Android).
-- Folga que atravessa a virada do mês: o "Gerar" só refaz as folgas dos domingos deste mês. Leia folgas sempre por
-  ehDescansoAssociado(i,dt) (nos Encarregados ela inclui a folga do último domingo do mês passado — V174).
-- Domingo de balanço é exceção na sequência de domingos: deixe no lugar, não tire da lista.
-- Desempenho (V247): setor grande trava fácil. Antes de mexer no motor, meça com a planilha real (CPU 4× mais
-  lenta) e compare a escala antes × depois — tem que sair idêntica. Regras no PASSAGEM, seção 4.
-- Balanços são em janeiro, março, junho e setembro (quadro "📦 Domingos de balanço", V246/V175). O aparelho manda
-  (localStorage); o histórico do mês leva as datas (planejamento.datasBalanco).
-- Sempre gerar uma escala de verdade e OLHAR a tela no celular antes de aprovar uma tela nova
-  (foi assim que se viu que a V243 mostrava 61 avisos).
-
-
-13. PENDÊNCIAS E IDEIAS (atualize; lista completa no PASSAGEM seção 6)
-----------------------------------------------------------------------
-- Ajuda do Setores: conferir o texto "EP" (o certo é EMPRESTADO, não "período especial") e revisar a Ajuda
-  e o passo a passo de 1 minuto com tudo que mudou da V238 à V244.
-- Encarregados: revisar o "O que falta" com os passos novos; conferência de metadados (título/rodapé/
-  histórico) também no teste dos Encarregados.
-- .gitignore: bloquear também Equipe*.txt, *.csv e backups com dados reais (fora de testes/dados).
-- Manual do Encarregado e Roteiro do Beta ainda na V171: atualizar (data de admissão, sem Equipe.txt).
-- Gabriel: executar baterias de teste conforme issue #78, incluindo conjunto cego e relatório real; a bateria de 66 perguntas da issue #68 não significa que os testes já foram executados.
-- Escala 5×2: seguir issue #73 e o plano de 60 dias; cobertura mínima, auditoria, segunda folga e horas semanais ainda não estão implementadas. Regime fica desligado até confirmação legal e ordem do gerente.
-- Transformar docs/PROPOSTAS_ESTRESSE_SETORES.md em testes (feriados, 6×1, compensatórias).
-- Revisar a escala à mão com a regra de ouro (lista de 16 itens do AGENTS 4.1); velocidade das sugestões em setores grandes.
-- Dono pode apagar os branches antigos do ChatGPT no GitHub (lista no PASSAGEM).
+- Link do site com versão no nome redireciona para o endereço fixo (404.html).
