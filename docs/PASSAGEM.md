@@ -22,10 +22,10 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (pedido do dono, 17/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. JottaCostta mantém a decisão e autorização finais.
-- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
+- **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86) e #88 (Gabriel V279/V187: separação de intenções). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
 - **PR #80 (Manus):** mesclada em 17/10/2026; merge commit `854fcc8`. O branch `chatgpt/gabriel-bateria-500` foi mantido.
-- **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; aberta em 17/10/2026 no branch `chatgpt/gabriel-responde-versao`; ainda não mesclada.
+- **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 17/10/2026 no commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
 - **Próximo número de versão:** Setores **V280**, Encarregados **V188**.
@@ -169,20 +169,28 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-17 — Registro do merge da PR #88 — Manus
+- **Resultado:** PR #88 mesclada com sucesso em 17/10/2026 às 21:45:41 (UTC−3; 18/10/2026 00:45:41 UTC) no commit `8f1e2fb299c3e11b112a40b328ce63d54e45646f`; o branch `chatgpt/gabriel-responde-versao` foi preservado.
+- **Checks:** 4/4 aprovados no head `7a62339`: dois Playwright + Chromium, Vercel e Vercel Preview Comments. O Playwright concluiu as suítes rápida, completa de 12 meses e Gabriel 500.
+- **Documentação:** o estado, o registro de PRs e as referências anteriores a “aberta/não mesclada” foram alinhados ao merge. As versões atuais permanecem Setores V279 e Encarregados V187; as próximas são V280/V188.
+- **Validação:** estado e SHA confirmados no GitHub; `git diff --check` passou. Não repeti `npm test` localmente por ser uma correção apenas documental; a nova PR executará o workflow normal.
+- **Assinado:** Manus
+
 ### 2026-10-17 — Gabriel: versão, 5×2 e encaminhamento administrativo — Setores V278 / Encarregados V186 — Manus
 - **Causa confirmada:** em V277/V185, “Qual sua versão?” terminava em “Isso foge do que eu sei”; “Como vai ser a escala 5×2?” recebia orientação genérica. O código do regime confirma que 6×1 é o padrão e 5×2 está preparada, mas desligada até decisão do gerente.
 - **Correção:** as camadas V278/V186 respondem a versão com o `Vnnn` do título; perguntas sobre 5×2 usam o estado real de `window.v274Regime.resumo()`; dúvidas fora das funções/regras do app e assuntos trabalhistas não cadastrados orientam procurar o subgerente administrativo. A resposta não altera o regime nem a escala.
 - **Bateria:** criada `testes/dialogos-gabriel.json` com 50 diálogos / 250 turnos e expectativas candidatas com evidências; `testarDialogosGabriel` executa cada diálogo com contexto sequencial em ambos os apps. As expectativas ainda não representam gabarito automatizado completo.
 - **Validação:** `npm run test:gabriel-dialogos` passou em 12 s (250 turnos por app; 0 vazias/“Não entendi”, versão, encaminhamento e 5×2 corretos; férias consultadas no status da equipe; escala intacta). `npm test` passou em 868 s; `npm run test:completo` passou em 917 s. `npm run test:gabriel-500` passou: 500 perguntas, 0 vazias/“Não entendi”/exceções/erros JS/falhas semânticas, estado preservado e mutação detectada; relatório atualizado em `testes/relatorio-gabriel-500.json`.
 - **Limite:** as suítes verificam roteamento, estado e sinais concretos de regressão, mas as expectativas dos 50 diálogos continuam candidatas/referências; não são um gabarito semântico completo nem provam que Gabriel responda corretamente qualquer pergunta.
-- **Continuidade:** PR #88 aberta para revisão; consultar os checks atuais no GitHub. Revisar respostas do conjunto cego e só transformar expectativas em oráculos após verificar cada regra no código. Não mesclada.
+- **Continuidade:** PR #88 foi mesclada em 17/10/2026 no commit `8f1e2fb`; o branch foi mantido. As expectativas da bateria continuam candidatas, não oráculos semânticos completos.
 - **Assinado:** Manus
 
 ### 2026-10-17 — Gabriel: classificação de intenções e validação final — Setores V279 / Encarregados V187 — Manus
 - **Regras:** assuntos internos continuam no roteador atual; dúvidas claramente externas de RH encaminham ao subgerente administrativo; férias e outros termos ambíguos pedem contexto; perguntas desconhecidas recebem limite e pedido de reformulação, sem encaminhamento por suposição. A distinção entre remuneração e folga compensatória evita falso positivo; falhas na normalização/classificação retornam orientação em vez de erro.
 - **Regressões:** os testes cobrem versão, 6×1/5×2, estado de férias da equipe, salário e regra de intervalo como consulta externa, desconhecido sem encaminhamento, folga compensatória e preservação da escala.
 - **Validação:** `npm run test:gabriel-dialogos` aprovado (250 turnos por app; sem respostas vazias, “Não entendi”, erro JavaScript ou alteração da equipe/escala); `npm test` aprovado (856 s); `npm run test:completo` aprovado (899 s); `npm run test:gabriel-500` aprovado (500 chamadas: 0 vazias, 0 “Não entendi”, 0 exceções, 0 erros JS e 0 falhas nas validações semânticas disponíveis; equipe preservada e mutação detectada/restaurada).
-- **Limite:** a bateria de 500 perguntas é exploratória, não exaustiva e não tem gabarito semântico completo; o relatório não prova acurácia geral. Nenhum merge foi feito.
+- **Limite:** a bateria de 500 perguntas é exploratória, não exaustiva e não tem gabarito semântico completo; o relatório não prova acurácia geral.
+- **Merge:** PR #88 mesclada em 17/10/2026 no commit `8f1e2fb`; branch `chatgpt/gabriel-responde-versao` preservado.
 - **Assinado:** Manus
 
 ### 2026-10-17 — Correção do estado pós-merge da PR #86 — Manus
