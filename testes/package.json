@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node rodar.js",
     "test:completo": "node rodar.js --completo",
-    "test:gabriel-500": "node bateria-gabriel-500.js"
+    "test:gabriel-500": "node bateria-gabriel-500.js",
+    "test:gabriel-dialogos": "node rodar.js --gabriel-dialogos"
   },
   "devDependencies": {
     "playwright": "^1.47.0"

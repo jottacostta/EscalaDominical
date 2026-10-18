@@ -1,11 +1,11 @@
 {
   "titulo": "Bateria Gabriel — 500 perguntas",
-  "dataISO": "2026-10-17T10:57:24.069Z",
+  "dataISO": "2026-10-17T23:38:45.444Z",
   "metodo": "50 perguntas-base × 5 formulações × 2 aplicativos = 500 chamadas. Relatório exploratório: não declara acerto sem gabarito verificável. A preservação de estado cobre somente a equipe carregada; a escala não é gerada por este teste.",
   "apps": [
     {
       "app": "Setores",
-      "arquivo": "Escala_de_Setores_V277.html",
+      "arquivo": "Escala_de_Setores_V279.html",
       "casos": [
         {
           "id": 1,
@@ -1730,7 +1730,7 @@
         {
           "id": 216,
           "pergunta": "Como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1738,7 +1738,7 @@
         {
           "id": 217,
           "pergunta": "Ô, como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1746,7 +1746,7 @@
         {
           "id": 218,
           "pergunta": "Vc sabe como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1754,7 +1754,7 @@
         {
           "id": 219,
           "pergunta": "Rapidinho: como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1762,7 +1762,7 @@
         {
           "id": 220,
           "pergunta": "Preciso confirmar isso para montar a escala corretamente: como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1810,7 +1810,7 @@
         {
           "id": 226,
           "pergunta": "O que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1818,7 +1818,7 @@
         {
           "id": 227,
           "pergunta": "Ô, o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1826,7 +1826,7 @@
         {
           "id": 228,
           "pergunta": "Vc sabe o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1834,7 +1834,7 @@
         {
           "id": 229,
           "pergunta": "Rapidinho: o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -1842,7 +1842,7 @@
         {
           "id": 230,
           "pergunta": "Preciso confirmar isso para montar a escala corretamente: o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -2064,7 +2064,7 @@
     },
     {
       "app": "Encarregados",
-      "arquivo": "Escala_2x1_encarregados_V185.html",
+      "arquivo": "Escala_2x1_encarregados_V187.html",
       "casos": [
         {
           "id": 1,
@@ -3789,7 +3789,7 @@
         {
           "id": 216,
           "pergunta": "Como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3797,7 +3797,7 @@
         {
           "id": 217,
           "pergunta": "Ô, como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3805,7 +3805,7 @@
         {
           "id": 218,
           "pergunta": "Vc sabe como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3813,7 +3813,7 @@
         {
           "id": 219,
           "pergunta": "Rapidinho: como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3821,7 +3821,7 @@
         {
           "id": 220,
           "pergunta": "Preciso confirmar isso para montar a escala corretamente: como são distribuídos os horários de abertura e fechamento?",
-          "resposta": "🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3869,7 +3869,7 @@
         {
           "id": 226,
           "pergunta": "O que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3877,7 +3877,7 @@
         {
           "id": 227,
           "pergunta": "Ô, o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3885,7 +3885,7 @@
         {
           "id": 228,
           "pergunta": "Vc sabe o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3893,7 +3893,7 @@
         {
           "id": 229,
           "pergunta": "Rapidinho: o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
@@ -3901,7 +3901,7 @@
         {
           "id": 230,
           "pergunta": "Preciso confirmar isso para montar a escala corretamente: o que significa uma pendência na tela?",
-          "resposta": "🙂 Isso foge do que eu sei. Eu sou o Gabriel, assistente de RH desta escala de domingos e folgas : respondo sobre quem trabalha ou folga, regras (6×1, 2×1, feriado, balanço), a planilha do RH e como usar o app. Não tenho conhecimento geral e não vou inventar uma resposta.",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
           "retornouString": true,
           "respostaVazia": false,
           "erro": null
