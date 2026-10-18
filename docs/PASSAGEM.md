@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V279.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V280.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V187.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e nos branches `chatgpt/**`. Após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -25,10 +25,10 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
 - **PR #80 (Manus):** mesclada em 17/10/2026; merge commit `854fcc8`. O branch `chatgpt/gabriel-bateria-500` foi mantido.
-- **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; aberta em 17/10/2026 no branch `chatgpt/gabriel-responde-versao`; ainda não mesclada.
+- **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V280**, Encarregados **V188**.
+- **Próximo número de versão:** Setores **V281**, Encarregados **V188**.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
@@ -41,7 +41,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V279
+### Camadas documentadas até V280
+- **V280 — confirmação de liderança opcional:** domingo normal sem liderança não é erro nem bloqueia a escala; depois de gerar, aparece um aviso amarelo para pedir concordância explícita e guardar a decisão no resultado/histórico.
 - **V279 — classificação de intenção:** mantém o roteador existente para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa o limite e pede reformulação em perguntas desconhecidas, sem encaminhamento por suposição. Distingue remuneração de folga compensatória, captura falhas do classificador sem travar e não altera a escala.
 - **V278 — identidade do app e encaminhamento:** o wrapper final identifica perguntas sobre a versão pelo título da tela; responde 5×2 com o estado real de `window.v274Regime.resumo()`; encaminha assuntos fora do app ao subgerente administrativo, inclusive dúvidas trabalhistas já marcadas como não cadastradas.
 - **V277 — fala natural, dicionário e contexto:** `prepararPergunta()` remove prefácios e normaliza “2 por 1”/“dois por um”; as dúvidas gerais sobre folga fixa usam aliases específicos em `RESP`, antes da chave genérica “descanso”; a camada V270 registra a pessoa única citada antes de respostas diretas. Continuações como “Muda para terça” mantêm essa pessoa, e o chat só orienta a usar `Editar equipe`, sem alterar a escala.
@@ -175,7 +176,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Bateria:** criada `testes/dialogos-gabriel.json` com 50 diálogos / 250 turnos e expectativas candidatas com evidências; `testarDialogosGabriel` executa cada diálogo com contexto sequencial em ambos os apps. As expectativas ainda não representam gabarito automatizado completo.
 - **Validação:** `npm run test:gabriel-dialogos` passou em 12 s (250 turnos por app; 0 vazias/“Não entendi”, versão, encaminhamento e 5×2 corretos; férias consultadas no status da equipe; escala intacta). `npm test` passou em 868 s; `npm run test:completo` passou em 917 s. `npm run test:gabriel-500` passou: 500 perguntas, 0 vazias/“Não entendi”/exceções/erros JS/falhas semânticas, estado preservado e mutação detectada; relatório atualizado em `testes/relatorio-gabriel-500.json`.
 - **Limite:** as suítes verificam roteamento, estado e sinais concretos de regressão, mas as expectativas dos 50 diálogos continuam candidatas/referências; não são um gabarito semântico completo nem provam que Gabriel responda corretamente qualquer pergunta.
-- **Continuidade:** PR #88 aberta para revisão; consultar os checks atuais no GitHub. Revisar respostas do conjunto cego e só transformar expectativas em oráculos após verificar cada regra no código. Não mesclada.
+- **Continuidade:** PR #88 foi mesclada; consultar os checks atuais no GitHub. Revisar respostas do conjunto cego e só transformar expectativas em oráculos após verificar cada regra no código.
 - **Assinado:** Manus
 
 ### 2026-10-17 — Gabriel: classificação de intenções e validação final — Setores V279 / Encarregados V187 — Manus

@@ -11,6 +11,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
+- **V280** — ⚠️ LIDERANÇA OPCIONAL COM CONCORDÂNCIA: domingos normais sem Encarregado, Subencarregado ou Líder continuam permitidos e não viram erro; depois de gerar, aparece um aviso amarelo para o encarregado conferir e concordar. A decisão fica registrada no resultado e no histórico do mês; escolha de liderança, 3 domingos seguidos e demais regras permanecem intactas. — *Manus*
 - **V279** — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — *Manus*
 - **V278** — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — *Manus*
 

@@ -4,7 +4,7 @@
 
 ## Arquitetura
 - Repositório: `jottacostta/EscalaDominical`.
-- Apps separados e autocontidos em HTML: `Escala_de_Setores_V275.html` e `Escala_2x1_encarregados_V183.html` na `main` consultada.
+- Apps separados e autocontidos em HTML: `Escala_de_Setores_V280.html` e `Escala_2x1_encarregados_V187.html` na `main` consultada.
 - `setores/index.html` e `encarregados/index.html` são cópias das versões atuais e sustentam os endereços fixos.
 - A experiência normal deve continuar offline; não adicionar dependência externa sem autorização.
 
