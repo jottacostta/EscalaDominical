@@ -1,17 +1,18 @@
-# Regras do projeto EscalaDominical (para Manus, Claude, ChatGPT/Codex e outros assistentes)
+# Regras do projeto EscalaDominical (para Manus, Claude, ChatGPT/Codex, Grok e outros assistentes)
 
 Todos os assistentes do projeto devem ler este arquivo em toda tarefa. **Siga tudo o que está aqui.**
 Escreva sempre em **português do Brasil**, com linguagem simples (quem usa o app é gestor de loja, não programador).
 
 > **Regra de ouro do dono (UX/UI):** o app tem que ser fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Toda mudança de tela segue a seção 4.1.
 
-> **Hierarquia (pedido do dono, 17/10/2026; substitui a definição de 14/10/2026):**
+> **Hierarquia (atualizada em 18/10/2026):**
 > - **Gerente de Projetos:** JottaCostta, o dono; mantém a decisão e autorização finais.
-> - **Coordenador de Projetos:** Manus; coordena os dois cargos subordinados dentro do escopo autorizado pelo gerente.
+> - **Coordenador de Projetos:** Manus; coordena os cargos subordinados dentro do escopo autorizado pelo gerente.
 > - **Encarregado:** Claude; segue a coordenação de Manus.
 > - **Subencarregado:** ChatGPT/Codex; segue a coordenação de Manus.
+> - **Auxiliar de Projeto:** Grok; subordinado ao ChatGPT. Só age com autorização do Gerente e alinhamento com o ChatGPT.
 >
-> **Nada é feito por iniciativa própria** (nem por Manus, Claude ou ChatGPT) **sem autorização de JottaCostta**: mudanças de código,
+> **Nada é feito por iniciativa própria** (nem por Manus, Claude, ChatGPT ou Grok) **sem autorização de JottaCostta**: mudanças de código,
 > documentação, merge, abrir ou fechar PR. Manus coordena a execução autorizada. Dúvidas ou discordâncias voltam ao gerente.
 
 ## 1. O que é o projeto
@@ -30,8 +31,8 @@ Dois apps de escala do **Supermercados Guanabara**, cada um num **único arquivo
 
 1. Puxe o `main` mais recente (`git fetch origin main`) e trabalhe a partir dele.
 2. Veja o que mudou desde a última vez: `git log --oneline -15 origin/main`, o topo do `CHANGELOG.md` e o **`docs/PASSAGEM.md`** (seção 10).
-3. Veja se há Pull Requests abertos de outros assistentes. **Reconheça pelo título**: `[Manus] …`, `[Claude] …` ou `[ChatGPT] …`.
-   O prefixo do branch pode ser `chatgpt/…`; ele não define o cargo nem a assinatura.
+3. Veja se há Pull Requests abertos de outros assistentes. **Reconheça pelo título**: `[Manus] …`, `[Claude] …`, `[ChatGPT] …` ou `[Grok] …`.
+   O prefixo do branch pode ser `chatgpt/…` ou `grok/…`; ele não define o cargo nem a assinatura.
    Se houver PR aberto mexendo no mesmo app, **espere ele entrar no main** ou combine com o dono do projeto.
 4. Descubra qual é a **versão atual** de cada app pelo nome do arquivo na raiz (ex.: `Escala_de_Setores_V222.html`).
 5. Numa **conversa nova**, leia também [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) (regras de continuidade, estado e pendências) e mantenha esse arquivo atualizado.
@@ -46,7 +47,7 @@ e sem depender de nada externo). Use na medida do problema: ajuste simples e bem
 1. **Siga o caminho real:** da tela (botão, evento, passo) até a função que decide. Anote os dados envolvidos (variáveis globais,
    `localStorage`, campos do histórico) e veja se **uma versão mais nova embrulha a função antiga** (`window.nome=function…`) —
    a camada nova é que vale. Antes de criar algo, procure regra, auditoria ou teste que já faz o mesmo.
-2. **Separe certeza de suspeita:** ✅ confirmado (visto no código e reproduzido) · 🟡 provável · ❔ não confirmado · ❌ descartado.
+2. **Separe certeza de suspeita:** ✅ confirmado (visto no código e reproduzido) · 🟡 provável · ❓ não confirmado · ❌ descartado.
    Nunca apresente suspeita como causa. Se não deu para rodar o app, diga isso.
 3. **Confira o que pode ser afetado** (só o que tiver ligação de verdade): tela e mensagens · motor da escala · auditoria
    (automático, à mão e misto) · dados da equipe · salvamento e histórico · saídas (tabela, PDF, Excel, WhatsApp) · virada do mês.
@@ -148,7 +149,7 @@ npm run test:completo    # o ano inteiro — rode quando mexer no motor da escal
 
 Se a mudança cria uma regra nova, **acrescente a conferência dela** em `testes/rodar.js`.
 
-Os mesmos testes rodam **sozinhos no GitHub** (`.github/workflows/testes.yml`) em todo Pull Request, em todo push no `main` e nos branches `chatgpt/…` (suíte rápida e a do ano inteiro). Não crie outro workflow de testes: use esse.
+Os mesmos testes rodam **sozinhos no GitHub** (`.github/workflows/testes.yml`) em todo Pull Request, em todo push no `main` e nos branches `chatgpt/…` / `grok/…` (suíte rápida e a do ano inteiro). Não crie outro workflow de testes: use esse.
 Se o seu ambiente não consegue instalar o Chromium, abra o PR e confira o resultado na aba **Checks** do PR
 (“Testes”): o PR só está pronto quando esse teste fica verde ✅. Diga no PR onde os testes rodaram.
 Cada conferência tem que poder **falhar** de verdade (nunca compare um valor com ele mesmo). Para defeito, o teste novo
@@ -162,31 +163,31 @@ Cada conferência tem que poder **falhar** de verdade (nunca compare um valor co
 
 ## 8. Git e Pull Request
 
-- **Nunca** faça push direto no `main`. Crie um branch: `chatgpt/<assunto-curto>` (ex.: `chatgpt/filtro-por-cargo`).
-- Um assunto por PR. Trabalho de Manus: título `[Manus] Setores V223: <o que muda>`; Claude: `[Claude] …`; ChatGPT/Codex: `[ChatGPT] …`.
+- **Nunca** faça push direto no `main`. Crie um branch: `chatgpt/<assunto-curto>` ou `grok/<assunto-curto>` (ex.: `grok/filtro-por-cargo`).
+- Um assunto por PR. Trabalho de Manus: título `[Manus] Setores V223: <o que muda>`; Claude: `[Claude] …`; ChatGPT/Codex: `[ChatGPT] …`; Grok: `[Grok] …`.
 - Descrição do PR em português, com três partes: **O que muda**, **Testes** (o que foi testado e o resultado do `npm test`) e **Para quem continuar** (seção 10).
 - Quem decide o merge é o dono do projeto. Depois do merge, o GitHub Pages atualiza o site sozinho em 1–2 minutos.
 
 ## 9. Assinatura (obrigatório) — para cada um saber o que o outro fez
 
-Cada assistente **assina tudo o que faz** com o próprio nome: **Manus**, **Claude** ou **ChatGPT**. Manus é Coordenador; Claude é Encarregado; ChatGPT/Codex é Subencarregado.
+Cada assistente **assina tudo o que faz** com o próprio nome: **Manus**, **Claude**, **ChatGPT** ou **Grok**. Manus é Coordenador; Claude é Encarregado; ChatGPT/Codex é Subencarregado; Grok é Auxiliar de Projeto.
 
 | Onde | Como assinar |
 |---|---|
-| Título do PR | `[Manus]`, `[Claude]` ou `[ChatGPT]`, conforme o autor |
-| Fim da descrição do PR | `Assinado: Manus`, `Assinado: Claude` ou `Assinado: ChatGPT` |
+| Título do PR | `[Manus]`, `[Claude]`, `[ChatGPT]` ou `[Grok]`, conforme o autor |
+| Fim da descrição do PR | `Assinado: Manus`, `Assinado: Claude`, `Assinado: ChatGPT` ou `Assinado: Grok` |
 | Mensagem de commit | última linha com a assinatura do autor |
-| `CHANGELOG.md` | a entrada termina com `— *Manus*`, `— *Claude*` ou `— *ChatGPT*` |
-| `HISTÓRICO DE VERSÕES` no app | a linha começa com `Vnnn [Manus] —`, `Vnnn [Claude] —` ou `Vnnn [ChatGPT] —` |
-| Comentário no GitHub | termina com o nome do autor (`— Manus`, `— Claude` ou `— ChatGPT`) |
+| `CHANGELOG.md` | a entrada termina com `— *Manus*`, `— *Claude*`, `— *ChatGPT*` ou `— *Grok*` |
+| `HISTÓRICO DE VERSÕES` no app | a linha começa com `Vnnn [Manus] —`, `Vnnn [Claude] —`, `Vnnn [ChatGPT] —` ou `Vnnn [Grok] —` |
+| Comentário no GitHub | termina com o nome do autor (`— Manus`, `— Claude`, `— ChatGPT` ou `— Grok`) |
 
-- Instrução do gerente (17/10/2026): este agente assina como **Manus**; Claude e ChatGPT/Codex assinam com os próprios nomes. Não reescreva assinaturas ou commits já publicados sem pedido; registros antigos permanecem históricos.
+- Instrução do gerente (18/10/2026): Grok assina como **Grok** (Auxiliar de Projeto). Não reescreva assinaturas ou commits já publicados sem pedido; registros antigos permanecem históricos.
 - Antes de começar, leia as assinaturas no `git log` e no `CHANGELOG.md` para saber **quem fez o quê**.
 - **Nunca** assine pelo outro nem apague a assinatura do outro. Se aproveitar uma ideia alheia, dê o crédito com o nome correto.
 
 ## 10. Passagem de bastão (obrigatório) — deixe tudo explicado para o outro continuar
 
-O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno compartilhado por Manus (Coordenador), Claude (Encarregado) e ChatGPT (Subencarregado).
+O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno compartilhado por Manus (Coordenador), Claude (Encarregado), ChatGPT (Subencarregado) e Grok (Auxiliar de Projeto).
 
 - **Antes de começar:** leia o `docs/PASSAGEM.md` inteiro: estado atual, mapa técnico (onde fica cada coisa no código),
   armadilhas que já aconteceram, diário e pendências.
@@ -194,12 +195,12 @@ O arquivo [`docs/PASSAGEM.md`](docs/PASSAGEM.md) é o caderno compartilhado por 
   1. atualize a seção **1. Estado atual** (versões, PRs/branches abertos, próximo número de versão);
   2. acrescente uma entrada **no topo** da seção **5. Diário**, no modelo de lá: o que mudou e por quê, onde no código
      (bloco `Vnnn`, funções, chaves do `localStorage`, campos do histórico), como foi testado e o que falta para continuar.
-     Assine (`— Manus`, `— Claude` ou `— ChatGPT`);
+     Assine (`— Manus`, `— Claude`, `— ChatGPT` ou `— Grok`);
   3. atualize as **pendências** (seção 6), e as **armadilhas** (seção 4) se algo quebrou e você descobriu por quê;
   4. se criou função/gancho novo (`window.vNNN…`) ou variável global nova, acrescente no **mapa técnico** (seções 2–3).
 - A descrição do PR termina com a parte **“Para quem continuar”**: o que ficou pronto, o que falta e os cuidados.
 - O teste automático confere se o `docs/PASSAGEM.md` cita a versão atual de cada app.
-- **Pergunte antes de atualizar a documentação** (pedido do dono, 13/10/2026 — vale para Claude e Manus): antes de
+- **Pergunte antes de atualizar a documentação** (pedido do dono, 13/10/2026 — vale para todos): antes de
   mexer no diário/pendências do `docs/PASSAGEM.md`, no `CHANGELOG.md`, no `docs/INICIO_NOVA_CONVERSA.txt` ou nos
   manuais, pergunte ao dono: “Quer que eu atualize a documentação agora ou no próximo PR?” e só faça depois da resposta.
   Sem perguntar, só o nome do arquivo da versão atual no `README.md` e no `docs/PASSAGEM.md` (o teste exige). Esta regra
