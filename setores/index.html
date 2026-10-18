@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V279</title>
+<title>Escala de Setores — V283</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V283 [Manus] — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — Manus
+V282 [Manus] — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — Manus
+V281 [Manus] — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL: responde que a liderança no domingo é opcional, que a escala continua podendo ser gerada sem ela e que o aviso amarelo pede concordância depois da geração; os dois botões são explicados em linguagem simples. — Manus
+V280 [Manus] — ⚠️ AVISO DE LIDERANÇA SEM ESCOLHA: a liderança continua opcional e não transforma a escala em erro; a escala é gerada e, se um domingo normal ficou sem liderança, aparece um aviso amarelo para o encarregado conferir e concordar. A decisão fica registrada no resultado e no histórico do mês. — Manus
 V279 [Manus] — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — Manus
 V278 [Manus] — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — Manus
 V277 [ChatGPT] — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP e preserva a pessoa citada em continuações como “Muda para terça”; orienta a editar sem alterar a escala. — ChatGPT
@@ -2561,6 +2565,17 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 .v269-caixa ul{margin:6px 0 10px;padding-left:20px}
 .v269-peq{font-size:13px;color:#5b6675}
 </style>
+<style id="v280-lideranca">
+/* V280: confirmação visível, mas não bloqueante, quando um domingo normal fica sem liderança */
+#v280LiderAlt{margin:10px 0;padding:12px 14px;border:2px solid #D9A900;border-radius:12px;background:#FFF8D8;color:#4A3600;font-size:14px}
+#v280LiderAlt.ok{border-style:dashed;background:#F4FFF5;border-color:#5C9B67;color:#214C2A}
+#v280LiderAlt p{margin:0 0 8px;line-height:1.45}
+#v280LiderAlt ul{margin:6px 0 10px;padding-left:20px}
+#v280LiderAlt .v280-peq{font-size:13px;color:#5b6675}
+#v280LiderAlt .v280-bt{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+:root[data-theme="dark"] #v280LiderAlt{background:#3a2e08;color:#ffe28a;border-color:#d9a900}
+:root[data-theme="dark"] #v280LiderAlt.ok{background:#0f2e1c;color:#a7f3c4;border-color:#4eaa67}
+</style>
 <style id="v270-gabriel">
 /* V270: balão de saudação do Gabriel */
 #v270Balao{position:fixed;right:16px;bottom:calc(96px + 58px + 14px + env(safe-area-inset-bottom,0px));z-index:1301;max-width:min(300px,calc(100vw - 32px));background:#fff;color:#1b2430;border:2px solid var(--v262-brand,#0047BA);border-radius:16px 16px 4px 16px;box-shadow:0 10px 28px rgba(0,40,110,.28);padding:12px 14px 12px 14px;font-size:14px;line-height:1.4}
@@ -2633,7 +2648,8 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
     <button type="button" class="erp-btn" id="btnImportarERPHome">📥 Importar funcionários (planilha do RH)</button>
     <button type="button" class="erp-btn" id="btnTourHome" style="margin-left:8px">🎓 Como usar</button>
     <button type="button" class="erp-btn" id="btnVerVisaoLoja" style="margin-left:8px">📊 Resumo da loja</button>
-    <button type="button" class="erp-btn" id="btnFonteBaseHome" style="margin-left:8px">📍 Local da planilha <small id="fonteMiniHome" style="font-weight:600;opacity:.85"></small></button></div>
+    <button type="button" class="erp-btn" id="btnFonteBaseHome" style="margin-left:8px">📍 Local da planilha <small id="fonteMiniHome" style="font-weight:600;opacity:.85"></small></button>
+    <button type="button" class="erp-btn" id="btnAtualizarPaginaHome" style="margin-left:8px">🔄 Atualizar página</button></div>
   <section id="homeComece" class="comece" hidden>
     <h2>👋 Bem-vindo! Por onde começar?</h2>
     <ol class="comece-passos">
@@ -2648,14 +2664,14 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
     <h2>📊 Resumo da loja</h2>
     <p class="sub">Todos os setores juntos: veja em quais horários e em quais dias da semana há mais e menos gente, para planejar mudanças.</p>
     <div id="homeKpis" class="home-kpis"></div>
+    <div class="dist-bloco dist-largo" id="homeDistAreas" style="margin-bottom:12px"></div>
+    <div class="dist-bloco dist-largo" id="homeDistAfastados" style="margin-bottom:12px"></div>
+    <div class="dist-bloco dist-largo" id="homeDistTempo" style="margin-bottom:12px"></div>
     <div class="dist-ctrl" id="homeDistCtrl">
       <label>Função <select id="homeDistFuncao"><option value="">Todas as funções</option></select></label>
       <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="homeDistAprendiz"> Incluir jovens aprendizes</label>
       <label>Ordenar horários <select id="homeDistOrdem"><option value="hora">Por horário</option><option value="qtd">Por quantidade</option></select></label>
     </div>
-    <div class="dist-bloco dist-largo" id="homeDistAreas" style="margin-bottom:12px"></div>
-    <div class="dist-bloco dist-largo" id="homeDistAfastados" style="margin-bottom:12px"></div>
-    <div class="dist-bloco dist-largo" id="homeDistTempo" style="margin-bottom:12px"></div>
     <div class="dist-grid"><div class="dist-bloco" id="homeDistHorarios"></div><div class="dist-bloco" id="homeDistFolgas"></div></div>
     <div class="dist-bloco dist-largo" id="homeDistMapa"></div>
   </section>
@@ -2681,7 +2697,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V279 · 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V283 · ⚠️ confirmação quando um domingo fica sem liderança</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5872,7 +5888,7 @@ function atualizarAvisoLideranca(){
   if(c.length){ box.className='alert bad'; box.textContent='⚠️ '+c.join(' '); }
   else if(conflitos.length){ box.className='alert bad'; box.textContent='⚠️ '+conflitos.join(' '); }
   else if(doms.some(d=>d!==bal&&lideresSelecionadosDomingo(d).some(i=>dsrLiderPendente(d,i)))){ const n=doms.filter(d=>d!==bal&&lideresSelecionadosDomingo(d).some(i=>dsrLiderPendente(d,i))).length; box.className='alert warn'; box.textContent=`🛌 Falta escolher a folga (DSR) da liderança em ${n} domingo(s) — a folga da liderança é definida pela gerência.`; }
-  else if(semLider.length){ box.className='alert info'; box.textContent=semLider.length===doms.filter(d=>d!==bal).length?'ℹ️ Liderança opcional: nenhum domingo tem Encarregado/Subencarregado escolhido, então trabalham só os funcionários.':`ℹ️ Liderança opcional: ${semLider.length} domingo(s) só com funcionários (${semLider.map(d=>String(d).padStart(2,'0')).join(', ')}).`; }
+  else if(semLider.length){ box.className='alert warn'; box.textContent=semLider.length===doms.filter(d=>d!==bal).length?'⚠️ Nenhum domingo normal tem liderança escolhida. A liderança é opcional, mas antes de gerar você precisa conferir e concordar com os domingos só com funcionários.':`⚠️ ${semLider.length} domingo(s) normal(is) estão sem liderança (${semLider.map(d=>String(d).padStart(2,'0')).join(', ')}). A liderança é opcional, mas antes de gerar você precisa conferir e concordar.`; }
   else { box.className='alert ok'; box.textContent=liderancaUnica()?'✅ Uma liderança definida em cada domingo, sem 3 domingos seguidos.':'✅ Liderança definida para todos os domingos, sem 3 domingos seguidos.'; }
   if(liderTurno()){ const T=liderTurno(); const falta=doms.filter(d=>d!==bal&&lideresSelecionadosDomingo(d).length).map(d=>{ const ls=lideresSelecionadosDomingo(d), a=ls.filter(i=>turnoLider(i)==='ABERTURA').length, f=ls.filter(i=>turnoLider(i)==='FECHAMENTO').length;
       const o=[]; if(a<T.ab) o.push('🌅 abertura'); if(f<T.fe) o.push('🌙 fechamento'); return o.length?`${String(d).padStart(2,'0')} sem ${o.join(' e ')}`:''; }).filter(Boolean);
@@ -9117,7 +9133,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 
   const coreGenerate = window.gerarSetoresCore;
   if(typeof coreGenerate === 'function'){
-    window.gerarSetores = function(){
+    window.gerarSetores = function(opcoes){
       const ov = ensureProgressOverlay();
       ov.hidden = false;
       if($('statusBadge')) $('statusBadge').textContent = 'Gerando…';
@@ -9125,7 +9141,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         try{
           coreGenerate();
           ensureResultSummary();
+          window.v280Lideranca?.sincronizar?.();
           persist();
+          if(!opcoes?.v280IgnorarAviso) window.v280Lideranca?.posGeracao?.();
         } catch(err){
           safeLog('[V45] Erro ao gerar:', err);
           showToast('Erro ao gerar escala: ' + (err?.message||err), 'danger', true);
@@ -16164,5 +16182,126 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 
+<script>
+/* ═════ V280 — ⚠️ CONFIRMAR DOMINGO NORMAL SEM LIDERANÇA ═════
+   A liderança continua opcional e o motor nunca é interrompido por sua ausência.
+   Depois da geração, um cartão amarelo pede ao encarregado que confira e concorde
+   com os domingos normais que ficaram só com funcionários. A decisão é registrada
+   no resultado/histórico do mês e a chave local evita repetir a pergunta sem mudança.
+*/
+(function(){
+  'use strict';
+  const LS='escalaSetores.v280SemLideranca';
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const refMes=()=>`${norm($('setorSelecionado')?.value||'')}|${+$('ano').value}-${+$('mes').value}`;
+  const modoGeracao=()=>String($('modoGeracao')?.value||'motor');
+  const modoCobertura=()=>String($('modoCobertura')?.value||'50');
+  const semLideranca=()=>{
+    const ano=+$('ano').value, mes=+$('mes').value, bal=balancoDoMes(ano,mes);
+    return domingosDoMes(ano,mes).filter(d=>d!==bal&&!lideresSelecionadosDomingo(d).length);
+  };
+  const assinatura=ds=>`${refMes()}|${modoGeracao()}|${modoCobertura()}|${ds.join(',')}`;
+  let aceitos={};
+  try{
+    const v=JSON.parse(localStorage.getItem(LS)||'{}');
+    if(v&&typeof v==='object'&&!Array.isArray(v)) aceitos=v;
+  }catch(e){ aceitos={}; }
+  const gravar=()=>{ try{
+    const ks=Object.keys(aceitos).sort(); while(ks.length>32) delete aceitos[ks.shift()];
+    localStorage.setItem(LS,JSON.stringify(aceitos));
+  }catch(e){} };
+  const estadoAceito=ds=>{
+    const x=estadoFinalMes?.v280SemLideranca;
+    return !!(x&&x.concordou===true&&x.referencia===assinatura(ds));
+  };
+  const confirmado=ds=>!!aceitos[assinatura(ds)]||estadoAceito(ds);
+  const fechar=()=>{ document.getElementById('v280LiderAlt')?.remove(); };
+  const voltarParaLideranca=()=>{
+    try{ window.v45GotoStep?.(3,false); }catch(e){}
+    setTimeout(()=>document.getElementById('liderancaDomingoLista')?.scrollIntoView({behavior:'smooth',block:'center'}),80);
+  };
+  function mostrarResultado(ds){
+    const v=$('validacao'); if(!v||!ds.length)return;
+    let box=document.getElementById('v280LiderAlt');
+    if(!box){ box=document.createElement('div'); box.id='v280LiderAlt'; box.className='ok'; v.insertAdjacentElement('afterend',box); }
+    box.innerHTML=`<p>⚠️ <b>Domingo(s) sem liderança, com sua concordância:</b> ${ds.map(d=>esc(formatarDataDomingo(d))).join(', ')}. A liderança é opcional; a escala foi gerada com funcionários nesses dias.</p>`;
+  }
+  function perguntar(ds){
+    if(!ds.length)return false;
+    fechar();
+    const v=$('validacao'); if(!v)return false;
+    v.className='alert warn';
+    const box=document.createElement('div'); box.id='v280LiderAlt';
+    box.innerHTML=`<p>⚠️ <b>Domingo(s) sem liderança escolhida:</b> nenhum Encarregado, Subencarregado ou Líder foi escolhido nestes domingos normais.</p>
+      <ul>${ds.map(d=>`<li><b>${esc(formatarDataDomingo(d))}</b></li>`).join('')}</ul>
+      <p>A liderança é opcional e <b>não bloqueou a geração</b>. Confira o passo 3 e confirme que você concorda com esses domingos trabalhando só com funcionários.</p>
+      <p class="v280-peq">Sua concordância fica registrada no resultado e no histórico deste mês. Se preferir, volte para escolher uma liderança; a escala já gerada continua disponível.</p>
+      <div class="v280-bt"><button type="button" class="btn success" id="v280Sim">✅ Sim, concordo</button><button type="button" class="btn secondary" id="v280Nao">↩ Voltar e escolher liderança</button></div>`;
+    v.insertAdjacentElement('afterend',box);
+    box.querySelector('#v280Sim').onclick=()=>{
+      const referencia=assinatura(ds);
+      aceitos[referencia]={concordou:true,referencia,dias:ds.slice(),setor:String($('setorSelecionado')?.value||''),mes:+$('mes').value+1,ano:+$('ano').value,quando:new Date().toISOString()};
+      gravar(); sincronizar(); window.v45Persist?.(); mostrarResultado(ds);
+      window.showToast?.('✅ Concordância registrada no resultado e no histórico deste mês.','ok',true);
+    };
+    box.querySelector('#v280Nao').onclick=()=>{ fechar(); voltarParaLideranca(); window.showToast?.('A escala continua gerada. Escolha uma liderança e gere novamente, ou confirme o aviso.','info',true); };
+    return true;
+  }
+  function posGeracao(){
+    const ds=semLideranca();
+    if(!ds.length)return false;
+    if(confirmado(ds)){ mostrarResultado(ds); return false; }
+    return perguntar(ds);
+  }
+  // Mantido como API compatível para integrações: nunca bloqueia a geração.
+  function interceptar(){ return false; }
+  function sincronizar(){
+    try{
+      if(!estadoFinalMes||typeof estadoFinalMes!=='object')return;
+      const ds=semLideranca(), ref=assinatura(ds), antigo=estadoFinalMes.v280SemLideranca;
+      if(ds.length&&(aceitos[ref]||(antigo&&antigo.concordou===true&&antigo.referencia===ref))){
+        const a=aceitos[ref]||antigo;
+        estadoFinalMes.v280SemLideranca={concordou:true,referencia:ref,dias:ds.slice(),setor:String($('setorSelecionado')?.value||''),mes:+$('mes').value+1,ano:+$('ano').value,modoGeracao:modoGeracao(),modoCobertura:modoCobertura(),quando:String(a.quando||new Date().toISOString())};
+      }else if(!ds.length||!aceitos[ref]) delete estadoFinalMes.v280SemLideranca;
+    }catch(e){ console.warn('[V280 liderança]',e); }
+  }
+  window.v280Lideranca={semLideranca,interceptar,posGeracao,sincronizar,confirmado,estado:()=>aceitos};
+})();
+</script>
+<script>
+/* ═════ V281 — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL ═════
+   A tela V280 já mostra o aviso; esta camada faz o Gabriel explicar a mesma regra
+   quando o usuário pergunta se a liderança é obrigatória ou o que ocorre sem ela.
+*/
+(function(){
+  'use strict';
+  const chat=window.v265Chat;
+  if(!chat||typeof chat.responder!=='function')return;
+  const anterior=chat.responder;
+  const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const perguntaDaRegra=q=>/\blideranc(?:a|as)\b|\blider\b|\bencarregad\w*\b|\bsubencarregad\w*\b/.test(q)
+    && /\b(obrigator\w*|precis\w*|exig\w*|faltar\w*|ausent\w*|sem\b|como funciona|regra|opcional)\b/.test(q);
+  const resposta='⭐ <b>A liderança do domingo é opcional.</b> A escala pode ser gerada mesmo sem Encarregado, Subencarregado ou Líder. Depois de gerar, aparece um aviso amarelo: toque em <b>✅ Sim, concordo</b> para registrar a decisão ou em <b>↩ Voltar e escolher liderança</b> para ajustar o passo 3 — Domingos, quadro ③ Quem lidera.';
+  chat.responder=function(texto){
+    try{
+      const app=String(chat.interno?.APP||'').toLowerCase(), q=normalizar(texto);
+      if(app==='setores'&&perguntaDaRegra(q))return resposta;
+    }catch(e){ console.warn('[V281 Gabriel]',e); }
+    return anterior.call(chat,texto);
+  };
+  if(window.v270Gabriel)window.v270Gabriel.responder=chat.responder;
+})();
+</script>
+<script>
+/* ═════ V283 — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL ═════
+   Atalho simples para recarregar o app quando o usuário quiser conferir a versão
+   mais nova ou limpar uma tela que ficou parada, sem mudar dados guardados.
+*/
+(function(){
+  'use strict';
+  const botao=document.getElementById('btnAtualizarPaginaHome');
+  if(botao)botao.addEventListener('click',()=>location.reload());
+})();
+</script>
 </body>
 </html>

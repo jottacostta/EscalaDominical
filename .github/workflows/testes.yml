@@ -1,12 +1,16 @@
-# Roda os testes automáticos (testes/rodar.js, dados fictícios) em todo Pull Request, em todo push no main
-# e nos branches do ChatGPT (chatgpt/…). Serve para os dois assistentes (Claude e ChatGPT/Codex): o resultado aparece no PR.
+# Roda os testes automáticos (testes/rodar.js, dados fictícios) em todo Pull Request e em todo push no main.
+# Não roda também no push do branch de trabalho: o Pull Request já cobre esse mesmo commit sem duplicação.
 name: Testes
 
 on:
   pull_request:
   push:
-    branches: [main, "chatgpt/**"]
+    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: testes-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -15,7 +19,7 @@ jobs:
   testes:
     name: Playwright + Chromium
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

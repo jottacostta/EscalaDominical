@@ -54,6 +54,11 @@ async function testarSetores(browser){
   console.log(`\n▶ Escala de Setores — ${path.basename(APP_SETORES)}`);
   const { p, erros } = await novaPagina(browser);
   await p.goto('file://' + APP_SETORES); await p.waitForTimeout(1200);
+  const atualizar = await p.evaluate(() => { const b = document.getElementById('btnAtualizarPaginaHome'); return { existe: !!b, texto: b?.textContent || '' }; });
+  ok(atualizar.existe && /Atualizar página/.test(atualizar.texto), 'V283: botão “🔄 Atualizar página” aparece ao lado de “📍 Local da planilha”');
+  const homeOrder = await p.evaluate(() => [...document.querySelectorAll('#homeVisao [id]')].map(el => el.id));
+  ok(homeOrder.indexOf('homeDistCtrl') > homeOrder.indexOf('homeDistTempo') && homeOrder.indexOf('homeDistCtrl') < homeOrder.indexOf('homeDistHorarios'),
+    `V282: filtros de função e ordenação ficam depois de “Funcionários por tempo de serviço” (${homeOrder.join(' → ')})`);
   await p.click('#comeceFechar').catch(() => {});
   await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300);
   await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1500);
@@ -1387,6 +1392,40 @@ async function testarLiderTurno(browser, app){
     const r = await porDomingo(p);
     ok(modo === 'turno' && r.every(x => x.lA === 1 && x.lF === 1), `Frente de Loja: modo “Por turno” e 1 liderança na abertura + 1 no fechamento em todo domingo (${r.map(x => x.lA + '+' + x.lF).join(' ')})`);
     ok(!(await p.evaluate(() => conflitosLideranca())).length, 'sugestão por turno sem 3 domingos seguidos');
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
+  // V280: liderança continua opcional; a escala gera primeiro, o aviso pede
+  // concordância depois e guarda essa decisão no resultado.
+  { const { p, erros } = await abrir('Frente de Loja', 'setores_frente_de_loja_50.txt');
+    await p.evaluate(() => { liderancaManualDomingo = { __ref: refLideranca() }; renderLiderancaDomingo(); }); await p.waitForTimeout(300);
+    await p.evaluate(() => { v45GotoStep(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(3000);
+    const aviso = await p.evaluate(() => ({
+      dlg: !!document.getElementById('v280LiderAlt'),
+      texto: document.getElementById('v280LiderAlt')?.innerText || document.getElementById('validacao')?.innerText || '',
+      gerou: Object.values(trabalhoDomingo || {}).some(a => Array.isArray(a) && a.length)
+    }));
+    ok(aviso.dlg && /sem liderança/i.test(aviso.texto) && /não bloqueou/i.test(aviso.texto) && aviso.gerou,
+      `V280: domingo sem liderança gera a escala e abre aviso sem bloquear o resultado (${aviso.dlg}; gerou: ${aviso.gerou})`);
+    await p.click('#v280Nao'); await p.waitForTimeout(300);
+    ok(await p.evaluate(() => !document.getElementById('v280LiderAlt') && Object.values(trabalhoDomingo || {}).some(a => Array.isArray(a) && a.length)),
+      'V280: “Voltar e escolher liderança” fecha o aviso sem apagar a escala já gerada');
+    await p.evaluate(() => { v45GotoStep(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(3000);
+    ok(await p.evaluate(() => !!document.getElementById('v280LiderAlt')), 'V280: sem concordância o aviso volta a aparecer');
+    await p.click('#v280Sim'); await p.waitForTimeout(500);
+    const aceito = await p.evaluate(() => ({
+      gerou: Object.values(trabalhoDomingo || {}).some(a => Array.isArray(a) && a.length),
+      ok: estadoFinalMes?.v280SemLideranca?.concordou === true,
+      dias: estadoFinalMes?.v280SemLideranca?.dias || []
+    }));
+    ok(aceito.gerou && aceito.ok && aceito.dias.length > 0,
+      `V280: “Sim, concordo” gera a escala e registra a decisão no resultado (${aceito.dias.length} domingo(s))`);
+    ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
+  // V281: o Gabriel explica a mesma regra da tela, sem deixar a resposta escondida no cartão.
+  { const { p, erros } = await abrir('Frente de Loja', 'setores_frente_de_loja_50.txt');
+    const g = await p.evaluate(() => { const t = h => String(h).replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const qs = ['Como funciona a liderança no domingo?', 'A liderança é obrigatória?', 'O que acontece se faltar liderança?'];
+      return qs.map(q => t(window.v265Chat.responder(q))); });
+    ok(g.every(x => /opcional/.test(x) && /pode ser gerada/.test(x) && /aviso amarelo/.test(x)), 'V281: Gabriel explica que liderança é opcional, a escala gera mesmo sem ela e o aviso aparece depois');
+    ok(g.every(x => /Sim, concordo/.test(x) && /Voltar e escolher liderança/.test(x) && /passo 3/.test(x)), 'V281: Gabriel explica os dois botões e onde escolher a liderança');
     ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); }
   // CPD: falta liderança no turno → entra Preparador de dados; sempre 1 na abertura e 1 no fechamento
   { const { p, erros } = await abrir('CPD', 'setores_cpd_6.txt');
