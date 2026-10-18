@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V283</title>
+<title>Escala de Setores — V284</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V284 [Grok] — GABRIEL RECONHECE NOME SOZINHO: quando o usuário digita só o nome de alguém da equipe, o Gabriel confirma que encontrou a pessoa e pergunta o que deseja saber (folga, domingo, horário etc.), em vez de dar a resposta genérica. Não altera a escala.
 V283 [Manus] — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — Manus
 V282 [Manus] — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — Manus
 V281 [Manus] — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL: responde que a liderança no domingo é opcional, que a escala continua podendo ser gerada sem ela e que o aviso amarelo pede concordância depois da geração; os dois botões são explicados em linguagem simples. — Manus
@@ -2697,7 +2698,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V283 · ⚠️ confirmação quando um domingo fica sem liderança</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V284 · Gabriel reconhece nome sozinho ⚠️ confirmação quando um domingo fica sem liderança</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16303,5 +16304,65 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(botao)botao.addEventListener('click',()=>location.reload());
 })();
 </script>
+<script>
+/* ═════ V284 — 🤖 GABRIEL RECONHECE NOME SOZINHO ═════
+   Quando o usuário digita só o nome de alguém da equipe (1–3 palavras que batem com um nome),
+   o Gabriel confirma que encontrou a pessoa e pergunta o que deseja saber, em vez da resposta genérica.
+   Não altera a escala. Guarda o nome no contexto para a próxima mensagem.
+*/
+(function(){
+  'use strict';
+  const base = window.v265Chat;
+  if (!base || typeof base.responder !== 'function') return;
+  const original = base.responder;
+
+  function normalizar(s){
+    return String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  function nomesDaEquipe(){
+    const nomes = new Set();
+    const add = p => {
+      if (p && p.nome) {
+        const n = normalizar(p.nome);
+        if (n) nomes.add(n);
+        // também o primeiro nome
+        const primeiro = n.split(' ')[0];
+        if (primeiro && primeiro.length > 2) nomes.add(primeiro);
+      }
+    };
+    if (Array.isArray(window.equipe)) window.equipe.forEach(add);
+    if (Array.isArray(window.todasEquipes)) window.todasEquipes.forEach(add);
+    return nomes;
+  }
+
+  function pareceNomeIsolado(texto){
+    const q = normalizar(texto);
+    if (!q || q.split(' ').length > 3) return null;
+    const nomes = nomesDaEquipe();
+    if (nomes.has(q)) return q;
+    // tenta o primeiro nome
+    const primeiro = q.split(' ')[0];
+    if (nomes.has(primeiro)) return primeiro;
+    return null;
+  }
+
+  base.responder = function(texto){
+    try {
+      const nome = pareceNomeIsolado(texto);
+      if (nome) {
+        const nomeBonito = nome.charAt(0).toUpperCase() + nome.slice(1);
+        // guarda contexto simples
+        if (window.v270Gabriel) window.v270Gabriel.contexto = { pessoa: nomeBonito };
+        return '👤 Encontrei **' + nomeBonito + '** na equipe. O que você quer saber sobre essa pessoa? (folga, domingo, horário, função...)';
+      }
+    } catch(e) { console.warn('[V284]', e); }
+    return original.call(this, texto);
+  };
+
+  if (window.v270Gabriel) window.v270Gabriel.responder = base.responder;
+})();
+</script>
+
 </body>
 </html>
