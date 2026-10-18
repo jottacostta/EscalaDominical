@@ -7,10 +7,12 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V283</title>
+<title>Escala de Setores — V284</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V284 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
+
 V283 [Manus] — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — Manus
 V282 [Manus] — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — Manus
 V281 [Manus] — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL: responde que a liderança no domingo é opcional, que a escala continua podendo ser gerada sem ela e que o aviso amarelo pede concordância depois da geração; os dois botões são explicados em linguagem simples. — Manus
@@ -2697,7 +2699,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V283 · ⚠️ confirmação quando um domingo fica sem liderança</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V284 · Gabriel responde regras do app ⚠️ confirmação quando um domingo fica sem liderança</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16303,5 +16305,70 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(botao)botao.addEventListener('click',()=>location.reload());
 })();
 </script>
+<script>
+/* ═════ V284 — 🤖 GABRIEL RESPONDE REGRAS DO APP ═════
+   Responde qualquer pergunta relacionada ao funcionamento e regras já estabelecidas do app.
+   Qualquer outro assunto → pede para procurar o subgerente administrativo.
+   Não inventa regras nem altera a escala.
+*/
+(function(){
+  'use strict';
+  const chat = window.v265Chat;
+  if (!chat || typeof chat.responder !== 'function') return;
+  const anterior = chat.responder;
+
+  const normalizar = s => String(s == null ? '' : s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+  // Assuntos do app e regras estabelecidas
+  const temasApp = [
+    'escala', 'equipe', 'setor', 'setores', 'domingo', 'domingos', 'feriado', 'feriados',
+    'folga', 'folgas', 'dsr', 'descanso', 'balanco', 'regime', '5x2', '6x1', '2x1',
+    'turno', 'turnos', 'horario', 'horarios', 'lideranca', 'historico', 'planilha',
+    'excel', 'importar', 'importacao', 'gerar', 'arquivo', 'app', 'aplicativo', 'versao',
+    'cobertura', 'auditoria', 'sugestao', 'manual', 'automatico', 'misto', 'passo',
+    'botao', 'tela', 'menu', 'salvar', 'abrir', 'historico', 'equipe', 'funcao',
+    'cargo', 'jovem', 'aprendiz', 'acougue', 'promotor', 'cartazista', 'preparador'
+  ];
+
+  function eAssuntoDoApp(q) {
+    return temasApp.some(t => q.includes(t));
+  }
+
+  function respostaForaDoApp() {
+    return '🧾 Essa dúvida não está relacionada às funções e regras deste aplicativo. Procure o subgerente administrativo para confirmar.';
+  }
+
+  chat.responder = function(texto) {
+    try {
+      const q = normalizar(texto);
+      if (!q) return anterior.call(this, texto);
+
+      // Se não for assunto do app e não for meta/social curto, manda para o subgerente
+      if (!eAssuntoDoApp(q) && !/\b(oi|ola|obrigado|obrigada|valeu|tudo bem|ajuda|socorro)\b/.test(q)) {
+        return respostaForaDoApp();
+      }
+
+      // Caso contrário, deixa as camadas anteriores responderem (regras, equipe, etc.)
+      const resp = anterior.call(this, texto);
+
+      // Se a resposta anterior for genérica de “não entendi”, e o assunto for do app, tenta orientar melhor
+      const rLimpo = normalizar(String(resp).replace(/<[^>]*>/g, ' '));
+      if (/nao reconheci|nao entendi|isso foge|reformule/.test(rLimpo) && eAssuntoDoApp(q)) {
+        return '🤖 Posso ajudar com as regras e o funcionamento deste app (equipe, escala, domingos, folgas, feriados, horários, liderança…). Pode detalhar a pergunta?';
+      }
+
+      return resp;
+    } catch (e) {
+      console.warn('[V284 Gabriel regras]', e);
+      return respostaForaDoApp();
+    }
+  };
+
+  if (window.v270Gabriel) window.v270Gabriel.responder = chat.responder;
+})();
+</script>
+
 </body>
 </html>
