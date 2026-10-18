@@ -16306,10 +16306,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 <script>
-/* ═════ V284 — 🤖 GABRIEL RESPONDE REGRAS DO APP ═════
-   Responde qualquer pergunta relacionada ao funcionamento e regras já estabelecidas do app.
-   Qualquer outro assunto → pede para procurar o subgerente administrativo.
-   Não inventa regras nem altera a escala.
+/* ═════ V284 — 🤖 GABRIEL RESPONDE REGRAS + BUSCA POR NOME ═════
+   - Responde perguntas sobre o funcionamento e regras do app.
+   - Qualquer outro assunto → subgerente administrativo.
+   - Quando o usuário digita um nome: conta quantas pessoas, setor, folga fixa e folgas do mês.
+   Não altera a escala.
 */
 (function(){
   'use strict';
@@ -16321,47 +16322,83 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
-  // Assuntos do app e regras estabelecidas
   const temasApp = [
-    'escala', 'equipe', 'setor', 'setores', 'domingo', 'domingos', 'feriado', 'feriados',
-    'folga', 'folgas', 'dsr', 'descanso', 'balanco', 'regime', '5x2', '6x1', '2x1',
-    'turno', 'turnos', 'horario', 'horarios', 'lideranca', 'historico', 'planilha',
-    'excel', 'importar', 'importacao', 'gerar', 'arquivo', 'app', 'aplicativo', 'versao',
-    'cobertura', 'auditoria', 'sugestao', 'manual', 'automatico', 'misto', 'passo',
-    'botao', 'tela', 'menu', 'salvar', 'abrir', 'historico', 'equipe', 'funcao',
-    'cargo', 'jovem', 'aprendiz', 'acougue', 'promotor', 'cartazista', 'preparador'
+    'escala','equipe','setor','setores','domingo','domingos','feriado','feriados',
+    'folga','folgas','dsr','descanso','balanco','regime','5x2','6x1','2x1',
+    'turno','turnos','horario','horarios','lideranca','historico','planilha',
+    'excel','importar','gerar','arquivo','app','aplicativo','versao',
+    'cobertura','auditoria','sugestao','manual','automatico','misto','passo',
+    'botao','tela','menu','salvar','abrir','funcao','cargo','jovem','aprendiz',
+    'acougue','promotor','cartazista','preparador'
   ];
 
-  function eAssuntoDoApp(q) {
-    return temasApp.some(t => q.includes(t));
-  }
+  function eAssuntoDoApp(q){ return temasApp.some(t => q.includes(t)); }
 
-  function respostaForaDoApp() {
+  function respostaForaDoApp(){
     return '🧾 Essa dúvida não está relacionada às funções e regras deste aplicativo. Procure o subgerente administrativo para confirmar.';
   }
 
-  chat.responder = function(texto) {
+  function buscarPorNome(texto){
+    const q = normalizar(texto);
+    if (!q || q.split(' ').length > 3) return null;
+    const lista = Array.isArray(window.equipe) ? window.equipe : (Array.isArray(window.todasEquipes) ? window.todasEquipes : []);
+    const achados = [];
+    lista.forEach(p => {
+      if (!p || !p.nome) return;
+      const n = normalizar(p.nome);
+      const primeiro = n.split(' ')[0];
+      if (n === q || primeiro === q || n.includes(q)) {
+        achados.push(p);
+      }
+    });
+    return achados.length ? achados : null;
+  }
+
+  function formatarFolga(p){
+    const ff = p.folgaFixa || p.folga || '';
+    if (!ff || ff === 'a definir' || ff === '— a definir —') return 'folga fixa: a definir';
+    return 'folga fixa: ' + ff;
+  }
+
+  function responderNome(achados){
+    if (!achados || !achados.length) return null;
+    const n = achados.length;
+    let msg = '👤 Encontrei **' + n + '** pessoa' + (n>1?'s':'') + ' com esse nome:\n';
+    achados.slice(0, 5).forEach(p => {
+      const setor = p.setor || p.setorEmprestimo || 'setor não informado';
+      msg += '• **' + (p.nome || '') + '** — Setor: ' + setor + ' — ' + formatarFolga(p) + '\n';
+    });
+    if (n > 5) msg += '… e mais ' + (n-5) + ' pessoas.\n';
+    msg += '\nO que você quer saber sobre essa pessoa? (domingo, folga, horário…)';
+    return msg;
+  }
+
+  chat.responder = function(texto){
     try {
       const q = normalizar(texto);
       if (!q) return anterior.call(this, texto);
 
-      // Se não for assunto do app e não for meta/social curto, manda para o subgerente
-      if (!eAssuntoDoApp(q) && !/\b(oi|ola|obrigado|obrigada|valeu|tudo bem|ajuda|socorro)\b/.test(q)) {
+      // 1. Tenta busca por nome
+      const achados = buscarPorNome(texto);
+      if (achados) {
+        const r = responderNome(achados);
+        if (r) return r;
+      }
+
+      // 2. Se não for assunto do app, manda para o subgerente
+      if (!eAssuntoDoApp(q) && !/\b(oi|ola|obrigado|obrigada|valeu|tudo bem|ajuda)\b/.test(q)) {
         return respostaForaDoApp();
       }
 
-      // Caso contrário, deixa as camadas anteriores responderem (regras, equipe, etc.)
+      // 3. Deixa as camadas anteriores responderem
       const resp = anterior.call(this, texto);
-
-      // Se a resposta anterior for genérica de “não entendi”, e o assunto for do app, tenta orientar melhor
       const rLimpo = normalizar(String(resp).replace(/<[^>]*>/g, ' '));
       if (/nao reconheci|nao entendi|isso foge|reformule/.test(rLimpo) && eAssuntoDoApp(q)) {
         return '🤖 Posso ajudar com as regras e o funcionamento deste app (equipe, escala, domingos, folgas, feriados, horários, liderança…). Pode detalhar a pergunta?';
       }
-
       return resp;
-    } catch (e) {
-      console.warn('[V284 Gabriel regras]', e);
+    } catch(e) {
+      console.warn('[V284 Gabriel completo]', e);
       return respostaForaDoApp();
     }
   };
