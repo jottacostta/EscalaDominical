@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V186</title>
+<title>Escala 2×1 — Encarregados V187</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão)
+V187 [Manus] — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — Manus
 V186 [Manus] — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — Manus
 V185 [ChatGPT] — 🤖 FALA NATURAL, DICIONÁRIO RESP E CONTEXTO: normaliza prefácios e “2 por 1”/“dois por um”, responde dúvidas gerais sobre folga fixa com aliases no RESP, preserva a pessoa citada em continuações e mantém a orientação específica sobre liderança; não altera a escala. — ChatGPT
 V184 [ChatGPT] — 🤖 RESPOSTA ÚTIL: elimina “Não entendi” como resposta final, orienta o próximo passo quando não reconhece uma pergunta e responde a contagem da equipe a partir dos dados carregados. A bateria reprova se reaparecer resposta genérica ou falhar a validação semântica de quantidade. — ChatGPT
@@ -2007,7 +2008,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V186 · 🤖 versão identificada, 5×2 explicada e assuntos fora do app encaminhados ao subgerente administrativo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V187 · 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10326,6 +10327,87 @@ function perguntarOrientacaoImpressao(cb){
     }
   };
   if(window.v270Gabriel)window.v270Gabriel.responder=base.responder;
+})();
+</script>
+
+<script>
+/* ═════ V187 — 🧭 SEPARAÇÃO DE INTENÇÕES ═════
+   Ordem: dúvida externa clara → encaminha; termo ambíguo → pergunta; assunto do app → usa as regras existentes;
+   assunto desconhecido → declara o limite e pede reformulação. Não decide escala nem inventa regra.
+*/
+(function(){
+  'use strict';
+  const chat=window.v265Chat;
+  if(!chat||typeof chat.responder!=='function')return;
+  const anterior=chat.responder;
+  const normalizar=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const textoLimpo=s=>normalizar(String(s==null?'':s).replace(/<[^>]*>/g,' '));
+  const temaAmbiguo=q=>/\b(ferias|atestado|licenca|intervalo)\b/.test(q);
+  const temaApp=q=>/\b(escala|equipe|setor|setores|domingo|domingos|feriado|feriados|folga|folgas|dsr|descanso|balanco|regime|5x2|6x1|2x1|turno|turnos|horario|horarios|lideranca|historico|planilha|excel|importar|importacao|gerar|arquivo|app|aplicativo|versao)\b/.test(q);
+  function consultaStatusEquipe(q){
+    const perguntaPessoas=/\b(quem|quais|lista|liste|mostra|mostre|alguem|algum|quantos|quantas)\b/.test(q);
+    const status=/\b(ferias|atestado|licenca|afastado|afastada|afastados|afastadas|emprestado|emprestada|emprestados|emprestadas|cedido|cedida|cedidos|cedidas|inativo|inativa|inativos|inativas)\b/.test(q);
+    const situacao=/\b(esta|estao|marcado|marcada|marcados|marcadas|situacao|status|afastado|afastada|emprestado|emprestada|cedido|cedida|inativo|inativa)\b/.test(q);
+    return perguntaPessoas&&status&&situacao;
+  }
+  function duvidaExternaClara(q){
+    if(/\b(salario|salarios|holerite|contracheque|fgts|inss|beneficio|beneficios|comissao|rescisao|demissao|demitir|contratacao|contratar|admissao|insalubridade|pagamento|pagamentos|vale alimentacao|vale transporte|hora extra|horas extras|banco de horas|direito trabalhista|direitos trabalhistas|adicional)\b/.test(q))return true;
+    if(/\b(recebo|receber|recebe|pagam|pagar|remuneracao)\b/.test(q)&&/\b(quanto|valor|dinheiro|pagamento|salario|remuneracao|adicional)\b/.test(q)&&/\b(feriado|domingo|folga|dsr|hora|trabalho)\b/.test(q))return true;
+    const temaRH=/\b(ferias|atestado|licenca|intervalo|folga|feriado|domingo|trabalho|jornada|escala|regime|2x1|5x2|6x1)\b/.test(q);
+    if(temaRH&&/\b(direito|direitos|lei|clt|juridico|advogado|periodo aquisitivo|saldo|abono)\b/.test(q))return true;
+    if(!consultaStatusEquipe(q)&&/\b(ferias)\b/.test(q)&&/\b(quantos dias|quantas dias|dias de|pedir|solicitar|marcar|tirar|vender|aprovacao|aprovar)\b/.test(q)&&!/\b(escala|equipe|setor)\b/.test(q))return true;
+    if(!consultaStatusEquipe(q)&&/\b(atestado|licenca)\b/.test(q)&&/\b(entregar|apresentar|validar|validade|emitir|prazo|medico|maternidade|paternidade)\b/.test(q))return true;
+    if(/\b(intervalo)\b/.test(q)&&/\b(almoco|refeicao|intrajornada|jornada)\b/.test(q))return true;
+    return false;
+  }
+  function socialOuMeta(q){
+    return /^(oi|ola|bom dia|boa tarde|boa noite|obrigado|obrigada|valeu|quem e voce|qual e seu nome|qual seu nome|como voce se chama|o que voce sabe fazer|quais sao suas funcoes|capacidades|habilidades)\b/.test(q)
+      ||/\b(que dia e hoje|qual a data de hoje|que horas sao|qual e a hora atual)\b/.test(q);
+  }
+  function classificar(q){
+    if(duvidaExternaClara(q))return 'externa';
+    if(consultaStatusEquipe(q))return 'interna';
+    if(temaAmbiguo(q)&&!temaApp(q))return 'ambigua';
+    if(temaApp(q)||socialOuMeta(q))return 'interna';
+    return 'desconhecida';
+  }
+  function respostaExterna(){
+    return '🧾 Essa dúvida é sobre uma regra de RH que este app não confere. Procure o subgerente administrativo para confirmar; eu não consigo verificar isso.';
+  }
+  function respostaAmbigua(q){
+    if(/\b(ferias)\b/.test(q))return '🤖 Você quer conferir quem está marcado como férias na equipe? Ou saber sobre direitos e dias de férias? Conte qual dúvida.';
+    if(/\b(atestado)\b/.test(q))return '🤖 Você quer consultar a situação de alguém na equipe ou saber como apresentar um atestado? Conte um pouco mais.';
+    if(/\b(licenca)\b/.test(q))return '🤖 Você quer consultar a situação de alguém na equipe ou saber sobre uma licença de trabalho? Conte um pouco mais.';
+    return '🤖 Você quer conferir um horário cadastrado no app ou saber sobre intervalo de refeição? Conte um pouco mais.';
+  }
+  function respostaDesconhecida(){
+    return '🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.';
+  }
+  function respostaNaoReconhecida(resposta){
+    const r=textoLimpo(resposta);
+    return !r||/^(isso foge do que eu sei|essa duvida nao esta relacionada|nao entendi|nao consegui entender|nao compreendi|primeiro carregue a equipe|posso ajudar com regras de domingo e feriado)/.test(r);
+  }
+  function respostaRHNaoCadastrada(resposta){
+    return /nao esta cadastrado no app|confirme com o rh ou o juridico/.test(textoLimpo(resposta));
+  }
+  chat.responder=function(texto){
+    let q='';
+    try{
+      q=normalizar(texto);
+      const tipo=classificar(q);
+      if(tipo==='externa')return respostaExterna();
+      if(tipo==='ambigua')return respostaAmbigua(q);
+      const resposta=anterior.call(chat,texto);
+      if(temaAmbiguo(q)&&respostaRHNaoCadastrada(resposta))return respostaAmbigua(q);
+      if(tipo==='interna'&&/^primeiro carregue a equipe/.test(textoLimpo(resposta)))return resposta;
+      if(respostaNaoReconhecida(resposta))return respostaDesconhecida();
+      return resposta;
+    }catch(e){
+      console.warn('[V187 Gabriel intents]',e);
+      return respostaDesconhecida();
+    }
+  };
+  if(window.v270Gabriel)window.v270Gabriel.responder=chat.responder;
 })();
 </script>
 

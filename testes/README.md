@@ -12,8 +12,8 @@ históricos com nomes de funcionários.
 cd testes
 npm install
 npx playwright install chromium
-npm test                 # rápido: outubro a dezembro de cada app (~1 min)
-npm run test:completo    # o ano inteiro de cada app (~5 min)
+npm test                 # rápido: outubro a dezembro de cada app (~14 min no Sandbox; varia)
+npm run test:completo    # o ano inteiro de cada app (~15 min no Sandbox; varia)
 ```
 
 ## O que é conferido
@@ -36,4 +36,4 @@ O teste termina com `✅ Tudo certo` (código 0) ou com a lista do que falhou (c
 
 ### Diálogos amplos do Gabriel
 
-Execute `npm run test:gabriel-dialogos` para rodar apenas a bateria de diálogos. A suíte rápida (`npm test`) também executa 50 diálogos (250 turnos) em cada app usando `dialogos-gabriel.json` e dados fictícios. As respostas são testadas em sequência para preservar o contexto. A suíte confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento ao subgerente administrativo, consulta de férias pelo status da equipe, estado real 6×1/5×2, erros JavaScript e preservação da equipe/escala. As expectativas e contraexemplos descritos no JSON são referências para revisão; ainda não formam um gabarito semântico automatizado completo.
+Execute `npm run test:gabriel-dialogos` para rodar apenas a bateria de diálogos. A suíte rápida (`npm test`) também executa 50 diálogos (250 turnos) em cada app usando `dialogos-gabriel.json` e dados fictícios. As respostas são testadas em sequência para preservar o contexto. A suíte confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento ao subgerente administrativo, consulta de férias pelo status da equipe, estado real 6×1/5×2, erros JavaScript e preservação da equipe/escala. Os testes contrastam dúvidas internas do app, dúvidas de RH claramente externas, termos ambíguos (que pedem contexto), perguntas desconhecidas (que não devem ser encaminhadas por suposição) e a distinção entre remuneração e folga compensatória. As expectativas e contraexemplos do JSON continuam referências para revisão; ainda não formam um gabarito semântico automatizado completo.

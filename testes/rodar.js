@@ -2045,7 +2045,7 @@ async function testarConversa275(browser, app, nome, abrir, versaoMin){
   r = (await R(['Quem é ele?', 'Faz isso.', 'Qual é melhor?', 'Me fala o resultado.', 'Faz igual ao mês passado.'], false)).map(t);
   ok(r.slice(0, 4).every(x => /\?|Qual|Fazer o quê|Melhor entre|Resultado de quê/.test(x) && !/Não entendi essa/.test(x)) && /Eu não copio nem altero/.test(r[4]), 'perguntas sem referente (“quem é ele?”, “faz isso”, “qual é melhor?”, “me fala o resultado”) viram pergunta de esclarecimento; “faz igual ao mês passado” diz o que dá para reaproveitar');
   r = (await R(['Qual o salário da ' + info.unico + '?', 'Posso dispensar o intervalo de almoço?', 'Qual a capital da França?'], false)).map(t);
-  ok(/não está cadastrado/.test(r[0]) && /subgerente administrativo/.test(r[0]) && /não está cadastrado/.test(r[1]) && /subgerente administrativo/.test(r[1]) && /subgerente administrativo/.test(r[2]), 'salário, intervalo e assunto fora do app não são inventados e encaminham ao subgerente administrativo');
+  ok(/subgerente administrativo/.test(r[0]) && /não consigo verificar/.test(r[0]) && /subgerente administrativo/.test(r[1]) && /não consigo verificar/.test(r[1]) && !/subgerente administrativo/.test(r[2]) && /reformule/i.test(r[2]), 'salário e regra trabalhista externa clara encaminham; assunto desconhecido pede reformulação sem encaminhamento por suposição');
   r = (await R(['Quem trabalha amanhã?', 'Quem folga na segunda?'], false)).map(t);
   ok(r.every(x => /Amanhã|Segunda/.test(x) && new RegExp('\\b' + (+x.match(/(\d+) (trabalham|de folga)/)[1]) + '\\b').test(x)), 'continuam funcionando sem o relógio simulado (data do aparelho)');
   r = await p.evaluate(() => { window.v270Gabriel.relogio = () => new Date(2026, 11, 20, 9, 0); window.v270Gabriel.reset(); return String(window.v265Chat.responder('Quem trabalha amanhã?')).replace(/<[^>]+>/g, ''); });
@@ -2073,7 +2073,7 @@ async function testarConversa275(browser, app, nome, abrir, versaoMin){
 
 async function testarDialogosGabriel(browser, app, nome){
   const version=+path.basename(app).match(/V(\d+)\.html$/)[1];
-  if(version < (nome==='Setores'?278:186)) return;
+  if(version < (nome==='Setores'?279:187)) return;
   const enc=nome!=='Setores', label=enc?'expects_encarregados':'expects_setores';
   console.log(`\n▶ ${nome} — 🤖 Gabriel: 250 perguntas em diálogos realistas`);
   const fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'dialogos-gabriel.json'),'utf8'));
@@ -2098,10 +2098,16 @@ async function testarDialogosGabriel(browser, app, nome){
     if(await p.evaluate(()=>Object.values(trabalhoDomingo||{}).some(a=>a&&a.length)))break;
     await p.waitForTimeout(150);
   }
-  const identity=await p.evaluate(()=>({version:String(window.v265Chat.responder('Qual sua versão?')||''),outside:String(window.v265Chat.responder('Qual a capital da França?')||''),regime:String(window.v265Chat.responder('Como vai ser a escala 5x2?')||'')}));
+  const identity=await p.evaluate(()=>({version:String(window.v265Chat.responder('Qual sua versão?')||''),unknown:String(window.v265Chat.responder('Qual a capital da França?')||''),regime:String(window.v265Chat.responder('Como vai ser a escala 5x2?')||'')}));
   const normCheck=x=>String(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const intentPairs=await p.evaluate(()=>{const ask=q=>String(window.v265Chat.responder(q)||'');return {ambiguous:ask('Como funcionam as férias?'),vacationRights:ask('Quantos dias de férias tenho por lei?'),salary:ask('Qual é o salário da Ana?'),holidayPay:ask('Quanto recebo pelo feriado?'),holidayComp:ask('Quem recebe a folga compensatória do feriado?'),holidaySchedule:ask('Como funciona a folga de feriado?')};});
   ok(new RegExp('\\bV'+version+'\\b','i').test(identity.version),`${nome}: “Qual sua versão?” identifica V${version}`);
-  ok(normCheck(identity.outside).includes('subgerente administrativo'),`${nome}: dúvida fora do app encaminha ao subgerente administrativo`);
+  const unknown=normCheck(identity.unknown),ambiguous=normCheck(intentPairs.ambiguous);
+  ok(!unknown.includes('subgerente administrativo')&&unknown.includes('reformul'),`${nome}: pergunta desconhecida explica o limite e pede reformulação, sem encaminhar por suposição`);
+  ok(ambiguous.includes('voce quer')&&ambiguous.includes('equipe')&&ambiguous.includes('direito')&&!ambiguous.includes('subgerente administrativo'),`${nome}: férias sem contexto pede esclarecimento antes de responder ou encaminhar`);
+  ok([intentPairs.salary,intentPairs.holidayPay,intentPairs.vacationRights].every(a=>normCheck(a).includes('subgerente administrativo')),`${nome}: salário, pagamento por feriado e direitos de férias encaminham ao subgerente administrativo`);
+  ok(!normCheck(intentPairs.holidayComp).includes('subgerente administrativo'),`${nome}: folga compensatória não é confundida com remuneração pelo feriado`);
+  ok(normCheck(intentPairs.holidaySchedule).includes('folga')&&normCheck(intentPairs.holidaySchedule).includes('feriado')&&!normCheck(intentPairs.holidaySchedule).includes('subgerente administrativo'),`${nome}: regra de folga de feriado continua sendo respondida pelo app`);
   ok(/regime em vigor/.test(normCheck(identity.regime))&&/6/.test(identity.regime)&&/5/.test(identity.regime)&&/desligad/.test(normCheck(identity.regime)),`${nome}: explica 6×1 vigente e 5×2 preparada/desligada`);
   const ferias=await p.evaluate(()=>{const f=equipe[0],sit=f.situacao,det=f.situacaoDetalhe;f.situacao='AF';f.situacaoDetalhe='FERIAS TESTE';window.v270Gabriel?.reset();const a=String(window.v265Chat.responder('Quem está de férias?')||'');f.situacao=sit;f.situacaoDetalhe=det;return {a,n:f.nome};});
   ok(normCheck(ferias.a).includes(normCheck(ferias.n.split(/\s+/)[0]))&&normCheck(ferias.a).includes('ferias teste')&&!normCheck(ferias.a).includes('subgerente administrativo'),`${nome}: quem está de férias continua sendo respondido a partir do status da equipe`);
@@ -2119,7 +2125,7 @@ async function testarDialogosGabriel(browser, app, nome){
         turns++;
         if(!plain){empty++;misses.push(`${category.name}/${dialogue.title}: resposta vazia a “${turn.question}”`);}
         if(/^nao entendi\b|^nao consegui entender\b/.test(na)){ununderstood++;misses.push(`${category.name}/${dialogue.title}: “Não entendi” a “${turn.question}”`);}
-        if(/capital da franca|salario|ferias e intervalo|salario da ana|intervalo de almoco/.test(nq)){
+        if(/salario|ferias e intervalo|salario da ana|intervalo de almoco/.test(nq)){
           semanticReferenceCount++;
           if(!na.includes('subgerente administrativo')){misses.push(`${category.name}/${dialogue.title}: não encaminhou ao subgerente administrativo: “${turn.question}” → ${plain.slice(0,220)}`);}
           else adminReferral++;
