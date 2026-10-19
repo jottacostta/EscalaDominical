@@ -7,7 +7,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V187</title>
+<title>Escala 2×1 — Encarregados V189</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
@@ -2010,7 +2010,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V188 · Gabriel responde regras do app 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V189 · roteamento conversacional corrigido 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10414,103 +10414,53 @@ function perguntarOrientacaoImpressao(cb){
 </script>
 
 <script>
-/* ═════ V188 — 🤖 GABRIEL RESPONDE REGRAS + BUSCA POR NOME ═════
-   - Responde perguntas sobre o funcionamento e regras do app.
-   - Qualquer outro assunto → subgerente administrativo.
-   - Quando o usuário digita um nome: conta quantas pessoas, setor, folga fixa e folgas do mês.
-   Não altera a escala.
-*/
+/* ═════ V189 [ChatGPT] ═════ — GABRIEL: preservar o roteador semântico existente.
+   Não bloquear identidade, data/hora, contexto ou capacidades por uma lista parcial.
+   A busca por nome só roda quando a mensagem parece ser apenas um nome.
+   Consulta somente; não altera equipe, escala, histórico ou regras. */
 (function(){
   'use strict';
   const chat = window.v265Chat;
   if (!chat || typeof chat.responder !== 'function') return;
   const anterior = chat.responder;
-
   const normalizar = s => String(s == null ? '' : s)
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-
-  const temasApp = [
-    'escala','equipe','setor','setores','domingo','domingos','feriado','feriados',
-    'folga','folgas','dsr','descanso','balanco','regime','5x2','6x1','2x1',
-    'turno','turnos','horario','horarios','lideranca','historico','planilha',
-    'excel','importar','gerar','arquivo','app','aplicativo','versao',
-    'cobertura','auditoria','sugestao','manual','automatico','misto','passo',
-    'botao','tela','menu','salvar','abrir','funcao','cargo','jovem','aprendiz',
-    'acougue','promotor','cartazista','preparador'
-  ];
-
-  function eAssuntoDoApp(q){ return temasApp.some(t => q.includes(t)); }
-
-  function respostaForaDoApp(){
-    return '🧾 Essa dúvida não está relacionada às funções e regras deste aplicativo. Procure o subgerente administrativo para confirmar.';
-  }
-
+  const palavrasDePergunta = /\b(qual|quais|quem|como|que|quando|onde|porque|por|hoje|amanha|ontem|nome|versao|hora|horas|sabe|fazer|sou|voce|vc|meu|minha|seu|sua|oi|ola|obrigado|obrigada|ajuda|funciona|pode|posso|regra|regras|feriado|feriados|escala|folga|folgas|domingo|domingos|equipe|setor|setores|trabalha|trabalham|trabalhar|horario|horarios|historico|planilha|importar|gerar|salvar|abrir|balanco|dsr|5x2|6x1|2x1)\b/;
   function buscarPorNome(texto){
-    const q = normalizar(texto);
-    if (!q || q.split(' ').length > 3) return null;
-    const lista = Array.isArray(window.equipe) ? window.equipe : (Array.isArray(window.todasEquipes) ? window.todasEquipes : []);
-    const achados = [];
+    const q = normalizar(texto), partes = q ? q.split(' ') : [];
+    if (!partes.length || partes.length > 3 || palavrasDePergunta.test(q)) return null;
+    const lista = Array.isArray(window.equipe) ? window.equipe :
+      (Array.isArray(window.todasEquipes) ? window.todasEquipes : []);
+    const encontrados = [];
     lista.forEach(p => {
       if (!p || !p.nome) return;
-      const n = normalizar(p.nome);
-      const primeiro = n.split(' ')[0];
-      if (n === q || primeiro === q || n.includes(q)) {
-        achados.push(p);
-      }
+      const nome = normalizar(p.nome);
+      if (nome === q || nome.split(' ')[0] === q) encontrados.push(p);
     });
-    return achados.length ? achados : null;
+    return encontrados.length ? encontrados : null;
   }
-
-  function formatarFolga(p){
-    const ff = p.folgaFixa || p.folga || '';
-    if (!ff || ff === 'a definir' || ff === '— a definir —') return 'folga fixa: a definir';
-    return 'folga fixa: ' + ff;
-  }
-
-  function responderNome(achados){
-    if (!achados || !achados.length) return null;
-    const n = achados.length;
-    let msg = '👤 Encontrei **' + n + '** pessoa' + (n>1?'s':'') + ' com esse nome:\n';
-    achados.slice(0, 5).forEach(p => {
-      const setor = p.setor || p.setorEmprestimo || 'setor não informado';
-      msg += '• **' + (p.nome || '') + '** — Setor: ' + setor + ' — ' + formatarFolga(p) + '\n';
+  function respostaNome(lista){
+    let msg = '👤 Encontrei **' + lista.length + '** pessoa' + (lista.length > 1 ? 's' : '') + ' com esse nome:\n';
+    lista.slice(0,5).forEach(p => {
+      const f = p.folgaFixa || p.folga || '';
+      const folga = !f || /a definir/i.test(String(f)) || f === '—' ? 'folga fixa: a definir' : 'folga fixa: ' + f;
+      msg += '• **' + p.nome + '** — Setor: ' + (p.setor || p.setorEmprestimo || 'não informado') + ' — ' + folga + '\n';
     });
-    if (n > 5) msg += '… e mais ' + (n-5) + ' pessoas.\n';
-    msg += '\nO que você quer saber sobre essa pessoa? (domingo, folga, horário…)';
+    if (lista.length > 5) msg += '… e mais ' + (lista.length - 5) + ' pessoas.\n';
+    msg += '\nO que você quer saber sobre essa pessoa?';
     return msg;
   }
-
   chat.responder = function(texto){
-    try {
-      const q = normalizar(texto);
-      if (!q) return anterior.call(this, texto);
-
-      // 1. Tenta busca por nome
-      const achados = buscarPorNome(texto);
-      if (achados) {
-        const r = responderNome(achados);
-        if (r) return r;
-      }
-
-      // 2. Se não for assunto do app, manda para o subgerente
-      if (!eAssuntoDoApp(q) && !/\b(oi|ola|obrigado|obrigada|valeu|tudo bem|ajuda)\b/.test(q)) {
-        return respostaForaDoApp();
-      }
-
-      // 3. Deixa as camadas anteriores responderem
-      const resp = anterior.call(this, texto);
-      const rLimpo = normalizar(String(resp).replace(/<[^>]*>/g, ' '));
-      if (/nao reconheci|nao entendi|isso foge|reformule/.test(rLimpo) && eAssuntoDoApp(q)) {
-        return '🤖 Posso ajudar com as regras e o funcionamento deste app (equipe, escala, domingos, folgas, feriados, horários, liderança…). Pode detalhar a pergunta?';
-      }
-      return resp;
-    } catch(e) {
-      console.warn('[V188 Gabriel completo]', e);
-      return respostaForaDoApp();
+    try { const achados = buscarPorNome(texto); if (achados) return respostaNome(achados); }
+    catch(e) { console.warn('[═════ V189 [ChatGPT] ═════ busca por nome]', e); }
+    // A cadeia anterior distingue intenção do app, assunto externo e ambiguidade.
+    try { return anterior.call(this, texto); }
+    catch(e) {
+      console.warn('[═════ V189 [ChatGPT] ═════ roteador anterior]', e);
+      return 'Tive uma falha ao consultar essa informação. Tente reformular a pergunta; nenhum dado foi alterado.';
     }
   };
-
   if (window.v270Gabriel) window.v270Gabriel.responder = chat.responder;
 })();
 </script>
