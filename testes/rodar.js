@@ -1547,7 +1547,7 @@ async function testarSemTxt(browser, app, nome, dados){
     ok(!!versao && new RegExp('Versão V' + versao + ' · ').test(html),
       'versão visível no rodapé corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
     const hist = html.match(/<!-- HISTÓRICO DE VERSÕES[^\n]*\n([^\n]+)/);
-    ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT|Manus)\\] — ').test(hist[1]),
+    ok(!!versao && !!hist && new RegExp('^V' + versao + ' \\[(Claude|ChatGPT|Manus|Grok)\\] — ').test(hist[1]),
       'primeira entrada do histórico corresponde à versão do arquivo (' + (versao || 'não identificada') + ')');
   }
   // a passagem de bastão (docs/PASSAGEM.md) tem que estar em dia com as versões atuais — AGENTS.md, seção 10
