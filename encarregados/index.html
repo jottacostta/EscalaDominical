@@ -10908,10 +10908,7 @@ function perguntarOrientacaoImpressao(cb){
     construir,aplicar,auditar,limiteDias:d=>{const dt=dataDe(d);return dt?(dataGerenciada(dt)?5:6):(mesInteiro5x2()?5:6);},mesTem5x2,folgas:i=>copia(planoAtual?.pessoas?.[String(i)]?.folgas||[]),plano:()=>copia(planoAtual),render:renderStatus
   };
   window[PREFIX+'Motor5x2']=api;window.motor5x2=api;if(window.escalaMotor)window.escalaMotor.motor5x2=api;
-  const originalMax=window.maxSeguidosTrab;
-  // Em dezembro há uma fronteira mista: o motor antigo continua com limite 6
-  // até 15/12; o plano V287/V191 aplica o limite 5 apenas nas datas novas.
-  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){const n=Number(originalMax())||6;return mesInteiro5x2()?Math.min(n,5):n;};
+  // O limite 5 pertence à auditoria do plano 5×2; não substitua globalmente o limite 6 legado.
   if(typeof originalEh==='function')window.ehDescansoAssociado=function(i,dt){return !!originalEh(i,dt)||chaveNoPlano(planoAtual,i,dataKey(dt));};
   const baseNome=SETORES?'trabalharBaseNaData':'trabalhaNaDataBase',originalBase=window[baseNome];
   if(typeof originalBase==='function')window[baseNome]=function(i,dt,...args){return chaveNoPlano(planoAtual,i,dataKey(dt))?false:originalBase.call(this,i,dt,...args);};
