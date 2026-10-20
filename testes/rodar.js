@@ -2027,7 +2027,7 @@ async function testarMotoresPorData(browser, app, nome, versaoMin){
     const ligada=api?.estado(), salvo=JSON.parse(localStorage.getItem(chave)||'null');
     api?.configurar({cctMensal:false}); const invalida=api?.configurar({cctMensal:'sim'});
     const snapshot=window.v147MontarProjeto?.()||null;
-    return { inicial, ligada, salvo, invalida, texto, snapshot, restauracao:!!(window.v147RestaurarProjeto||window.v289RestaurarProjeto||window.v193RestaurarProjeto) };
+    return { inicial, ligada, salvo, invalida, texto, snapshot, restauracao:!!(window.v147RestaurarProjeto||window.v290RestaurarProjeto||window.v194RestaurarProjeto||window.v289RestaurarProjeto||window.v193RestaurarProjeto) };
   });
   ok(cct.inicial?.cctMensal===false && cct.ligada?.cctMensal===true && cct.ligada?.geracaoPendente===true,
     `${nome}: compensação mensal começa desligada e mudar a opção exige nova geração`);
