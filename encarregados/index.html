@@ -7,10 +7,12 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V189</title>
+<title>Escala 2×1 — Encarregados V190</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V190 [Claude] — AVISO DO GABRIEL NÃO TAPA O X DA NOTIFICAÇÃO: no celular, a notificação de aviso agora termina antes do botão do Gabriel, então o X de fechar fica sempre visível e acessível.
+V189 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
 V188 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
  (toda alteração gera nova versão)
 V187 [Manus] — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — Manus
@@ -686,6 +688,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .load-check-notice h3{margin:0 0 6px;font-size:16px}.load-check-notice p{margin:0 0 12px;font-size:13px;line-height:1.45;color:#475569}.load-check-actions{display:flex;gap:8px;flex-wrap:wrap}.load-check-actions .btn{flex:1;min-width:145px}.load-check-close{position:absolute;right:8px;top:7px;border:0;background:transparent;font-size:22px;color:#64748b;cursor:pointer;padding:2px 7px}
 @media (prefers-color-scheme:dark){.load-check-notice{background:#0f172a;color:#f8fafc}.load-check-notice p{color:#cbd5e1}}
 .toast-stack{position:fixed;left:50%;bottom:calc(88px + var(--safe-bottom));transform:translateX(-50%);z-index:1100;display:flex;flex-direction:column;gap:8px;width:min(94vw,440px);pointer-events:none}
+@media(max-width:899px){.toast-stack{left:12px;right:82px;transform:none;width:auto}}
 .toast{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:11px;background:#1E293B;color:#fff;box-shadow:var(--sh-lg);font-size:13px;font-weight:600;pointer-events:auto;animation:v45ToastIn .22s cubic-bezier(.32,.72,0,1)}
 .toast span{display:block;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.4}
 .toast-ok{background:var(--ok)}
@@ -2010,7 +2013,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V189 · roteamento conversacional corrigido 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V190 · X da notificação sempre visível no celular (Gabriel não cobre mais)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
