@@ -7,11 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V191</title>
+<title>Escala 2×1 — Encarregados V192</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
-V191 [ChatGPT] — ⚙️ MOTOR 5×2 REAL: gera duas folgas separadas por semana a partir de 16/12/2026, mantém os domingos no 2×1 e guarda o plano no histórico.
+V192 [Manus] — ESCALA MANUAL E MOTOR 5×2: preserva o limite legado 6×1 durante a geração e deixa o plano 5×2 validar o limite 5 sem apagar as marcações dos domingos.
  mostra em Configurações o 6×1 até 15/12/2026 e o 5×2 a partir de 16/12/2026; domingos continuam separados no 2×1.
 V188 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
  (toda alteração gera nova versão)
@@ -2028,7 +2028,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V191 · motor 5×2 com duas folgas semanais</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V192 · escala manual e motor 5×2</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10908,10 +10908,9 @@ function perguntarOrientacaoImpressao(cb){
     construir,aplicar,auditar,limiteDias:d=>{const dt=dataDe(d);return dt?(dataGerenciada(dt)?5:6):(mesInteiro5x2()?5:6);},mesTem5x2,folgas:i=>copia(planoAtual?.pessoas?.[String(i)]?.folgas||[]),plano:()=>copia(planoAtual),render:renderStatus
   };
   window[PREFIX+'Motor5x2']=api;window.motor5x2=api;if(window.escalaMotor)window.escalaMotor.motor5x2=api;
-  const originalMax=window.maxSeguidosTrab;
-  // Em dezembro há uma fronteira mista: o motor antigo continua com limite 6
-  // até 15/12; o plano V287/V191 aplica o limite 5 apenas nas datas novas.
-  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){const n=Number(originalMax())||6;return mesInteiro5x2()?Math.min(n,5):n;};
+  // V192: o limite 5×2 é validado em `auditar(plano)`. Não embrulhe
+  // `maxSeguidosTrab`: a geração e a auditoria legadas continuam 6×1;
+  // os domingos dos Encarregados continuam na política separada 2×1.
   if(typeof originalEh==='function')window.ehDescansoAssociado=function(i,dt){return !!originalEh(i,dt)||chaveNoPlano(planoAtual,i,dataKey(dt));};
   const baseNome=SETORES?'trabalharBaseNaData':'trabalhaNaDataBase',originalBase=window[baseNome];
   if(typeof originalBase==='function')window[baseNome]=function(i,dt,...args){return chaveNoPlano(planoAtual,i,dataKey(dt))?false:originalBase.call(this,i,dt,...args);};
