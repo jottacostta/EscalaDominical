@@ -5,11 +5,11 @@ Escreva sempre em **português do Brasil**, com linguagem simples (quem usa o ap
 
 > **Regra de ouro do dono (UX/UI):** o app tem que ser fácil de entender **como se fosse usado por uma criança de 10 anos aprendendo informática**. Toda mudança de tela segue a seção 4.1.
 
-> **Hierarquia (atualizada em 18/10/2026):**
+> **Hierarquia (atualizada em 20/10/2026):**
 > - **Gerente de Projetos:** JottaCostta, o dono; mantém a decisão e autorização finais.
-> - **Coordenador de Projetos:** Manus; coordena os cargos subordinados dentro do escopo autorizado pelo gerente.
-> - **Encarregado:** Claude; segue a coordenação de Manus.
-> - **Subencarregado:** ChatGPT/Codex; segue a coordenação de Manus.
+> - **Coordenador de Projetos:** Manus; subordinado ao Gerente. Coordena os cargos abaixo dentro do escopo autorizado.
+> - **Encarregado:** Claude; subordinado ao Manus.
+> - **Subencarregado:** ChatGPT/Codex; subordinado ao Claude.
 > - **Auxiliar de Projeto:** Grok; subordinado ao ChatGPT. Só age com autorização do Gerente e alinhamento com o ChatGPT.
 >
 > **Nada é feito por iniciativa própria** (nem por Manus, Claude, ChatGPT ou Grok) **sem autorização de JottaCostta**: mudanças de código,
