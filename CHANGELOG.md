@@ -13,6 +13,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
+- **V288** — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: mostra 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026, mantém a seleção automática por data, deixa a compensação mensal desligada até haver CCT e exige nova geração ao mudar. O histórico guarda plano 5×2, CCT, política dominical e segmentos do período, e a restauração preserva o restante dos dados. — *Manus*
 - **V286** — ⚙️ DOIS MOTORES POR DATA: acrescenta em Configurações o plano automático do 6×1 até 15/12/2026 e do 5×2 a partir de 16/12/2026, com teste do mês misto de dezembro. O motor 6×1 existente permanece intacto nesta etapa; a camada expõe `window.escalaMotor` para o próximo dispatcher do gerador. — *Manus*
 - **V283** — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — *Manus*
 - **V282** — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — *Manus*
@@ -160,6 +161,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **V127** — correções: erro do motor 50% (inicioUnidade), alvo com liderança, virada de ano, histórico por matrícula/nome, sessão salva restaurada, sugestão de liderança 2×1, impressão/PDF, feriados extras.
 
 ## Escala 2×1 de Encarregados
+- **V192** — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: mostra 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026, mantém domingos no 2×1, deixa a compensação mensal desligada até haver CCT e exige nova geração ao mudar. O histórico guarda plano 5×2, CCT, política dominical e segmentos do período, e a restauração preserva o restante dos dados. — *Manus*
 - **V190** — ⚙️ DOIS MOTORES POR DATA: acrescenta em Mês e opções o plano automático do 6×1 até 15/12/2026 e do 5×2 a partir de 16/12/2026; domingos continuam separados no 2×1. O motor 6×1 existente permanece intacto nesta etapa; a camada expõe `window.escalaMotor` para o próximo dispatcher do gerador. — *Manus*
 - **V187** — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — *Manus*
 - **V186** — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — *Manus*

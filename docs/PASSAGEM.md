@@ -17,8 +17,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V286.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V190.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V288.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V192.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V287**, Encarregados **V191**.
+- **Próximo número de versão:** Setores **V289**, Encarregados **V193**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -43,7 +43,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V286
+### Camadas documentadas até V288
 - **V286 — dois motores por data:** o cartão `#motorEscalaCard` em Configurações mostra os dois motores e destaca o usado no mês; `window.escalaMotor` calcula o corte local `2026-12-16` sem depender de fuso horário, gera segmentos para meses mistos e ignora configuração legada V274 para não antecipar o 5×2. A geração 6×1 antiga permanece intacta; integrar o dispatcher e a distribuição real das duas folgas é a próxima etapa.
 - **V283 — atualizar a página:** a área inicial ganhou o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; ele recarrega o app e preserva os dados guardados no aparelho.
 - **V282 — ordem da área inicial:** na tela inicial, os controles “Função”, “Incluir jovens aprendizes” e “Ordenar horários” ficam depois do card “Funcionários por tempo de serviço” e antes dos gráficos de horários e folgas. A alteração é apenas visual; os filtros e os dados continuam funcionando.
@@ -109,7 +109,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V190
+### Camadas documentadas até V192
 - **V190 — dois motores por data:** o cartão `#motorEscalaCard` em Mês e opções mostra o 6×1 até 15/12/2026, o 5×2 a partir de 16/12/2026 e mantém os domingos no 2×1; `window.escalaMotor` expõe o plano misto. A geração 6×1 antiga permanece intacta; integrar o dispatcher e a distribuição real das duas folgas é a próxima etapa.
 - **V187 — classificação de intenção:** mesma separação de V279: mantém o roteador do app, encaminha apenas dúvidas de RH claramente externas, esclarece termos ambíguos e pede reformulação para perguntas desconhecidas; distingue remuneração de folga compensatória e captura falhas sem travar.
 - **V186 — identidade do app e encaminhamento:** pergunta de versão responde pelo título da tela; pergunta sobre 5×2 usa o estado real do regime; assuntos fora do escopo são encaminhados ao subgerente administrativo.
@@ -176,6 +176,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-20 — Configuração CCT e histórico do 5×2 — Setores V288 / Encarregados V192 — Manus
+- **Correção:** o cartão do motor informa claramente 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026; a escolha continua automática por data e os domingos dos Encarregados continuam no 2×1.
+- **Persistência:** a opção de compensação mensal começa desligada, avisa “somente com CCT”, grava em `escalaSetores.motor5x2`/`enc.motor5x2` e, ao mudar, invalida o plano até nova geração. O histórico guardado leva `config.motor5x2`, `resultado.motor5x2`, `resultado.motorPolicy`, `resultado.engineSegments` e `politicaDominical`; a restauração aplica esses campos sem apagar equipe, domingos ou feriados.
+- **Testes:** `git diff --check`, `node --check` dos scripts embutidos e `npm test`/`npm run test:completo` ficam para a validação final desta branch.
+- **Continuidade:** não foram alteradas as regras do domingo nem implementadas 42h/40h. — Manus
+
 
 ### 2026-10-19 — Seleção automática de motores — Setores V286 / Encarregados V190 — Manus
 - **Pedido:** colocar os dois motores em Configurações, manter 6×1 até 15/12/2026 e selecionar 5×2 a partir de 16/12/2026; domingos do app de Encarregados continuam no 2×1.

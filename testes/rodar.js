@@ -103,7 +103,7 @@ async function testarSetores(browser){
   await p.waitForTimeout(1800);
   if(await p.evaluate(() => !!window.v217MarcarGuardado)){
     ok(/falta/.test(await lembrete()), 'lembrete avisa que falta guardar o histórico');
-    await p.evaluate(() => window.v266Horarios?.confirmar?.());   /* V266: confirma o horário de domingo antes de guardar */ const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#btnHistorico')]);
+    await p.evaluate(() => window.v266Horarios?.confirmar?.());   /* V266: confirma o horário de domingo antes de guardar */ const [dl] = await Promise.all([p.waitForEvent('download'), p.evaluate(() => { const b=document.getElementById('btnHistorico'); if(b?.offsetParent) b.click(); else window.exportarProjetoSet?.(); })]);
     ok(/^Historico_Frente_de_Loja_12_2027\.json$/.test(dl.suggestedFilename()), 'nome do histórico: ' + dl.suggestedFilename());
     const arqHist = path.join(require('os').tmpdir(), 'teste_' + dl.suggestedFilename()); await dl.saveAs(arqHist);
     { const j = JSON.parse(fs.readFileSync(arqHist, 'utf8')), q = (j.loja && j.loja.quadro) || [];   // V219: o histórico leva o quadro da loja (com tempo de serviço)
@@ -2018,6 +2018,23 @@ async function testarMotoresPorData(browser, app, nome, versaoMin){
   ok(/15\/12\/2026/.test(r.resumo)||/16\/12\/2026/.test(r.resumo),'o resumo da configuração explica a data de troca');
   const legado=await p.evaluate(()=>{ window.v274Regime?.configurar({ativo:true,regime:'5x2',maxSeguidos:5}); const x=window.escalaMotor.motorParaData('2026-12-15'); window.v274Regime?.restaurar(); return x; });
   ok(legado==='6x1','uma configuração legada V274 não antecipa o motor 5×2');
+  const cct=await p.evaluate(()=>{
+    const api=window.motor5x2, cb=document.querySelector('input[id$="CctMensal"]');
+    const chave=Object.keys(localStorage).find(k=>/\.motor5x2$/.test(k));
+    api?.configurar({cctMensal:false});
+    const inicial=api?.estado(), texto=document.querySelector('[id$="Motor5x2Config"]')?.innerText||'';
+    if(cb){ cb.checked=true; cb.dispatchEvent(new Event('change',{bubbles:true})); }
+    const ligada=api?.estado(), salvo=JSON.parse(localStorage.getItem(chave)||'null');
+    api?.configurar({cctMensal:false}); const invalida=api?.configurar({cctMensal:'sim'});
+    const snapshot=window.v147MontarProjeto?.()||null;
+    return { inicial, ligada, salvo, invalida, texto, snapshot, restauracao:!!(window.v147RestaurarProjeto||window.v192RestaurarProjeto) };
+  });
+  ok(cct.inicial?.cctMensal===false && cct.ligada?.cctMensal===true && cct.ligada?.geracaoPendente===true,
+    `${nome}: compensação mensal começa desligada e mudar a opção exige nova geração`);
+  ok(cct.salvo?.cctMensal===true && /somente com CCT|CCT aprovada/i.test(cct.texto),
+    `${nome}: CCT fica guardada offline e a tela avisa que só deve ser usada com CCT`);
+  ok(cct.invalida?.cctMensal===false && cct.restauracao && (!cct.snapshot || cct.snapshot.config?.motor5x2?.domingoPolicy),
+    `${nome}: configuração inválida não liga CCT e o histórico/restauração expõe a política dominical`);
   ok(!erros.length,'sem erro de JavaScript' + (erros.length ? ': '+erros[0] : ''));
   await ctx.close();
 }

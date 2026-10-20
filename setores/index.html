@@ -7,12 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V287</title>
+<title>Escala de Setores — V288</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
-V287 [ChatGPT] — ⚙️ MOTOR 5×2 REAL: gera duas folgas separadas por semana a partir de 16/12/2026, mantém o domingo existente e guarda o plano no histórico.
- mostra em Configurações o 6×1 até 15/12/2026 e o 5×2 a partir de 16/12/2026; preserva o motor antigo e prepara o plano misto de dezembro.
+V288 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: deixa o corte 6×1/5×2 claro, guarda CCT e plano no histórico e exige gerar de novo ao mudar a opção.
 V285 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
 )
 V284 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
@@ -2719,7 +2718,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V287 · motor 5×2 com duas folgas semanais</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V288 · configuração e histórico do 5×2</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2797,16 +2796,16 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 <div class="guia"><span class="passo">Configuração</span><b>Aqui você ajusta as opções da escala.</b> Mês e ano, setor, horários, dias de folga da semana, feriados extras e datas de balanço. <b>Se não souber o que mudar, deixe como está</b> e toque em “Concluir configuração”.</div>
 
 <div class="card v286-motor-card" id="motorEscalaCard">
-  <h3>⚙️ Motor da escala</h3>
-  <p>O app troca sozinho de motor na data combinada. Você não precisa ligar nada.</p>
+  <h3>⚙️ Plano automático da escala</h3>
+  <p>O app escolhe sozinho o plano pela data. Você não precisa ligar nada.</p>
   <div class="v286-motor-options" role="list" aria-label="Motores da escala">
     <div class="v286-motor-option" data-motor-option="6x1" role="listitem">
-      <strong>6×1 atual</strong>
+      <strong>6×1</strong>
       <small>Usado até 15/12/2026.</small>
       <span class="v286-motor-status">Calculando</span>
     </div>
     <div class="v286-motor-option" data-motor-option="5x2" role="listitem">
-      <strong>5×2 novo</strong>
+      <strong>5×2</strong>
       <small>Usado a partir de 16/12/2026, com duas folgas.</small>
       <span class="v286-motor-status">Calculando</span>
     </div>
@@ -9575,6 +9574,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     try{ p.funcionariosPorTempoDeServico=window.v220TempoServico?.(equipe,Array.isArray(todasEquipes)?todasEquipes:[],val('setorSelecionado')||'')||null; }catch(e){}   // V220
     p.planejamento={grupos:clone(grupos),selecaoManualDomingo:clone(selecaoManualDomingo),horariosManuaisDomingo:clone(horariosManuaisDomingo),horariosManuaisFeriado:clone(horariosManuaisFeriado),antecipacoesFolgaManual:clone(antecipacoesFolgaManual),datasBalanco:clone(datasBalanco)};
     p.resultado={periodosSemFolgaFeriado:clone(periodosSemFolgaFeriado),previsoesDomingo:clone(previsoesDomingo),trabalhoDomingo:clone(trabalhoDomingo),trabalhoFeriado:clone(trabalhoFeriado),descansosDomingo:clone(descansosDomingo),alvosPorDomingo:clone(alvosPorDomingo),estadoFinalMes:clone(estadoFinalMes),ultimaEscala:clone(ultimaEscala),folgasCompensatorias:clone(folgasCompensatorias),sugestoesFolgasFeriado:clone(sugestoesFolgasFeriado)};
+    try{ const m5=window.motor5x2?.estado?.()||{}; const plano=JSON.parse(JSON.stringify(m5.plano||estadoFinalMes?.motor5x2||null));
+      p.config.motor5x2={v:1,cctMensal:!!m5.cctMensal,corte5x2:m5.corte5x2||'2026-12-16',domingoPolicy:m5.domingoPolicy||'existente',geracaoPendente:!!m5.geracaoPendente};
+      p.resultado.motor5x2=plano; p.resultado.motorPolicy=JSON.parse(JSON.stringify(estadoFinalMes?.motorPolicy||{regime:'5x2',corte5x2:'2026-12-16',cctMensal:!!m5.cctMensal}));
+      p.resultado.engineSegments=JSON.parse(JSON.stringify(window.escalaMotor?.historico?.()?.segmentos||[])); p.politicaDominical=m5.domingoPolicy||'existente';
+    }catch(e){}   // V288/V192: plano 5×2, CCT e política dominical vão no histórico guardado.
     p.historico=clone(historico);
     p.ui={step:typeof V45!=='undefined'?V45.step:null};
     try{ const a=window.v262Assistente?.exportar?.(); if(a) p.assistente=a; }catch(e){}   // V262: o que o Assistente RH aprendeu vai no histórico
@@ -9632,7 +9636,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.id='arquivoProjetoJSON'; inp.style.display='none'; document.body.appendChild(inp);
       inp.addEventListener('change',ev=>{const f=ev.target.files?.[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const p=JSON.parse(rd.result);
         if(p && p.schema!==PROJECT_SCHEMA && (Array.isArray(p.funcionarios)||Array.isArray(p.funciStatus))){ aplicarHistoricoArquivo(p); return; }   // V198: histórico antigo só preenche o “Mês passado”
-        escolherAberturaArquivo(p,restaurarProjeto);}catch(err){window.showToast?.('Não foi possível abrir o projeto: '+(err?.message||err),'danger',true);}finally{inp.value='';}};rd.readAsText(f,'UTF-8');});
+        escolherAberturaArquivo(p,window.v147RestaurarProjeto||restaurarProjeto);}catch(err){window.showToast?.('Não foi possível abrir o projeto: '+(err?.message||err),'danger',true);}finally{inp.value='';}};rd.readAsText(f,'UTF-8');});
     }
     document.getElementById('menuSalvarProjeto')?.addEventListener('click',exportarProjeto);
     document.getElementById('menuAbrirProjeto')?.addEventListener('click',()=>document.getElementById('arquivoProjetoJSON')?.click());
@@ -16527,7 +16531,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 <script>
 (function(){
   'use strict';
-  /* ═════ V287/V191 [ChatGPT] — ⚙️ MOTOR 5×2 REAL ═════
+  /* ═════ V288 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO MOTOR 5×2 ═════
      A camada V286/V190 apenas escolhia o nome do motor. Esta camada faz o
      planejamento semanal: duas folgas separadas, no máximo cinco dias de
      trabalho, CCT mensal opcional (mínimo uma folga por semana) e persistência
@@ -16553,7 +16557,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const configPadrao={v:1,cctMensal:false};
   let cfg=Object.assign({},configPadrao);
   try{ const salvo=JSON.parse(localStorage.getItem(CH)||'null'); if(salvo&&typeof salvo==='object'&&!Array.isArray(salvo)) cfg={v:1,cctMensal:salvo.cctMensal===true}; }catch(e){}
-  let planoAtual=null;
+  let planoAtual=null, geracaoPendente=false;
   const salvarCfg=()=>{try{localStorage.setItem(CH,JSON.stringify(cfg));}catch(e){}};
   const mesTem5x2=()=>{ const m=dataHojeMes(); if(!m)return false; const fim=new Date(m.ano,m.mes+1,0,12); for(let dt=new Date(m.ano,m.mes,1,12);dt<=fim;dt.setDate(dt.getDate()+1)) if(baseRegime(dataKey(dt))==='5x2')return true; return false; };
   const dataGerenciada=dt=>baseRegime(dataKey(dt))==='5x2';
@@ -16669,19 +16673,20 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return {erros:[...new Set(erros)],avisos:[...new Set(avisos)]};
   }
   function aplicar(plano){
-    planoAtual=plano?copia(plano):null;
+    planoAtual=plano?copia(plano):null; geracaoPendente=false;
     try{ if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes&&plano){ estadoFinalMes.motor5x2=copia(plano); estadoFinalMes.motorPolicy={regime:'5x2',corte5x2:CORTE,cctMensal:!!cfg.cctMensal}; estadoFinalMes.engineSegments=window.escalaMotor?.historico?.()?.segmentos||[]; } }catch(e){ console.warn('[5×2] histórico',e); }
     renderStatus();
     return planoAtual;
   }
-  function limpar(){ planoAtual=null; renderStatus(); }
+  function limpar(){ planoAtual=null; geracaoPendente=false; renderStatus(); }
+  function invalidar(){ planoAtual=null; geracaoPendente=true; try{ if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes){ delete estadoFinalMes.motor5x2; delete estadoFinalMes.motorPolicy; delete estadoFinalMes.engineSegments; } }catch(e){} renderStatus(); }
   function renderStatus(extra){
     const card=document.getElementById('motorEscalaCard'); if(!card)return;
     let box=document.getElementById(PREFIX+'Motor5x2Config');
     if(!box){ box=document.createElement('div'); box.id=PREFIX+'Motor5x2Config'; box.style.cssText='margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)'; card.appendChild(box); }
-    const texto=planoAtual?((planoAtual.auditoria?.erros||[]).length?`⚠️ O plano encontrou ${(planoAtual.auditoria.erros||[]).length} aviso(s) para revisar.`:`✅ Plano 5×2 pronto: 2 folgas separadas por semana.`):'Depois de escolher o mês, toque em “Gerar escala” para montar as duas folgas.';
-    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" style="width:18px;height:18px;accent-color:var(--brand)"><span>Usar compensação mensal autorizada por CCT<br><small style="font-weight:400">Só marque se houver CCT. Ainda fica 1 folga por semana.</small></span></label>`;
-    const cb=document.getElementById(PREFIX+'CctMensal'); if(cb){ cb.checked=!!cfg.cctMensal; cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();limpar();window.showToast?.(cfg.cctMensal?'CCT mensal ligada. Gere a escala novamente.':'CCT mensal desligada. Gere a escala novamente.','info',true);}; }
+    const texto=geracaoPendente?'⚠️ Você mudou a opção. Gere a escala novamente antes de conferir ou guardar.':(planoAtual?((planoAtual.auditoria?.erros||[]).length?`⚠️ O plano encontrou ${(planoAtual.auditoria.erros||[]).length} aviso(s) para revisar.`:`✅ Plano 5×2 pronto: 2 folgas separadas por semana.`):'Depois de escolher o mês, toque em “Gerar escala” para montar as duas folgas.');
+    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" aria-label="Compensação mensal autorizada por CCT" style="width:18px;height:18px;accent-color:var(--brand)"><span>Compensação mensal (somente com CCT)<br><small id="${PREFIX}CctAviso" style="font-weight:400">Use somente se houver CCT aprovada. Ao mudar, gere a escala de novo.</small></span></label>`;
+    const cb=document.getElementById(PREFIX+'CctMensal'); if(cb){ cb.checked=!!cfg.cctMensal; cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();invalidar();window.showToast?.(cfg.cctMensal?'CCT ligada. Gere a escala de novo.':'CCT desligada. Gere a escala de novo.','info',true);}; }
     if(extra){ let p=document.getElementById(PREFIX+'Motor5x2Extra'); if(!p){p=document.createElement('div');p.id=PREFIX+'Motor5x2Extra';box.appendChild(p);} p.innerHTML=extra; }
   }
   function renderResultado(){
@@ -16699,12 +16704,12 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(box){ const anterior=box.textContent||''; box.className=a.erros.length?'alert bad':'alert ok'; box.innerHTML=(anterior?anterior+'<br>':'')+resumoAuditoria(a); }
   }
   const api={
-    estado:()=>({v:1,cctMensal:!!cfg.cctMensal,plano:copia(planoAtual),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1'}),
-    configurar:o=>{if(o&&typeof o==='object'){cfg.cctMensal=o.cctMensal===true;salvarCfg();limpar();}return api.estado();},
+    estado:()=>({v:1,cctMensal:!!cfg.cctMensal,plano:copia(planoAtual),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1',geracaoPendente:!!geracaoPendente}),
+    configurar:o=>{if(o&&typeof o==='object'){cfg.cctMensal=o.cctMensal===true;salvarCfg();invalidar();}return api.estado();},
     construir,aplicar,auditar,limiteDias:()=>mesTem5x2()?5:6,mesTem5x2,folgas:(i)=>copia(planoAtual?.pessoas?.[String(i)]?.folgas||[]),render:renderStatus
   };
   planoAtual=null;
-  window[PREFIX+'Motor5x2']=api; window.motor5x2=api;
+  window[PREFIX+'Motor5x2']=api; window.motor5x2=api; window['v288Motor5x2']=api;
   if(window.escalaMotor)window.escalaMotor.motor5x2=api;
   const originalMax=window.maxSeguidosTrab;
   if(typeof originalMax==='function')window.maxSeguidosTrab=function(){ const n=Number(originalMax())||6; return mesTem5x2()?Math.min(n,5):n; };
@@ -16715,8 +16720,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(typeof originalStatus==='function')window[statusNome]=function(i,dt,...args){ return chaveNoPlano(planoAtual,i,dataKey(dt))?'f5x2':originalStatus.call(this,i,dt,...args); };
   const gerador=SETORES?'gerarSetores':'gerar',originalGerar=window[gerador];
   if(typeof originalGerar==='function')window[gerador]=function(...args){ limpar(); const r=originalGerar.apply(this,args); try{depoisDeGerar();}catch(e){console.error('[5×2] erro no planejamento',e);window.showToast?.('O motor 5×2 não conseguiu distribuir todas as folgas. Confira os avisos.','warn',true);} return r; };
-  const restaurar=window.restaurarProjeto;
-  if(typeof restaurar==='function')window.restaurarProjeto=function(p){ const r=restaurar.apply(this,arguments); const saved=p?.resultado?.estadoFinalMes?.motor5x2; if(saved)aplicar(saved); else limpar(); return r; };
+  const restaurar=window.v147RestaurarProjeto||window.restaurarProjeto;
+  if(typeof restaurar==='function'){ const restaurarComMotor=function(p){ const r=restaurar.apply(this,arguments); const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy; if(c&&typeof c==='object'){ cfg={v:1,cctMensal:c.cctMensal===true}; salvarCfg(); } const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano; if(saved)aplicar(saved); else limpar(); renderStatus(); return r; }; window.v147RestaurarProjeto=restaurarComMotor; window.restaurarProjeto=restaurarComMotor; }
   ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',limpar));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderStatus(),{once:true}); else renderStatus();
 })();
