@@ -7,12 +7,12 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V287</title>
+<title>Escala de Setores — V288</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
-V287 [ChatGPT] — ⚙️ MOTOR 5×2 REAL: gera duas folgas separadas por semana a partir de 16/12/2026, mantém o domingo existente e guarda o plano no histórico.
- mostra em Configurações o 6×1 até 15/12/2026 e o 5×2 a partir de 16/12/2026; preserva o motor antigo e prepara o plano misto de dezembro.
+V288 [Manus] — ☀️ DOMINGO PROTEGIDO NO 5×2: mantém o limite e o rodízio dominical no motor existente; o plano 5×2 não apaga trabalhoDomingo/descansosDomingo nem cria uma terceira folga artificial.
+ preserva balanço, previsão, DSR associado e feriado no domingo, inclusive na virada de dezembro/2026 para janeiro/2027.
 V285 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
 )
 V284 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
@@ -2719,7 +2719,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V287 · motor 5×2 com duas folgas semanais</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V288 · domingo protegido no 5×2</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16527,7 +16527,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 <script>
 (function(){
   'use strict';
-  /* ═════ V287/V191 [ChatGPT] — ⚙️ MOTOR 5×2 REAL ═════
+  /* ═════ V288/V192 [Manus] — ☀️ DOMINGO PROTEGIDO NO MOTOR 5×2 ═════
      A camada V286/V190 apenas escolhia o nome do motor. Esta camada faz o
      planejamento semanal: duas folgas separadas, no máximo cinco dias de
      trabalho, CCT mensal opcional (mínimo uma folga por semana) e persistência
@@ -16680,7 +16680,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     let box=document.getElementById(PREFIX+'Motor5x2Config');
     if(!box){ box=document.createElement('div'); box.id=PREFIX+'Motor5x2Config'; box.style.cssText='margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)'; card.appendChild(box); }
     const texto=planoAtual?((planoAtual.auditoria?.erros||[]).length?`⚠️ O plano encontrou ${(planoAtual.auditoria.erros||[]).length} aviso(s) para revisar.`:`✅ Plano 5×2 pronto: 2 folgas separadas por semana.`):'Depois de escolher o mês, toque em “Gerar escala” para montar as duas folgas.';
-    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" style="width:18px;height:18px;accent-color:var(--brand)"><span>Usar compensação mensal autorizada por CCT<br><small style="font-weight:400">Só marque se houver CCT. Ainda fica 1 folga por semana.</small></span></label>`;
+    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><small style="display:block;margin-top:5px">☀️ O domingo continua na escala dominical existente${SETORES?'':' 2×1'}; o 5×2 não cria nem apaga folga de domingo.</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" style="width:18px;height:18px;accent-color:var(--brand)"><span>Usar compensação mensal autorizada por CCT<br><small style="font-weight:400">Só marque se houver CCT. Ainda fica 1 folga por semana.</small></span></label>`;
     const cb=document.getElementById(PREFIX+'CctMensal'); if(cb){ cb.checked=!!cfg.cctMensal; cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();limpar();window.showToast?.(cfg.cctMensal?'CCT mensal ligada. Gere a escala novamente.':'CCT mensal desligada. Gere a escala novamente.','info',true);}; }
     if(extra){ let p=document.getElementById(PREFIX+'Motor5x2Extra'); if(!p){p=document.createElement('div');p.id=PREFIX+'Motor5x2Extra';box.appendChild(p);} p.innerHTML=extra; }
   }
@@ -16707,7 +16707,12 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   window[PREFIX+'Motor5x2']=api; window.motor5x2=api;
   if(window.escalaMotor)window.escalaMotor.motor5x2=api;
   const originalMax=window.maxSeguidosTrab;
-  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){ const n=Number(originalMax())||6; return mesTem5x2()?Math.min(n,5):n; };
+  // V288/V192: o limite global continua no regime legado; o 5×2 confere o seu limite no próprio plano.
+  // Assim o planejamento dominical (2×1 nos Encarregados e regras próprias nos Setores) não é trocado por 5 dias.
+  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){
+    try{ const n=Number(window.v274Regime?.maxSeguidos?.()); return Number.isInteger(n)&&n>=1&&n<=6?n:6; }
+    catch(e){ return Number(originalMax())||6; }
+  };
   if(typeof originalEh==='function')window.ehDescansoAssociado=function(i,dt){ return !!originalEh(i,dt)||chaveNoPlano(planoAtual,i,dataKey(dt)); };
   const baseNome=SETORES?'trabalharBaseNaData':'trabalhaNaDataBase',originalBase=window[baseNome];
   if(typeof originalBase==='function')window[baseNome]=function(i,dt,...args){ return chaveNoPlano(planoAtual,i,dataKey(dt))?false:originalBase.call(this,i,dt,...args); };
