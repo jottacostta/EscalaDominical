@@ -6,11 +6,14 @@ Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓR
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Documentação
-
+- **20/10/2026** — Decisão operacional: domingos permanecem no 2×1 até existir nova CCT; o novo rodízio mensal do anexo não entra nesta etapa do motor 5×2. — *Manus*
+- **20/10/2026** — Incluído `docs/INVESTIGACAO_SIMULACAO_5x2.md`: auditoria dos motores V286/V190 e simulação das duas folgas nas fases de 42h e 40h com os dados fictícios do repositório. A investigação não altera os motores nem declara conformidade horária antes de existir o modelo de jornada. — *Manus*
+- **20/10/2026** — Copiado `docs/PLANO_5x2.md` da PR #96 para esta branch; o documento organiza as fases de diagnóstico, motor 5×2, transição legal e homologação, sem alterar o comportamento dos aplicativos. — *Manus*
 - **17/10/2026** — Auditoria documental: corrigida em `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt` a referência dos seis pilares para a PR #82. Os seis documentos permanecem iniciais e precisam de validação contra os apps e os testes; workflow da PR #82 ainda sem resultado final confirmado na consulta. — *ChatGPT*
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
+- **V286** — ⚙️ DOIS MOTORES POR DATA: acrescenta em Configurações o plano automático do 6×1 até 15/12/2026 e do 5×2 a partir de 16/12/2026, com teste do mês misto de dezembro. O motor 6×1 existente permanece intacto nesta etapa; a camada expõe `window.escalaMotor` para o próximo dispatcher do gerador. — *Manus*
 - **V283** — 🔄 ATUALIZAR A PÁGINA NA ÁREA INICIAL: adiciona o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; o botão recarrega o app sem apagar os dados guardados. — *Manus*
 - **V282** — 🧭 ORDEM DOS FILTROS NA ÁREA INICIAL: coloca “Função”, “Incluir jovens aprendizes” e “Ordenar horários” logo depois do card “Funcionários por tempo de serviço”, antes dos gráficos de horários e folgas. — *Manus*
 - **V281** — 🤖 GABRIEL EXPLICA LIDERANÇA OPCIONAL: responde que a liderança no domingo é opcional, que a escala continua podendo ser gerada sem ela e que o aviso amarelo pede concordância depois da geração; explica os botões “Sim, concordo” e “Voltar e escolher liderança”. — *Manus*
@@ -157,6 +160,7 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **V127** — correções: erro do motor 50% (inicioUnidade), alvo com liderança, virada de ano, histórico por matrícula/nome, sessão salva restaurada, sugestão de liderança 2×1, impressão/PDF, feriados extras.
 
 ## Escala 2×1 de Encarregados
+- **V190** — ⚙️ DOIS MOTORES POR DATA: acrescenta em Mês e opções o plano automático do 6×1 até 15/12/2026 e do 5×2 a partir de 16/12/2026; domingos continuam separados no 2×1. O motor 6×1 existente permanece intacto nesta etapa; a camada expõe `window.escalaMotor` para o próximo dispatcher do gerador. — *Manus*
 - **V187** — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — *Manus*
 - **V186** — 🤖 IDENTIDADE, REGIME 5×2 E ENCAMINHAMENTO: identifica a versão aberta, explica o estado 6×1/5×2 a partir da configuração e orienta procurar o subgerente administrativo para dúvidas fora das funções e regras da escala, sem alterar a escala. — *Manus*
 

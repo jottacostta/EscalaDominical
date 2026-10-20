@@ -17,8 +17,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V285.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V189.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V286.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V190.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
@@ -28,7 +28,9 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V284**, Encarregados **V188**.
+- **Próximo número de versão:** Setores **V287**, Encarregados **V191**.
+- **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
+- **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V171): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
@@ -41,7 +43,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V283
+### Camadas documentadas até V286
+- **V286 — dois motores por data:** o cartão `#motorEscalaCard` em Configurações mostra os dois motores e destaca o usado no mês; `window.escalaMotor` calcula o corte local `2026-12-16` sem depender de fuso horário, gera segmentos para meses mistos e ignora configuração legada V274 para não antecipar o 5×2. A geração 6×1 antiga permanece intacta; integrar o dispatcher e a distribuição real das duas folgas é a próxima etapa.
 - **V283 — atualizar a página:** a área inicial ganhou o botão “🔄 Atualizar página” ao lado de “📍 Local da planilha”; ele recarrega o app e preserva os dados guardados no aparelho.
 - **V282 — ordem da área inicial:** na tela inicial, os controles “Função”, “Incluir jovens aprendizes” e “Ordenar horários” ficam depois do card “Funcionários por tempo de serviço” e antes dos gráficos de horários e folgas. A alteração é apenas visual; os filtros e os dados continuam funcionando.
 - **V281 — explicação do Gabriel:** o chat do Setores responde que a liderança do domingo é opcional, que a escala pode ser gerada sem ela e que o aviso amarelo aparece depois; explica “Sim, concordo” e “Voltar e escolher liderança”. A camada é somente conversacional e não altera o motor.
@@ -60,7 +63,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **V271 — leitura da planilha do RH:** `window.v271Planilha = {inventariar, htmlPrevia, aplicada, atual, ultima, resumoHtml, naoEntendiHtml, confereHtml}`; `localStorage escalaSetores.v271Planilha`. O inventário cobre abas, linhas, colunas, origem e totais; a prévia mostra “O que o Gabriel leu”. A leitura é local e não executa fórmulas/macros.
 - **V272 — chat móvel e feriados:** `window.v272Layout` e `window.v272Feriados`; layout adaptado ao celular e respostas sobre trabalho/folga com base no passo Feriados.
 - **V273 — memória do Gabriel:** `window.v273Memoria={registrar,exportar,importar,limpar,itens,estado}`; chaves `escalaSetores.v273Memoria` / `enc.v273Memoria`. Só registra eventos confiáveis, evita senha e campos ocultos; a memória vai ao histórico guardado, não ao rascunho automático. Eventos sintéticos de teste são ignorados.
-- **V274 — regime configurável:** `window.v274Regime = {estado, configurar, restaurar, maxSeguidos, resumo}` e função `maxSeguidosTrab()`. O padrão continua 6×1 (limite 6); a 5×2 permanece desligada. A configuração é guardada em `escalaSetores.v274Regime` / `enc.v274Regime`; abrir histórico não ativa o regime.
+- **V274 — regime legado configurável:** `window.v274Regime = {estado, configurar, restaurar, maxSeguidos, resumo}` e função `maxSeguidosTrab()`. O contrato antigo continua com padrão 6×1 (limite 6) para não quebrar a geração existente; a escolha automática por data agora fica separada em `window.escalaMotor`. A configuração legada é guardada em `escalaSetores.v274Regime` / `enc.v274Regime`; abrir histórico não ativa nenhum regime.
 
 **Como o arquivo é organizado:** um único HTML. O núcleo antigo (motor da escala, telas, passos) fica no meio do arquivo. Cada versão nova acrescenta **camadas** no fim:
 - um bloco `<style id="vNNN-assunto">` antes de `</head>`;
@@ -106,7 +109,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V187
+### Camadas documentadas até V190
+- **V190 — dois motores por data:** o cartão `#motorEscalaCard` em Mês e opções mostra o 6×1 até 15/12/2026, o 5×2 a partir de 16/12/2026 e mantém os domingos no 2×1; `window.escalaMotor` expõe o plano misto. A geração 6×1 antiga permanece intacta; integrar o dispatcher e a distribuição real das duas folgas é a próxima etapa.
 - **V187 — classificação de intenção:** mesma separação de V279: mantém o roteador do app, encaminha apenas dúvidas de RH claramente externas, esclarece termos ambíguos e pede reformulação para perguntas desconhecidas; distingue remuneração de folga compensatória e captura falhas sem travar.
 - **V186 — identidade do app e encaminhamento:** pergunta de versão responde pelo título da tela; pergunta sobre 5×2 usa o estado real do regime; assuntos fora do escopo são encaminhados ao subgerente administrativo.
 - **V185 — fala natural, dicionário e contexto:** mesma normalização e entrada específica em `RESP` da V277; a camada V270 registra a pessoa única antes de respostas diretas e mantém o contexto de continuações. A orientação sobre liderança continua específica; o chat apenas indica `Editar equipe` e não altera a escala.
@@ -115,7 +119,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Prévia V177:** usa `window.v167Api.sel()` e `trabalhamNoBalanco`.
 - **Chat V178 + Gabriel V179:** `window.v270Gabriel` adiciona nome, saudação, PNL, contexto e datas ao chat V265; “por que não pode” usa `window.v167.motivo`. O app não tem importador de XLSX; V271 não se aplica.
 - **V180/V181:** layout do chat para celular, respostas de feriados e memória local do Gabriel. Ganchos `window.v272Layout`, `window.v272Feriados` e `window.v273Memoria`; chave `enc.v273Memoria`.
-- **V182 — regime:** `window.v274Regime` e `maxSeguidosTrab()`; padrão 6×1, 5×2 desligada. Chave `enc.v274Regime`; abrir histórico não ativa o regime.
+- **V182 — regime legado:** `window.v274Regime` e `maxSeguidosTrab()`; o contrato antigo continua padrão 6×1. A seleção automática por data fica em `window.escalaMotor`; chave legada `enc.v274Regime`; abrir histórico não ativa o regime.
 
 - Mesmo padrão de camadas.
 - **Passos (V171, iguais aos do Setores):** 1 Equipe · 2 Mês passado · 3 Domingos · 4 Feriados · 5 Gerar. O “Mês” virou **📅 Mês e opções** (botão escondido `.mes-step-oculto`, como o ⚙️ do Setores): abre por ⋮ → Mês e opções ou pelo aviso `#v171Mes` no topo do Mês passado (`window.v171AbrirMes()`); a barra de baixo pula o índice 1. O **índice interno** (`v80GotoStep(n)`, `ir:n`, `data-step`) é a **posição do botão**: Equipe 0, Mês e opções 1, **Mês passado 2**, **Domingos 3** (`#domingosEtapa`, área `#v169DomArea`), **Feriados 4**, Gerar 5. `#coberturaCard` (grupos da V162) continua no HTML, escondido. Mudou de novo a ordem? Troque também os `ir:` de `destinoConformidade`/“O que falta”/marcos do Início e os `v80GotoStep` das camadas (procure por `v80GotoStep?.(` e `ir:`).
@@ -172,6 +176,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-19 — Seleção automática de motores — Setores V286 / Encarregados V190 — Manus
+- **Pedido:** colocar os dois motores em Configurações, manter 6×1 até 15/12/2026 e selecionar 5×2 a partir de 16/12/2026; domingos do app de Encarregados continuam no 2×1.
+- **Correção:** criadas `Escala_de_Setores_V286.html` e `Escala_2x1_encarregados_V190.html`, com o cartão visual `#motorEscalaCard`, `window.escalaMotor.motorParaData()`, `planoPeriodo()` e `historico()`. Dezembro/2026 retorna segmentos mistos; datas locais inválidas caem no 6×1; configuração legada V274 não antecipa o corte; `setores/index.html` e `encarregados/index.html` foram sincronizados.
+- **Decisão de segurança:** o motor 6×1 existente e os validadores antigos não foram alterados por um simples `maxSeguidos=5`. A distribuição efetiva das duas folgas e o dispatcher do gerador ficam como próxima etapa, com estado de fronteira 15/16 e auditoria própria.
+- **Regressões:** `testes/rodar.js` ganhou casos para o corte, mês misto, domingo 2×1, data inválida, painel e isolamento da configuração V274. O smoke test no Chromium confirmou a API e não registrou erro JavaScript.
+- **Assinado:** Manus
 
 ### 2026-10-18 — Botão de atualização da página — Setores V283 — Manus
 - **Pedido:** criar um botão ao lado de “📍 Local da planilha” para atualizar o app.
@@ -724,7 +735,8 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
-- **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V283, Encarregados V187 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
+- **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V286, Encarregados V190 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
+- **Motor 5×2 — próxima etapa obrigatória:** ligar `window.escalaMotor` a um dispatcher separado, gerar duas folgas semanais de verdade sem apenas trocar o limite de dias consecutivos, carregar o estado dos últimos 7 dias na fronteira 15/16/12/2026, manter domingos 2×1 no app de Encarregados, auditar o mesmo plano usado na geração e persistir `motorPolicy`/`engineSegments` no histórico sem permitir que históricos antigos mudem a política vigente.
 - **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
 - **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps, usar dados fictícios, calcular o esperado a partir do estado real, manter conjunto cego congelado e medir acerto/falsos positivos/alucinações. `testes/relatorio-gabriel-500.json` documenta uma bateria exploratória aprovada (500 chamadas, 250 por app), mas não prova acurácia; testa respostas vazias/fallbacks, erros, verificações semânticas, estado da equipe e mutação. A nova `testes/dialogos-gabriel.json` contém 50 diálogos (250 turnos) com evidências e expectativas candidatas por app; `testarDialogosGabriel` executa os turnos em sequência nos dois apps e confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento administrativo, estado real 6×1/5×2, erros JavaScript e estado da equipe/escala. Os testes diretos também contrastam assunto interno, encaminhamento externo claro, termo ambíguo, pergunta desconhecida e remuneração versus folga compensatória. As listas de expectativas/contraexemplos ainda são material exploratório, não um gabarito semântico automatizado completo. A bateria de 66 perguntas da issue #68 continua proposta/documentação até execução própria com gabarito verificável.
 - **Manuais (Claude Docs):** ainda não mencionam o Assistente RH, o chat, a prévia com domingos nem os horários V266/V267. O Claude mantém os manuais; o gerente decide quando atualizar.

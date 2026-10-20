@@ -7,10 +7,12 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V285</title>
+<title>Escala de Setores — V287</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V287 [ChatGPT] — ⚙️ MOTOR 5×2 REAL: gera duas folgas separadas por semana a partir de 16/12/2026, mantém o domingo existente e guarda o plano no histórico.
+ mostra em Configurações o 6×1 até 15/12/2026 e o 5×2 a partir de 16/12/2026; preserva o motor antigo e prepara o plano misto de dezembro.
 V285 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
 )
 V284 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
@@ -2605,6 +2607,22 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 .v265-msgs{min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 @media (max-height:560px){.v265-sug{display:none}.v265-abas button{min-height:36px}#v262Painel .top{padding-top:8px;padding-bottom:6px}}
 </style>
+
+<style id="v286-motores">
+.v286-motor-card{margin:14px 0;background:var(--surface-2,#f8fafc);border:1px solid var(--border);border-radius:12px;padding:14px}
+.v286-motor-card h3{margin:0 0 4px;font-size:16px}
+.v286-motor-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.v286-motor-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.v286-motor-option{border:2px solid var(--border);border-radius:11px;background:var(--surface);padding:11px;min-height:72px;display:flex;flex-direction:column;gap:4px;transition:border-color .15s,box-shadow .15s}
+.v286-motor-option.active{border-color:var(--brand,#0047BA);box-shadow:0 0 0 3px rgba(0,71,186,.10)}
+.v286-motor-option[data-motor-option="5x2"].active{border-color:var(--ok,#16a34a);box-shadow:0 0 0 3px rgba(22,163,74,.10)}
+.v286-motor-option strong{font-size:14px;color:var(--ink,#0f172a)}
+.v286-motor-option small{color:var(--muted);font-size:11px;line-height:1.35}
+.v286-motor-status{display:inline-flex;align-items:center;align-self:flex-start;border-radius:999px;padding:3px 7px;background:var(--brand-lt,#dbeafe);color:var(--brand-ink,#075985);font-size:10px;font-weight:800}
+.v286-motor-option[data-motor-option="5x2"] .v286-motor-status{background:#dcfce7;color:#166534}
+@media(max-width:620px){.v286-motor-options{grid-template-columns:1fr}.v286-motor-option{min-height:0}}
+</style>
+
 </head>
 <body>
 <script>
@@ -2701,7 +2719,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V285 · roteamento conversacional corrigido ⚠️ confirmação quando um domingo fica sem liderança</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V287 · motor 5×2 com duas folgas semanais</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2777,7 +2795,26 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 <section class="card step-panel" id="configCard" data-panel-id="config">
   <h2 class="section-title"><span class="st-num">⚙️</span> Configurações da escala</h2>
 <div class="guia"><span class="passo">Configuração</span><b>Aqui você ajusta as opções da escala.</b> Mês e ano, setor, horários, dias de folga da semana, feriados extras e datas de balanço. <b>Se não souber o que mudar, deixe como está</b> e toque em “Concluir configuração”.</div>
-  <div class="horarios-config-card">
+
+<div class="card v286-motor-card" id="motorEscalaCard">
+  <h3>⚙️ Motor da escala</h3>
+  <p>O app troca sozinho de motor na data combinada. Você não precisa ligar nada.</p>
+  <div class="v286-motor-options" role="list" aria-label="Motores da escala">
+    <div class="v286-motor-option" data-motor-option="6x1" role="listitem">
+      <strong>6×1 atual</strong>
+      <small>Usado até 15/12/2026.</small>
+      <span class="v286-motor-status">Calculando</span>
+    </div>
+    <div class="v286-motor-option" data-motor-option="5x2" role="listitem">
+      <strong>5×2 novo</strong>
+      <small>Usado a partir de 16/12/2026, com duas folgas.</small>
+      <span class="v286-motor-status">Calculando</span>
+    </div>
+  </div>
+  <div id="motorEscalaResumo" class="alert info" role="status" style="margin:10px 0 0"></div>
+</div>
+
+<div class="horarios-config-card">
     <h3 style="margin:0 0 4px;font-size:16px">⏰ Horários de domingo e feriado</h3>
     <p class="hint" style="margin:0">Estes são os horários que o app usa nas escalas de domingo e de feriado (cada um tem a sua lista). Se você escolher montar a escala à mão, eles aparecem para você escolher.</p>
     <div class="horarios-config-grid">
@@ -16356,6 +16393,332 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }
   };
   if (window.v270Gabriel) window.v270Gabriel.responder = chat.responder;
+})();
+</script>
+
+
+<script>
+(function(){
+  'use strict';
+  /* ═════ V286/V190 — ⚙️ DOIS MOTORES POR DATA ═════
+     O motor 6×1 antigo permanece intacto. Esta camada só decide qual motor
+     deve ser usado em cada data e mostra o plano na área Configurações.
+     01–15/12/2026 = 6×1; 16/12/2026 em diante = 5×2.
+     No app de Encarregados, domingo continua sendo uma política 2×1 separada.
+  */
+  const APP=(window.v265Chat&&window.v265Chat.interno&&window.v265Chat.interno.APP)||'';
+  const NAMESPACE=APP==='setores'?'escalaSetores':'enc';
+  const CH=NAMESPACE+'.motoresEscala';
+  const CORTE='2026-12-16';
+  const DOMINGOS_ENC=APP==='enc'?'2x1':'';
+  const PADRAO=Object.freeze({v:1,corte5x2:CORTE,motorAntes:'6x1',motorDepois:'5x2',domingosEncarregados:DOMINGOS_ENC,modo:'automatico'});
+  const pad=n=>String(n).padStart(2,'0');
+  const dataLocal=dt=>`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+  const validaData=(s)=>{
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))) return false;
+    const [a,m,d]=String(s).split('-').map(Number),dt=new Date(a,m-1,d);
+    return dt.getFullYear()===a&&dt.getMonth()===m-1&&dt.getDate()===d;
+  };
+  const normalizarData=v=>{
+    if(v instanceof Date&&!Number.isNaN(v.getTime())) return dataLocal(v);
+    const s=String(v||'').trim();
+    if(validaData(s)) return s;
+    const br=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    const iso=br?`${br[3]}-${br[2]}-${br[1]}`:'';
+    return validaData(iso)?iso:'';
+  };
+  const paraData=s=>{ if(!validaData(s)) return null; const [a,m,d]=s.split('-').map(Number); return new Date(a,m-1,d); };
+  const hoje=()=>dataLocal(new Date());
+  const domingo=s=>{ const dt=paraData(s); return !!dt&&dt.getDay()===0; };
+  const dataFmt=s=>{ const dt=paraData(s); return dt?dt.toLocaleDateString('pt-BR'):s; };
+  const faixaFmt=(a,b)=>a===b?dataFmt(a):`${dataFmt(a)} a ${dataFmt(b)}`;
+  const lerEstado=()=>{
+    try{
+      const o=JSON.parse(localStorage.getItem(CH)||'null');
+      return o&&typeof o==='object'&&!Array.isArray(o)?Object.assign({},PADRAO,o):Object.assign({},PADRAO);
+    }catch(e){ return Object.assign({},PADRAO); }
+  };
+  const gravarEstado=()=>{ try{ localStorage.setItem(CH,JSON.stringify(PADRAO)); }catch(e){} };
+  gravarEstado();
+  function motorParaData(data){
+    const iso=normalizarData(data);
+    if(!iso) return '6x1';
+    if(APP==='enc'&&domingo(iso)) return '2x1';
+    return iso<CORTE?'6x1':'5x2';
+  }
+  function planoPeriodo(inicio,fim){
+    const a=normalizarData(inicio),b=normalizarData(fim),ia=paraData(a),ib=paraData(b);
+    if(!ia||!ib||ia>ib)return [];
+    const out=[];
+    for(let dt=new Date(ia);dt<=ib;dt.setDate(dt.getDate()+1)){
+      const iso=dataLocal(dt),motor=motorParaData(iso),last=out[out.length-1];
+      if(last&&last.motor===motor)last.fim=iso;
+      else out.push({inicio:iso,fim:iso,motor});
+    }
+    return out;
+  }
+  function periodoAtual(){
+    const mes=Number(document.getElementById('mes')?.value),ano=Number(document.getElementById('ano')?.value);
+    if(!Number.isInteger(mes)||mes<0||mes>11||!Number.isInteger(ano)||ano<1900||ano>2200)return [];
+    return planoPeriodo(`${ano}-${pad(mes+1)}-01`,dataLocal(new Date(ano,mes+1,0)));
+  }
+  function resumoPeriodo(){
+    const p=periodoAtual(),nomes={"6x1":'6×1',"5x2":'5×2',"2x1":'2×1'};
+    if(!p.length)return 'Escolha o mês e o ano para ver o motor selecionado.';
+    const partes=[];
+    ['6x1','5x2'].forEach(motor=>{
+      const trechos=p.filter(x=>x.motor===motor);
+      if(trechos.length)partes.push(`${nomes[motor]} de ${dataFmt(trechos[0].inicio)} a ${dataFmt(trechos[trechos.length-1].fim)}`);
+    });
+    const texto=partes.length?partes.join('; '):'Somente domingos 2×1 neste período.';
+    return `✅ Motor selecionado: <b>${texto}</b>.${APP==='enc'?' Os domingos continuam no <b>2×1</b>.':''}`;
+  }
+  function resumoAtual(){
+    const atual=motorParaData(hoje());
+    if(atual==='5x2') return 'Regime em vigor: <b>5×2</b> desde <b>16/12/2026</b>. Os domingos dos Encarregados continuam no <b>2×1</b>.';
+    return 'Regime em vigor: <b>6×1</b> até <b>15/12/2026</b>. A <b>5×2</b> fica programada, mas desligada até <b>15/12/2026</b>, e começa em <b>16/12/2026</b>.';
+  }
+  function historico(){
+    return {schema:1,corte5x2:CORTE,motores:{antes:'6x1',depois:'5x2'},domingosEncarregados:DOMINGOS_ENC,segmentos:periodoAtual()};
+  }
+  function estado(){
+    const p=periodoAtual();
+    return {schema:1,app:APP,corte5x2:CORTE,motorHoje:motorParaData(hoje()),periodo:p,domingosEncarregados:DOMINGOS_ENC,modo:'automatico'};
+  }
+  function render(){
+    const card=document.getElementById('motorEscalaCard'),box=document.getElementById('motorEscalaResumo');
+    if(!card||!box)return;
+    const p=periodoAtual(),usados=new Set(p.map(x=>x.motor));
+    card.querySelectorAll('[data-motor-option]').forEach(el=>{
+      const ativo=usados.has(el.dataset.motorOption);
+      el.classList.toggle('active',ativo);
+      el.setAttribute('aria-current',ativo?'true':'false');
+      const s=el.querySelector('.v286-motor-status');
+      if(s)s.textContent=ativo?(usados.size>1?'Usado neste período':'Selecionado'):'Fora deste período';
+    });
+    box.innerHTML=resumoPeriodo()+`<br><small>O corte é automático: 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026.</small>`;
+  }
+  const api={estado,motorParaData,planoPeriodo,periodoAtual,historico,resumo:resumoPeriodo,render, corte5x2:CORTE};
+  window.escalaMotor=api;
+  ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',render));
+  setTimeout(render,0);
+  try{
+    const R=window.v274Regime;
+    if(R&&typeof R.resumo==='function')R.resumo=resumoAtual;
+    const base=window.v265Chat,anterior=base&&base.responder;
+    if(base&&typeof anterior==='function'){
+      base.responder=function(texto){
+        let q='';
+        try{ q=String(texto||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+        catch(e){
+          try{ const fallback=anterior.call(base,texto); return typeof fallback==='string'?fallback:'Não consegui responder agora. Tente reformular.'; }
+          catch(e2){ return 'Não consegui responder agora. Tente reformular.'; }
+        }
+        if(/(regime|5 ?x ?2|6 ?x ?1)/.test(q)&&/(qual|valendo|vigor|ligad|ativo|desligad|ja|hoje|agora)/.test(q))return '📏 '+resumoAtual();
+        try{ const out=anterior.call(base,texto); return typeof out==='string'?out:String(out??''); }
+        catch(e){ return 'Não consegui responder agora. Tente reformular.'; }
+      };
+    }
+  }catch(e){ console.warn('[V286/V190 motores]',e); }
+})();
+</script>
+
+
+<script>
+(function(){
+  'use strict';
+  /* ═════ V287/V191 [ChatGPT] — ⚙️ MOTOR 5×2 REAL ═════
+     A camada V286/V190 apenas escolhia o nome do motor. Esta camada faz o
+     planejamento semanal: duas folgas separadas, no máximo cinco dias de
+     trabalho, CCT mensal opcional (mínimo uma folga por semana) e persistência
+     do plano no histórico. Os domingos continuam sendo decididos pelo motor
+     dominical existente; no app Encarregados, a política segue 2×1.
+  */
+  const APP=(window.v265Chat&&window.v265Chat.interno&&window.v265Chat.interno.APP)||'';
+  const SETORES=APP==='setores';
+  const PREFIX=SETORES?'v287':'v191';
+  const NAMESPACE=SETORES?'escalaSetores':'enc';
+  const CH=NAMESPACE+'.motor5x2';
+  const CORTE='2026-12-16';
+  const copia=o=>{try{return JSON.parse(JSON.stringify(o??null));}catch(e){return null;}};
+  const pad=n=>String(n).padStart(2,'0');
+  const dataKey=dt=>`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+  const dataDe=s=>{ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s||'')))return null; const [a,m,d]=String(s).split('-').map(Number),dt=new Date(a,m-1,d,12); return dt.getFullYear()===a&&dt.getMonth()===m-1&&dt.getDate()===d?dt:null; };
+  const dataHojeMes=()=>{ const mes=Number(document.getElementById('mes')?.value),ano=Number(document.getElementById('ano')?.value); return Number.isInteger(mes)&&Number.isInteger(ano)&&mes>=0&&mes<12&&ano>=1900&&ano<=2200?{mes,ano}:null; };
+  const baseRegime=s=>String(s||'')>=CORTE?'5x2':'6x1';
+  const equipeAtual=()=>{ try{ return Array.isArray(equipe)?equipe:[]; }catch(e){ return Array.isArray(window.equipe)?window.equipe:[]; } };
+  const domingosAtuais=()=>{ try{return trabalhoDomingo||{};}catch(e){return{};} };
+  const feriadosAtuais=()=>{ const m=dataHojeMes(); try{return m?feriados(m.ano,m.mes)||{}:{};}catch(e){return{};} };
+  const trabalhoFeriadoAtual=()=>{ try{return trabalhoFeriado||{};}catch(e){return{};} };
+  const configPadrao={v:1,cctMensal:false};
+  let cfg=Object.assign({},configPadrao);
+  try{ const salvo=JSON.parse(localStorage.getItem(CH)||'null'); if(salvo&&typeof salvo==='object'&&!Array.isArray(salvo)) cfg={v:1,cctMensal:salvo.cctMensal===true}; }catch(e){}
+  let planoAtual=null;
+  const salvarCfg=()=>{try{localStorage.setItem(CH,JSON.stringify(cfg));}catch(e){}};
+  const mesTem5x2=()=>{ const m=dataHojeMes(); if(!m)return false; const fim=new Date(m.ano,m.mes+1,0,12); for(let dt=new Date(m.ano,m.mes,1,12);dt<=fim;dt.setDate(dt.getDate()+1)) if(baseRegime(dataKey(dt))==='5x2')return true; return false; };
+  const dataGerenciada=dt=>baseRegime(dataKey(dt))==='5x2';
+  const segundaDaSemana=dt=>{ const x=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate(),12); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; };
+  const domingoDaSemana=dt=>{ const x=segundaDaSemana(dt); x.setDate(x.getDate()+6); return x; };
+  const semanasDoMes=()=>{ const m=dataHojeMes(); if(!m)return[]; const ini=segundaDaSemana(new Date(m.ano,m.mes,1,12)),fim=domingoDaSemana(new Date(m.ano,m.mes+1,0,12)),out=[]; for(let dt=new Date(ini);dt<=fim;dt.setDate(dt.getDate()+7)){ const dias=[]; for(let k=0;k<7;k++){const d=new Date(dt);d.setDate(dt.getDate()+k);dias.push(d);} out.push(dias); } return out; };
+  const chaveNoPlano=(plano,i,k)=>!!(plano&&plano.adicionadas&&Array.isArray(plano.adicionadas[k])&&plano.adicionadas[k].map(Number).includes(Number(i)));
+  const semanaTem5x2=sem=>sem.some(dataGerenciada);
+  const originalEh=window.ehDescansoAssociado;
+  const originalFixa=window.folgaFixaAtivaNaData;
+  const originalComp=window.temFolgaCompensatoria;
+  function descansoExistente(i,dt){
+    try{ if(typeof originalEh==='function'&&originalEh(i,dt))return true; }catch(e){}
+    try{ if(typeof originalFixa==='function'&&originalFixa(i,dt))return true; }catch(e){}
+    const f=equipeAtual()[i];
+    if(f&&dt.getDay()>=1&&dt.getDay()<=6&&Number(f.folgaFixa)===dt.getDay())return true;
+    const m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
+    if(m&&dt.getMonth()===m.mes&&dt.getFullYear()===m.ano&&fer[dt.getDate()]&&!(tf[dt.getDate()]||[]).map(Number).includes(Number(i)))return true;
+    try{ if(typeof originalComp==='function'&&originalComp(i,dt))return true; }catch(e){}
+    try{
+      const comps=typeof folgasCompensatorias!=='undefined'?folgasCompensatorias:{};
+      for(const [k,v] of Object.entries(comps||{})){ const p=k.split('_').map(Number); if(p.length===2&&p[1]===Number(i)&&String(v)===dataKey(dt))return true; }
+    }catch(e){}
+    if(dt.getDay()===0){
+      const m2=dataHojeMes();
+      if(m2&&dt.getMonth()===m2.mes&&dt.getFullYear()===m2.ano)return !(domingosAtuais()[dt.getDate()]||[]).map(Number).includes(Number(i));
+      try{ if(SETORES&&typeof window.domingoForaDoMesTrabalhado==='function')return !window.domingoForaDoMesTrabalhado(i,dt); }catch(e){}
+      try{ if(!SETORES&&window.v174&&typeof window.v174.domingoForaDoMes==='function')return !window.v174.domingoForaDoMes(i,dt); }catch(e){}
+    }
+    return false;
+  }
+  function candidatoValido(i,dt,selecionadas){
+    const k=dataKey(dt);
+    if(!dataGerenciada(dt)||dt.getDay()===0||descansoExistente(i,dt)||selecionadas.has(k))return false;
+    for(const s of selecionadas){ const d=dataDe(s); if(d&&Math.abs(Math.round((dt-d)/86400000))<=1)return false; }
+    const f=equipeAtual()[i],m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
+    if(f&&m&&fer[dt.getDate()]&&(tf[dt.getDate()]||[]).map(Number).includes(Number(i)))return false;
+    return true;
+  }
+  function cargaRestosBase(semanas){
+    const carga={}; semanas.flat().forEach(dt=>{ const k=dataKey(dt); carga[k]=carga[k]||0; equipeAtual().forEach((_,i)=>{if(descansoExistente(i,dt))carga[k]++;}); }); return carga;
+  }
+  function pontuar(i,dt,carga){
+    const dia=dt.getDay();
+    const preferencia=dia>=1&&dia<=4?100:dia===5?45:10;
+    const f=equipeAtual()[i],fixa=Number(f?.folgaFixa);
+    const perto=fixa>=1&&fixa<=6?Math.min(Math.abs(fixa-dia),7-Math.abs(fixa-dia)):0;
+    // Na virada 6×1 → 5×2, uma quarta-feira pode ser mais importante que
+    // uma quinta-feira: se os cinco dias anteriores foram trabalhados, a
+    // folga precisa entrar antes do sexto dia, não apenas ficar bem distribuída.
+    let corrida=0;
+    for(let k=1;k<=7;k++){ const p=new Date(dt); p.setDate(dt.getDate()-k); if(descansoExistente(i,p))break; corrida++; }
+    const urgencia=corrida>=5?2200+corrida*20:corrida*8;
+    return preferencia+urgencia-(carga[dataKey(dt)]||0)*12-perto*3-dt.getDate()/10000;
+  }
+  function construir(){
+    const semanas=semanasDoMes(), pessoas={}, adicionadas={}, erros=[], carga=cargaRestosBase(semanas);
+    const todos=semanas.flat();
+    equipeAtual().forEach((f,i)=>{
+      const chavesRestosBase=new Set(todos.filter(dt=>descansoExistente(i,dt)).map(dataKey));
+      const semanasPessoa=[];
+      semanas.forEach(sem=>{
+        if(!semanaTem5x2(sem))return;
+        // O domingo 2×1 continua sendo uma regra própria. Para o 5×2,
+        // primeiro escolhemos até duas folgas designadas entre os descansos
+        // de segunda a sábado; o domingo só entra se completar o par sem
+        // criar folgas consecutivas. Descansos dominicais adicionais não
+        // viram uma terceira folga artificial do motor 5×2.
+        const existentes=sem.filter(dt=>descansoExistente(i,dt));
+        const existentesSemana=existentes.filter(dt=>dt.getDay()!==0).sort((a,b)=>pontuar(i,b,carga)-pontuar(i,a,carga));
+        const domingoLivre=existentes.find(dt=>dt.getDay()===0);
+        const selecionadas=new Set();
+        [...existentesSemana,...(domingoLivre?[domingoLivre]:[])].forEach(dt=>{
+          if(selecionadas.size>=2)return;
+          const k=dataKey(dt);
+          if(![...selecionadas].some(s=>{const d=dataDe(s);return d&&Math.abs(Math.round((dt-d)/86400000))===1;}))selecionadas.add(k);
+        });
+        const alvo=cfg.cctMensal?(selecionadas.size?selecionadas.size:1):2;
+        while(selecionadas.size<alvo){
+          const possiveis=sem.filter(dt=>candidatoValido(i,dt,selecionadas)).sort((a,b)=>pontuar(i,b,carga)-pontuar(i,a,carga));
+          if(!possiveis.length){ erros.push(`${f?.nome||'Pessoa '+(i+1)}: não encontrei ${cfg.cctMensal?'uma':'duas'} folga(s) separada(s) na semana de ${dataKey(sem[0])}.`); break; }
+          const dt=possiveis[0],k=dataKey(dt); selecionadas.add(k); if(!adicionadas[k])adicionadas[k]=[]; adicionadas[k].push(i); carga[k]=(carga[k]||0)+1;
+        }
+        const folgas=[...selecionadas].sort();
+        semanasPessoa.push({inicio:dataKey(sem[0]),fim:dataKey(sem[6]),folgas,regime:'5x2',cctMensal:cfg.cctMensal});
+        if(!cfg.cctMensal&&folgas.length!==2)erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${dataKey(sem[0])} ficou com ${folgas.length} folga(s), mas o 5×2 exige 2.`);
+      });
+      pessoas[String(i)]={nome:String(f?.nome||''),folgas:[...new Set(semanasPessoa.flatMap(x=>x.folgas))].sort(),semanas:semanasPessoa};
+    });
+    const plano={schema:1,regime:'5x2',corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1',cctMensal:!!cfg.cctMensal,pessoas,adicionadas,semanas:semanas.map(sem=>({inicio:dataKey(sem[0]),fim:dataKey(sem[6]),regime:semanaTem5x2(sem)?'5x2':'6x1'})),erros};
+    plano.auditoria=auditar(plano);
+    return plano;
+  }
+  function trabalhandoNoPlano(plano,i,dt){ return !descansoExistente(i,dt)&&!chaveNoPlano(plano,i,dataKey(dt)); }
+  function auditar(plano){
+    const erros=[...(plano?.erros||[])],avisos=[];
+    if(!plano||!plano.pessoas)return{erros:['Plano 5×2 ausente.'],avisos:[]};
+    semanasDoMes().forEach(sem=>{
+      if(!semanaTem5x2(sem))return;
+      equipeAtual().forEach((f,i)=>{
+        const pessoa=plano.pessoas[String(i)]||{},wk=(pessoa.semanas||[]).find(x=>x.inicio===dataKey(sem[0]));
+        const folgas=wk?.folgas||[];
+        if(cfg.cctMensal){ if(folgas.length<1)erros.push(`${f?.nome||'Pessoa '+(i+1)}: CCT exige ao menos 1 folga na semana de ${dataKey(sem[0])}.`); }
+        else if(folgas.length!==2)erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${dataKey(sem[0])} tem ${folgas.length} folga(s), não 2.`);
+        for(let a=0;a<folgas.length;a++)for(let b=a+1;b<folgas.length;b++){const da=dataDe(folgas[a]),db=dataDe(folgas[b]);if(da&&db&&Math.abs(Math.round((da-db)/86400000))===1)erros.push(`${f?.nome||'Pessoa '+(i+1)}: folgas consecutivas em ${folgas[a]} e ${folgas[b]}.`);}
+      });
+    });
+    const sems=semanasDoMes();
+    equipeAtual().forEach((f,i)=>{
+      let seq=0;
+      sems.flat().forEach(dt=>{ const trabalha=trabalhandoNoPlano(plano,i,dt),lim=dataGerenciada(dt)?5:6; if(trabalha){seq++;if(seq>lim)erros.push(`${f?.nome||'Pessoa '+(i+1)}: ${seq} dias seguidos na fronteira ${dataKey(dt)} (máximo ${lim}).`);}else seq=0; });
+    });
+    return {erros:[...new Set(erros)],avisos:[...new Set(avisos)]};
+  }
+  function aplicar(plano){
+    planoAtual=plano?copia(plano):null;
+    try{ if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes&&plano){ estadoFinalMes.motor5x2=copia(plano); estadoFinalMes.motorPolicy={regime:'5x2',corte5x2:CORTE,cctMensal:!!cfg.cctMensal}; estadoFinalMes.engineSegments=window.escalaMotor?.historico?.()?.segmentos||[]; } }catch(e){ console.warn('[5×2] histórico',e); }
+    renderStatus();
+    return planoAtual;
+  }
+  function limpar(){ planoAtual=null; renderStatus(); }
+  function renderStatus(extra){
+    const card=document.getElementById('motorEscalaCard'); if(!card)return;
+    let box=document.getElementById(PREFIX+'Motor5x2Config');
+    if(!box){ box=document.createElement('div'); box.id=PREFIX+'Motor5x2Config'; box.style.cssText='margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)'; card.appendChild(box); }
+    const texto=planoAtual?((planoAtual.auditoria?.erros||[]).length?`⚠️ O plano encontrou ${(planoAtual.auditoria.erros||[]).length} aviso(s) para revisar.`:`✅ Plano 5×2 pronto: 2 folgas separadas por semana.`):'Depois de escolher o mês, toque em “Gerar escala” para montar as duas folgas.';
+    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" style="width:18px;height:18px;accent-color:var(--brand)"><span>Usar compensação mensal autorizada por CCT<br><small style="font-weight:400">Só marque se houver CCT. Ainda fica 1 folga por semana.</small></span></label>`;
+    const cb=document.getElementById(PREFIX+'CctMensal'); if(cb){ cb.checked=!!cfg.cctMensal; cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();limpar();window.showToast?.(cfg.cctMensal?'CCT mensal ligada. Gere a escala novamente.':'CCT mensal desligada. Gere a escala novamente.','info',true);}; }
+    if(extra){ let p=document.getElementById(PREFIX+'Motor5x2Extra'); if(!p){p=document.createElement('div');p.id=PREFIX+'Motor5x2Extra';box.appendChild(p);} p.innerHTML=extra; }
+  }
+  function renderResultado(){
+    try{ const m=dataHojeMes(); if(!m||typeof ultimaEscala==='undefined'||!ultimaEscala)return; if(typeof renderTabela==='function')renderTabela(m.mes,m.ano,typeof balancoDoMes==='function'?balancoDoMes(m.ano,m.mes):0); }catch(e){console.warn('[5×2] render',e);}
+  }
+  function resumoAuditoria(a){
+    if(!a)return '';
+    if(!a.erros.length)return '<span style="color:var(--ok)">✅ 5×2: duas folgas separadas por semana e no máximo 5 dias seguidos.</span>';
+    return `<span style="color:var(--danger)">⚠️ 5×2: ${a.erros.slice(0,3).map(x=>String(x).replace(/</g,'&lt;')).join(' · ')}${a.erros.length>3?' · …':''}</span>`;
+  }
+  function depoisDeGerar(){
+    if(!mesTem5x2())return;
+    const plano=construir(); aplicar(plano); renderResultado();
+    const a=plano.auditoria||auditar(plano); const box=document.getElementById('validacao');
+    if(box){ const anterior=box.textContent||''; box.className=a.erros.length?'alert bad':'alert ok'; box.innerHTML=(anterior?anterior+'<br>':'')+resumoAuditoria(a); }
+  }
+  const api={
+    estado:()=>({v:1,cctMensal:!!cfg.cctMensal,plano:copia(planoAtual),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1'}),
+    configurar:o=>{if(o&&typeof o==='object'){cfg.cctMensal=o.cctMensal===true;salvarCfg();limpar();}return api.estado();},
+    construir,aplicar,auditar,limiteDias:()=>mesTem5x2()?5:6,mesTem5x2,folgas:(i)=>copia(planoAtual?.pessoas?.[String(i)]?.folgas||[]),render:renderStatus
+  };
+  planoAtual=null;
+  window[PREFIX+'Motor5x2']=api; window.motor5x2=api;
+  if(window.escalaMotor)window.escalaMotor.motor5x2=api;
+  const originalMax=window.maxSeguidosTrab;
+  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){ const n=Number(originalMax())||6; return mesTem5x2()?Math.min(n,5):n; };
+  if(typeof originalEh==='function')window.ehDescansoAssociado=function(i,dt){ return !!originalEh(i,dt)||chaveNoPlano(planoAtual,i,dataKey(dt)); };
+  const baseNome=SETORES?'trabalharBaseNaData':'trabalhaNaDataBase',originalBase=window[baseNome];
+  if(typeof originalBase==='function')window[baseNome]=function(i,dt,...args){ return chaveNoPlano(planoAtual,i,dataKey(dt))?false:originalBase.call(this,i,dt,...args); };
+  const statusNome=SETORES?'statusDiaSet':'statusDiaEnc',originalStatus=window[statusNome];
+  if(typeof originalStatus==='function')window[statusNome]=function(i,dt,...args){ return chaveNoPlano(planoAtual,i,dataKey(dt))?'f5x2':originalStatus.call(this,i,dt,...args); };
+  const gerador=SETORES?'gerarSetores':'gerar',originalGerar=window[gerador];
+  if(typeof originalGerar==='function')window[gerador]=function(...args){ limpar(); const r=originalGerar.apply(this,args); try{depoisDeGerar();}catch(e){console.error('[5×2] erro no planejamento',e);window.showToast?.('O motor 5×2 não conseguiu distribuir todas as folgas. Confira os avisos.','warn',true);} return r; };
+  const restaurar=window.restaurarProjeto;
+  if(typeof restaurar==='function')window.restaurarProjeto=function(p){ const r=restaurar.apply(this,arguments); const saved=p?.resultado?.estadoFinalMes?.motor5x2; if(saved)aplicar(saved); else limpar(); return r; };
+  ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',limpar));
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderStatus(),{once:true}); else renderStatus();
 })();
 </script>
 
