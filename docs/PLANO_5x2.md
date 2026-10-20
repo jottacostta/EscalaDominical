@@ -19,6 +19,10 @@ A **Emenda Constitucional nº 141, de 16 de outubro de 2026** altera o art. 7º 
 
 O regime 6×1 (6 dias de trabalho, 1 de repouso) torna-se **inconstitucional a partir de 16/12/2026**, salvo cobertura por CCT nos termos do § 2º.
 
+### Decisão operacional vigente
+
+Até a publicação ou validação de uma nova convenção ou acordo coletivo, os domingos continuam seguindo a regra **2×1** já existente nos aplicativos. Não será implantado, nesta etapa, um novo rodízio mensal dominical. Qualquer alteração dessa política deverá ser formalizada por CCT e incorporada em uma etapa própria, sem misturá-la com a distribuição das duas folgas semanais do motor 5×2.
+
 ---
 
 ## Contexto técnico
