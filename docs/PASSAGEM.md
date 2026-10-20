@@ -173,6 +173,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-10-20 — Diagnóstico inicial da Fase 2 do 5×2 — ChatGPT
+- **Escopo:** análise de V274 nos apps Setores V285 e Encarregados V189 e confronto com o plano `docs/PLANO_5x2.md`.
+- **Achado:** V274 persiste configuração e limita dias consecutivos; não garante dois repousos por semana, média mensal compensatória nem limite de horas semanais. Não é seguro ligar o regime alterando somente `maxSeguidos`.
+- **Artefato:** `docs/DIAGNOSTICO_5x2_FASE2.md` registra evidências, contrato do validador puro, 12 casos de teste e sequência segura de integração.
+- **Validação:** diagnóstico documental; nenhum comportamento de produção foi alterado e a suíte automatizada ainda não foi executada nesta etapa.
+- **Próximo passo:** confirmar a fonte real de dados diários e as regras de CCT; depois implementar o validador puro e testes antes da integração ao motor.
+- **Assinado:** ChatGPT
+
 ### 2026-10-18 — Botão de atualização da página — Setores V283 — Manus
 - **Pedido:** criar um botão ao lado de “📍 Local da planilha” para atualizar o app.
 - **Correção:** adicionada a ação “🔄 Atualizar página” na barra da área inicial. O botão chama `location.reload()` e não remove o que já está guardado no `localStorage`.
@@ -724,6 +732,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
 
+- **5×2 — Fase 2 (ChatGPT):** diagnóstico inicial registrado em `docs/DIAGNOSTICO_5x2_FASE2.md`. Pendente confirmar a fonte de dados diários e as regras de CCT, implementar validador independente, integrar sem regressões e rodar suíte rápida/completa. O regime continua desligado; não ativar por mera configuração de `maxSeguidos`.
 - **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V283, Encarregados V187 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
 - **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
 - **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps, usar dados fictícios, calcular o esperado a partir do estado real, manter conjunto cego congelado e medir acerto/falsos positivos/alucinações. `testes/relatorio-gabriel-500.json` documenta uma bateria exploratória aprovada (500 chamadas, 250 por app), mas não prova acurácia; testa respostas vazias/fallbacks, erros, verificações semânticas, estado da equipe e mutação. A nova `testes/dialogos-gabriel.json` contém 50 diálogos (250 turnos) com evidências e expectativas candidatas por app; `testarDialogosGabriel` executa os turnos em sequência nos dois apps e confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento administrativo, estado real 6×1/5×2, erros JavaScript e estado da equipe/escala. Os testes diretos também contrastam assunto interno, encaminhamento externo claro, termo ambíguo, pergunta desconhecida e remuneração versus folga compensatória. As listas de expectativas/contraexemplos ainda são material exploratório, não um gabarito semântico automatizado completo. A bateria de 66 perguntas da issue #68 continua proposta/documentação até execução própria com gabarito verificável.
