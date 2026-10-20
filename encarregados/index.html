@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V189</title>
+<title>Escala 2×1 — Encarregados V190</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V190 [Grok] — GABRIEL RESPONDE EC 141/2026: responde perguntas sobre a Emenda Constitucional 141, o prazo de 16/12/2026, a mudança para 5×2, carga de 42h/40h e CCT. Não altera a escala.
 V188 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
  (toda alteração gera nova versão)
 V187 [Manus] — 🧭 SEPARAÇÃO DE INTENÇÕES: preserva o roteador para assuntos do app; encaminha somente dúvidas de RH claramente externas; esclarece termos ambíguos; informa limites e pede reformulação para perguntas desconhecidas, sem encaminhar por suposição. Distingue remuneração de folga compensatória, captura falhas sem travar e não altera a escala. — Manus
@@ -2010,7 +2011,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V189 · roteamento conversacional corrigido 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V190 · Gabriel responde EC 141 roteamento conversacional corrigido 🧭 intenções separadas: responde, encaminha, esclarece ou declara limites</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10461,6 +10462,58 @@ function perguntarOrientacaoImpressao(cb){
       return 'Tive uma falha ao consultar essa informação. Tente reformular a pergunta; nenhum dado foi alterado.';
     }
   };
+  if (window.v270Gabriel) window.v270Gabriel.responder = chat.responder;
+})();
+</script>
+
+<script>
+/* ═════ V190 — 🤖 GABRIEL RESPONDE EC 141/2026 E REGIME 5×2 ═════
+   Tarefa 3.3 do docs/PLANO_5x2.md.
+   Responde perguntas sobre a Emenda Constitucional 141/2026, o prazo de 16/12/2026,
+   a mudança de 6×1 para 5×2, carga de 42h e 40h, e orienta com base no plano.
+   Não altera a escala nem inventa regras além do que está documentado.
+*/
+(function(){
+  'use strict';
+  const chat = window.v265Chat;
+  if (!chat || typeof chat.responder !== 'function') return;
+  const anterior = chat.responder;
+
+  const normalizar = s => String(s == null ? '' : s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+  function perguntaEC141(q){
+    return /\b(ec\s*141|emenda\s*constitucional|141\/2026|16\/12\/2026|dezembro\s*de\s*2026|dois\s*dias\s*de\s*repouso|2\s*dias\s*de\s*repouso|5x2|cinco\s*por\s*dois|42\s*horas|40\s*horas|regime\s*5\s*x\s*2|mudanca\s*de\s*regime|novo\s*regime)\b/.test(q);
+  }
+
+  function respostaEC141(q){
+    if (/\b(quando|prazo|data|vigencia|comeca|entra\s*em\s*vigor)\b/.test(q)) {
+      return '📅 A Emenda Constitucional 141/2026 exige **2 dias de repouso semanal** a partir de **16/12/2026**. Até lá o regime atual (6×1) continua válido. Depois dessa data o 5×2 passa a ser obrigatório, salvo CCT que autorize compensação.';
+    }
+    if (/\b(42|quarenta\s*e\s*duas|40|quarenta)\s*horas?\b/.test(q)) {
+      return '⏱️ A partir de 16/12/2026 a jornada máxima será de **42 horas semanais**. A partir de 16/12/2027 passa a ser de **40 horas semanais**. O app avisará quando a escala ultrapassar esses limites.';
+    }
+    if (/\b(5x2|cinco\s*por\s*dois|dois\s*dias|2\s*dias|repouso)\b/.test(q)) {
+      return '📏 O regime **5×2** significa 5 dias de trabalho e 2 dias de repouso por semana. As duas folgas devem ser separadas (não seguidas). O domingo continua seguindo a regra 2×1 existente até nova CCT. O 5×2 ainda está desligado no app e será ativado conforme o plano.';
+    }
+    if (/\b(cct|convenção|acordo\s*coletivo)\b/.test(q)) {
+      return '📜 A EC 141 permite que uma CCT mantenha regime compensatório (2 repousos na média do mês, com pelo menos 1 por semana). Até a publicação de nova CCT, os domingos continuam com a regra 2×1 já existente no app.';
+    }
+    return '📜 A **Emenda Constitucional 141/2026** altera o art. 7º da Constituição: a partir de **16/12/2026** são obrigatórios **2 dias de repouso semanal** e a jornada máxima passa a ser de 42h/semana (40h a partir de 16/12/2027). O app está sendo preparado para o regime 5×2. O 6×1 deixa de ser permitido nessa data, salvo cobertura por CCT.';
+  }
+
+  chat.responder = function(texto){
+    try {
+      const q = normalizar(texto);
+      if (perguntaEC141(q)) return respostaEC141(q);
+      return anterior.call(this, texto);
+    } catch(e) {
+      console.warn('[V190 Gabriel EC141]', e);
+      return anterior.call(this, texto);
+    }
+  };
+
   if (window.v270Gabriel) window.v270Gabriel.responder = chat.responder;
 })();
 </script>
