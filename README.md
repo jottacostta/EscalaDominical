@@ -14,9 +14,9 @@ Desde 16/12/2026, a configuração escolhe automaticamente o motor 5×2; até 15
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V287.html` | **Versão atual** da Escala de Setores |
+| `Escala_de_Setores_V288.html` | **Versão atual** da Escala de Setores |
 | `Escala_2x1_encarregados_V191.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V286 e V150–V190), guardadas para comparação |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V287 e V150–V190), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com Manus, Claude ou ChatGPT/Codex |
 | [`docs/PRD.md`](docs/PRD.md) | produto, usuários, requisitos e aceitação |
