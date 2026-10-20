@@ -16805,7 +16805,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const originalMax=window.maxSeguidosTrab;
   // Em dezembro há uma fronteira mista: o motor antigo continua com limite 6
   // até 15/12; o plano V287/V191 aplica o limite 5 apenas nas datas novas.
-  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){const n=Number(originalMax())||6;return mesInteiro5x2()?Math.min(n,5):n;};
+  // V233/V234: o limite 5 pertence ao plano 5×2 por data; não substitui o limite 6×1 global.
+  if(typeof originalMax==='function')window.maxSeguidosTrab=function(){return Number(originalMax())||6;};
   if(typeof originalEh==='function')window.ehDescansoAssociado=function(i,dt){return !!originalEh(i,dt)||chaveNoPlano(planoAtual,i,dataKey(dt));};
   const baseNome=SETORES?'trabalharBaseNaData':'trabalhaNaDataBase',originalBase=window[baseNome];
   if(typeof originalBase==='function')window[baseNome]=function(i,dt,...args){return chaveNoPlano(planoAtual,i,dataKey(dt))?false:originalBase.call(this,i,dt,...args);};
