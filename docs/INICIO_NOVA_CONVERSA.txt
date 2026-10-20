@@ -57,7 +57,7 @@ está pendente, e espere o meu pedido."
 3. ESTADO ATUAL (atualize a cada mudança)
 -----------------------------------------
 - Documentação em seis pilares iniciada pela PR #82: `docs/PRD.md`, `docs/TRD.md`, `docs/FLUXOS.md`, `docs/DESIGN_SYSTEM.md`, `docs/MODELO_DADOS.md` e `docs/PLANO.md`. A auditoria de 17/10/2026 confirmou que ainda são mapas iniciais, não validados integralmente contra o código e os testes. Não declarar documentação concluída sem essa validação e sem conferir o workflow da PR #82.
-- Setores: V286 (próxima: V287).  Encarregados: V190 (próxima: V191).
+- Setores: V289 (próxima: V290).  Encarregados: V193 (próxima: V194).
 - PRs abertas: consulte a aba Pull requests do GitHub; não registre uma contagem fixa neste arquivo, pois ela fica desatualizada após cada criação, fechamento ou merge.
   Já no `main`: #54, #56, #59, #62, #63, #64, #69 (Setores V269), #71 (Setores V270), #72 (Encarregados V179), #75 (Setores V271), #76 (Setores V272–V273 / Encarregados V180–V181), #77 (Setores V274 / Encarregados V182), #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial) e #85 (portal em `docs/` para GitHub Pages), #86 (hierarquia) e #87 (correção pós-merge da #86). PR #88 mesclada: novas regras de intenção do Gabriel em V279/V187. #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`. Consulte o GitHub para o estado atual das PRs.
 - Passos dos dois apps: 1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar.
