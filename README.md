@@ -10,11 +10,13 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 
 `setores/index.html` e `encarregados/index.html` são **cópias da versão atual** de cada app (não redirecionam), para o endereço nunca mudar. A cada versão nova, copie o arquivo novo por cima do `index.html` da pasta (o teste automático avisa se esquecer). Endereços antigos com número de versão caem no `404.html`, que leva ao endereço fixo.
 
+Desde 16/12/2026, a configuração escolhe automaticamente o motor 5×2; até 15/12/2026 permanece o 6×1. No app de Encarregados, a regra dos domingos continua separada no 2×1.
+
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V283.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V187.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V282 e V150–V186), guardadas para comparação |
+| `Escala_de_Setores_V290.html` | **Versão atual** da Escala de Setores |
+| `Escala_2x1_encarregados_V194.html` | **Versão atual** da Escala de Encarregados |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V289 e V150–V193), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com Manus, Claude ou ChatGPT/Codex |
 | [`docs/PRD.md`](docs/PRD.md) | produto, usuários, requisitos e aceitação |
@@ -23,6 +25,8 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 | [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | princípios visuais e componentes |
 | [`docs/MODELO_DADOS.md`](docs/MODELO_DADOS.md) | dados, persistência e privacidade |
 | [`docs/PLANO.md`](docs/PLANO.md) | frentes e critérios de conclusão |
+| [`docs/PLANO_5x2.md`](docs/PLANO_5x2.md) | plano de ação da EC 141/2026 e transição para o regime 5×2 |
+| [`docs/INVESTIGACAO_SIMULACAO_5x2.md`](docs/INVESTIGACAO_SIMULACAO_5x2.md) | investigação técnica e simulação das folgas em 42h e 40h |
 | [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
 | Manuais de uso (Claude Docs) | [Manual do Encarregado](https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726) · [Manual da Escala de Setores](https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197) · [Roteiro do Beta](https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9) — com prints de dados fictícios |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (Manus, Claude e ChatGPT/Codex) |

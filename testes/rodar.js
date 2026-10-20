@@ -1555,7 +1555,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES, 'Setores'); await testarApk(browser, APP_ENC, 'Encarregados'); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarMotoresPorData(browser, APP_SETORES, 'Setores', 286); await testarMotoresPorData(browser, APP_ENC, 'Encarregados', 190); await testarMotor5x2Nucleo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarMotor5x2Nucleo(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarDomingos5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarDomingos5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES); await testarApk(browser, APP_ENC); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); } }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1994,6 +1994,135 @@ async function testarRegime274(browser, app, nome, abrir, versaoMin){
   } else ok(false, 'não consegui baixar o histórico para conferir o regime');
   ok(!erros.length, 'sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
 }
+
+/* V286/V190 — ⚙️ dois motores por data: 6×1 até 15/12/2026, 5×2 a partir de 16/12/2026; domingo dos Encarregados continua 2×1 */
+async function testarMotoresPorData(browser, app, nome, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  const enc=nome==='Encarregados';
+  console.log(`\n▶ ${nome} — ⚙️ seleção automática dos motores por data`);
+  const {p,erros,ctx}=await novaPagina(browser);
+  await p.goto('file://'+app); await p.waitForTimeout(1200);
+  const r=await p.evaluate(enc=>{
+    const M=window.escalaMotor;
+    const plan=M?.planoPeriodo('2026-12-01','2026-12-31')||[];
+    const domingo=[...Array(31)].map((_,i)=>i+1).find(d=>new Date(2026,11,d).getDay()===0);
+    const iso=domingo?`2026-12-${String(domingo).padStart(2,'0')}`:'';
+    return {exists:!!M,card:!!document.getElementById('motorEscalaCard'),resumo:document.getElementById('motorEscalaResumo')?.innerText||'',
+      antes:M?.motorParaData('2026-12-15'),inicio:M?.motorParaData('2026-12-16'),invalida:M?.motorParaData('31/02/2026'),
+      domingo:iso?M?.motorParaData(iso):'',plan,tem6:plan.some(x=>x.motor==='6x1'),tem5:plan.some(x=>x.motor==='5x2'),tem21:plan.some(x=>x.motor==='2x1'),enc};
+  },enc);
+  ok(r.exists&&r.card,'a área Configurações mostra os dois motores');
+  ok(r.antes==='6x1'&&r.inicio==='5x2'&&r.invalida==='6x1',`${nome}: 6×1 até 15/12, 5×2 a partir de 16/12 e data inválida volta ao padrão`);
+  ok(r.tem6&&r.tem5,`${nome}: dezembro/2026 é dividido em dois períodos (${r.plan.map(x=>x.motor+':'+x.inicio+'–'+x.fim).join(', ')})`);
+  if(enc) ok(r.tem21&&r.domingo==='2x1','Encarregados: domingo continua separado no 2×1 após o corte');
+  ok(/15\/12\/2026/.test(r.resumo)||/16\/12\/2026/.test(r.resumo),'o resumo da configuração explica a data de troca');
+  const legado=await p.evaluate(()=>{ window.v274Regime?.configurar({ativo:true,regime:'5x2',maxSeguidos:5}); const x=window.escalaMotor.motorParaData('2026-12-15'); window.v274Regime?.restaurar(); return x; });
+  ok(legado==='6x1','uma configuração legada V274 não antecipa o motor 5×2');
+  const cct=await p.evaluate(()=>{
+    const api=window.motor5x2, cb=document.querySelector('input[id$="CctMensal"]');
+    api?.configurar({cctMensal:false});
+    const chave=Object.keys(localStorage).find(k=>/\.motor5x2$/.test(k));
+    const inicial=api?.estado(), texto=document.querySelector('[id$="Motor5x2Config"]')?.innerText||'';
+    if(cb){ cb.checked=true; cb.dispatchEvent(new Event('change',{bubbles:true})); }
+    const ligada=api?.estado(), salvo=JSON.parse(localStorage.getItem(chave)||'null');
+    api?.configurar({cctMensal:false}); const invalida=api?.configurar({cctMensal:'sim'});
+    const snapshot=window.v147MontarProjeto?.()||null;
+    return { inicial, ligada, salvo, invalida, texto, snapshot, restauracao:!!(window.v147RestaurarProjeto||window.v290RestaurarProjeto||window.v194RestaurarProjeto||window.v289RestaurarProjeto||window.v193RestaurarProjeto) };
+  });
+  ok(cct.inicial?.cctMensal===false && cct.ligada?.cctMensal===true && cct.ligada?.geracaoPendente===true,
+    `${nome}: compensação mensal começa desligada e mudar a opção exige nova geração`);
+  ok(cct.salvo?.cctMensal===true && /somente com CCT|CCT aprovada/i.test(cct.texto),
+    `${nome}: CCT fica guardada offline e a tela avisa que só deve ser usada com CCT`);
+  ok(cct.invalida?.cctMensal===false && cct.restauracao && (!cct.snapshot || cct.snapshot.config?.motor5x2?.domingoPolicy),
+    `${nome}: configuração inválida não liga CCT e o histórico/restauração expõe a política dominical`);
+  ok(!erros.length,'sem erro de JavaScript' + (erros.length ? ': '+erros[0] : ''));
+  await ctx.close();
+}
+
+/* V290/V194 — núcleo determinístico do segundo motor: plano por funcionário/semana,
+   duas folgas separadas, limite 5 após o corte, continuidade dezembro/janeiro e recusa. */
+async function testarMotor5x2Nucleo(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — ⚙️ núcleo do motor 5×2 (V290/V194)`);
+  const {p,erros,ctx}=await novaPagina(browser);
+  await p.goto('file://'+app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1000);
+  await mudarMes(p,11,2026); await p.waitForTimeout(700);
+  const dec=await p.evaluate(()=>{
+    const ns=window.v265Chat?.interno?.APP==='setores'?'escalaSetores':'enc';
+    localStorage.removeItem(ns+'.motor5x2.planos');
+    const api=window.motor5x2; api.configurar({cctMensal:false});
+    const plano=api.construir(), aud=api.auditar(plano);
+    const semanas=Object.values(plano.pessoas||{}).flatMap(p=>(p.semanas||[])).filter(w=>w.regime==='5x2');
+    const distribuicao=semanas.length>0&&semanas.every(w=>{const fs=w.folgas||[],a=fs[0]&&new Date(fs[0]+'T12:00:00'),b=fs[1]&&new Date(fs[1]+'T12:00:00'),consecutivas=a&&b&&Math.abs((a-b)/86400000)===1;return fs.length===2&&fs.every(s=>s>='2026-12-16'&&new Date(s+'T12:00:00').getDay()!==0)&&(!consecutivas||w.modoFolga==='ultimo-recurso');});
+    const ultimoRecurso=semanas.filter(w=>w.modoFolga==='ultimo-recurso').length;
+    const serial=JSON.parse(JSON.stringify(plano));
+    return {plano,aud,semanas:semanas.length,distribuicao,ultimoRecurso,serializavel:!!serial.pessoas&&!!serial.pessoas[Object.keys(serial.pessoas)[0]]?.semanas,limite:api.limiteDias(),motorAntes:window.escalaMotor?.motorParaData('2026-12-15'),motorDepois:window.escalaMotor?.motorParaData('2026-12-16')};
+  });
+  const fallback=await p.evaluate(()=>{
+    const ns=window.v265Chat?.interno?.APP==='setores'?'escalaSetores':'enc';
+    const save={equipe,trabalhoDomingo,trabalhoFeriado,feriados,folgasCompensatorias,store:localStorage.getItem(ns+'.motor5x2.planos')};
+    localStorage.removeItem(ns+'.motor5x2.planos');
+    equipe=[{nome:'Pessoa teste',matricula:'fallback-5x2',situacao:'A',folgaFixa:0}]; trabalhoDomingo={}; trabalhoFeriado={16:[0],19:[0]}; folgasCompensatorias={};
+    const feriadosOriginal=feriados; feriados=function(ano,mes){const f=feriadosOriginal(ano,mes)||{};if(ano===2026&&mes===11){f[16]='Feriado de teste';f[19]='Feriado de teste';}return f;};
+    const plano=window.motor5x2.construir(),wk=Object.values(plano.pessoas||{})[0]?.semanas?.find(x=>x.inicio==='2026-12-14'),aud=window.motor5x2.auditar(plano),folgas=wk?.folgas||[];
+    equipe=save.equipe; trabalhoDomingo=save.trabalhoDomingo; trabalhoFeriado=save.trabalhoFeriado; feriados=save.feriados; folgasCompensatorias=save.folgasCompensatorias; if(save.store===null)localStorage.removeItem(ns+'.motor5x2.planos');else localStorage.setItem(ns+'.motor5x2.planos',save.store);
+    return {folgas,modo:wk?.modoFolga,consecutivas:!!wk?.consecutivas,aud};
+  });
+  ok(fallback.folgas.length===2&&fallback.consecutivas&&fallback.modo==='ultimo-recurso'&&fallback.aud.ok&&fallback.aud.avisos?.some(x=>/último recurso/i.test(x)),`${nome}: tenta separar as folgas e só aceita dias consecutivos como último recurso`);
+  ok(dec.motorAntes==='6x1'&&dec.motorDepois==='5x2',`${nome}: o corte automático preserva 6×1 até 15/12 e liga 5×2 em 16/12`);
+  ok(dec.limite===6,`${nome}: dezembro misto mantém o limite antigo antes da fronteira (limite observado: ${dec.limite})`);
+  ok(dec.semanas>0&&dec.distribuicao&&dec.aud.ok,`${nome}: plano serializável por funcionário/semana tem duas folgas e só usa consecutivas como último recurso (${dec.semanas} semanas; ${dec.ultimoRecurso} fallback(s))`);
+  const aplicado=await p.evaluate(plano=>window.motor5x2.aplicar(plano),dec.plano);
+  ok(aplicado===true,`${nome}: plano válido é aceito e guardado`);
+  await mudarMes(p,0,2027); await p.waitForTimeout(700);
+  const jan=await p.evaluate(()=>{ const plano=window.motor5x2.construir(),aud=window.motor5x2.auditar(plano); const w=Object.values(plano.pessoas||{}).flatMap(p=>(p.semanas||[])).find(x=>x.inicio==='2026-12-28'); return {plano,aud,primeira:w?.folgas||[]}; });
+  const decFim=Object.values(dec.plano.pessoas||{}).map(x=>(x.semanas||[]).find(w=>w.inicio==='2026-12-28')?.folgas||[]);
+  const janPrimeiras=Object.values(jan.plano.pessoas||{}).map(x=>(x.semanas||[]).find(w=>w.inicio==='2026-12-28')?.folgas||[]);
+  ok(jan.aud.ok&&janPrimeiras.some(x=>x.length===2),`${nome}: janeiro/2027 continua com semana 5×2 na virada (${jan.aud.erros?.slice(0,2).join(' | ')||'sem erros'})`);
+  ok(decFim.some((x,i)=>x.length===2&&JSON.stringify(x)===JSON.stringify(janPrimeiras[i])),`${nome}: a semana que começa em 28/12 é preservada ao abrir janeiro`);
+  const rejeicao=await p.evaluate(plano=>{ const ruim=JSON.parse(JSON.stringify(plano)); const pessoa=Object.values(ruim.pessoas||{})[0]; const wk=(pessoa?.semanas||[]).find(w=>w.regime==='5x2'); if(!wk)return false; wk.folgas=['data-invalida']; wk.designadas=['data-invalida']; ruim.designadas={'data-invalida':[0]}; return window.motor5x2.auditar(ruim).erros.length>0; },jan.plano);
+  ok(rejeicao,`${nome}: auditoria reprova plano serializado com data inválida`);
+  ok(!erros.length,'sem erro de JavaScript' + (erros.length ? ': '+erros[0] : '')); await ctx.close();
+}
+
+/* V290/V194 — ☀️ o motor 5×2 não troca o domingo, o DSR, a previsão ou o balanço */
+async function testarDomingos5x2(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — ☀️ domingo protegido durante o 5×2 (dezembro/2026, janeiro/2027 e virada)`);
+  const {p,erros,ctx}=await novaPagina(browser);
+  await p.goto('file://'+app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1200);
+  for(const [m,a] of [[11,2026],[0,2027]]){
+    const r=await p.evaluate(([m,a,enc])=>{
+      const clone=x=>JSON.parse(JSON.stringify(x));
+      const key=dt=>`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      const setMes=()=>{ $('ano').value=String(a); $('ano').dispatchEvent(new Event('change',{bubbles:true})); $('mes').value=String(m); $('mes').dispatchEvent(new Event('change',{bubbles:true})); };
+      setMes();
+      const ds=domingosDoMes(a,m), domingoTeste=ds[0], i=0;
+      trabalhoDomingo=Object.fromEntries(ds.map((d,k)=>[d,k===0?[i]:k===1?[1]:[]]));
+      trabalhoFeriado={};
+      const dAnterior=new Date(a,m,domingoTeste,12); dAnterior.setDate(dAnterior.getDate()-7);
+      descansosDomingo={[key(dAnterior)]:[{i,origem:domingoTeste,tipo:'ANTERIOR'}]};
+      const prev={data:key(new Date(a,m,domingoTeste,12)),pessoas:[{nome:equipe[i]?.nome||'',matricula:equipe[i]?.matricula||''}],balanco:false};
+      previsoesDomingo=enc?{[prev.data]:prev}:{['teste|'+prev.data]:prev};
+      if(a===2027&&m===0){ datasBalanco=[{d:domingoTeste,m,a}]; const original=feriados; feriados=function(ano,mes){const f=original(ano,mes)||{};if(ano===2027&&mes===0)f[domingoTeste]='Feriado dominical de teste';return f;}; trabalhoFeriado={[domingoTeste]:[i]}; }
+      const antes={td:clone(trabalhoDomingo),dd:clone(descansosDomingo),pv:clone(previsoesDomingo),max:maxSeguidosTrab()};
+      const plano=window.motor5x2.construir(); window.motor5x2.aplicar(plano);
+      const depois={td:clone(trabalhoDomingo),dd:clone(descansosDomingo),pv:clone(previsoesDomingo)};
+      const planFolgas=Object.values(plano.pessoas||{}).flatMap(x=>(x.semanas||[]).map(w=>w.folgas||[]));
+      const domingoArtificial=Object.keys(plano.adicionadas||{}).some(k=>new Date(k+'T12:00:00').getDay()===0);
+      const semanaComTres=planFolgas.some(f=>f.length>2);
+      const status=(typeof statusDiaSet==='function'?statusDiaSet:statusDiaEnc)(i,new Date(a,m,domingoTeste,12),m,a,balancoDoMes(a,m));
+      return {mes:`${a}-${String(m+1).padStart(2,'0')}`,antes,depois,igual:JSON.stringify(antes.td)===JSON.stringify(depois.td)&&JSON.stringify(antes.dd)===JSON.stringify(depois.dd)&&JSON.stringify(antes.pv)===JSON.stringify(depois.pv),maxLegado:antes.max===6,domingoArtificial,semanaComTres,status,bal:balancoDoMes(a,m),balExpected:domingoTeste,planoPolicy:plano.domingoPolicy,planoErros:plano.auditoria?.erros||[]};
+    },[m,a,nome==='Encarregados']);
+    ok(r.igual,`${nome} ${r.mes}: aplicar o 5×2 preserva trabalhoDomingo, descansosDomingo e previsão`);
+    ok(r.maxLegado,`${nome} ${r.mes}: o limite dominical legado continua em 6 (o 5×2 não troca a regra do domingo)`);
+    ok(!r.domingoArtificial&&!r.semanaComTres,`${nome} ${r.mes}: não cria folga 5×2 no domingo nem uma terceira folga na semana`);
+    ok(r.status!=='f5x2'&&r.planoPolicy===(nome==='Setores'?'existente':'2x1'),`${nome} ${r.mes}: domingo continua no motor próprio${nome==='Encarregados'?' 2×1':''} (status ${r.status}, política ${r.planoPolicy})`);
+    if(m===0) ok(r.bal===r.balExpected&&r.status!=='ffol'&&r.status!=='ftrab',`${nome} janeiro/2027: balanço/feriado no domingo não vira folga 5×2`);
+  }
+  ok(!erros.length,'sem erro de JavaScript' + (erros.length ? ': '+erros[0] : '')); await ctx.close();
+}
+
 
 async function testarConversa275(browser, app, nome, abrir, versaoMin){
   if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
