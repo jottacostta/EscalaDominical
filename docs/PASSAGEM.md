@@ -17,8 +17,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V291.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V195.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V292.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V196.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V292**, Encarregados **V196**.
+- **Próximo número de versão:** Setores **V293**, Encarregados **V197**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -43,7 +43,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 ## 2. Mapa técnico — Escala de Setores (`Escala_de_Setores_Vnnn.html`, ~12,7 mil linhas)
 
-### Camadas documentadas até V290
+### Camadas documentadas até V292
+- **V292 — área experimental 5×2:** `#v292Teste5x2Area` e `window.v292Teste5x2` habilitam, simulam e limpam um plano experimental em memória. O contexto de teste força 5×2 só durante a cópia/auditoria; o plano é marcado e recusado pela auditoria oficial fora do ensaio. Não há aplicação, render oficial, histórico, Excel, localStorage ou sessionStorage do resultado.
 - **V290 — distribuição das duas folgas:** o plano prefere dois dias de folga diferentes dentro da semana e só usa dias consecutivos quando a combinação separada não existe; o campo `modoFolga` fica como `ultimo-recurso` e a auditoria mostra um aviso.
 - **V289 — configuração e histórico do motor 5×2:** o cartão mantém 6×1 até 15/12/2026 e seleciona 5×2 a partir de 16/12/2026; `window.motor5x2` guarda CCT, plano e estado de geração, enquanto a restauração leva a política dominical e os segmentos ao histórico. Escalas à mão e mistas dos Encarregados continuam no fluxo dominical próprio.
 - **V286 — dois motores por data:** o cartão `#motorEscalaCard` em Configurações mostra os dois motores e destaca o usado no mês; `window.escalaMotor` calcula o corte local `2026-12-16` sem depender de fuso horário, gera segmentos para meses mistos e ignora configuração legada V274 para não antecipar o 5×2. A geração 6×1 antiga permanece intacta; integrar o dispatcher e a distribuição real das duas folgas é a próxima etapa.
@@ -111,7 +112,8 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 3. Mapa técnico — Escala 2×1 de Encarregados (`Escala_2x1_encarregados_Vnnn.html`, ~8,4 mil linhas)
 
-### Camadas documentadas até V194
+### Camadas documentadas até V196
+- **V196 — área experimental 5×2:** `#v196Teste5x2Card` e `window.v196Teste5x2` usam cópias da equipe e dos dias DSR permitidos para simular duas folgas antes do corte. Domingos ficam fora do ensaio e continuam no 2×1 oficial; não há aplicação, render oficial, histórico, Excel ou Storage do resultado.
 - **V194 — distribuição das duas folgas:** o plano prefere dois dias de folga diferentes dentro da semana e só usa dias consecutivos quando a combinação separada não existe; o campo `modoFolga` fica como `ultimo-recurso` e a auditoria mostra um aviso. O domingo continua no 2×1.
 - **V193 — configuração e histórico do motor 5×2:** `window.motor5x2` expõe CCT, plano, auditoria e estado pendente; o histórico guarda `config.motor5x2`, `resultado.motor5x2`, `motorPolicy`, `engineSegments` e `politicaDominical`. O domingo continua no 2×1 e os modos À mão/Misto não são substituídos pelo motor automático.
 - **V190 — dois motores por data:** o cartão `#motorEscalaCard` em Mês e opções mostra o 6×1 até 15/12/2026, o 5×2 a partir de 16/12/2026 e mantém os domingos no 2×1; `window.escalaMotor` expõe o plano misto. A geração 6×1 antiga permanece intacta; integrar o dispatcher e a distribuição real das duas folgas é a próxima etapa.
@@ -177,9 +179,22 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **`auditarDescansosSimulados` vazia de propósito:** a capacidade de folgas por dia/turno é META, não trava (comentários em `limiteFolgaRespeitadoNaData` e `turnoFolgaValidoNaData`). Não “conserte” fazendo ela acusar erro sem o dono pedir.
 - **Gabriel — intenção não é palavra-chave isolada (V279/V187):** encaminhe só quando a pergunta expressar claramente assunto de RH fora do app; “férias” sem contexto pede esclarecimento, mas “quem está de férias?” consulta a situação da equipe. Pergunta desconhecida não deve ser enviada ao subgerente por causa do fallback antigo. Preserve respostas de seguimento e nunca altere a escala.
 
+- **Área experimental não é homologação:** os ensaios V292/V196 servem para avaliar a distribuição de duas folgas. Não comprovam jornada de 42h/40h, cinco dias efetivamente trabalhados, cobertura, feriados, compensações, APK ou conformidade jurídica. No Setores, quando já havia uma escala oficial montada, a auditoria da cópia apontou três sequências de seis dias nas fronteiras de outubro; isso deve ser investigado antes de qualquer validade operacional.
+- **Timers oficiais preexistentes:** a aplicação mantém rotinas periódicas de manutenção, inclusive com leituras de estado e montagem de rascunho. A prova causal não encontrou gravação, mudança de estado ou chamada oficial causada pelos controles experimentais; portanto não declarar “zero rotina em segundo plano” em sentido literal.
+- **Geração oficial dos Encarregados:** duas gerações limpas sem ativar o ensaio repetiram a variação de alguns descansos antecipados e da previsão do domingo seguinte. A diferença é preexistente e não foi causada pelo V196, mas a idempotência completa continua pendente.
+
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-21 — Área experimental 5×2 — Setores V292 / Encarregados V196 — Manus
+- **Pedido:** colocar em Configurações uma área para testar a distribuição das duas folgas sem validade real e sem ligar o motor experimental à escala oficial.
+- **Entrega:** V292 usa `window.v292Teste5x2` e V196 usa `window.v196Teste5x2`; cada área tem habilitar, simular, limpar e resultado inline. O ensaio força 5×2 somente em cópias na memória, inclusive antes do corte de 16/12/2026. No Encarregados, domingos continuam fora do ensaio e no 2×1 oficial.
+- **Proteção:** o ensaio não chama aplicação, geração, render oficial, histórico, Excel ou Storage para guardar o resultado; recarregar apaga habilitação e resultado. As cópias atuais e as versões V291/V195 arquivadas foram conferidas byte a byte.
+- **Testes independentes:** um agente testou apenas Setores e outro apenas Encarregados. Ambos confirmaram resultado visível, duas folgas por semana, isolamento dos estados oficiais, zero pageerror/console.error e geração oficial preservada.
+- **Limites registrados:** timers oficiais de manutenção continuam existindo, sem gravação causada pelo ensaio; o Setores acusou três sequências de seis dias quando havia escala oficial prévia; e o Encarregados apresentou variações preexistentes em duas gerações limpas. Nada disso deve ser tratado como homologação do regime 5×2.
+- **Próximo passo:** a PR deve passar pela suíte rápida e completa; depois, o dono decide se a área experimental entra no `main`. A distribuição real, cobertura, jornada, feriados e a idempotência do Encarregados continuam pendentes.
+- **Assinado:** Manus
 
 ### 2026-10-21 — Gabriel×toast + notificações 20 s — Setores V291 / Encarregados V195 — Claude
 - **Problema:** no celular o botão do Gabriel (`right:16px`, `width:58px`, `z-index:1300`) sobrepunha o X de fechar da notificação toast, tornando o X inacessível.
@@ -187,6 +202,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Fix timeout:** avisos persistentes passam a fechar automaticamente após 20 s (Encarregados estava 8–15 s; Setores estava "nunca"). Verde (ok) continua 10 s; não-persistente mantém 3–4 s.
 - **PRs:** [#106 — V195 Encarregados](https://github.com/jottacostta/EscalaDominical/pull/106) e [#107 — V291 Setores](https://github.com/jottacostta/EscalaDominical/pull/107). Aguardam revisão de Manus/JottaCostta.
 - **Continuidade:** após merge, atualizar "Estado atual" para V291/V195 e "Próximo número" para V292/V196 (já antecipado aqui). — *Claude*
+
 
 ### 2026-10-20 — Distribuição das duas folgas — Setores V290 / Encarregados V194 — Manus
 - **Correção:** a semana 5×2 passa a montar cinco dias trabalhados e duas folgas; tenta colocar as duas folgas em dias diferentes e só usa folgas consecutivas quando não existe combinação separada. O cartão mantém 6×1 até 15/12/2026, 5×2 a partir de 16/12/2026 e domingos 2×1 dos Encarregados.
@@ -755,6 +771,7 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 
 - **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V286, Encarregados V190 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
 - **Motor 5×2 — próxima etapa obrigatória:** ligar `window.escalaMotor` a um dispatcher separado, gerar duas folgas semanais de verdade sem apenas trocar o limite de dias consecutivos, carregar o estado dos últimos 7 dias na fronteira 15/16/12/2026, manter domingos 2×1 no app de Encarregados, auditar o mesmo plano usado na geração e persistir `motorPolicy`/`engineSegments` no histórico sem permitir que históricos antigos mudem a política vigente.
+- **Área experimental V292/V196:** manter o ensaio somente como ferramenta de avaliação. Investigar as três sequências de seis dias observadas no Setores sobre escala oficial, a idempotência da geração oficial dos Encarregados e os timers de manutenção antes de ampliar qualquer promessa do teste.
 - **Gabriel — pendências condicionadas a pedido do gerente:** ARH-04 (mês conflitante: vale o primeiro aberto); ARH-11 (aprendizado atrasado de 2,5 s); ARH-12 (`esc` conta cada marcação); ARH-08 (avisar quando o histórico não traz aprendizado); ARH-24 via `http://`; chat e “o que falta” ainda não explicam a confirmação V266; testar V267 com equipe fictícia de Açougue; concluir fases futuras da issue #68 conforme autorização.
 - **Testes do Gabriel:** seguir a issue #78. Rodar no Chromium os dois apps, usar dados fictícios, calcular o esperado a partir do estado real, manter conjunto cego congelado e medir acerto/falsos positivos/alucinações. `testes/relatorio-gabriel-500.json` documenta uma bateria exploratória aprovada (500 chamadas, 250 por app), mas não prova acurácia; testa respostas vazias/fallbacks, erros, verificações semânticas, estado da equipe e mutação. A nova `testes/dialogos-gabriel.json` contém 50 diálogos (250 turnos) com evidências e expectativas candidatas por app; `testarDialogosGabriel` executa os turnos em sequência nos dois apps e confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento administrativo, estado real 6×1/5×2, erros JavaScript e estado da equipe/escala. Os testes diretos também contrastam assunto interno, encaminhamento externo claro, termo ambíguo, pergunta desconhecida e remuneração versus folga compensatória. As listas de expectativas/contraexemplos ainda são material exploratório, não um gabarito semântico automatizado completo. A bateria de 66 perguntas da issue #68 continua proposta/documentação até execução própria com gabarito verificável.
 - **Manuais (Claude Docs):** ainda não mencionam o Assistente RH, o chat, a prévia com domingos nem os horários V266/V267. O Claude mantém os manuais; o gerente decide quando atualizar.

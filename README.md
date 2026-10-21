@@ -11,12 +11,13 @@ Cada arquivo `.html` é o app completo: é só abrir no navegador (funciona sem 
 `setores/index.html` e `encarregados/index.html` são **cópias da versão atual** de cada app (não redirecionam), para o endereço nunca mudar. A cada versão nova, copie o arquivo novo por cima do `index.html` da pasta (o teste automático avisa se esquecer). Endereços antigos com número de versão caem no `404.html`, que leva ao endereço fixo.
 
 Desde 16/12/2026, a configuração escolhe automaticamente o motor 5×2; até 15/12/2026 permanece o 6×1. No app de Encarregados, a regra dos domingos continua separada no 2×1.
+As versões V292/V196 também têm uma área 🧪 para simular o 5×2 em memória, sem validade real e sem alterar a escala oficial, domingos, histórico, Excel ou dados guardados.
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V291.html` | **Versão atual** da Escala de Setores |
-| `Escala_2x1_encarregados_V195.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V290 e V150–V194), guardadas para comparação |
+| `Escala_de_Setores_V292.html` | **Versão atual** da Escala de Setores |
+| `Escala_2x1_encarregados_V196.html` | **Versão atual** da Escala de Encarregados |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V291 e V150–V195), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com Manus, Claude ou ChatGPT/Codex |
 | [`docs/PRD.md`](docs/PRD.md) | produto, usuários, requisitos e aceitação |
