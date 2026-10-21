@@ -11,7 +11,7 @@
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
-V291 [Claude] — AVISO DO GABRIEL NÃO TAPA O X DA NOTIFICAÇÃO: no celular, a notificação de aviso agora termina antes do botão do Gabriel, então o X de fechar fica sempre visível e acessível.
+V291 [Claude] — AVISO NÃO TAPA O GABRIEL E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); avisos importantes fecham automaticamente após 20 s.
 V290 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: deixa o corte 6×1/5×2 claro, guarda CCT e plano no histórico e exige gerar de novo ao mudar a opção.
 V285 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
 )
@@ -2720,7 +2720,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V291 · X da notificação sempre visível no celular (Gabriel não cobre mais)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V291 · Aviso não cobre o Gabriel e fecha em 20 s</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -8777,8 +8777,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     t.appendChild(close);
     stack.appendChild(t);
     while(stack.children.length > 3) stack.firstElementChild.remove();
-    { // V273: aviso verde fecha em 10 s (mouse em cima = espera); os demais mantêm o prazo antigo; persistente não-verde nunca fecha
-      const ms = type==='ok' ? 10000 : (persistent ? 0 : 3000);
+    { // V273: aviso verde fecha em 10 s (mouse em cima = espera); V291: persistente fecha em 20 s
+      const ms = type==='ok' ? 10000 : (persistent ? 20000 : 3000);
       if(ms){ let h=null; const fechar=()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),180); };
         const arma=n=>{ clearTimeout(h); h=setTimeout(fechar,n); };
         arma(ms);
