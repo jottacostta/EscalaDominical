@@ -11,7 +11,7 @@
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
-V195 [Claude] — AVISO NÃO TAPA O GABRIEL E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); avisos importantes fecham automaticamente após 20 s.
+V195 [Claude] — AVISO NÃO TAPA O GABRIEL, X MAIOR E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); o X de fechar ganhou alvo de toque de 44 px; avisos importantes fecham automaticamente após 20 s.
 V194 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: deixa o corte 6×1/5×2 claro, guarda CCT e plano no histórico e exige gerar de novo ao mudar a opção.
 V188 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
  (toda alteração gera nova versão)
@@ -695,7 +695,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .toast-info{background:var(--info)}
 .toast-warn{background:var(--warn)}
 .toast-danger{background:var(--danger)}
-.toast button{border:0;background:transparent;color:inherit;font-size:20px;line-height:1;padding:0 2px;cursor:pointer}
+.toast button{border:0;background:transparent;color:inherit;font-size:20px;line-height:1;padding:0;cursor:pointer;min-width:44px;min-height:44px;margin:-10px -8px -10px 0;display:flex;align-items:center;justify-content:center;flex:none}
 @keyframes v45ToastIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 .progress-overlay{position:fixed;inset:0;z-index:1050;background:rgba(15,23,42,.42);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px}
@@ -2029,7 +2029,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V195 · Aviso não cobre o Gabriel e fecha em 20 s</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V195 · Aviso não cobre o Gabriel, X maior e fecha em 20 s</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
