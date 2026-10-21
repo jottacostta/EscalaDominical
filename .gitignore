@@ -6,3 +6,6 @@ Historico_*.json
 
 # capturas de tela geradas pelos testes (no GitHub ficam como anexo da execução)
 testes/screenshots/
+
+# pasta interna do Claude Code (worktrees de agentes, não entra no repositório)
+.claude/
