@@ -184,7 +184,7 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ### 2026-10-20 — Distribuição das duas folgas — Setores V290 / Encarregados V194 — Manus
 - **Correção:** a semana 5×2 passa a montar cinco dias trabalhados e duas folgas; tenta colocar as duas folgas em dias diferentes e só usa folgas consecutivas quando não existe combinação separada. O cartão mantém 6×1 até 15/12/2026, 5×2 a partir de 16/12/2026 e domingos 2×1 dos Encarregados.
 - **Persistência:** a opção de compensação mensal começa desligada, avisa “somente com CCT”, grava em `escalaSetores.motor5x2`/`enc.motor5x2` e, ao mudar, invalida o plano até nova geração. O histórico guardado leva `config.motor5x2`, `resultado.motor5x2`, `resultado.motorPolicy`, `resultado.engineSegments` e `politicaDominical`; a restauração aplica esses campos sem apagar equipe, domingos ou feriados.
-- **Testes focais:** dois agentes independentes validaram cada app separadamente: Setores V290 (50 pessoas) e Encarregados V194 (32 pessoas), ambos com plano normal aprovado, duas folgas por semana, domingos preservados e fallback 17–18/12 marcado como `ultimo-recurso`; sem erros de página ou console. A suíte oficial da PR será reexecutada no CI após o push.
+- **Testes focais:** dois agentes independentes validaram cada app separadamente: Setores V290 (50 pessoas) e Encarregados V194 (32 pessoas), ambos com plano normal aprovado, duas folgas por semana, domingos preservados e fallback 17–18/12 marcado como `ultimo-recurso`; sem erros de página ou console. A suíte oficial da PR foi executada no CI (run `39427737094`) e terminou aprovada.
 - **Continuidade:** não foram alteradas as regras do domingo nem implementadas 42h/40h. — Manus
 
 
