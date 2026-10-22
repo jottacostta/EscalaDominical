@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V297.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V298.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V198.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V298**, Encarregados **V199**.
+- **Próximo número de versão:** Setores **V299**, Encarregados **V199**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -186,6 +186,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-22 — Cenários variados a cada “Sugerir folgas” — Setores V298 — Claude
+- **Pedido do Gerente:** cada clique em “Sugerir folgas distribuídas” deve gerar uma simulação diferente e coerente (muda folgas e domingos), para criar/comparar cenários.
+- **Implementação:** `manSortearCenario()` re-sorteia, a partir da escala oficial, o rodízio 2×1 dos domingos e o rodízio dos feriados — embaralha os elegíveis (`embaralhar`, Fisher-Yates) e varia a fase (offset). `manMontar` guarda as bases (`domingosOficiais`, `eligDom`, `eligFer`) e faz o primeiro sorteio; `manSugerir` chama `manSortearCenario()` a cada clique, embaralha a ordem dos dias folgáveis e aplica um jitter pequeno no desempate das folgas — tudo dentro das regras (o jitter é menor que os pesos das regras duras). Conta `manDados.cenario` e mostra “Cenário N”.
+- **Coerência:** cada cenário continua passando a conferência (2×1 nos domingos sem 3 seguidos, 2/1 folgas, feriados com compensatória e DSR, ≤5 dias seguidos via `manRepararSeguidos`). O `simularDomingosEnsaio` (V295) saiu — substituído por `manSortearCenario`.
+- **Validado:** FL nov/2026 → 3 cliques geram 3 cenários diferentes, todos com 0 erro. Teste `testarCenariosVariados` (gated ≥298).
+- **Escopo:** só o ensaio à mão. Motor automático/oficial inalterado (pendência do Manus, #116).
+- **Assinado:** Claude
 
 ### 2026-10-22 — Feriados no ensaio à mão + botão de imprimir — Setores V297 — Claude
 - **Pedido do Gerente:** a simulação precisa contemplar feriados (mostrar na grade, rodízio de quem trabalha, folga compensatória em até 20 dias, e o DSR prevalece se a folga cai no feriado) e um botão para imprimir a tabela mensal.
