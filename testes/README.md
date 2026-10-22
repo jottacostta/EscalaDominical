@@ -37,3 +37,7 @@ O teste termina com `✅ Tudo certo` (código 0) ou com a lista do que falhou (c
 ### Diálogos amplos do Gabriel
 
 Execute `npm run test:gabriel-dialogos` para rodar apenas a bateria de diálogos. A suíte rápida (`npm test`) também executa 50 diálogos (250 turnos) em cada app usando `dialogos-gabriel.json` e dados fictícios. As respostas são testadas em sequência para preservar o contexto. A suíte confere respostas vazias, “Não entendi”, identidade/versão, encaminhamento ao subgerente administrativo, consulta de férias pelo status da equipe, estado real 6×1/5×2, erros JavaScript e preservação da equipe/escala. Os testes contrastam dúvidas internas do app, dúvidas de RH claramente externas, termos ambíguos (que pedem contexto), perguntas desconhecidas (que não devem ser encaminhadas por suposição) e a distinção entre remuneração e folga compensatória. As expectativas e contraexemplos do JSON continuam referências para revisão; ainda não formam um gabarito semântico automatizado completo.
+
+### Bateria exploratória de 100 perguntas do Gabriel
+
+Execute `npm run test:gabriel-100` para rodar a bateria exploratória ativa: são 50 perguntas canônicas na Escala de Setores e 50 na Escala 2×1 de Encarregados. O relatório é salvo como `relatorio-gabriel-100.json` e verifica respostas vazias, fallback, exceções, erros JavaScript, preservação da equipe e prova de mutação. As antigas execuções de 500 chamadas permanecem somente como histórico.

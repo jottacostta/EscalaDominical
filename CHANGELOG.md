@@ -6,6 +6,7 @@ Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓR
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Documentação
+- **22/10/2026** — Atualizadas as referências documentais da bateria exploratória do Gabriel: a execução ativa é de 100 perguntas, 50 por aplicativo, pelo comando `npm run test:gabriel-100`; os registros históricos de 500 chamadas continuam identificados como históricos. — *Manus*
 - **21/10/2026** — A bateria exploratória do Gabriel no CI foi reduzida de 500 para 100 chamadas: 50 intenções canônicas em cada aplicativo. A execução antiga foi cancelada; o workflow passa a usar `npm run test:gabriel-100` e publicar o artefato `relatorio-gabriel-100`. — *Manus*
 - **21/10/2026** — Criada a área experimental de teste 5×2 nas versões V292/V196. O ensaio força duas folgas em cópias na memória antes do corte, mostra o resultado na tela e não altera escala oficial, domingos, feriados, histórico, Excel ou dados guardados. As validações focais encontraram isolamento causal, mas também registraram timers de manutenção preexistentes e limites que impedem tratar o ensaio como homologação operacional ou jurídica. — *Manus*
 - **20/10/2026** — Decisão operacional: domingos permanecem no 2×1 até existir nova CCT; o novo rodízio mensal do anexo não entra nesta etapa do motor 5×2. — *Manus*
