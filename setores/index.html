@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V293</title>
+<title>Escala de Setores — V294</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V294 [Claude] — BOTÃO “SUGERIR FOLGAS DISTRIBUÍDAS” NA ESCALA À MÃO: na área de escala à mão do ensaio 5×2, um botão preenche a grade automaticamente espalhando as folgas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: dá para ajustar tocando nos dias e conferir. Só no ensaio, sem validade real.
 V293 [Claude] — TABELA DE FOLGAS E ESCALA À MÃO NO ENSAIO 5×2: o ensaio agora mostra as folgas em tabela (resumo por semana e grade pessoa × dias) e ganha, no passo Gerar, uma área para montar a escala à mão tocando nos dias e conferir (2 folgas por semana, dias separados, no máximo 5 dias seguidos). Tudo só em memória, sem validade real.
 V292 [Manus] — TESTAR 5×2 SEM VALIDADE REAL: área 🧪 em Configurações simula duas folgas semanais apenas em cópias na memória, mesmo antes do corte.
        Resultado na própria tela, sem alterar escala oficial, domingos, feriados, histórico, Excel ou dados guardados; desaparece ao recarregar.
@@ -2763,7 +2764,7 @@ table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V293 · Ensaio 5×2 com tabela de folgas e escala à mão, sem validade real</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V294 · Escala à mão 5×2 com botão “Sugerir folgas distribuídas”</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3100,10 +3101,11 @@ table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
   </div>
   <section id="v292Manual5x2Area" class="v292-teste-area v292-manual-area gb-sem-icone" aria-labelledby="v292Manual5x2Titulo" data-v273-ignorar style="margin-top:16px">
     <h4 id="v292Manual5x2Titulo">🧪 Escala à mão 5×2 — ensaio sem validade real</h4>
-    <p>Monte as folgas na mão para testar. Toque nos dias (segunda a sábado) para marcar ou tirar a folga de cada pessoa — duas folgas por semana. O domingo continua como já está. Nada é aplicado nem guardado.</p>
+    <p>Monte as folgas na mão para testar. Toque em <b>💡 Sugerir folgas distribuídas</b> para o motor preencher a grade espalhando as folgas e sem ninguém passar de 5 dias seguidos — depois toque nos dias (segunda a sábado) para ajustar. Duas folgas por semana. O domingo continua como já está. Nada é aplicado nem guardado.</p>
     <label class="v292-teste-habilitar" for="v292Manual5x2Habilitar"><input id="v292Manual5x2Habilitar" type="checkbox"><span>Habilitar ensaio à mão (só para testar)</span></label>
     <div class="v292-teste-acoes">
       <button id="v292Manual5x2Montar" class="btn" type="button" disabled>✋ Montar grade</button>
+      <button id="v292Manual5x2Sugerir" class="btn" type="button" disabled>💡 Sugerir folgas distribuídas</button>
       <button id="v292Manual5x2Conferir" class="btn" type="button" disabled>✅ Conferir folgas</button>
       <button id="v292Manual5x2Limpar" class="btn secondary" type="button">🗑️ Limpar</button>
     </div>
@@ -17093,6 +17095,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function manAtualizar(){
     if(el('v292Manual5x2Habilitar'))el('v292Manual5x2Habilitar').checked=manHab;
     if(el('v292Manual5x2Montar'))el('v292Manual5x2Montar').disabled=!manHab;
+    if(el('v292Manual5x2Sugerir'))el('v292Manual5x2Sugerir').disabled=!manHab||!manDados;
     if(el('v292Manual5x2Conferir'))el('v292Manual5x2Conferir').disabled=!manHab||!manDados;
   }
   function manLimpar(){manDados=null;const g=el('v292Manual5x2Grade');if(g)g.replaceChildren();const b=el('v292Manual5x2Resultado');if(b)b.replaceChildren();manAtualizar();return estadoManual();}
@@ -17130,10 +17133,38 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const si=manDados.semanas.findIndex(s=>s.dias.includes(d));
     if(si>=0){const s=manDados.semanas[si],n=s.dias.filter(x=>p.folgas.has(x)).length,c=el('v292Manual5x2Grade')?.querySelector(`[data-cont="${pi}-${si}"]`);if(c){c.textContent=n+'/2';c.className='v292-manual-cont '+(n===2?'ok':'ruim');}}
   }
-  function maxSeguidos(p){
+  function manSugerir(){
+    if(!manDados)return estadoManual();
+    manDados.pessoas.forEach(p=>{p.folgas=new Set();});
+    const carga={},cap=Math.max(1,Math.floor(manDados.pessoas.length/2));   // no máximo metade da equipe de folga por dia
+    manDados.pessoas.forEach(p=>{
+      manDados.semanas.forEach(s=>{
+        const dias=s.dias;let melhor=null,melhorPen=Infinity;
+        for(let a=0;a<dias.length;a++)for(let b=a+1;b<dias.length;b++){
+          const d1=dias[a],d2=dias[b];
+          p.folgas.add(d1);p.folgas.add(d2);
+          const seg=maxSeguidos(p,s.fim);   // dias seguidos de trabalho até o fim desta semana
+          p.folgas.delete(d1);p.folgas.delete(d2);
+          const excesso=[d1,d2].reduce((n,d)=>n+Math.max(0,(carga[d]||0)-(cap-1)),0);
+          const adj=Math.abs(difDias(d1,d2))===1?1:0;
+          const cg=(carga[d1]||0)+(carga[d2]||0);
+          // 1º nunca passar de 5 seguidos, 2º espalhar por dia, 3º folgas separadas, 4º equilíbrio
+          const pen=(seg>5?1:0)*1e6+excesso*1e4+adj*1e2+cg*10+seg;
+          if(pen<melhorPen){melhorPen=pen;melhor=[d1,d2];}
+        }
+        if(melhor)melhor.forEach(d=>{p.folgas.add(d);carga[d]=(carga[d]||0)+1;});
+      });
+    });
+    manRenderGrade();
+    const box=el('v292Manual5x2Resultado');
+    if(box)box.innerHTML='<p>💡 <b>Folgas sugeridas.</b> Espalhadas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: ajuste tocando nos dias e toque em “✅ Conferir folgas”.</p>';
+    manAtualizar();return estadoManual();
+  }
+  function maxSeguidos(p,ateIso){
     const ultimo=new Date(manDados.ano,manDados.mes+1,0).getDate();let run=0,mx=0;
     for(let d=1;d<=ultimo;d++){
       const dt=new Date(manDados.ano,manDados.mes,d),iso=`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+      if(ateIso&&iso>ateIso)break;
       let folga;
       if(dt.getDay()===0){const lista=manDados.domingos[d]||manDados.domingos[iso]||[];folga=!(Array.isArray(lista)&&lista.map(Number).includes(Number(p.id)));}
       else folga=p.folgas.has(iso);
@@ -17173,12 +17204,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(tipo==='click'){
       const cel=event.target.closest('.v292-cel');if(cel){manToggle(cel);return;}
       if(event.target.closest('#v292Manual5x2Montar'))manMontar();
+      else if(event.target.closest('#v292Manual5x2Sugerir'))manSugerir();
       else if(event.target.closest('#v292Manual5x2Conferir'))manConferir();
       else if(event.target.closest('#v292Manual5x2Limpar'))manLimpar();
     }
   },true));
   ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',manLimpar));
-  window.v292Manual5x2={habilitar:manHabilitar,montar:manMontar,conferir:manConferir,limpar:manLimpar,estado:estadoManual};
+  window.v292Manual5x2={habilitar:manHabilitar,montar:manMontar,sugerir:manSugerir,conferir:manConferir,limpar:manLimpar,estado:estadoManual};
   manAtualizar();
   atualizar();
 })();
