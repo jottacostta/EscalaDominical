@@ -1426,6 +1426,46 @@ async function testarCobertura5x2(browser, app, nome, abrir){   // V198: o ensai
   await p.close();
 }
 
+async function testarTabelaMensal5x2(browser, app, nome, abrir){   // V295: a tabela do ensaio é mensal (pessoa × dias), mostra domingos (D) e folgas (F)
+  console.log('\n▶ ' + nome + ' — 🧪 grade mensal (pessoa × dias, domingos e folgas)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const out = {};
+    // escala à mão: sugerir + conferir → a tabela do mês entra no resultado
+    const man = window.v292Manual5x2;
+    if(man && typeof man.conferir === 'function'){
+      man.habilitar(true); man.montar(); man.sugerir(); man.conferir();
+      const box = document.getElementById('v292Manual5x2Resultado');
+      const t = box ? box.querySelector('table.v292-tab-mes') : null;
+      out.manTem = !!t;
+      if(t){
+        out.manCols = [...t.querySelectorAll('thead th')].length - 1;   // tira a coluna "Pessoa"
+        out.manDomCols = [...t.querySelectorAll('thead th.v292-col-dom')].length;
+        out.manTemF = !!t.querySelector('tbody td.v292-folga');
+        out.manTemDescanso = !!t.querySelector('tbody td.v292-dom-folga, tbody td.v292-dom-trab');
+      }
+    }
+    // simulação automática: a mesma grade mensal aparece
+    const aut = window.v292Teste5x2;
+    if(aut && typeof aut.simular === 'function'){
+      aut.habilitar(true); aut.simular();
+      const box = document.getElementById('v292Teste5x2Resultado');
+      out.autTem = !!(box && box.querySelector('table.v292-tab-mes'));
+    }
+    const mes = +(document.getElementById('mes')?.value), ano = +(document.getElementById('ano')?.value);   // mês carregado (0-based), como em entrada()
+    out.diasNoMes = (Number.isFinite(mes) && Number.isFinite(ano)) ? new Date(ano, mes + 1, 0).getDate() : 0;
+    return out;
+  });
+  ok(r.manTem, nome + ': a conferência da escala à mão mostra a grade mensal (pessoa × dias)');
+  ok(r.manCols === r.diasNoMes, nome + ': a grade mensal tem uma coluna por dia do mês (' + r.manCols + ' de ' + r.diasNoMes + ')');
+  ok(r.manDomCols >= 4 && r.manDomCols <= 5, nome + ': os domingos do mês viram colunas destacadas (' + r.manDomCols + ')');
+  ok(r.manTemF && r.manTemDescanso, nome + ': a grade mensal marca folgas (F) e domingos (D/–)');
+  ok(r.autTem, nome + ': a simulação automática também mostra a grade mensal');
+  ok(!erros.length, nome + ': sem erro de JavaScript na grade mensal' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1711,6 +1751,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 196) await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); });
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 293) await testarTabelaEManual5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 'v292');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
