@@ -1537,10 +1537,11 @@ async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o bot
     const fake = { document: { write: s => { written += s; }, close: () => {} }, focus: () => {}, print: () => {} };
     const orig = window.open; window.open = () => fake;
     try { btn.click(); } finally { window.open = orig; }
-    return { temBotao: true, temTabela: /table[^>]*v292-tab-mes/.test(written), temTitulo: /Escala do mês/.test(written) };
+    return { temBotao: true, temTabela: /table[^>]*v292-tab-mes/.test(written), temTitulo: /Escala do mês/.test(written), temCor: /print-color-adjust\s*:\s*exact/.test(written) };
   });
   ok(!r.semBotao && r.temBotao, nome + ': existe o botão “Imprimir tabela mensal”');
   ok(r.temTabela && r.temTitulo, nome + ': imprimir abre uma janela só com a grade mensal');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 299) ok(r.temCor, nome + ': a impressão sai colorida (print-color-adjust: exact)');
   ok(!erros.length, nome + ': sem erro de JavaScript ao imprimir' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }

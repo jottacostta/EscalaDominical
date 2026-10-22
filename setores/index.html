@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V298</title>
+<title>Escala de Setores — V299</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V299 [Claude] — IMPRESSÃO COLORIDA DA GRADE MENSAL: a impressão da tabela do ensaio 5×2 sai colorida (fundo dos domingos, feriados e folgas), com `print-color-adjust: exact` na janela de impressão — antes o navegador tirava as cores de fundo e saía em preto e branco. Só no ensaio, sem validade real.
 V298 [Claude] — CENÁRIOS VARIADOS A CADA “SUGERIR FOLGAS”: na escala à mão, cada clique em “Sugerir folgas distribuídas” gera um cenário diferente e coerente — sorteia o rodízio 2×1 dos domingos e o rodízio dos feriados (variando quem entra em cada grupo) e embaralha as folgas da semana, sempre respeitando as regras (2 folgas se trabalha domingo / 1 se folga, feriados com compensatória e DSR, no máximo 5 dias seguidos). Dá para clicar várias vezes e comparar opções. Só no ensaio à mão, sem validade real.
 V297 [Claude] — FERIADOS NO ENSAIO À MÃO: a grade mensal passa a mostrar os feriados do mês (colunas 🟡). Nos feriados de dia útil há rodízio de quem trabalha (H) e quem folga (f); quem trabalha o feriado ganha 1 folga compensatória na semana (dentro de 20 dias); quem folga no feriado tem o feriado como descanso da semana (DSR prevalece). Feriado que cai no domingo segue o rodízio 2×1 do domingo, só marcado. Mantém no máximo 5 dias seguidos. Só no ensaio à mão, sem validade real.
 V296 [Claude] — RODÍZIO 2×1 DOS DOMINGOS NO ENSAIO À MÃO: a distribuição dos domingos do ensaio passa a ser 2×1 (cada pessoa trabalha 2 domingos e folga 1, nunca 3 seguidos; a cada domingo, 1/3 da equipe folga e 2/3 trabalham), em vez do antigo rodízio 1:1. A regra de folgas continua: quem trabalha o domingo tira 2 folgas de seg–sáb, quem folga o domingo tira só 1. Só no ensaio à mão, sem validade real.
@@ -2778,7 +2779,7 @@ table.v292-tab-mes td.v292-cel-fer{outline:2px solid #ca8a04;outline-offset:-2px
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V298 · Ensaio 5×2: “Sugerir folgas” gera cenários variados a cada clique</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V299 · Ensaio 5×2: impressão colorida da grade mensal</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -17091,7 +17092,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const t=boxEl&&boxEl.querySelector('table.v292-tab-mes');
     if(!t){window.showToast?.('Gere a tabela do mês antes de imprimir.','info',true);return;}
     const titulo=`Escala do mês — ${setor||'Setor'} · ${periodo||''} (ensaio 5×2, sem validade real)`;
-    const css='<style>body{font-family:system-ui,Arial;margin:12px;color:#0f172a}h3{margin:0 0 8px}'
+    const css='<style>*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'   // V299: imprime com as cores de fundo (navegador tira por padrão)
+      +'body{font-family:system-ui,Arial;margin:12px;color:#0f172a}h3{margin:0 0 8px}'
       +'table{border-collapse:collapse;font-size:10px;width:100%;font-variant-numeric:tabular-nums}'
       +'th,td{border:1px solid #cbd5e1;padding:3px 4px;text-align:center}th[scope=row]{text-align:left;white-space:nowrap}'
       +'caption{text-align:left;font-weight:700;margin-bottom:6px}'
