@@ -1443,15 +1443,17 @@ async function testarTabelaMensal5x2(browser, app, nome, abrir){   // V295: a ta
         out.manCols = [...t.querySelectorAll('thead th')].length - 1;   // tira a coluna "Pessoa"
         out.manDomCols = [...t.querySelectorAll('thead th.v292-col-dom')].length;
         out.manTemF = !!t.querySelector('tbody td.v292-folga');
-        out.manTemDescanso = !!t.querySelector('tbody td.v292-dom-folga, tbody td.v292-dom-trab');
+        out.manDomTrab = [...t.querySelectorAll('tbody td.v292-dom-trab')].length;   // V295: domingos distribuídos no ensaio
+        out.manDomFolga = [...t.querySelectorAll('tbody td.v292-dom-folga')].length;
       }
     }
-    // simulação automática: a mesma grade mensal aparece
+    // simulação automática: a mesma grade mensal aparece, com os domingos trabalhados distribuídos
     const aut = window.v292Teste5x2;
     if(aut && typeof aut.simular === 'function'){
       aut.habilitar(true); aut.simular();
-      const box = document.getElementById('v292Teste5x2Resultado');
-      out.autTem = !!(box && box.querySelector('table.v292-tab-mes'));
+      const t2 = document.getElementById('v292Teste5x2Resultado').querySelector('table.v292-tab-mes');
+      out.autTem = !!t2;
+      out.autDomTrab = t2 ? [...t2.querySelectorAll('tbody td.v292-dom-trab')].length : 0;
     }
     const mes = +(document.getElementById('mes')?.value), ano = +(document.getElementById('ano')?.value);   // mês carregado (0-based), como em entrada()
     out.diasNoMes = (Number.isFinite(mes) && Number.isFinite(ano)) ? new Date(ano, mes + 1, 0).getDate() : 0;
@@ -1460,8 +1462,8 @@ async function testarTabelaMensal5x2(browser, app, nome, abrir){   // V295: a ta
   ok(r.manTem, nome + ': a conferência da escala à mão mostra a grade mensal (pessoa × dias)');
   ok(r.manCols === r.diasNoMes, nome + ': a grade mensal tem uma coluna por dia do mês (' + r.manCols + ' de ' + r.diasNoMes + ')');
   ok(r.manDomCols >= 4 && r.manDomCols <= 5, nome + ': os domingos do mês viram colunas destacadas (' + r.manDomCols + ')');
-  ok(r.manTemF && r.manTemDescanso, nome + ': a grade mensal marca folgas (F) e domingos (D/–)');
-  ok(r.autTem, nome + ': a simulação automática também mostra a grade mensal');
+  ok(r.manTemF && r.manDomTrab > 0 && r.manDomFolga > 0, nome + ': a grade mensal marca folgas (F), domingos trabalhados (D) e descanso de domingo (–) — D=' + r.manDomTrab + ', –=' + r.manDomFolga);
+  ok(r.autTem && r.autDomTrab > 0, nome + ': a simulação automática mostra a grade mensal com domingos distribuídos (D=' + r.autDomTrab + ')');
   ok(!erros.length, nome + ': sem erro de JavaScript na grade mensal' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }

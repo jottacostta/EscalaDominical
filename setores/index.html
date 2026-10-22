@@ -11,7 +11,7 @@
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
-V295 [Claude] — GRADE MENSAL NO ENSAIO 5×2: a tabela de folgas do ensaio passa a ser uma grade mensal pessoa × dias, mostrando quem trabalha cada domingo (D) e onde caem as folgas da semana (F), além do descanso de domingo (–). Vale para a simulação automática e para a conferência da escala à mão. Só no ensaio, sem validade real.
+V295 [Claude] — GRADE MENSAL NO ENSAIO 5×2: a tabela de folgas do ensaio passa a ser uma grade mensal pessoa × dias, mostrando quem trabalha cada domingo (D) e onde caem as folgas da semana (F), além do descanso de domingo (–). No ensaio, os domingos sem escala oficial definida são distribuídos automaticamente em rodízio (metade da equipe por domingo, ninguém dois domingos seguidos), só para ver a distribuição das folgas de acordo com o domingo trabalhado. Vale para a simulação automática e para a conferência da escala à mão. Só no ensaio, sem validade real.
 V294 [Claude] — BOTÃO “SUGERIR FOLGAS DISTRIBUÍDAS” NA ESCALA À MÃO: na área de escala à mão do ensaio 5×2, um botão preenche a grade automaticamente espalhando as folgas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: dá para ajustar tocando nos dias e conferir. Só no ensaio, sem validade real.
 V293 [Claude] — TABELA DE FOLGAS E ESCALA À MÃO NO ENSAIO 5×2: o ensaio agora mostra as folgas em tabela (resumo por semana e grade pessoa × dias) e ganha, no passo Gerar, uma área para montar a escala à mão tocando nos dias e conferir (2 folgas por semana, dias separados, no máximo 5 dias seguidos). Tudo só em memória, sem validade real.
 V292 [Manus] — TESTAR 5×2 SEM VALIDADE REAL: área 🧪 em Configurações simula duas folgas semanais apenas em cópias na memória, mesmo antes do corte.
@@ -2771,7 +2771,7 @@ table.v292-tab-mes td.v292-dom-folga{background:#fff7ed;color:#c2410c}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V295 · Ensaio 5×2 com grade mensal (domingos e folgas)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V295 · Ensaio 5×2 com grade mensal (domingos em rodízio e folgas)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16991,6 +16991,25 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(mes===10){f[2]='Finados';f[15]='Proclamação da República';f[20]='Consciência Negra';}
     if(mes===11)f[25]='Natal';return f;
   }
+  // V295: no ensaio (sem validade real), distribui quem trabalha em cada domingo SEM escala oficial definida,
+  // em rodízio (metade da equipe por domingo, alternando — ninguém trabalha dois domingos seguidos), só para
+  // a grade mensal mostrar a distribuição das folgas de acordo com o domingo trabalhado. Respeita os domingos
+  // já escalados (só preenche os vazios) e nunca grava nada oficial.
+  function simularDomingosEnsaio(eq,mes,ano,dom){
+    const elegiveis=eq.map((f,i)=>({f,i}))
+      .filter(x=>x.f&&!['AF','EP'].includes(String(x.f.situacao||'A').toUpperCase())&&Number(x.f.folgaFixa)!==0)
+      .map(x=>x.i);
+    if(!elegiveis.length)return false;
+    const diasDom=[];for(let d=1;d<=new Date(ano,mes+1,0).getDate();d++)if(new Date(ano,mes,d).getDay()===0)diasDom.push(d);
+    const meio=Math.ceil(elegiveis.length/2),grupoA=elegiveis.slice(0,meio),grupoB=elegiveis.slice(meio);
+    let simulou=false;
+    diasDom.forEach((d,k)=>{
+      if(Array.isArray(dom[d])&&dom[d].length)return;   // respeita o domingo já escalado
+      dom[d]=(k%2===0?grupoA:grupoB).slice();            // rodízio: alterna os dois grupos entre os domingos
+      simulou=true;
+    });
+    return simulou;
+  }
   function entrada(){
     const mes=Number(el('mes')?.value),ano=Number(el('ano')?.value);
     if(!el('ano')?.value||!Number.isInteger(mes)||mes<0||mes>11||!Number.isInteger(ano)||ano<1900||ano>2200)throw new Error('Escolha um mês e um ano válidos em Configurações.');
@@ -17012,13 +17031,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         dom[d]=[...new Set(ids.map(Number).filter(i=>eq[i]))];
       }
     }
+    // V295: no ensaio, preenche os domingos sem escala oficial com um rodízio só para ver a distribuição das folgas.
+    const domsSimulados=simularDomingosEnsaio(eq,mes,ano,dom);
     // Folgas já escolhidas são copiadas, nunca redistribuídas ou escritas no app.
     const adicionar=(s,i)=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s)))return;(descansos[s]||(descansos[s]=[])).push({i:Number(i)});};
     Object.values(lideres).forEach(l=>Object.entries(l?.dsr||{}).forEach(([i,x])=>{adicionar(x?.ant,i);adicionar(x?.pos,i);}));
     if(el('modoGeracao')?.value==='manual')Object.entries(copia(antecipacoesFolgaManual||{})).forEach(([k,s])=>adicionar(s,k.split('_')[1]));
     return {mes,ano,equipe:eq,domingos:dom,anteriores,descansos,compensatorias:comps,feriados:calendario(ano,mes,el('feriadosExtras')?.value||''),trabalhoFeriado:tf,setor:el('setorSelecionado')?.value||'Setor selecionado',avisos:[
       'Domingos e feriados não são redistribuídos. As escolhas atuais são apenas lidas.',
-      'Sem escolhas de domingo ou feriado, o teste considera essas pessoas de folga.',
+      domsSimulados?'Os domingos sem escala definida foram distribuídos automaticamente no ensaio (rodízio, metade da equipe por domingo, sem validade real) só para ver a distribuição das folgas.':'Sem escolhas de domingo ou feriado, o teste considera essas pessoas de folga.',
       'As semanas completas incluem dias dos meses vizinhos. Não há continuidade guardada.',
       'Este teste não confirma cobertura da loja nem jornada de 42h ou 40h.'
     ]};
