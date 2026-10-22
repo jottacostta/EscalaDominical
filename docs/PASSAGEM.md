@@ -20,7 +20,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | Escala de Setores | `Escala_de_Setores_V293.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V197.html` | `encarregados/index.html` (cópia idêntica) |
 
-- **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
+- **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel de 100 perguntas (50 por app) em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
@@ -186,6 +186,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-22 — Referências documentais da bateria Gabriel — Manus
+- **Correção:** o estado atual do CI agora informa explicitamente a bateria ativa de 100 perguntas, 50 por aplicativo, executada por `npm run test:gabriel-100`.
+- **Histórico preservado:** as menções a 500 chamadas nas entradas antigas continuam no diário como registros de execuções anteriores; não representam a configuração atual.
+- **Arquivos:** README, CHANGELOG, `docs/PASSAGEM.md` e `testes/README.md` foram alinhados sem alterar código dos aplicativos ou a suíte.
+- **Assinado:** Manus
 
 ### 2026-10-21 — Bateria exploratória do Gabriel reduzida — CI — Manus
 - **Mudança:** a bateria que fazia 50 intenções × 5 formulações × 2 aplicativos (500 chamadas) deixou de ser executada pelo workflow.
