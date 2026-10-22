@@ -1,0 +1,873 @@
+{
+  "titulo": "Bateria Gabriel — 100 perguntas",
+  "dataISO": "2026-10-22T01:30:17.187Z",
+  "metodo": "50 perguntas-base × 1 formulação × 2 aplicativos = 100 chamadas. Relatório exploratório: não declara acerto sem gabarito verificável. A preservação de estado cobre somente a equipe carregada; a escala não é gerada por este teste.",
+  "apps": [
+    {
+      "app": "Setores",
+      "arquivo": "Escala_de_Setores_V292.html",
+      "casos": [
+        {
+          "id": 1,
+          "pergunta": "Como funciona a escala de domingo?",
+          "resposta": "👥 Domingos de novembro de 2026 — o que você já escolheu (o resto o app escolhe ao gerar): 01/11 : ninguém escolhido ainda 08/11 : ninguém escolhido ainda 15/11 : ninguém escolhido ainda 22/11 : ninguém escolhido ainda 29/11 : ninguém escolhido ainda",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 2,
+          "pergunta": "Quais são as regras para trabalhar no domingo?",
+          "resposta": "📏 Regras principais: ninguém trabalha mais de 6 dias seguidos (6×1); no máximo 2 domingos seguidos (o 3º é folga); quem trabalha no domingo ganha a folga da semana ; quem trabalha no feriado ganha uma folga em outro dia . Jovem aprendiz e cartazista não trabalham domingo; promotor : 1 por domingo. Pergunte sobre qualquer uma para eu explicar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 3,
+          "pergunta": "O que acontece no domingo de balanço?",
+          "resposta": "📦 Domingo de balanço: acontece em janeiro, março, junho e setembro. Escolha o domingo em ⚙️ Configurações → 📦 Domingos de balanço . Ele é exceção na regra dos domingos seguidos.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 4,
+          "pergunta": "Como funciona a folga compensatória de feriado?",
+          "resposta": "🎉 Feriado: no passo 4 Feriados , marque quem vai trabalhar. Quem trabalha ganha uma folga em outro dia : o app sugere a data, e você toca em ✅ Aceitar ou 🔄 Outra data . A folga nunca cai no dia da folga fixa. Para ver o mês inteiro, abra a 📅 Prévia das folgas .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 5,
+          "pergunta": "Qual é o prazo para tirar a folga do feriado?",
+          "resposta": "🎉 Feriados de novembro de 2026: 02/11 (Finados), 15/11 (Proclamação da República), 20/11 (Consciência Negra). Marque quem trabalha no passo 4 Feriados .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 6,
+          "pergunta": "Quantos dias seguidos uma pessoa pode trabalhar?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 7,
+          "pergunta": "Uma pessoa pode trabalhar três domingos seguidos?",
+          "resposta": "📏 Domingos seguidos (2×1): a pessoa trabalha no máximo 2 domingos seguidos ; o 3º é folga. Conta também os 2 últimos domingos do mês passado — por isso preencha o passo 2 Mês passado . O domingo de balanço é exceção. Na escala Manual você pode alternar fora do par 2×1 (ex.: Eduardo no 1º domingo, Maria no 2º): o app pergunta se você está ciente e se responsabiliza. 3 domingos seguidos continua proibido.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 8,
+          "pergunta": "Jovem aprendiz pode trabalhar no domingo?",
+          "resposta": "🎓 Jovem aprendiz não trabalha domingo. Eles têm o cartão próprio 🎓 Jovem Aprendiz na tela inicial.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 9,
+          "pergunta": "Jovem aprendiz pode trabalhar no feriado?",
+          "resposta": "🎓 Jovem aprendiz não trabalha domingo. Eles têm o cartão próprio 🎓 Jovem Aprendiz na tela inicial.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 10,
+          "pergunta": "O que acontece quando o feriado cai no domingo?",
+          "resposta": "🎉 Feriados de novembro de 2026: 02/11 (Finados), 15/11 (Proclamação da República), 20/11 (Consciência Negra). Marque quem trabalha no passo 4 Feriados .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 11,
+          "pergunta": "Como funciona a escala 2 por 1?",
+          "resposta": "📏 Domingos seguidos (2×1): a pessoa trabalha no máximo 2 domingos seguidos ; o 3º é folga. Conta também os 2 últimos domingos do mês passado — por isso preencha o passo 2 Mês passado . O domingo de balanço é exceção. Na escala Manual você pode alternar fora do par 2×1 (ex.: Eduardo no 1º domingo, Maria no 2º): o app pergunta se você está ciente e se responsabiliza. 3 domingos seguidos continua proibido.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 12,
+          "pergunta": "Quais são as regras da escala dos encarregados?",
+          "resposta": "Entendi: “quais sao as regras da escala dos encarregado”. 📏 Regras principais: ninguém trabalha mais de 6 dias seguidos (6×1); no máximo 2 domingos seguidos (o 3º é folga); quem trabalha no domingo ganha a folga da semana ; quem trabalha no feriado ganha uma folga em outro dia . Jovem aprendiz e cartazista não trabalham domingo; promotor : 1 por domingo. Pergunte sobre qualquer uma para eu explicar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 13,
+          "pergunta": "Quantas pessoas trabalham no domingo na escala dos encarregados?",
+          "resposta": "Entendi: “quantas pessoas trabalham no domingo na escala dos encarregado”. ⭐ Liderança: no passo 3 Domingos , quadro ③ Quem lidera . Dá para escolher uma, várias ou por turno (abertura e fechamento). O botão 🤖 Sugerir liderança escolhe em blocos de 2 domingos, sem 3 seguidos.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 14,
+          "pergunta": "Precisa ter encarregado e subencarregado no domingo?",
+          "resposta": "⭐ A liderança do domingo é opcional. A escala pode ser gerada mesmo sem Encarregado, Subencarregado ou Líder. Depois de gerar, aparece um aviso amarelo: toque em ✅ Sim, concordo para registrar a decisão ou em ↩ Voltar e escolher liderança para ajustar o passo 3 — Domingos, quadro ③ Quem lidera.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 15,
+          "pergunta": "Pode escalar duas pessoas do mesmo setor?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 16,
+          "pergunta": "Quantas pessoas do Laticínio podem trabalhar no domingo?",
+          "resposta": "📏 Posso orientar sobre domingos, regra 2×1 e balanço. Para conferir um caso específico, informe o nome da pessoa e a data do domingo. Exemplo: “Por que Ana não pode trabalhar em 18/10?”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 17,
+          "pergunta": "Como funcionam as folgas fixas?",
+          "resposta": "Entendi: “como funciona as folgas fixas”. 💤 Folga fixa: é o dia da semana definido no cadastro para descanso regular. Para consultar ou alterar, use o passo 1 Equipe → ✏️ Editar equipe e confira o campo Folga fixa ; depois gere a escala novamente.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 18,
+          "pergunta": "A folga fixa pode ser trocada quando importar o ERP?",
+          "resposta": "💤 Folga fixa: é o dia da semana definido no cadastro para descanso regular. Para consultar ou alterar, use o passo 1 Equipe → ✏️ Editar equipe e confira o campo Folga fixa ; depois gere a escala novamente.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 19,
+          "pergunta": "O que significa folga a definir?",
+          "resposta": "💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 20,
+          "pergunta": "Como funciona a escala manual?",
+          "resposta": "🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Mista — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 21,
+          "pergunta": "Como funciona a escala automática?",
+          "resposta": "Entendi: “como funciona a escala automatico”. 🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Mista — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 22,
+          "pergunta": "Qual a diferença entre escala manual e automática?",
+          "resposta": "Entendi: “qual a diferenca entre escala manual e automatico”. 🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Mista — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 23,
+          "pergunta": "Como confiro se a escala está correta?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 24,
+          "pergunta": "O que faço se a escala apresentar um erro?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 25,
+          "pergunta": "Como guardo o histórico do mês?",
+          "resposta": "📦 Como guardar: depois de gerar a escala (passo 5), toque em 📦 Guardar histórico do mês — o arquivo Historico_…json vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use 📊 Baixar planilha Excel . O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 26,
+          "pergunta": "Como abro um histórico que já foi guardado?",
+          "resposta": "Entendi: “como abre um historico que ja foi guardado”. 📦 Histórico do mês: depois de gerar, toque em 📦 Guardar histórico do mês . Ele baixa um arquivo .json com a escala, a equipe e o que eu aprendi. No mês seguinte (ou em outro aparelho), abra com 📂 Abrir histórico guardado .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 27,
+          "pergunta": "Como baixo a planilha da escala?",
+          "resposta": "📦 Como guardar: depois de gerar a escala (passo 5), toque em 📦 Guardar histórico do mês — o arquivo Historico_…json vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use 📊 Baixar planilha Excel . O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 28,
+          "pergunta": "Por que preciso confirmar os horários de domingo?",
+          "resposta": "De quem você quer saber? Escreva o nome. Ex.: “ por que VITOR não pode no domingo 1? ”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 29,
+          "pergunta": "O que significa escala mista?",
+          "resposta": "🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Mista — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 30,
+          "pergunta": "Como corrijo um horário de domingo?",
+          "resposta": "Entendi: “como corrija um horario de domingo”. ✏️ Equipe: no passo 1 Equipe , toque em ✏️ Editar equipe para mudar nome, cargo, horário, turno, folga fixa ou data de admissão (dd/mm/aaaa). A equipe também entra pela planilha do RH ou pelo histórico guardado.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 31,
+          "pergunta": "Como importo a equipe pelo arquivo TXT?",
+          "resposta": "📥 Como importar a planilha do RH: toque em 📥 Importar funcionários (planilha do RH) (tela inicial ou passo 1 Equipe), escolha o arquivo .xlsx , confira a prévia e toque em Aplicar . Só depois disso eu consigo ler e responder sobre a planilha. Selecionar o arquivo ainda não é importar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 32,
+          "pergunta": "O que deve ter no arquivo da equipe?",
+          "resposta": "📦 Histórico do mês: depois de gerar, toque em 📦 Guardar histórico do mês . Ele baixa um arquivo .json com a escala, a equipe e o que eu aprendi. No mês seguinte (ou em outro aparelho), abra com 📂 Abrir histórico guardado .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 33,
+          "pergunta": "O que faço se uma pessoa não aparecer na equipe?",
+          "resposta": "Entendi: “o que faco se uma pessoa nao aparece na equipe”. De quem você quer saber? Escreva o nome. Ex.: “ por que VITOR não pode no domingo 1? ”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 34,
+          "pergunta": "Como edito os dados de um funcionário?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 35,
+          "pergunta": "Como marco alguém como afastado?",
+          "resposta": "🩺 Ninguém afastado: todos os cadastrados estão com situação A (ativo). Vem da situação cadastrada no passo 1 (planilha do RH ou ✏️ Editar equipe).",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 36,
+          "pergunta": "Como funciona o funcionário emprestado para outro setor?",
+          "resposta": "🔁 Emprestado (EP): no ✏️ Editar equipe, marque a situação EP e escolha o setor de destino . A pessoa continua cadastrada no setor de origem e aparece para trabalhar no setor de destino.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 37,
+          "pergunta": "Como escolho o setor da equipe?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 38,
+          "pergunta": "Como altero o mês da escala?",
+          "resposta": "🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 39,
+          "pergunta": "Como vejo quem está escalado em um domingo?",
+          "resposta": "Entendi: “como veio quem esta escalado em um domingo”. 👥 Domingos de novembro de 2026 — o que você já escolheu (o resto o app escolhe ao gerar): 01/11 : ninguém escolhido ainda 08/11 : ninguém escolhido ainda 15/11 : ninguém escolhido ainda 22/11 : ninguém escolhido ainda 29/11 : ninguém escolhido ainda",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 40,
+          "pergunta": "Quantos funcionários tem?",
+          "resposta": "👥 A equipe tem 50 pessoas cadastradas: 50 ativas, 0 afastadas e 0 emprestadas.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 41,
+          "pergunta": "Como descubro por que uma pessoa não pode trabalhar no domingo?",
+          "resposta": "De quem você quer saber? Escreva o nome. Ex.: “ por que VITOR não pode no domingo 1? ”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 42,
+          "pergunta": "O que acontece se faltar liderança em um turno?",
+          "resposta": "⭐ A liderança do domingo é opcional. A escala pode ser gerada mesmo sem Encarregado, Subencarregado ou Líder. Depois de gerar, aparece um aviso amarelo: toque em ✅ Sim, concordo para registrar a decisão ou em ↩ Voltar e escolher liderança para ajustar o passo 3 — Domingos, quadro ③ Quem lidera.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 43,
+          "pergunta": "Como funciona a liderança por turno?",
+          "resposta": "⭐ A liderança do domingo é opcional. A escala pode ser gerada mesmo sem Encarregado, Subencarregado ou Líder. Depois de gerar, aparece um aviso amarelo: toque em ✅ Sim, concordo para registrar a decisão ou em ↩ Voltar e escolher liderança para ajustar o passo 3 — Domingos, quadro ③ Quem lidera.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 44,
+          "pergunta": "Como são distribuídos os horários de abertura e fechamento?",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 45,
+          "pergunta": "O que devo conferir antes de gerar a escala?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 46,
+          "pergunta": "O que significa uma pendência na tela?",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 47,
+          "pergunta": "O que faço se a escala não gerar?",
+          "resposta": "▶️ Gerar a escala: vá ao passo 5 Gerar e toque em Gerar . Se faltar alguma coisa, o app avisa o que é e onde arrumar. Pergunte aqui “ o que falta? ” para eu conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 48,
+          "pergunta": "Você consegue explicar isso de outro jeito?",
+          "resposta": "Entendi: “voce consegue explicar isso de outro feito”. 🤖 Eu sou o Gabriel , o assistente virtual de RH. Olho o que você faz (quem escolhe, horários, quantos domingos cada um fez) e dou dicas . Não mudo nada sozinho, e as regras quem confere é o app. Tudo fica neste aparelho e vai junto no histórico do mês. Também respondo perguntas — sem internet.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 49,
+          "pergunta": "Bom dia, você pode me ajudar?",
+          "resposta": "🤖 Gabriel — o que eu sei fazer: 📏 Explicar as regras : 6×1, domingos seguidos (2×1), DSR, feriado e balanço. 👥 Responder sobre a escala aberta : quem trabalha num domingo, por que alguém não pode, quantos domingos a pessoa fez, a folga fixa e o que falta. 📅 Dizer a data de hoje e a hora do aparelho, e quem estava escalado ou folgou no último domingo (só a escala planejada: eu não tenho registro de ponto). 🕘 Dizer quem trabalha, folga, abre ou fecha num dia (hoje, amanhã, segunda…), contar a equipe (ativos, afastados, emprestados) e conferir a escala: sequência de dias seguidos e domingos seguidos. A cobertura mínima ainda não está cadastrada, então não digo se é “suficiente”. 🧭 Mostrar como usar cada passo do app. 💡 Dar dicas (aba Dicas) e aprender os costumes da equipe neste aparelho. 📄 Contar o que li da planilha do RH: abas, linhas, totais e o que não entendi. Entendo abreviações e erros de digitação simples. Se eu ficar na dúvida de qual pessoa você quis dizer, eu pergunto . Não altero a escala e não uso a internet.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 50,
+          "pergunta": "Obrigado pela ajuda",
+          "resposta": "🤖 Gabriel — o que eu sei fazer: 📏 Explicar as regras : 6×1, domingos seguidos (2×1), DSR, feriado e balanço. 👥 Responder sobre a escala aberta : quem trabalha num domingo, por que alguém não pode, quantos domingos a pessoa fez, a folga fixa e o que falta. 📅 Dizer a data de hoje e a hora do aparelho, e quem estava escalado ou folgou no último domingo (só a escala planejada: eu não tenho registro de ponto). 🕘 Dizer quem trabalha, folga, abre ou fecha num dia (hoje, amanhã, segunda…), contar a equipe (ativos, afastados, emprestados) e conferir a escala: sequência de dias seguidos e domingos seguidos. A cobertura mínima ainda não está cadastrada, então não digo se é “suficiente”. 🧭 Mostrar como usar cada passo do app. 💡 Dar dicas (aba Dicas) e aprender os costumes da equipe neste aparelho. 📄 Contar o que li da planilha do RH: abas, linhas, totais e o que não entendi. Entendo abreviações e erros de digitação simples. Se eu ficar na dúvida de qual pessoa você quis dizer, eu pergunto . Não altero a escala e não uso a internet.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        }
+      ],
+      "errosJS": [],
+      "estadoInicial": "{\"equipe\":[{\"matricula\":\"10000\",\"nome\":\"ANA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"ENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-0\",\"tipo\":\"enc\"},{\"matricula\":\"10001\",\"nome\":\"BRUNO SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"SUBENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-1\",\"tipo\":\"sub\"},{\"matricula\":\"10002\",\"nome\":\"CARLA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"LIDER FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-2\",\"tipo\":\"outro\"},{\"matricula\":\"10003\",\"nome\":\"DIEGO SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"ENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-3\",\"tipo\":\"enc\"},{\"matricula\":\"10004\",\"nome\":\"ELAINE SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"SUBENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-4\",\"tipo\":\"sub\"},{\"matricula\":\"10005\",\"nome\":\"FABIO SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"LIDER FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-5\",\"tipo\":\"outro\"},{\"matricula\":\"10006\",\"nome\":\"GISELE SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-6\",\"tipo\":\"outro\"},{\"matricula\":\"10007\",\"nome\":\"HUGO SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-7\",\"tipo\":\"outro\"},{\"matricula\":\"10008\",\"nome\":\"IARA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2018-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-8\",\"tipo\":\"outro\"},{\"matricula\":\"10009\",\"nome\":\"JOAO SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2019-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-9\",\"tipo\":\"outro\"},{\"matricula\":\"10010\",\"nome\":\"KAREN SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2020-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-10\",\"tipo\":\"outro\"},{\"matricula\":\"10011\",\"nome\":\"LUCAS SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2021-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-11\",\"tipo\":\"outro\"},{\"matricula\":\"10012\",\"nome\":\"MARIA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2022-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-12\",\"tipo\":\"outro\"},{\"matricula\":\"10013\",\"nome\":\"NINA SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2023-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-13\",\"tipo\":\"outro\"},{\"matricula\":\"10014\",\"nome\":\"OTAVIO SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-14\",\"tipo\":\"outro\"},{\"matricula\":\"10015\",\"nome\":\"PAULA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-15\",\"tipo\":\"outro\"},{\"matricula\":\"10016\",\"nome\":\"RAFAEL SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-16\",\"tipo\":\"outro\"},{\"matricula\":\"10017\",\"nome\":\"SILVIA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-17\",\"tipo\":\"outro\"},{\"matricula\":\"10018\",\"nome\":\"TIAGO SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-18\",\"tipo\":\"outro\"},{\"matricula\":\"10019\",\"nome\":\"URSULA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-19\",\"tipo\":\"outro\"},{\"matricula\":\"10020\",\"nome\":\"VITOR SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-20\",\"tipo\":\"outro\"},{\"matricula\":\"10021\",\"nome\":\"WANDA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-21\",\"tipo\":\"outro\"},{\"matricula\":\"10022\",\"nome\":\"XAVIER SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2018-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-22\",\"tipo\":\"outro\"},{\"matricula\":\"10023\",\"nome\":\"YARA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2019-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-23\",\"tipo\":\"outro\"},{\"matricula\":\"10024\",\"nome\":\"ZECA SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2020-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-24\",\"tipo\":\"outro\"},{\"matricula\":\"10025\",\"nome\":\"ALICE SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2021-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-25\",\"tipo\":\"outro\"},{\"matricula\":\"10026\",\"nome\":\"BETO SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2022-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-26\",\"tipo\":\"outro\"},{\"matricula\":\"10027\",\"nome\":\"CLARA SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2023-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-27\",\"tipo\":\"outro\"},{\"matricula\":\"10028\",\"nome\":\"DANI SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-28\",\"tipo\":\"outro\"},{\"matricula\":\"10029\",\"nome\":\"EDU SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-29\",\"tipo\":\"outro\"},{\"matricula\":\"10030\",\"nome\":\"ANA SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-30\",\"tipo\":\"outro\"},{\"matricula\":\"10031\",\"nome\":\"BRUNO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-31\",\"tipo\":\"outro\"},{\"matricula\":\"10032\",\"nome\":\"CARLA SOUZA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-32\",\"tipo\":\"outro\"},{\"matricula\":\"10033\",\"nome\":\"DIEGO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-33\",\"tipo\":\"outro\"},{\"matricula\":\"10034\",\"nome\":\"ELAINE SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-34\",\"tipo\":\"outro\"},{\"matricula\":\"10035\",\"nome\":\"FABIO SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":0,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-35\",\"tipo\":\"outro\"},{\"matricula\":\"10036\",\"nome\":\"GISELE SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2018-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-36\",\"tipo\":\"outro\"},{\"matricula\":\"10037\",\"nome\":\"HUGO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2019-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-37\",\"tipo\":\"outro\"},{\"matricula\":\"10038\",\"nome\":\"IARA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2020-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-38\",\"tipo\":\"outro\"},{\"matricula\":\"10039\",\"nome\":\"JOAO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2021-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-39\",\"tipo\":\"outro\"},{\"matricula\":\"10040\",\"nome\":\"KAREN SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2022-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-40\",\"tipo\":\"outro\"},{\"matricula\":\"10041\",\"nome\":\"LUCAS SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2023-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-41\",\"tipo\":\"outro\"},{\"matricula\":\"10042\",\"nome\":\"MARIA SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-42\",\"tipo\":\"outro\"},{\"matricula\":\"10043\",\"nome\":\"NINA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-43\",\"tipo\":\"outro\"},{\"matricula\":\"10044\",\"nome\":\"OTAVIO SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-44\",\"tipo\":\"outro\"},{\"matricula\":\"10045\",\"nome\":\"PAULA SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-45\",\"tipo\":\"outro\"},{\"matricula\":\"10046\",\"nome\":\"RAFAEL SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-46\",\"tipo\":\"outro\"},{\"matricula\":\"10047\",\"nome\":\"SILVIA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-47\",\"tipo\":\"outro\"},{\"matricula\":\"10048\",\"nome\":\"TIAGO SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-48\",\"tipo\":\"outro\"},{\"matricula\":\"10049\",\"nome\":\"URSULA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":0,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-49\",\"tipo\":\"outro\"}]}",
+      "quantidadeEquipeInicial": 50,
+      "respostasNaoEntendi": 0,
+      "validacoesSemanticas": [
+        {
+          "id": 40,
+          "pergunta": "Quantos funcionários tem?",
+          "perguntaBase": "Quantos funcionários tem?",
+          "esperado": 50,
+          "passou": true,
+          "resposta": "👥 A equipe tem 50 pessoas cadastradas: 50 ativas, 0 afastadas e 0 emprestadas."
+        }
+      ],
+      "estadoFinal": "{\"equipe\":[{\"matricula\":\"10000\",\"nome\":\"ANA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"ENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-0\",\"tipo\":\"enc\"},{\"matricula\":\"10001\",\"nome\":\"BRUNO SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"SUBENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-1\",\"tipo\":\"sub\"},{\"matricula\":\"10002\",\"nome\":\"CARLA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"LIDER FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-2\",\"tipo\":\"outro\"},{\"matricula\":\"10003\",\"nome\":\"DIEGO SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"ENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-3\",\"tipo\":\"enc\"},{\"matricula\":\"10004\",\"nome\":\"ELAINE SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"SUBENCARREGADO FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-4\",\"tipo\":\"sub\"},{\"matricula\":\"10005\",\"nome\":\"FABIO SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"LIDER FRENTE DE LOJA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-5\",\"tipo\":\"outro\"},{\"matricula\":\"10006\",\"nome\":\"GISELE SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-6\",\"tipo\":\"outro\"},{\"matricula\":\"10007\",\"nome\":\"HUGO SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-7\",\"tipo\":\"outro\"},{\"matricula\":\"10008\",\"nome\":\"IARA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2018-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-8\",\"tipo\":\"outro\"},{\"matricula\":\"10009\",\"nome\":\"JOAO SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2019-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-9\",\"tipo\":\"outro\"},{\"matricula\":\"10010\",\"nome\":\"KAREN SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2020-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-10\",\"tipo\":\"outro\"},{\"matricula\":\"10011\",\"nome\":\"LUCAS SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2021-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-11\",\"tipo\":\"outro\"},{\"matricula\":\"10012\",\"nome\":\"MARIA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2022-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-12\",\"tipo\":\"outro\"},{\"matricula\":\"10013\",\"nome\":\"NINA SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2023-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-13\",\"tipo\":\"outro\"},{\"matricula\":\"10014\",\"nome\":\"OTAVIO SILVA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-14\",\"tipo\":\"outro\"},{\"matricula\":\"10015\",\"nome\":\"PAULA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-15\",\"tipo\":\"outro\"},{\"matricula\":\"10016\",\"nome\":\"RAFAEL SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-16\",\"tipo\":\"outro\"},{\"matricula\":\"10017\",\"nome\":\"SILVIA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-17\",\"tipo\":\"outro\"},{\"matricula\":\"10018\",\"nome\":\"TIAGO SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-18\",\"tipo\":\"outro\"},{\"matricula\":\"10019\",\"nome\":\"URSULA SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-19\",\"tipo\":\"outro\"},{\"matricula\":\"10020\",\"nome\":\"VITOR SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-20\",\"tipo\":\"outro\"},{\"matricula\":\"10021\",\"nome\":\"WANDA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-21\",\"tipo\":\"outro\"},{\"matricula\":\"10022\",\"nome\":\"XAVIER SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2018-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-22\",\"tipo\":\"outro\"},{\"matricula\":\"10023\",\"nome\":\"YARA SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2019-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-23\",\"tipo\":\"outro\"},{\"matricula\":\"10024\",\"nome\":\"ZECA SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2020-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-24\",\"tipo\":\"outro\"},{\"matricula\":\"10025\",\"nome\":\"ALICE SILVA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2021-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-25\",\"tipo\":\"outro\"},{\"matricula\":\"10026\",\"nome\":\"BETO SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2022-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-26\",\"tipo\":\"outro\"},{\"matricula\":\"10027\",\"nome\":\"CLARA SILVA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2023-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-27\",\"tipo\":\"outro\"},{\"matricula\":\"10028\",\"nome\":\"DANI SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-28\",\"tipo\":\"outro\"},{\"matricula\":\"10029\",\"nome\":\"EDU SILVA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-29\",\"tipo\":\"outro\"},{\"matricula\":\"10030\",\"nome\":\"ANA SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-30\",\"tipo\":\"outro\"},{\"matricula\":\"10031\",\"nome\":\"BRUNO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-31\",\"tipo\":\"outro\"},{\"matricula\":\"10032\",\"nome\":\"CARLA SOUZA\",\"horario\":\"13:40 AS 22:00\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":6,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-32\",\"tipo\":\"outro\"},{\"matricula\":\"10033\",\"nome\":\"DIEGO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-33\",\"tipo\":\"outro\"},{\"matricula\":\"10034\",\"nome\":\"ELAINE SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-34\",\"tipo\":\"outro\"},{\"matricula\":\"10035\",\"nome\":\"FABIO SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":0,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-35\",\"tipo\":\"outro\"},{\"matricula\":\"10036\",\"nome\":\"GISELE SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2018-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-36\",\"tipo\":\"outro\"},{\"matricula\":\"10037\",\"nome\":\"HUGO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2019-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-37\",\"tipo\":\"outro\"},{\"matricula\":\"10038\",\"nome\":\"IARA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":5,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2020-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-38\",\"tipo\":\"outro\"},{\"matricula\":\"10039\",\"nome\":\"JOAO SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2021-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-39\",\"tipo\":\"outro\"},{\"matricula\":\"10040\",\"nome\":\"KAREN SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":3,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2022-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-40\",\"tipo\":\"outro\"},{\"matricula\":\"10041\",\"nome\":\"LUCAS SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2023-06-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-41\",\"tipo\":\"outro\"},{\"matricula\":\"10042\",\"nome\":\"MARIA SOUZA\",\"horario\":\"08:00 AS 16:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2010-07-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-42\",\"tipo\":\"outro\"},{\"matricula\":\"10043\",\"nome\":\"NINA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2011-08-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-43\",\"tipo\":\"outro\"},{\"matricula\":\"10044\",\"nome\":\"OTAVIO SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2012-09-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-44\",\"tipo\":\"outro\"},{\"matricula\":\"10045\",\"nome\":\"PAULA SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2013-01-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-45\",\"tipo\":\"outro\"},{\"matricula\":\"10046\",\"nome\":\"RAFAEL SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":1,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2014-02-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-46\",\"tipo\":\"outro\"},{\"matricula\":\"10047\",\"nome\":\"SILVIA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":2,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2015-03-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-47\",\"tipo\":\"outro\"},{\"matricula\":\"10048\",\"nome\":\"TIAGO SOUZA\",\"horario\":\"07:00 AS 15:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"ABERTURA\",\"folgaFixa\":4,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2016-04-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-48\",\"tipo\":\"outro\"},{\"matricula\":\"10049\",\"nome\":\"URSULA SOUZA\",\"horario\":\"14:00 AS 22:20\",\"cargo\":\"OPERADOR DE CAIXA\",\"setor\":\"Frente de Loja\",\"setorEmprestimo\":\"\",\"subsetor\":\"\",\"turno\":\"FECHAMENTO\",\"folgaFixa\":0,\"situacao\":\"A\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"admissao\":\"2017-05-01\",\"aptoDomingo\":true,\"aptidaoId\":\"func-49\",\"tipo\":\"outro\"}]}",
+      "estadoPreservado": true,
+      "provaDeteccaoMutacao": {
+        "executada": true,
+        "detectou": true,
+        "restaurado": true
+      }
+    },
+    {
+      "app": "Encarregados",
+      "arquivo": "Escala_2x1_encarregados_V196.html",
+      "casos": [
+        {
+          "id": 1,
+          "pergunta": "Como funciona a escala de domingo?",
+          "resposta": "👥 Domingos de novembro de 2026 — o app escolhe ao gerar: 01/11 : ninguém escolhido ainda 08/11 : ninguém escolhido ainda 15/11 : ninguém escolhido ainda 22/11 : ninguém escolhido ainda 29/11 : ninguém escolhido ainda",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 2,
+          "pergunta": "Quais são as regras para trabalhar no domingo?",
+          "resposta": "📏 Regras do domingo (Encarregados): trabalham 3 pessoas — pelo menos 1 Encarregado e 1 Subencarregado , todos de setores diferentes e no máximo 1 do Laticínio . Ninguém faz 3 domingos seguidos. No domingo de balanço, todos trabalham.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 3,
+          "pergunta": "O que acontece no domingo de balanço?",
+          "resposta": "📦 Domingo de balanço: acontece em janeiro, março, junho e setembro. Escolha o domingo em 📅 Mês e opções → Mais opções → 📦 Domingos de balanço . No balanço, todos trabalham .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 4,
+          "pergunta": "Como funciona a folga compensatória de feriado?",
+          "resposta": "🎉 Feriado: no passo 4 Feriados , marque quem vai trabalhar. Quem trabalha ganha uma folga em outro dia : o app sugere a data, e você toca em ✅ Aceitar ou 🔄 Outra data . A folga nunca cai no dia da folga fixa. O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções. Para ver o mês inteiro, abra a 📅 Prévia das folgas .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 5,
+          "pergunta": "Qual é o prazo para tirar a folga do feriado?",
+          "resposta": "🎉 Feriados de novembro de 2026: 02/11 (Finados), 15/11 (Proclamação da República), 20/11 (Consciência Negra). Marque quem trabalha no passo 4 Feriados .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 6,
+          "pergunta": "Quantos dias seguidos uma pessoa pode trabalhar?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 7,
+          "pergunta": "Uma pessoa pode trabalhar três domingos seguidos?",
+          "resposta": "📏 Domingos seguidos (2×1): a pessoa trabalha no máximo 2 domingos seguidos ; o 3º é folga. Conta também os 2 últimos domingos do mês passado — por isso preencha o passo 2 Mês passado .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 8,
+          "pergunta": "Jovem aprendiz pode trabalhar no domingo?",
+          "resposta": "📏 Posso orientar sobre domingos, regra 2×1 e balanço. Para conferir um caso específico, informe o nome da pessoa e a data do domingo. Exemplo: “Por que Ana não pode trabalhar em 18/10?”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 9,
+          "pergunta": "Jovem aprendiz pode trabalhar no feriado?",
+          "resposta": "🎉 Feriado: no passo 4 Feriados , marque quem vai trabalhar. Quem trabalha ganha uma folga em outro dia : o app sugere a data, e você toca em ✅ Aceitar ou 🔄 Outra data . A folga nunca cai no dia da folga fixa. O prazo para tirar a folga é de 20 dias (ou 30 dias, pela CLT), em 📅 Mês e opções. Para ver o mês inteiro, abra a 📅 Prévia das folgas .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 10,
+          "pergunta": "O que acontece quando o feriado cai no domingo?",
+          "resposta": "🎉 Feriados de novembro de 2026: 02/11 (Finados), 15/11 (Proclamação da República), 20/11 (Consciência Negra). Marque quem trabalha no passo 4 Feriados .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 11,
+          "pergunta": "Como funciona a escala 2 por 1?",
+          "resposta": "📏 Domingos seguidos (2×1): a pessoa trabalha no máximo 2 domingos seguidos ; o 3º é folga. Conta também os 2 últimos domingos do mês passado — por isso preencha o passo 2 Mês passado .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 12,
+          "pergunta": "Quais são as regras da escala dos encarregados?",
+          "resposta": "Entendi: “quais sao as regras da escala dos encarregado”. 📏 Regras do domingo (Encarregados): trabalham 3 pessoas — pelo menos 1 Encarregado e 1 Subencarregado , todos de setores diferentes e no máximo 1 do Laticínio . Ninguém faz 3 domingos seguidos. No domingo de balanço, todos trabalham.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 13,
+          "pergunta": "Quantas pessoas trabalham no domingo na escala dos encarregados?",
+          "resposta": "⭐ A quantidade de pessoas na liderança de domingo não é fixa: no passo 3 — Domingos, quadro ③ Quem lidera, você pode selecionar uma, várias pessoas ou organizar por turno (abertura e fechamento). Para confirmar um domingo específico, confira as pessoas selecionadas nessa data.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 14,
+          "pergunta": "Precisa ter encarregado e subencarregado no domingo?",
+          "resposta": "📏 Posso orientar sobre domingos, regra 2×1 e balanço. Para conferir um caso específico, informe o nome da pessoa e a data do domingo. Exemplo: “Por que Ana não pode trabalhar em 18/10?”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 15,
+          "pergunta": "Pode escalar duas pessoas do mesmo setor?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 16,
+          "pergunta": "Quantas pessoas do Laticínio podem trabalhar no domingo?",
+          "resposta": "📏 Regras do domingo (Encarregados): trabalham 3 pessoas — pelo menos 1 Encarregado e 1 Subencarregado , todos de setores diferentes e no máximo 1 do Laticínio . Ninguém faz 3 domingos seguidos. No domingo de balanço, todos trabalham.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 17,
+          "pergunta": "Como funcionam as folgas fixas?",
+          "resposta": "Entendi: “como funciona as folgas fixas”. 💤 Folga fixa: é o dia da semana definido no cadastro para descanso regular. Para consultar ou alterar, use o passo 1 Equipe → ✏️ Editar equipe e confira o campo Folga fixa ; depois gere a escala novamente.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 18,
+          "pergunta": "A folga fixa pode ser trocada quando importar o ERP?",
+          "resposta": "💤 Folga fixa: é o dia da semana definido no cadastro para descanso regular. Para consultar ou alterar, use o passo 1 Equipe → ✏️ Editar equipe e confira o campo Folga fixa ; depois gere a escala novamente.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 19,
+          "pergunta": "O que significa folga a definir?",
+          "resposta": "💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 20,
+          "pergunta": "Como funciona a escala manual?",
+          "resposta": "🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Misto — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 21,
+          "pergunta": "Como funciona a escala automática?",
+          "resposta": "Entendi: “como funciona a escala automatico”. 🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Misto — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 22,
+          "pergunta": "Qual a diferença entre escala manual e automática?",
+          "resposta": "Entendi: “qual a diferenca entre escala manual e automatico”. 🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Misto — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 23,
+          "pergunta": "Como confiro se a escala está correta?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 24,
+          "pergunta": "O que faço se a escala apresentar um erro?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 25,
+          "pergunta": "Como guardo o histórico do mês?",
+          "resposta": "📦 Como guardar: depois de gerar a escala (passo 5), toque em 📦 Guardar histórico do mês — o arquivo Historico_…json vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use 📊 Baixar planilha Excel . O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 26,
+          "pergunta": "Como abro um histórico que já foi guardado?",
+          "resposta": "Entendi: “como abre um historico que ja foi guardado”. 📦 Histórico do mês: depois de gerar, toque em 📦 Guardar histórico do mês . Ele baixa um arquivo .json com a escala, a equipe e o que eu aprendi. No mês seguinte (ou em outro aparelho), abra com 📂 Abrir histórico guardado .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 27,
+          "pergunta": "Como baixo a planilha da escala?",
+          "resposta": "📦 Como guardar: depois de gerar a escala (passo 5), toque em 📦 Guardar histórico do mês — o arquivo Historico_…json vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use 📊 Baixar planilha Excel . O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 28,
+          "pergunta": "Por que preciso confirmar os horários de domingo?",
+          "resposta": "De quem você quer saber? Escreva o nome. Ex.: “ por que CARLA não pode no domingo 1? ”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 29,
+          "pergunta": "O que significa escala mista?",
+          "resposta": "🧩 Jeitos de montar os domingos (passo 3 Domingos): Automático — o app escolhe quem trabalha; À mão — você escolhe todo mundo; Misto — você escolhe alguns e o app completa. Na escala à mão, a 💡 Sugestão mostra quem pode entrar.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 30,
+          "pergunta": "Como corrijo um horário de domingo?",
+          "resposta": "Entendi: “como corrija um horario de domingo”. ✏️ Equipe: no passo 1 Equipe , toque em ✏️ Editar equipe para mudar nome, cargo, horário, turno, folga fixa ou data de admissão (dd/mm/aaaa). A equipe também entra pela planilha do RH ou pelo histórico guardado.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 31,
+          "pergunta": "Como importo a equipe pelo arquivo TXT?",
+          "resposta": "📥 Nos Encarregados a equipe entra por Equipe.txt (botão da tela inicial), pelo histórico guardado (⋮ → Abrir histórico guardado) ou em ✏️ Editar equipe . O botão 📥 Atualizar pelo ERP só atualiza as datas de admissão.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 32,
+          "pergunta": "O que deve ter no arquivo da equipe?",
+          "resposta": "📦 Histórico do mês: depois de gerar, toque em 📦 Guardar histórico do mês . Ele baixa um arquivo .json com a escala, a equipe e o que eu aprendi. No mês seguinte (ou em outro aparelho), abra com 📂 Abrir histórico guardado .",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 33,
+          "pergunta": "O que faço se uma pessoa não aparecer na equipe?",
+          "resposta": "Entendi: “o que faco se uma pessoa nao aparece na equipe”. De quem você quer saber? Escreva o nome. Ex.: “ por que CARLA não pode no domingo 1? ”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 34,
+          "pergunta": "Como edito os dados de um funcionário?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 35,
+          "pergunta": "Como marco alguém como afastado?",
+          "resposta": "🩺 Ninguém afastado: todos os cadastrados estão com situação A (ativo). Vem da situação cadastrada no passo 1 (planilha do RH ou ✏️ Editar equipe).",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 36,
+          "pergunta": "Como funciona o funcionário emprestado para outro setor?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 37,
+          "pergunta": "Como escolho o setor da equipe?",
+          "resposta": "👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 38,
+          "pergunta": "Como altero o mês da escala?",
+          "resposta": "🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 39,
+          "pergunta": "Como vejo quem está escalado em um domingo?",
+          "resposta": "Entendi: “como veio quem esta escalado em um domingo”. 👥 Domingos de novembro de 2026 — o app escolhe ao gerar: 01/11 : ninguém escolhido ainda 08/11 : ninguém escolhido ainda 15/11 : ninguém escolhido ainda 22/11 : ninguém escolhido ainda 29/11 : ninguém escolhido ainda",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 40,
+          "pergunta": "Quantos funcionários tem?",
+          "resposta": "👥 A equipe tem 32 pessoas cadastradas: 32 ativas, 0 afastadas e 0 emprestadas.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 41,
+          "pergunta": "Como descubro por que uma pessoa não pode trabalhar no domingo?",
+          "resposta": "De quem você quer saber? Escreva o nome. Ex.: “ por que CARLA não pode no domingo 1? ”",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 42,
+          "pergunta": "O que acontece se faltar liderança em um turno?",
+          "resposta": "✏️ Equipe: no passo 1 Equipe , toque em ✏️ Editar equipe para mudar nome, cargo, horário, turno, folga fixa ou data de admissão (dd/mm/aaaa). A equipe também entra pela planilha do RH ou pelo histórico guardado.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 43,
+          "pergunta": "Como funciona a liderança por turno?",
+          "resposta": "✏️ Equipe: no passo 1 Equipe , toque em ✏️ Editar equipe para mudar nome, cargo, horário, turno, folga fixa ou data de admissão (dd/mm/aaaa). A equipe também entra pela planilha do RH ou pelo histórico guardado.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 44,
+          "pergunta": "Como são distribuídos os horários de abertura e fechamento?",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 45,
+          "pergunta": "O que devo conferir antes de gerar a escala?",
+          "resposta": "A escala deste mês ainda não foi gerada (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 46,
+          "pergunta": "O que significa uma pendência na tela?",
+          "resposta": "🤖 Não reconheci essa dúvida como algo que o app confira. Posso ajudar com equipe, escala, domingos, folgas e feriados. Reformule com o nome da pessoa, setor, data ou etapa do app.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 47,
+          "pergunta": "O que faço se a escala não gerar?",
+          "resposta": "▶️ Gerar a escala: vá ao passo 5 Gerar e toque em Gerar . Se faltar alguma coisa, o app avisa o que é e onde arrumar. Pergunte aqui “ o que falta? ” para eu conferir.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 48,
+          "pergunta": "Você consegue explicar isso de outro jeito?",
+          "resposta": "Entendi: “voce consegue explicar isso de outro feito”. 🤖 Eu sou o Gabriel , o assistente virtual de RH. Olho o que você faz (quem escolhe, horários, quantos domingos cada um fez) e dou dicas . Não mudo nada sozinho, e as regras quem confere é o app. Tudo fica neste aparelho e vai junto no histórico do mês. Também respondo perguntas — sem internet.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 49,
+          "pergunta": "Bom dia, você pode me ajudar?",
+          "resposta": "🤖 Gabriel — o que eu sei fazer: 📏 Explicar as regras : 6×1, domingos seguidos (2×1), DSR, feriado e balanço. 👥 Responder sobre a escala aberta : quem trabalha num domingo, por que alguém não pode, quantos domingos a pessoa fez, a folga fixa e o que falta. 📅 Dizer a data de hoje e a hora do aparelho, e quem estava escalado ou folgou no último domingo (só a escala planejada: eu não tenho registro de ponto). 🕘 Dizer quem trabalha, folga, abre ou fecha num dia (hoje, amanhã, segunda…), contar a equipe (ativos, afastados, emprestados) e conferir a escala: sequência de dias seguidos e domingos seguidos. A cobertura mínima ainda não está cadastrada, então não digo se é “suficiente”. 🧭 Mostrar como usar cada passo do app. 💡 Dar dicas (aba Dicas) e aprender os costumes da equipe neste aparelho. Entendo abreviações e erros de digitação simples. Se eu ficar na dúvida de qual pessoa você quis dizer, eu pergunto . Não altero a escala e não uso a internet.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        },
+        {
+          "id": 50,
+          "pergunta": "Obrigado pela ajuda",
+          "resposta": "🤖 Gabriel — o que eu sei fazer: 📏 Explicar as regras : 6×1, domingos seguidos (2×1), DSR, feriado e balanço. 👥 Responder sobre a escala aberta : quem trabalha num domingo, por que alguém não pode, quantos domingos a pessoa fez, a folga fixa e o que falta. 📅 Dizer a data de hoje e a hora do aparelho, e quem estava escalado ou folgou no último domingo (só a escala planejada: eu não tenho registro de ponto). 🕘 Dizer quem trabalha, folga, abre ou fecha num dia (hoje, amanhã, segunda…), contar a equipe (ativos, afastados, emprestados) e conferir a escala: sequência de dias seguidos e domingos seguidos. A cobertura mínima ainda não está cadastrada, então não digo se é “suficiente”. 🧭 Mostrar como usar cada passo do app. 💡 Dar dicas (aba Dicas) e aprender os costumes da equipe neste aparelho. Entendo abreviações e erros de digitação simples. Se eu ficar na dúvida de qual pessoa você quis dizer, eu pergunto . Não altero a escala e não uso a internet.",
+          "retornouString": true,
+          "respostaVazia": false,
+          "erro": null
+        }
+      ],
+      "errosJS": [],
+      "estadoInicial": "{\"equipe\":[{\"matricula\":\"30000\",\"nome\":\"ANA SILVA\",\"cargo\":\"ENCARREGADO AÇOUGUE\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"Açougue\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30001\",\"nome\":\"BRUNO SILVA\",\"cargo\":\"SUBENCARREGADO AÇOUGUE\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":6,\"setor\":\"Açougue\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30002\",\"nome\":\"CARLA SILVA\",\"cargo\":\"ENCARREGADO PADARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Padaria\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30003\",\"nome\":\"DIEGO SILVA\",\"cargo\":\"SUBENCARREGADO PADARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":5,\"setor\":\"Padaria\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30004\",\"nome\":\"ELAINE SILVA\",\"cargo\":\"ENCARREGADO MERCEARIA\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"Mercearia\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30005\",\"nome\":\"FABIO SILVA\",\"cargo\":\"SUBENCARREGADO MERCEARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":2,\"setor\":\"Mercearia\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30006\",\"nome\":\"GISELE SILVA\",\"cargo\":\"ENCARREGADO FLV\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"FLV\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30007\",\"nome\":\"HUGO SILVA\",\"cargo\":\"SUBENCARREGADO FLV\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"FLV\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30008\",\"nome\":\"IARA SILVA\",\"cargo\":\"ENCARREGADO FRENTE DE LOJA\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Frente de Loja\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30009\",\"nome\":\"JOAO SILVA\",\"cargo\":\"SUBENCARREGADO FRENTE DE LOJA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":3,\"setor\":\"Frente de Loja\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30010\",\"nome\":\"KAREN SILVA\",\"cargo\":\"ENCARREGADO DEPÓSITO\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":6,\"setor\":\"Depósito\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30011\",\"nome\":\"LUCAS SILVA\",\"cargo\":\"SUBENCARREGADO DEPÓSITO\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":5,\"setor\":\"Depósito\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30012\",\"nome\":\"MARIA SILVA\",\"cargo\":\"ENCARREGADO PERFUMARIA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":3,\"setor\":\"Perfumaria\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30013\",\"nome\":\"NINA SILVA\",\"cargo\":\"SUBENCARREGADO PERFUMARIA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":6,\"setor\":\"Perfumaria\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30014\",\"nome\":\"OTAVIO SILVA\",\"cargo\":\"ENCARREGADO LIMPEZA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":6,\"setor\":\"Limpeza\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30015\",\"nome\":\"PAULA SILVA\",\"cargo\":\"SUBENCARREGADO LIMPEZA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Limpeza\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30016\",\"nome\":\"RAFAEL SILVA\",\"cargo\":\"ENCARREGADO SAUDÁVEIS\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"Saudáveis\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30017\",\"nome\":\"SILVIA SILVA\",\"cargo\":\"SUBENCARREGADO SAUDÁVEIS\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":4,\"setor\":\"Saudáveis\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30018\",\"nome\":\"TIAGO SILVA\",\"cargo\":\"ENCARREGADO SALGADO\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":6,\"setor\":\"Salgado\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30019\",\"nome\":\"URSULA SILVA\",\"cargo\":\"SUBENCARREGADO SALGADO\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":2,\"setor\":\"Salgado\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30020\",\"nome\":\"VITOR SILVA\",\"cargo\":\"ENCARREGADO COZINHA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":1,\"setor\":\"Cozinha\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30021\",\"nome\":\"WANDA SILVA\",\"cargo\":\"SUBENCARREGADO COZINHA\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":2,\"setor\":\"Cozinha\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30022\",\"nome\":\"XAVIER SILVA\",\"cargo\":\"ENCARREGADO CPD\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"CPD\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30023\",\"nome\":\"YARA SILVA\",\"cargo\":\"SUBENCARREGADO CPD\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"CPD\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30024\",\"nome\":\"ZECA SILVA\",\"cargo\":\"ENCARREGADO TESOURARIA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":2,\"setor\":\"Tesouraria\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30025\",\"nome\":\"ALICE SILVA\",\"cargo\":\"SUBENCARREGADO TESOURARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":3,\"setor\":\"Tesouraria\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30026\",\"nome\":\"BETO SILVA\",\"cargo\":\"ENCARREGADO MANUTENÇÃO\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":4,\"setor\":\"Manutenção\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30027\",\"nome\":\"CLARA SILVA\",\"cargo\":\"SUBENCARREGADO MANUTENÇÃO\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":5,\"setor\":\"Manutenção\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30028\",\"nome\":\"DANI SILVA\",\"cargo\":\"ENCARREGADO PATRIMÔNIO\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":6,\"setor\":\"Patrimônio\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30029\",\"nome\":\"EDU SILVA\",\"cargo\":\"SUBENCARREGADO PATRIMÔNIO\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Patrimônio\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30030\",\"nome\":\"ANA SOUZA\",\"cargo\":\"ENCARREGADO LATICINIOS\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":3,\"setor\":\"Laticínio\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30031\",\"nome\":\"BRUNO SOUZA\",\"cargo\":\"SUBENCARREGADO LATICINIOS\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Laticínio\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true}]}",
+      "quantidadeEquipeInicial": 32,
+      "respostasNaoEntendi": 0,
+      "validacoesSemanticas": [
+        {
+          "id": 40,
+          "pergunta": "Quantos funcionários tem?",
+          "perguntaBase": "Quantos funcionários tem?",
+          "esperado": 32,
+          "passou": true,
+          "resposta": "👥 A equipe tem 32 pessoas cadastradas: 32 ativas, 0 afastadas e 0 emprestadas."
+        }
+      ],
+      "estadoFinal": "{\"equipe\":[{\"matricula\":\"30000\",\"nome\":\"ANA SILVA\",\"cargo\":\"ENCARREGADO AÇOUGUE\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"Açougue\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30001\",\"nome\":\"BRUNO SILVA\",\"cargo\":\"SUBENCARREGADO AÇOUGUE\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":6,\"setor\":\"Açougue\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30002\",\"nome\":\"CARLA SILVA\",\"cargo\":\"ENCARREGADO PADARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Padaria\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30003\",\"nome\":\"DIEGO SILVA\",\"cargo\":\"SUBENCARREGADO PADARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":5,\"setor\":\"Padaria\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30004\",\"nome\":\"ELAINE SILVA\",\"cargo\":\"ENCARREGADO MERCEARIA\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"Mercearia\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30005\",\"nome\":\"FABIO SILVA\",\"cargo\":\"SUBENCARREGADO MERCEARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":2,\"setor\":\"Mercearia\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30006\",\"nome\":\"GISELE SILVA\",\"cargo\":\"ENCARREGADO FLV\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"FLV\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30007\",\"nome\":\"HUGO SILVA\",\"cargo\":\"SUBENCARREGADO FLV\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"FLV\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30008\",\"nome\":\"IARA SILVA\",\"cargo\":\"ENCARREGADO FRENTE DE LOJA\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Frente de Loja\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30009\",\"nome\":\"JOAO SILVA\",\"cargo\":\"SUBENCARREGADO FRENTE DE LOJA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":3,\"setor\":\"Frente de Loja\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30010\",\"nome\":\"KAREN SILVA\",\"cargo\":\"ENCARREGADO DEPÓSITO\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":6,\"setor\":\"Depósito\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30011\",\"nome\":\"LUCAS SILVA\",\"cargo\":\"SUBENCARREGADO DEPÓSITO\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":5,\"setor\":\"Depósito\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30012\",\"nome\":\"MARIA SILVA\",\"cargo\":\"ENCARREGADO PERFUMARIA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":3,\"setor\":\"Perfumaria\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30013\",\"nome\":\"NINA SILVA\",\"cargo\":\"SUBENCARREGADO PERFUMARIA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":6,\"setor\":\"Perfumaria\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30014\",\"nome\":\"OTAVIO SILVA\",\"cargo\":\"ENCARREGADO LIMPEZA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":6,\"setor\":\"Limpeza\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30015\",\"nome\":\"PAULA SILVA\",\"cargo\":\"SUBENCARREGADO LIMPEZA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Limpeza\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30016\",\"nome\":\"RAFAEL SILVA\",\"cargo\":\"ENCARREGADO SAUDÁVEIS\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"Saudáveis\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30017\",\"nome\":\"SILVIA SILVA\",\"cargo\":\"SUBENCARREGADO SAUDÁVEIS\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":4,\"setor\":\"Saudáveis\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30018\",\"nome\":\"TIAGO SILVA\",\"cargo\":\"ENCARREGADO SALGADO\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":6,\"setor\":\"Salgado\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30019\",\"nome\":\"URSULA SILVA\",\"cargo\":\"SUBENCARREGADO SALGADO\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":2,\"setor\":\"Salgado\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30020\",\"nome\":\"VITOR SILVA\",\"cargo\":\"ENCARREGADO COZINHA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":1,\"setor\":\"Cozinha\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30021\",\"nome\":\"WANDA SILVA\",\"cargo\":\"SUBENCARREGADO COZINHA\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":2,\"setor\":\"Cozinha\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30022\",\"nome\":\"XAVIER SILVA\",\"cargo\":\"ENCARREGADO CPD\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"CPD\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30023\",\"nome\":\"YARA SILVA\",\"cargo\":\"SUBENCARREGADO CPD\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":4,\"setor\":\"CPD\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30024\",\"nome\":\"ZECA SILVA\",\"cargo\":\"ENCARREGADO TESOURARIA\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":2,\"setor\":\"Tesouraria\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30025\",\"nome\":\"ALICE SILVA\",\"cargo\":\"SUBENCARREGADO TESOURARIA\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":3,\"setor\":\"Tesouraria\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30026\",\"nome\":\"BETO SILVA\",\"cargo\":\"ENCARREGADO MANUTENÇÃO\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":4,\"setor\":\"Manutenção\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30027\",\"nome\":\"CLARA SILVA\",\"cargo\":\"SUBENCARREGADO MANUTENÇÃO\",\"horario\":\"13:40 AS 22:00\",\"turno\":\"Fechamento\",\"folgaFixa\":5,\"setor\":\"Manutenção\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30028\",\"nome\":\"DANI SILVA\",\"cargo\":\"ENCARREGADO PATRIMÔNIO\",\"horario\":\"14:00 AS 22:20\",\"turno\":\"Fechamento\",\"folgaFixa\":6,\"setor\":\"Patrimônio\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30029\",\"nome\":\"EDU SILVA\",\"cargo\":\"SUBENCARREGADO PATRIMÔNIO\",\"horario\":\"08:00 AS 16:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Patrimônio\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30030\",\"nome\":\"ANA SOUZA\",\"cargo\":\"ENCARREGADO LATICINIOS\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":3,\"setor\":\"Laticínio\",\"tipo\":\"enc\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true},{\"matricula\":\"30031\",\"nome\":\"BRUNO SOUZA\",\"cargo\":\"SUBENCARREGADO LATICINIOS\",\"horario\":\"07:00 AS 15:20\",\"turno\":\"Abertura\",\"folgaFixa\":1,\"setor\":\"Laticínio\",\"tipo\":\"sub\",\"admissao\":\"2015-02-01\",\"statusErp\":\"\",\"situacaoDetalhe\":\"\",\"situacao\":\"A\",\"aptoDomingo\":true}]}",
+      "estadoPreservado": true,
+      "provaDeteccaoMutacao": {
+        "executada": true,
+        "detectou": true,
+        "restaurado": true
+      }
+    }
+  ],
+  "resumo": {
+    "perguntasExecutadas": 100,
+    "perguntasVazias": 0,
+    "naoEntendi": 0,
+    "excecoes": 0,
+    "errosJavaScript": 0,
+    "estadoPreservado": true,
+    "provaMutacaoDetectada": true,
+    "validacoesSemanticasFalhas": 0,
+    "setupComFalha": [],
+    "casosNaoEntendidos": []
+  }
+}

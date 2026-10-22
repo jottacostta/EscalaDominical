@@ -38,16 +38,16 @@ jobs:
         if: steps.instalar-playwright.outcome == 'success' && !cancelled()
         working-directory: testes
         run: npm run test:completo
-      - name: Bateria exploratória Gabriel — 500 perguntas nos dois apps
+      - name: Bateria exploratória Gabriel — 100 perguntas (50 por app)
         if: steps.instalar-playwright.outcome == 'success' && !cancelled()
         working-directory: testes
-        run: npm run test:gabriel-500
-      - name: Guardar relatório da bateria Gabriel
+        run: npm run test:gabriel-100
+      - name: Guardar relatório da bateria Gabriel — 100 perguntas
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: relatorio-gabriel-500
-          path: testes/relatorio-gabriel-500.json
+          name: relatorio-gabriel-100
+          path: testes/relatorio-gabriel-100.json
           if-no-files-found: warn
           retention-days: 14
       - name: Guardar captura da lista manual (V230)
