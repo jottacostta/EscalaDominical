@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V294</title>
+<title>Escala de Setores — V295</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V295 [Claude] — GRADE MENSAL E REGRA DE FOLGAS POR DOMINGO NO ENSAIO 5×2: a tabela de folgas do ensaio passa a ser uma grade mensal pessoa × dias, mostrando quem trabalha cada domingo (D), as folgas da semana (F), o trabalho (·) e o descanso de domingo (–). Na escala à mão, o ensaio distribui os domingos sem escala oficial em rodízio (metade da equipe por domingo, ninguém dois domingos seguidos) e aplica a regra 5×2: quem trabalha no domingo tira 2 folgas de seg–sáb; quem folga no domingo tira só 1 (o domingo já é a outra folga), sem passar de 5 dias seguidos. A simulação automática mostra a mesma grade lendo a escala oficial de domingos (o motor automático é coordenado por Manus e não foi alterado). Só no ensaio, sem validade real.
 V294 [Claude] — BOTÃO “SUGERIR FOLGAS DISTRIBUÍDAS” NA ESCALA À MÃO: na área de escala à mão do ensaio 5×2, um botão preenche a grade automaticamente espalhando as folgas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: dá para ajustar tocando nos dias e conferir. Só no ensaio, sem validade real.
 V293 [Claude] — TABELA DE FOLGAS E ESCALA À MÃO NO ENSAIO 5×2: o ensaio agora mostra as folgas em tabela (resumo por semana e grade pessoa × dias) e ganha, no passo Gerar, uma área para montar a escala à mão tocando nos dias e conferir (2 folgas por semana, dias separados, no máximo 5 dias seguidos). Tudo só em memória, sem validade real.
 V292 [Manus] — TESTAR 5×2 SEM VALIDADE REAL: área 🧪 em Configurações simula duas folgas semanais apenas em cópias na memória, mesmo antes do corte.
@@ -2655,6 +2656,12 @@ table.v292-tab th,table.v292-tab td{border:1px solid var(--border,#cbd5e1);paddi
 table.v292-tab th[scope=row]{text-align:left;white-space:nowrap}
 table.v292-tab td.v292-folga{background:var(--brand,#0047BA);color:#fff;font-weight:700}
 table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
+table.v292-tab-mes{font-size:11px}
+table.v292-tab-mes th,table.v292-tab-mes td{padding:3px 4px;min-width:28px}
+table.v292-tab-mes th.v292-col-dom{background:#fff7ed;color:#9a3412}
+table.v292-tab-mes th[scope=col]:first-child,table.v292-tab-mes th[scope=row]{position:sticky;left:0;z-index:1;background:var(--card,#fff)}
+table.v292-tab-mes td.v292-dom-trab{background:#ea580c;color:#fff;font-weight:700}
+table.v292-tab-mes td.v292-dom-folga{background:#fff7ed;color:#c2410c}
 .v292-manual-grade{overflow-x:auto;margin:8px 0}
 .v292-manual-grade table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0;font-variant-numeric:tabular-nums}
 .v292-manual-grade caption{text-align:left;font-weight:700;margin-bottom:4px;font-size:13px}
@@ -2764,7 +2771,7 @@ table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V294 · Escala à mão 5×2 com botão “Sugerir folgas distribuídas”</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V295 · Ensaio 5×2: grade mensal e folgas por domingo (2 se trabalha, 1 se folga)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16984,6 +16991,25 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(mes===10){f[2]='Finados';f[15]='Proclamação da República';f[20]='Consciência Negra';}
     if(mes===11)f[25]='Natal';return f;
   }
+  // V295: no ensaio (sem validade real), distribui quem trabalha em cada domingo SEM escala oficial definida,
+  // em rodízio (metade da equipe por domingo, alternando — ninguém trabalha dois domingos seguidos), só para
+  // a grade mensal mostrar a distribuição das folgas de acordo com o domingo trabalhado. Respeita os domingos
+  // já escalados (só preenche os vazios) e nunca grava nada oficial.
+  function simularDomingosEnsaio(eq,mes,ano,dom){
+    const elegiveis=eq.map((f,i)=>({f,i}))
+      .filter(x=>x.f&&!['AF','EP'].includes(String(x.f.situacao||'A').toUpperCase())&&Number(x.f.folgaFixa)!==0)
+      .map(x=>x.i);
+    if(!elegiveis.length)return false;
+    const diasDom=[];for(let d=1;d<=new Date(ano,mes+1,0).getDate();d++)if(new Date(ano,mes,d).getDay()===0)diasDom.push(d);
+    const meio=Math.ceil(elegiveis.length/2),grupoA=elegiveis.slice(0,meio),grupoB=elegiveis.slice(meio);
+    let simulou=false;
+    diasDom.forEach((d,k)=>{
+      if(Array.isArray(dom[d])&&dom[d].length)return;   // respeita o domingo já escalado
+      dom[d]=(k%2===0?grupoA:grupoB).slice();            // rodízio: alterna os dois grupos entre os domingos
+      simulou=true;
+    });
+    return simulou;
+  }
   function entrada(){
     const mes=Number(el('mes')?.value),ano=Number(el('ano')?.value);
     if(!el('ano')?.value||!Number.isInteger(mes)||mes<0||mes>11||!Number.isInteger(ano)||ano<1900||ano>2200)throw new Error('Escolha um mês e um ano válidos em Configurações.');
@@ -17048,6 +17074,23 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       return `<details><summary>Semana de ${esc(fmt(ini))}</summary><div class="v292-tab-rolagem"><table class="v292-tab"><caption>F = folga · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div></details>`;
     }).join('');
   }
+  function diasDoMes(ano,mes){const ultimo=new Date(ano,mes+1,0).getDate(),out=[];for(let d=1;d<=ultimo;d++){const dt=new Date(ano,mes,d);out.push(`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`);}return out;}
+  function domTrabalha(r,p,iso){const d=Number(iso.slice(8,10)),lista=(r.domingos&&(r.domingos[d]||r.domingos[iso]))||[];return Array.isArray(lista)&&lista.map(Number).includes(Number(p.id));}
+  // Grade mensal pessoa × dias: mostra quem trabalha cada domingo (D) e onde caem as folgas da semana (F). Sem validade real.
+  function tabelaMensal(r){
+    if(r.mes==null||r.ano==null)return tabelaGrade(r);   // sem mês/ano (ex.: dados antigos): cai na grade por semana
+    const dias=diasDoMes(r.ano,r.mes);
+    const cab=dias.map(iso=>{const dt=isoData(iso),dom=dt.getDay()===0;return `<th scope="col" class="${dom?'v292-col-dom':''}">${DIASEM[dt.getDay()]}<br>${pad(Number(iso.slice(8,10)))}</th>`;}).join('');
+    const corpo=r.pessoas.map(p=>{
+      const folgas=new Set(p.semanas.flatMap(w=>w.folgas||[]));
+      const cels=dias.map(iso=>{
+        if(isoData(iso).getDay()===0)return domTrabalha(r,p,iso)?'<td class="v292-dom-trab" title="Trabalha no domingo">D</td>':'<td class="v292-dom-folga" title="Domingo de descanso">–</td>';
+        return folgas.has(iso)?'<td class="v292-folga" title="Folga">F</td>':'<td class="v292-trab" title="Trabalha">·</td>';
+      }).join('');
+      return `<tr><th scope="row">${esc(p.nome)}</th>${cels}</tr>`;
+    }).join('');
+    return `<div class="v292-tab-rolagem"><table class="v292-tab v292-tab-mes"><caption>D = trabalha no domingo · F = folga da semana · · = trabalha · – = domingo de descanso</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>`;
+  }
   function mostrar(){
     const box=el('v292Teste5x2Resultado');if(!box||!resultado)return;
     const r=resultado,n=r.resumo;
@@ -17058,7 +17101,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <p><b>Conferência do teste: ${r.erros.length} erro(s) e ${r.avisos.length} aviso(s).</b></p>
       ${lista('Ver erros',r.erros)}${lista('Ver avisos',r.avisos)}
       <details open><summary>Como ficariam as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
-      <details><summary>Folgas por pessoa (pessoa × dias da semana)</summary>${tabelaGrade(r)}</details>
+      <details open><summary>Escala do mês (pessoa × dias — domingos e folgas)</summary>${tabelaMensal(r)}</details>
       <p>Nada foi aplicado ou guardado. Ao recarregar, este resultado desaparece.</p>`;
   }
   function simular(){
@@ -17069,9 +17112,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const e=entrada(),pedido={entrada:e,plano:null,erro:''};
       document.dispatchEvent(new CustomEvent('v292:construir-teste-5x2',{detail:pedido}));
       if(pedido.erro||!pedido.plano)throw new Error(pedido.erro||'Não consegui simular. Recarregue o app e tente novamente.');
-      const plano=pedido.plano,pessoas=Object.values(plano.pessoas||{}).map(p=>({nome:p.nome,semanas:copia(p.semanas||[])})),semanas=pessoas.flatMap(p=>p.semanas);
+      const plano=pedido.plano,pessoas=Object.entries(plano.pessoas||{}).map(([id,p])=>({id,nome:p.nome,semanas:copia(p.semanas||[])})),semanas=pessoas.flatMap(p=>p.semanas);
       const separadas=semanas.filter(w=>w.modoFolga==='separada'&&w.folgas.length===2);
-      resultado={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,semValidadeReal:true,resumo:{pessoas:pessoas.length,semanas:plano.semanas.length,pessoasSemanas:semanas.length,folgas:semanas.reduce((n,w)=>n+w.folgas.length,0),folgasSeparadas:separadas.length*2,paresSeparados:separadas.length,ultimoRecurso:semanas.filter(w=>w.modoFolga==='ultimo-recurso').length},erros:copia(plano.auditoria.erros),avisos:[...e.avisos,...plano.auditoria.avisos],pessoas};
+      resultado={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,mes:e.mes,ano:e.ano,domingos:e.domingos||{},semValidadeReal:true,resumo:{pessoas:pessoas.length,semanas:plano.semanas.length,pessoasSemanas:semanas.length,folgas:semanas.reduce((n,w)=>n+w.folgas.length,0),folgasSeparadas:separadas.length*2,paresSeparados:separadas.length,ultimoRecurso:semanas.filter(w=>w.modoFolga==='ultimo-recurso').length},erros:copia(plano.auditoria.erros),avisos:[...e.avisos,...plano.auditoria.avisos],pessoas};
       mostrar();
     }catch(err){const box=el('v292Teste5x2Resultado');if(box)box.textContent='Não foi possível simular. '+(err?.message||'Recarregue o app e tente novamente.');}
     finally{ocupado=false;atualizar();}
@@ -17111,19 +17154,24 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const inicios=[...new Set(todas.flatMap(p=>(p.semanas||[]).map(w=>w.inicio)))].sort();
     const semanas=inicios.map(ini=>{const ref=todas.flatMap(p=>p.semanas||[]).find(w=>w.inicio===ini);return {inicio:ini,fim:ref?ref.fim:ini,dias:diasDaSemana(ini).filter(d=>isoData(d).getDay()!==0)};});
     const pessoas=Object.entries(plano.pessoas||{}).map(([id,p])=>({id,nome:p.nome,folgas:new Set()}));
-    manDados={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,domingos:e.domingos||{},mes:e.mes,ano:e.ano,semanas,pessoas};
+    // V295: no ensaio à mão, distribui quem trabalha cada domingo sem escala oficial (rodízio), para ver a distribuição das folgas de acordo com o domingo.
+    const dom=e.domingos||{};simularDomingosEnsaio(e.equipe,e.mes,e.ano,dom);
+    manDados={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,domingos:dom,mes:e.mes,ano:e.ano,semanas,pessoas};
     manRenderGrade();if(b)b.replaceChildren();manAtualizar();return estadoManual();
   }
+  // V295: o domingo da semana é s.fim. Quem trabalha o domingo tira 2 folgas de seg–sáb; quem folga o domingo tira só 1.
+  function manTrabalhaDomingo(p,s){const dom=s.fim,d=Number(String(dom).slice(8,10)),lista=manDados.domingos[d]||manDados.domingos[dom]||[];return Array.isArray(lista)&&lista.map(Number).includes(Number(p.id));}
+  function manAlvo(p,s){return manTrabalhaDomingo(p,s)?2:1;}
   function manRenderGrade(){
     const g=el('v292Manual5x2Grade');if(!g||!manDados)return;
     g.innerHTML=manDados.semanas.map((s,si)=>{
       const cab=s.dias.map(d=>`<th scope="col">${esc(rotuloDia(d))}</th>`).join('');
       const corpo=manDados.pessoas.map((p,pi)=>{
         const cels=s.dias.map(d=>{const on=p.folgas.has(d);return `<td><button type="button" class="v292-cel" data-p="${pi}" data-d="${d}" aria-pressed="${on}" aria-label="${esc(p.nome)}, ${esc(rotuloDia(d))}">${on?'F':'·'}</button></td>`;}).join('');
-        const n=s.dias.filter(d=>p.folgas.has(d)).length;
-        return `<tr><th scope="row">${esc(p.nome)}</th>${cels}<td class="v292-manual-cont ${n===2?'ok':'ruim'}" data-cont="${pi}-${si}">${n}/2</td></tr>`;
+        const n=s.dias.filter(d=>p.folgas.has(d)).length,alvo=manAlvo(p,s);
+        return `<tr><th scope="row">${esc(p.nome)}${manTrabalhaDomingo(p,s)?'':' <small style="color:var(--muted)">(folga dom.)</small>'}</th>${cels}<td class="v292-manual-cont ${n===alvo?'ok':'ruim'}" data-cont="${pi}-${si}">${n}/${alvo}</td></tr>`;
       }).join('');
-      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga (2 por pessoa)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
+      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga (quem trabalha no domingo: 2 · quem folga no domingo: 1)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
     }).join('');
   }
   function manToggle(botao){
@@ -17131,7 +17179,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(p.folgas.has(d))p.folgas.delete(d);else p.folgas.add(d);
     const on=p.folgas.has(d);botao.setAttribute('aria-pressed',on?'true':'false');botao.textContent=on?'F':'·';
     const si=manDados.semanas.findIndex(s=>s.dias.includes(d));
-    if(si>=0){const s=manDados.semanas[si],n=s.dias.filter(x=>p.folgas.has(x)).length,c=el('v292Manual5x2Grade')?.querySelector(`[data-cont="${pi}-${si}"]`);if(c){c.textContent=n+'/2';c.className='v292-manual-cont '+(n===2?'ok':'ruim');}}
+    if(si>=0){const s=manDados.semanas[si],n=s.dias.filter(x=>p.folgas.has(x)).length,alvo=manAlvo(p,s),c=el('v292Manual5x2Grade')?.querySelector(`[data-cont="${pi}-${si}"]`);if(c){c.textContent=n+'/'+alvo;c.className='v292-manual-cont '+(n===alvo?'ok':'ruim');}}
   }
   function manSugerir(){
     if(!manDados)return estadoManual();
@@ -17139,25 +17187,27 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const carga={},cap=Math.max(1,Math.floor(manDados.pessoas.length/2));   // no máximo metade da equipe de folga por dia
     manDados.pessoas.forEach(p=>{
       manDados.semanas.forEach(s=>{
-        const dias=s.dias;let melhor=null,melhorPen=Infinity;
-        for(let a=0;a<dias.length;a++)for(let b=a+1;b<dias.length;b++){
-          const d1=dias[a],d2=dias[b];
-          p.folgas.add(d1);p.folgas.add(d2);
+        const dias=s.dias,alvo=manAlvo(p,s);   // 2 se trabalha no domingo, 1 se folga no domingo
+        let melhor=null,melhorPen=Infinity;
+        const avaliar=combo=>{
+          combo.forEach(d=>p.folgas.add(d));
           const seg=maxSeguidos(p,s.fim);   // dias seguidos de trabalho até o fim desta semana
-          p.folgas.delete(d1);p.folgas.delete(d2);
-          const excesso=[d1,d2].reduce((n,d)=>n+Math.max(0,(carga[d]||0)-(cap-1)),0);
-          const adj=Math.abs(difDias(d1,d2))===1?1:0;
-          const cg=(carga[d1]||0)+(carga[d2]||0);
+          combo.forEach(d=>p.folgas.delete(d));
+          const excesso=combo.reduce((n,d)=>n+Math.max(0,(carga[d]||0)-(cap-1)),0);
+          const adj=combo.length===2&&Math.abs(difDias(combo[0],combo[1]))===1?1:0;
+          const cg=combo.reduce((n,d)=>n+(carga[d]||0),0);
           // 1º nunca passar de 5 seguidos, 2º espalhar por dia, 3º folgas separadas, 4º equilíbrio
           const pen=(seg>5?1:0)*1e6+excesso*1e4+adj*1e2+cg*10+seg;
-          if(pen<melhorPen){melhorPen=pen;melhor=[d1,d2];}
-        }
+          if(pen<melhorPen){melhorPen=pen;melhor=combo.slice();}
+        };
+        if(alvo===1){for(let a=0;a<dias.length;a++)avaliar([dias[a]]);}
+        else{for(let a=0;a<dias.length;a++)for(let b=a+1;b<dias.length;b++)avaliar([dias[a],dias[b]]);}
         if(melhor)melhor.forEach(d=>{p.folgas.add(d);carga[d]=(carga[d]||0)+1;});
       });
     });
     manRenderGrade();
     const box=el('v292Manual5x2Resultado');
-    if(box)box.innerHTML='<p>💡 <b>Folgas sugeridas.</b> Espalhadas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: ajuste tocando nos dias e toque em “✅ Conferir folgas”.</p>';
+    if(box)box.innerHTML='<p>💡 <b>Folgas sugeridas.</b> Quem trabalha no domingo recebe 2 folgas de seg–sáb; quem folga no domingo recebe 1 (o domingo já é a outra folga). Espalhadas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: ajuste tocando nos dias e toque em “✅ Conferir folgas”.</p>';
     manAtualizar();return estadoManual();
   }
   function maxSeguidos(p,ateIso){
@@ -17177,23 +17227,23 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const erros=[],avisos=[];
     const pessoas=manDados.pessoas.map(p=>{
       const semanas=manDados.semanas.map(s=>{
-        const folgas=s.dias.filter(d=>p.folgas.has(d)).slice().sort();
+        const folgas=s.dias.filter(d=>p.folgas.has(d)).slice().sort(),alvo=manAlvo(p,s);
         const consec=folgas.length===2&&Math.abs(difDias(folgas[0],folgas[1]))===1;
-        if(folgas.length!==2)erros.push(`${p.nome}, semana de ${fmt(s.inicio)}: ${folgas.length} folga(s) — precisa de 2.`);
+        if(folgas.length!==alvo)erros.push(`${p.nome}, semana de ${fmt(s.inicio)}: ${folgas.length} folga(s) — precisa de ${alvo} (${alvo===2?'trabalha no domingo':'folga no domingo'}).`);
         else if(consec)avisos.push(`${p.nome}, semana de ${fmt(s.inicio)}: duas folgas coladas (último recurso).`);
         return {inicio:s.inicio,fim:s.fim,folgas,modoFolga:consec?'ultimo-recurso':'separada'};
       });
       const seq=maxSeguidos(p);if(seq>5)erros.push(`${p.nome}: trabalharia ${seq} dias seguidos (máximo 5 no 5×2).`);
-      return {nome:p.nome,semanas};
+      return {id:p.id,nome:p.nome,semanas};
     });
-    const r={setor:manDados.setor,periodo:manDados.periodo,pessoas};
+    const r={setor:manDados.setor,periodo:manDados.periodo,mes:manDados.mes,ano:manDados.ano,domingos:manDados.domingos,pessoas};
     const box=el('v292Manual5x2Resultado');if(!box)return estadoManual();
     const lista=(t,itens,aberto)=>itens.length?`<details${aberto?' open':''}><summary>${esc(t)} (${itens.length})</summary><ul>${itens.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:'';
     box.innerHTML=`<strong>✋ Conferência da escala à mão — sem validade real</strong><p>${esc(r.setor)} · ${esc(r.periodo)}.</p>
-      <p><b>${erros.length} erro(s) e ${avisos.length} aviso(s).</b> ${erros.length?'':'✅ Duas folgas por semana em todas as pessoas.'}</p>
+      <p><b>${erros.length} erro(s) e ${avisos.length} aviso(s).</b> ${erros.length?'':'✅ Folgas conforme o domingo: 2 por semana para quem trabalha no domingo, 1 para quem folga no domingo.'}</p>
       ${lista('Ver erros',erros,true)}${lista('Ver avisos',avisos,false)}
       <details open><summary>Como ficaram as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
-      <details><summary>Folgas por pessoa (pessoa × dias da semana)</summary>${tabelaGrade(r)}</details>
+      <details open><summary>Escala do mês (pessoa × dias — domingos e folgas)</summary>${tabelaMensal(r)}</details>
       <p>Este ensaio confere só 2 folgas por semana, dias separados e no máximo 5 dias seguidos. Não confere cobertura da loja, feriados nem jornada de 42h/40h. Nada foi aplicado ou guardado.</p>`;
     return estadoManual();
   }
