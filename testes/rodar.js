@@ -1545,6 +1545,31 @@ async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o bot
   await p.close();
 }
 
+async function testarCenariosVariados(browser, app, nome, abrir){   // V298: cada clique em “Sugerir folgas” gera um cenário diferente e coerente
+  console.log('\n▶ ' + nome + ' — 🧪 cenários variados a cada “Sugerir folgas”');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; if(!m || typeof m.sugerir !== 'function') return { faltaApi: true };
+    m.habilitar(true); m.montar();
+    const sigs = [], errs = [];
+    for(let i = 0; i < 3; i++){
+      m.sugerir(); m.conferir();
+      const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
+      if(!t) return { semTabela: true };
+      sigs.push([...t.querySelectorAll('tbody td')].map(td => td.textContent.trim()).join(''));
+      errs.push(+((box.innerText.match(/(\d+) erro\(s\)/) || [])[1]));
+    }
+    const diferentes = new Set(sigs).size;
+    return { diferentes, errs };
+  });
+  ok(!r.faltaApi && !r.semTabela, nome + ': a escala à mão sugere e mostra a grade mensal');
+  ok(r.diferentes === 3, nome + ': 3 cliques geram 3 cenários diferentes (' + r.diferentes + ' distintos)');
+  ok(r.errs && r.errs.every(e => e === 0), nome + ': cada cenário sorteado continua coerente (0 erro na conferência) — ' + JSON.stringify(r.errs));
+  ok(!erros.length, nome + ': sem erro de JavaScript nos cenários variados' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1834,6 +1859,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
