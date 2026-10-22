@@ -1467,6 +1467,42 @@ async function testarTabelaMensal5x2(browser, app, nome, abrir){   // V295: a ta
   await p.close();
 }
 
+async function testarDomingos2x1(browser, app, nome, abrir){   // V296: o ensaio à mão distribui os domingos em 2×1 (2 trabalhados, 1 de folga, nunca 3 seguidos)
+  console.log('\n▶ ' + nome + ' — 🧪 rodízio 2×1 dos domingos (ensaio à mão)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; if(!m || typeof m.sugerir !== 'function') return { faltaApi: true };
+    m.habilitar(true); m.montar(); m.sugerir(); m.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado');
+    const t = box && box.querySelector('table.v292-tab-mes'); if(!t) return { semTabela: true };
+    const heads = [...t.querySelectorAll('thead th')].map(th => th.textContent);
+    const domCols = []; heads.forEach((h, i) => { if(/Dom/.test(h)) domCols.push(i); });
+    const linhas = [...t.querySelectorAll('tbody tr')];
+    let maxSeg = 0, semRodizio = 0;
+    const porDomingoFolga = domCols.map(() => 0);
+    linhas.forEach(tr => {
+      const tds = [...tr.children];
+      const seq = domCols.map(ci => tds[ci].textContent.trim() === 'D' ? 1 : 0);   // 1 = trabalha no domingo
+      seq.forEach((v, j) => { if(!v) porDomingoFolga[j]++; });
+      let run = 0, mx = 0; seq.forEach(v => { if(v){ run++; if(run > mx) mx = run; } else run = 0; });
+      if(mx > maxSeg) maxSeg = mx;
+      if(seq.every(v => v) || seq.every(v => !v)) semRodizio++;   // trabalha todos ou folga todos = sem rodízio
+    });
+    const erros = (box.innerText.match(/(\d+) erro\(s\)/) || [])[1];
+    const todoDomingoTemFolga = porDomingoFolga.every(n => n > 0);           // 1/3 folga
+    const todoDomingoTemTrabalho = porDomingoFolga.every(n => n < linhas.length);  // 2/3 trabalham
+    return { nDom: domCols.length, nPessoas: linhas.length, maxSeg, semRodizio, erros: erros ? +erros : -1, todoDomingoTemFolga, todoDomingoTemTrabalho };
+  });
+  ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece com os domingos');
+  ok(r.maxSeg <= 2, nome + ': ninguém trabalha 3 domingos seguidos (máx ' + r.maxSeg + ' seguidos)');
+  ok(r.semRodizio === 0, nome + ': todos entram no rodízio 2×1 (ninguém trabalha ou folga todos os domingos)');
+  ok(r.todoDomingoTemFolga && r.todoDomingoTemTrabalho, nome + ': em cada domingo parte da equipe folga e parte trabalha (cobertura 2×1)');
+  ok(r.erros === 0, nome + ': a conferência não acusa erro com o rodízio 2×1' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript no rodízio 2×1' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1753,6 +1789,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 293) await testarTabelaEManual5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 'v292');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');

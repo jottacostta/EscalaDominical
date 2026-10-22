@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V295</title>
+<title>Escala de Setores — V296</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V296 [Claude] — RODÍZIO 2×1 DOS DOMINGOS NO ENSAIO À MÃO: a distribuição dos domingos do ensaio passa a ser 2×1 (cada pessoa trabalha 2 domingos e folga 1, nunca 3 seguidos; a cada domingo, 1/3 da equipe folga e 2/3 trabalham), em vez do antigo rodízio 1:1. A regra de folgas continua: quem trabalha o domingo tira 2 folgas de seg–sáb, quem folga o domingo tira só 1. Só no ensaio à mão, sem validade real.
 V295 [Claude] — GRADE MENSAL E REGRA DE FOLGAS POR DOMINGO NO ENSAIO 5×2: a tabela de folgas do ensaio passa a ser uma grade mensal pessoa × dias, mostrando quem trabalha cada domingo (D), as folgas da semana (F), o trabalho (·) e o descanso de domingo (–). Na escala à mão, o ensaio distribui os domingos sem escala oficial em rodízio (metade da equipe por domingo, ninguém dois domingos seguidos) e aplica a regra 5×2: quem trabalha no domingo tira 2 folgas de seg–sáb; quem folga no domingo tira só 1 (o domingo já é a outra folga), sem passar de 5 dias seguidos. A simulação automática mostra a mesma grade lendo a escala oficial de domingos (o motor automático é coordenado por Manus e não foi alterado). Só no ensaio, sem validade real.
 V294 [Claude] — BOTÃO “SUGERIR FOLGAS DISTRIBUÍDAS” NA ESCALA À MÃO: na área de escala à mão do ensaio 5×2, um botão preenche a grade automaticamente espalhando as folgas por dia (no máximo metade da equipe de folga no mesmo dia) e, quando possível, sem ninguém passar de 5 dias seguidos de trabalho. É só um ponto de partida: dá para ajustar tocando nos dias e conferir. Só no ensaio, sem validade real.
 V293 [Claude] — TABELA DE FOLGAS E ESCALA À MÃO NO ENSAIO 5×2: o ensaio agora mostra as folgas em tabela (resumo por semana e grade pessoa × dias) e ganha, no passo Gerar, uma área para montar a escala à mão tocando nos dias e conferir (2 folgas por semana, dias separados, no máximo 5 dias seguidos). Tudo só em memória, sem validade real.
@@ -2771,7 +2772,7 @@ table.v292-tab-mes td.v292-dom-folga{background:#fff7ed;color:#c2410c}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V295 · Ensaio 5×2: grade mensal e folgas por domingo (2 se trabalha, 1 se folga)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V296 · Ensaio 5×2: rodízio 2×1 dos domingos e folgas por domingo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3108,7 +3109,7 @@ table.v292-tab-mes td.v292-dom-folga{background:#fff7ed;color:#c2410c}
   </div>
   <section id="v292Manual5x2Area" class="v292-teste-area v292-manual-area gb-sem-icone" aria-labelledby="v292Manual5x2Titulo" data-v273-ignorar style="margin-top:16px">
     <h4 id="v292Manual5x2Titulo">🧪 Escala à mão 5×2 — ensaio sem validade real</h4>
-    <p>Monte as folgas na mão para testar. Toque em <b>💡 Sugerir folgas distribuídas</b> para o motor preencher a grade espalhando as folgas e sem ninguém passar de 5 dias seguidos — depois toque nos dias (segunda a sábado) para ajustar. Duas folgas por semana. O domingo continua como já está. Nada é aplicado nem guardado.</p>
+    <p>Monte as folgas na mão para testar. Toque em <b>💡 Sugerir folgas distribuídas</b> para o motor preencher a grade espalhando as folgas e sem ninguém passar de 5 dias seguidos — depois toque nos dias (segunda a sábado) para ajustar. O ensaio distribui os domingos em rodízio <b>2×1</b> (cada pessoa trabalha 2 domingos e folga 1): quem trabalha no domingo tem 2 folgas na semana; quem folga no domingo tem 1. Nada é aplicado nem guardado.</p>
     <label class="v292-teste-habilitar" for="v292Manual5x2Habilitar"><input id="v292Manual5x2Habilitar" type="checkbox"><span>Habilitar ensaio à mão (só para testar)</span></label>
     <div class="v292-teste-acoes">
       <button id="v292Manual5x2Montar" class="btn" type="button" disabled>✋ Montar grade</button>
@@ -17001,11 +17002,12 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       .map(x=>x.i);
     if(!elegiveis.length)return false;
     const diasDom=[];for(let d=1;d<=new Date(ano,mes+1,0).getDate();d++)if(new Date(ano,mes,d).getDay()===0)diasDom.push(d);
-    const meio=Math.ceil(elegiveis.length/2),grupoA=elegiveis.slice(0,meio),grupoB=elegiveis.slice(meio);
     let simulou=false;
+    // Rodízio 2×1 nos domingos: 3 grupos; a cada domingo k, o grupo (k % 3) folga e os outros 2/3 trabalham.
+    // Assim cada pessoa trabalha 2 domingos e folga 1, nunca 3 domingos seguidos.
     diasDom.forEach((d,k)=>{
       if(Array.isArray(dom[d])&&dom[d].length)return;   // respeita o domingo já escalado
-      dom[d]=(k%2===0?grupoA:grupoB).slice();            // rodízio: alterna os dois grupos entre os domingos
+      dom[d]=elegiveis.filter((_,p)=>p%3!==k%3);         // o grupo da vez (1/3) folga; os outros trabalham
       simulou=true;
     });
     return simulou;
