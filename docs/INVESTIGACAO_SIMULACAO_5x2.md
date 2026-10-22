@@ -167,3 +167,14 @@ Esta investigação não alterou o motor dos aplicativos. Ela produz a base para
 [4]: `testes/rodar.js` — dados fictícios, geração determinística e verificadores independentes existentes.
 
 [5]: `testes/dados/setores_frente_de_loja_50.txt`, `testes/dados/setores_cpd_6.txt` e `testes/dados/encarregados_15_pares.txt` — quadros usados na simulação.
+
+
+## Adendo — validação da interface experimental V292/V196 (21/10/2026)
+
+A PR #108 acrescentou uma área de teste sem validade real. A validação pela interface foi feita em quatro cenários — setembro/2026, outubro/2026, dezembro/2026 e janeiro/2027 — nos dois apps. O detalhamento quantitativo está em [`RELATORIO_TESTE_5x2_INTERCALADO_V292_V196.md`](RELATORIO_TESTE_5x2_INTERCALADO_V292_V196.md).
+
+No Setores V292, 50 pessoas produziram 250 combinações pessoa-semana e 500 folgas por cenário. A proporção de pares não consecutivos foi de 97,2%, 94,4%, 94,0% e 88,0%; os demais casos foram classificados como `ultimo-recurso`, sem erros de auditoria. No Encarregados V196, 32 pessoas produziram 160 combinações pessoa-semana e 320 folgas por cenário; os quatro cenários tiveram 100% de pares separados e nenhum fallback. Os domingos ficaram fora do ensaio e permaneceram no 2×1 oficial.
+
+A interface exibiu o cartão, habilitação, simulação, resumo e lista detalhada nos dois apps. Simular e Limpar não alteraram a escala oficial nem os dados persistidos, e recarregar não restaurou o ensaio. Foi registrada uma limitação preexistente: o boot do Encarregados regrava `escala_enc_rascunho_v1` ao recarregar, alterando timestamp, etapa e mês padrão. Isso não ocorreu durante Simular/Limpar e não restaura o resultado experimental.
+
+Este adendo reforça a conclusão original: o ensaio avalia a distribuição de folgas, mas não valida jornada, minutos pagos, cobertura, feriados, continuidade entre meses ou conformidade jurídica. Os percentuais não devem ser usados como autorização para ligar o motor 5×2 oficial.
