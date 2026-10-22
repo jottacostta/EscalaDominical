@@ -1378,24 +1378,25 @@ async function testarSugestao5x2(browser, app, nome, abrir){   // V294: o botão
     api.habilitar(true); api.montar(); api.sugerir();
     const grade = document.getElementById('v292Manual5x2Grade'); if(!grade) return { semGrade: true };
     const tabelas = [...grade.querySelectorAll('table')];
-    let maxPorDia = 0, pessoasTotal = 0, pessoasCom2 = 0, totalPessoas = 0;
+    let maxPorDia = 0, pessoasTotal = 0, pessoasOk = 0, totalPessoas = 0;
     tabelas.forEach(t => {
       const linhas = [...t.querySelectorAll('tbody tr')];
       const nCols = [...t.querySelectorAll('thead th')].length - 2;
       const porDia = new Array(Math.max(0, nCols)).fill(0);
-      linhas.forEach(tr => { const cels = [...tr.querySelectorAll('.v292-cel')]; let n = 0; cels.forEach((c, i) => { if(c.getAttribute('aria-pressed') === 'true'){ n++; porDia[i]++; } }); pessoasTotal++; if(n === 2) pessoasCom2++; });
+      linhas.forEach(tr => { const cels = [...tr.querySelectorAll('.v292-cel')]; cels.forEach((c, i) => { if(c.getAttribute('aria-pressed') === 'true') porDia[i]++; });
+        const cont = tr.querySelector('.v292-manual-cont'); pessoasTotal++; if(cont && cont.classList.contains('ok')) pessoasOk++; });   // V295: alvo por pessoa (2 se trabalha domingo, 1 se folga) → célula "ok"
       porDia.forEach(v => { if(v > maxPorDia) maxPorDia = v; });
     });
     totalPessoas = tabelas.length ? [...tabelas[0].querySelectorAll('tbody tr')].length : 0;
     api.conferir();
     const box = document.getElementById('v292Manual5x2Resultado').innerText;
     const m = box.match(/(\d+) erro\(s\)/);
-    return { maxPorDia, pessoasTotal, pessoasCom2, totalPessoas, erros: m ? +m[1] : -1 };
+    return { maxPorDia, pessoasTotal, pessoasOk, totalPessoas, erros: m ? +m[1] : -1 };
   });
   ok(!r.faltaApi && !r.semGrade, nome + ': a escala à mão tem o botão “Sugerir folgas distribuídas”');
-  ok(r.pessoasTotal > 0 && r.pessoasCom2 === r.pessoasTotal, nome + ': a sugestão dá 2 folgas por semana a todas as pessoas (' + r.pessoasCom2 + '/' + r.pessoasTotal + ')');
+  ok(r.pessoasTotal > 0 && r.pessoasOk === r.pessoasTotal, nome + ': a sugestão dá a cada pessoa o número certo de folgas (2 se trabalha no domingo, 1 se folga) — ' + r.pessoasOk + '/' + r.pessoasTotal);
   ok(r.totalPessoas === 0 || r.maxPorDia <= Math.max(1, Math.floor(r.totalPessoas / 2)), nome + ': a sugestão não deixa mais que metade da equipe de folga no mesmo dia (máx ' + r.maxPorDia + ' de ' + r.totalPessoas + ')');
-  ok(r.erros === 0, nome + ': a conferência da sugestão não acusa erro (2 folgas e no máximo 5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(r.erros === 0, nome + ': a conferência da sugestão não acusa erro (folgas conforme o domingo e no máximo 5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
   ok(!erros.length, nome + ': sem erro de JavaScript na sugestão' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
