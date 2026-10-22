@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V197</title>
+<title>Escala 2×1 — Encarregados V198</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V198 [Claude] — ENSAIO 5×2 NÃO DEIXA A LOJA DESCOBERTA: a distribuição automática das folgas passa a espalhar por dia (no máximo metade da equipe de folga no mesmo dia) e a folga fixa vira preferência, não trava — antes, quando várias pessoas tinham a mesma folga fixa, todas folgavam no mesmo dia e o setor ficava sem ninguém. A conferência avisa se algum dia passa da metade e acusa erro se algum dia ficaria sem ninguém. Só no ensaio, sem validade real.
 V197 [Claude] — TABELA DE FOLGAS E ESCALA À MÃO NO ENSAIO 5×2: o ensaio agora mostra as folgas em tabela (resumo por semana e grade pessoa × dias) e ganha, no passo Gerar, uma área para montar a escala à mão tocando nos dias e conferir (2 folgas por semana, dias separados). Os domingos continuam no 2×1 oficial. Tudo só em memória, sem validade real.
 V196 [Manus] — 🧪 TESTAR 5×2 SEM VALIDADE REAL: ensaio separado em Configurações, com cópias da equipe e resultado só na tela.
        Não altera escala oficial, domingos 2×1, feriados, histórico, Excel ou dados guardados; recarregar apaga o teste.
@@ -2075,7 +2076,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V197 · Ensaio 5×2 com tabela de folgas e escala à mão, sem validade real</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V198 · Ensaio 5×2 espalha folgas por dia (loja não fica descoberta)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -11085,6 +11086,8 @@ function perguntarOrientacaoImpressao(cb){
   }
   function construirEmMemoria(entrada){
     const semanas=semanasDoEnsaio(entrada),pessoas=[],excluidas=[],avisos=[],carga={};
+    const elegiveis=entrada.lista.filter(f=>f&&!['AF','EP'].includes(String(f.situacao||'A').toUpperCase())&&f.aptoDomingo!==false);
+    const capDia=Math.max(1,Math.floor(elegiveis.length/2));   // V198: no máximo metade da equipe de folga por dia — a loja não fica descoberta
     entrada.lista.forEach((f,i)=>{
       const nome=String(f?.nome||'Pessoa '+(i+1));
       if(!f||['AF','EP'].includes(String(f.situacao||'A').toUpperCase())||f.aptoDomingo===false){
@@ -11094,23 +11097,27 @@ function perguntarOrientacaoImpressao(cb){
       const fixa=Number(f.folgaFixa),temFixa=!f.folgaPendente&&fixa>=1&&fixa<=6;
       const base=temFixa?permitidos.slice().sort((a,b)=>Math.min(Math.abs(a-fixa),7-Math.abs(a-fixa))-Math.min(Math.abs(b-fixa),7-Math.abs(b-fixa))||a-b)[0]:null;
       if(!temFixa)avisos.push(`${nome}: folga fixa de segunda a sábado não definida; dias escolhidos só no teste.`);
-      else if(base!==fixa)avisos.push(`${nome}: folga fixa indisponível; o teste usa outro dia permitido, sem trocar o cadastro.`);
+      let saiuDaBase=false;
       const semanasPessoa=semanas.map(dias=>{
         const candidatas=dias.filter(s=>permitidos.includes(dataDe(s).getDay())),opcoes=[];
         for(let a=0;a<candidatas.length;a++)for(let b=a+1;b<candidatas.length;b++){
           const par=[candidatas[a],candidatas[b]];
-          if(base!==null&&base!==undefined&&!par.some(s=>dataDe(s).getDay()===base))continue;
-          opcoes.push({folgas:par,adj:adjacentes(...par)?1:0,carga:par.reduce((n,s)=>n+(carga[s]||0),0)});
+          // V198: a folga fixa vira preferência (não trava); a cobertura por dia vem primeiro.
+          const temBase=base===null||base===undefined?true:par.some(s=>dataDe(s).getDay()===base);
+          const excesso=par.reduce((n,s)=>n+Math.max(0,(carga[s]||0)-(capDia-1)),0);
+          opcoes.push({folgas:par,adj:adjacentes(...par)?1:0,excesso,semBase:temBase?0:1,carga:par.reduce((n,s)=>n+(carga[s]||0),0)});
         }
-        // Folgas juntas só entram quando não existe nenhum par separado permitido.
-        opcoes.sort((a,b)=>a.adj-b.adj||a.carga-b.carga||a.folgas.join().localeCompare(b.folgas.join()));
+        // 1º espalhar (cobertura), 2º folgas separadas, 3º respeitar a folga fixa, 4º equilíbrio, 5º estável.
+        opcoes.sort((a,b)=>a.excesso-b.excesso||a.adj-b.adj||a.semBase-b.semBase||a.carga-b.carga||a.folgas.join().localeCompare(b.folgas.join()));
         const melhor=opcoes[0],folgas=melhor?melhor.folgas:[];
         folgas.forEach(s=>{carga[s]=(carga[s]||0)+1;});
+        if(base!=null&&folgas.length&&!folgas.some(s=>dataDe(s).getDay()===base))saiuDaBase=true;
         return {inicio:dias[0],fim:dias[5],folgas,modoFolga:melhor?(melhor.adj?'ultimo-recurso':'separada'):'sem-par'};
       });
+      if(saiuDaBase)avisos.push(`${nome}: em alguma semana a folga saiu do dia fixo para não deixar o setor descoberto (só no teste, sem trocar o cadastro).`);
       pessoas.push({indice:i,nome,permitidos,base,semanas:semanasPessoa});
     });
-    return {periodo:`${entrada.ano}-${pad(entrada.mes+1)}`,semanas,pessoas,excluidas,avisos};
+    return {periodo:`${entrada.ano}-${pad(entrada.mes+1)}`,semanas,pessoas,excluidas,avisos,capDia};
   }
   function auditarEmMemoria(plano){
     const erros=[],avisos=[...plano.avisos];
@@ -11118,8 +11125,16 @@ function perguntarOrientacaoImpressao(cb){
     plano.pessoas.forEach(p=>p.semanas.forEach((w,k)=>{
       const dias=plano.semanas[k],validas=w.folgas.length===2&&new Set(w.folgas).size===2&&w.folgas.every(s=>dias.includes(s)&&p.permitidos.includes(dataDe(s).getDay()));
       if(!validas)erros.push(`${p.nome}: faltam duas folgas possíveis na semana de ${fmt(w.inicio)}. Confira os dias de DSR permitidos.`);
-      if(p.base!==null&&p.base!==undefined&&!w.folgas.some(s=>dataDe(s).getDay()===p.base))erros.push(`${p.nome}: a folga base não entrou na semana de ${fmt(w.inicio)}.`);
       if(w.modoFolga==='ultimo-recurso')avisos.push(`${p.nome}: folgas juntas em ${w.folgas.map(fmt).join(' e ')}; último recurso.`);
+    }));
+    // V198: cobertura por dia — ninguém pode deixar o setor descoberto.
+    const capDia=plano.capDia||Math.max(1,Math.floor(plano.pessoas.length/2));
+    plano.semanas.forEach((dias,k)=>dias.forEach(s=>{
+      const podem=plano.pessoas.filter(p=>p.permitidos.includes(dataDe(s).getDay()));
+      if(!podem.length)return;
+      const folgam=podem.filter(p=>p.semanas[k]?.folgas?.includes(s)).length;
+      if(folgam>=podem.length)erros.push(`Ninguém trabalharia em ${fmt(s)}: todos os ${podem.length} de folga. Espalhe as folgas desse dia.`);
+      else if(folgam>capDia)avisos.push(`${fmt(s)}: ${folgam} de ${podem.length} de folga (acima da metade). Confira a cobertura.`);
     }));
     const registros=plano.pessoas.flatMap(p=>p.semanas),folgas=registros.flatMap(w=>w.folgas);
     const prefixo=plano.periodo+'-';
