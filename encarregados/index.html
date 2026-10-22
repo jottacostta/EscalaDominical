@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V196</title>
+<title>Escala 2×1 — Encarregados V197</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V197 [Claude] — TABELA DE FOLGAS E ESCALA À MÃO NO ENSAIO 5×2: o ensaio agora mostra as folgas em tabela (resumo por semana e grade pessoa × dias) e ganha, no passo Gerar, uma área para montar a escala à mão tocando nos dias e conferir (2 folgas por semana, dias separados). Os domingos continuam no 2×1 oficial. Tudo só em memória, sem validade real.
 V196 [Manus] — 🧪 TESTAR 5×2 SEM VALIDADE REAL: ensaio separado em Configurações, com cópias da equipe e resultado só na tela.
        Não altera escala oficial, domingos 2×1, feriados, histórico, Excel ou dados guardados; recarregar apaga o teste.
 V195 [Claude] — AVISO NÃO TAPA O GABRIEL, X MAIOR E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); o X de fechar ganhou alvo de toque de 44 px; avisos comuns fecham sozinhos em 20 s e os de erro grave ficam até o usuário fechar.
@@ -1992,6 +1993,33 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 #v196Teste5x2Resultado ul{padding-left:22px;margin:6px 0}
 #v196Teste5x2Resultado li{margin:6px 0}
 #v196Teste5x2Card :is(button,input,summary):focus-visible{outline:3px solid var(--brand,#0047BA);outline-offset:3px}
+#v196Manual5x2Card{margin-top:16px;padding:14px;border:2px solid var(--brand,#0047BA);border-radius:12px;background:var(--surface-2,#f8fafc);color:var(--text,#172033)}
+#v196Manual5x2Card h3{margin:0 0 8px;font-size:16px;line-height:1.4}
+#v196Manual5x2Card p{font-size:13px;line-height:1.5;margin:8px 0}
+#v196Manual5x2Card .v196-teste-habilitar{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 4px;cursor:pointer;font-size:14px;font-weight:700}
+#v196Manual5x2Habilitar{width:24px;height:24px;flex:0 0 24px;margin:0;accent-color:var(--brand,#0047BA)}
+#v196Manual5x2Card .v196-teste-acoes{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+#v196Manual5x2Card .v196-teste-acoes button{min-height:48px;min-width:44px;flex:1 1 160px;font-size:14px}
+#v196Manual5x2Card button:disabled{opacity:.65;cursor:not-allowed}
+#v196Manual5x2Resultado{margin-top:12px;padding:12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;background:var(--surface,#fff);font-size:13px;line-height:1.5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#v196Manual5x2Card :is(button,input,summary):focus-visible{outline:3px solid var(--brand,#0047BA);outline-offset:3px}
+.v196-tab-rolagem{overflow-x:auto;margin:4px 0 8px}
+table.v196-tab{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0;font-variant-numeric:tabular-nums}
+table.v196-tab caption{text-align:left;font-weight:700;margin-bottom:4px;font-size:13px}
+table.v196-tab th,table.v196-tab td{border:1px solid var(--border,#cbd5e1);padding:5px 7px;text-align:center}
+table.v196-tab th[scope=row]{text-align:left;white-space:nowrap}
+table.v196-tab td.v196-folga{background:var(--brand,#0047BA);color:#fff;font-weight:700}
+table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
+.v196-manual-grade{overflow-x:auto;margin:8px 0}
+.v196-manual-grade table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0;font-variant-numeric:tabular-nums}
+.v196-manual-grade caption{text-align:left;font-weight:700;margin-bottom:4px;font-size:13px}
+.v196-manual-grade th,.v196-manual-grade td{border:1px solid var(--border,#cbd5e1);padding:2px;text-align:center}
+.v196-manual-grade th[scope=row]{text-align:left;white-space:nowrap;padding:4px 6px}
+.v196-cel{min-width:42px;min-height:42px;border:0;background:transparent;cursor:pointer;font-size:16px;border-radius:6px;color:var(--muted,#64748b)}
+.v196-cel[aria-pressed=true]{background:var(--brand,#0047BA);color:#fff;font-weight:700}
+.v196-manual-cont{font-weight:700}
+.v196-manual-cont.ruim{color:var(--danger,#a1121d)}
+.v196-manual-cont.ok{color:var(--ok,#047857)}
 </style>
 </head>
 <body class="em-inicio">
@@ -2047,7 +2075,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V196 · Teste 5×2 separado, sem validade real e sem guardar resultado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V197 · Ensaio 5×2 com tabela de folgas e escala à mão, sem validade real</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2417,6 +2445,18 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <div class="table-wrap"><table id="tabelaEscala"></table></div></div>
 <div class="actions"><button class="btn success" id="btnExcel">📊 Baixar planilha Excel</button><button class="btn success" id="btnWhats">📱 Copiar para WhatsApp</button><button class="btn secondary" id="btnHistorico">📦 Guardar histórico do mês</button></div>
 </div>
+  <section id="v196Manual5x2Card" class="v196-teste-card" aria-labelledby="v196Manual5x2Titulo" data-v273-ignorar="1" style="margin-top:16px">
+    <h3 id="v196Manual5x2Titulo">🧪 Escala à mão 5×2 — ensaio sem validade real</h3>
+    <p>Monte as folgas na mão para testar. Toque nos dias (segunda a sábado) para marcar ou tirar a folga de cada pessoa — duas folgas por semana. Os domingos continuam no 2×1 oficial. Nada é aplicado nem guardado.</p>
+    <label class="v196-teste-habilitar" for="v196Manual5x2Habilitar"><input id="v196Manual5x2Habilitar" type="checkbox" autocomplete="off"><span>Habilitar ensaio à mão (não guarda no aparelho)</span></label>
+    <div class="v196-teste-acoes">
+      <button id="v196Manual5x2Montar" class="btn" type="button" disabled>✋ Montar grade</button>
+      <button id="v196Manual5x2Conferir" class="btn" type="button" disabled>✅ Conferir folgas</button>
+      <button id="v196Manual5x2Limpar" class="btn secondary" type="button" disabled>🗑️ Limpar</button>
+    </div>
+    <div id="v196Manual5x2Grade" class="v196-manual-grade"></div>
+    <div id="v196Manual5x2Resultado" role="status" aria-live="polite" aria-atomic="false">O ensaio à mão está desligado.</div>
+  </section>
 </section>
 
 </div>
@@ -6818,7 +6858,7 @@ $('btnWhats').onclick=async (ev)=>{
   };
 
   // V196: cliques e controles do ensaio não agendam o rascunho oficial.
-  let t=null; const agendar=ev=>{if(ev?.target?.closest?.('#v196Teste5x2Card'))return;clearTimeout(t); t=setTimeout(salvar,300);};
+  let t=null; const agendar=ev=>{if(ev?.target?.closest?.('#v196Teste5x2Card')||ev?.target?.closest?.('#v196Manual5x2Card'))return;clearTimeout(t); t=setTimeout(salvar,300);};
   document.addEventListener('input',agendar,true);
   document.addEventListener('change',agendar,true);
   document.addEventListener('click',agendar,true);
@@ -11104,7 +11144,9 @@ function perguntarOrientacaoImpressao(cb){
       <details><summary>Avisos: ${a.avisos.length}</summary>${lista(a.avisos)}</details>
       <details><summary>Ver pessoas, semanas e folgas</summary><p>Duas folgas de segunda a sábado, sem incluir domingos.</p>
         ${r.pessoas.map(p=>`<details class="v196-teste-pessoa"><summary>${escapar(p.nome)} · ${p.semanas.length} semanas</summary><ul>${p.semanas.map(w=>`<li>${fmt(w.inicio)} a ${fmt(w.fim)}: ${w.folgas.length?w.folgas.map(fmt).join(' e '):'sem par de folgas'} — ${w.modoFolga==='separada'?'separadas':w.modoFolga==='ultimo-recurso'?'último recurso':'confira os erros'}.</li>`).join('')}</ul></details>`).join('')}
-      </details>`;
+      </details>
+      <details open><summary>Como ficariam as folgas (resumo por semana)</summary>${tabResumo(r)}</details>
+      <details><summary>Folgas por pessoa (pessoa × dias da semana)</summary>${tabGrade(r)}</details>`;
     apagar.disabled=false;
   }
   function simular(){
@@ -11125,6 +11167,106 @@ function perguntarOrientacaoImpressao(cb){
   const listaEquipe=el('equipeLista');
   if(listaEquipe)new MutationObserver(()=>{if(resultado)limpar();}).observe(listaEquipe,{childList:true});
   window.v196Teste5x2=Object.freeze({habilitar,simular,limpar,estado});
+  // ── Tabelas de folgas (resumo por semana + grade pessoa × dias) ──
+  const DIASEMV=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  function diasSemana6(inicio){const dt=dataDe(inicio),out=[];for(let k=0;k<6;k++){const x=new Date(dt);x.setDate(x.getDate()+k);out.push(dataKey(x));}return out;}
+  function rotuloDiaV(iso){const dt=dataDe(iso);return `${DIASEMV[dt.getDay()]} ${pad(dt.getDate())}`;}
+  function semanasOrd(r){return [...new Set(r.pessoas.flatMap(p=>p.semanas.map(w=>w.inicio)))].sort();}
+  function tabResumo(r){
+    const mapa=new Map();
+    r.pessoas.forEach(p=>p.semanas.forEach(w=>{const s=mapa.get(w.inicio)||{inicio:w.inicio,fim:w.fim,sep:0,ult:0};if(w.modoFolga==='ultimo-recurso')s.ult++;else if(w.modoFolga==='separada')s.sep++;mapa.set(w.inicio,s);}));
+    const linhas=[...mapa.values()].sort((a,b)=>a.inicio<b.inicio?-1:1);
+    if(!linhas.length)return '<p>Sem semanas para mostrar.</p>';
+    return `<div class="v196-tab-rolagem"><table class="v196-tab"><thead><tr><th scope="col">Semana</th><th scope="col">Folgas separadas</th><th scope="col">Último recurso</th></tr></thead><tbody>${linhas.map(s=>`<tr><th scope="row">${escapar(fmt(s.inicio))} a ${escapar(fmt(s.fim))}</th><td>${s.sep}</td><td class="${s.ult?'v196-folga':''}">${s.ult}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function tabGrade(r){
+    const inicios=semanasOrd(r);
+    if(!inicios.length)return '<p>Sem folgas para mostrar.</p>';
+    return inicios.map(ini=>{
+      const dias=diasSemana6(ini),cab=dias.map(d=>`<th scope="col">${escapar(rotuloDiaV(d))}</th>`).join('');
+      const corpo=r.pessoas.map(p=>{
+        const w=p.semanas.find(x=>x.inicio===ini),folgas=new Set(w?w.folgas:[]);
+        const cels=dias.map(d=>folgas.has(d)?'<td class="v196-folga" title="Folga">F</td>':'<td class="v196-trab" title="Trabalha">·</td>').join('');
+        return `<tr><th scope="row">${escapar(p.nome)}</th>${cels}</tr>`;
+      }).join('');
+      return `<details><summary>Semana de ${escapar(fmt(ini))}</summary><div class="v196-tab-rolagem"><table class="v196-tab"><caption>F = folga · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div></details>`;
+    }).join('');
+  }
+  // ── Ensaio de escala à mão (grade editável) — mesma isolação, reusa as tabelas. Sem validade real. ──
+  let manHab=false,manDados=null;
+  const manEl=id=>document.getElementById(id);
+  function manEstado(){return {habilitado:manHab,montado:!!manDados,semValidadeReal:true};}
+  function manAtualizar(){const h=manEl('v196Manual5x2Habilitar'),m=manEl('v196Manual5x2Montar'),c=manEl('v196Manual5x2Conferir'),l=manEl('v196Manual5x2Limpar');if(h)h.checked=manHab;if(m)m.disabled=!manHab;if(c)c.disabled=!manHab||!manDados;if(l)l.disabled=!manHab;}
+  function manLimpar(){manDados=null;const g=manEl('v196Manual5x2Grade');if(g)g.replaceChildren();const b=manEl('v196Manual5x2Resultado');if(b)b.textContent=manHab?'Toque em “✋ Montar grade”.':'O ensaio à mão está desligado. Marque “Habilitar ensaio à mão”.';manAtualizar();return manEstado();}
+  function manHabilitar(v){manHab=v===true;manLimpar();return manEstado();}
+  function manMontar(){
+    if(!manHab)return manEstado();
+    const b=manEl('v196Manual5x2Resultado');
+    try{
+      const ent=lerEntrada(),semanas=semanasDoEnsaio(ent);
+      const pessoas=ent.lista.map((f,i)=>({indice:i,nome:String(f?.nome||'Pessoa '+(i+1)),folgas:new Set()}));
+      manDados={periodo:`${ent.ano}-${pad(ent.mes+1)}`,mes:ent.mes,ano:ent.ano,semanas,pessoas};
+      manRenderGrade();if(b)b.textContent='';manAtualizar();
+    }catch(e){if(b)b.textContent='Não foi possível montar. '+(e instanceof Error?e.message:'Confira a equipe, o mês e o ano.');}
+    return manEstado();
+  }
+  function manRenderGrade(){
+    const g=manEl('v196Manual5x2Grade');if(!g||!manDados)return;
+    g.innerHTML=manDados.semanas.map((dias,si)=>{
+      const cab=dias.map(d=>`<th scope="col">${escapar(rotuloDiaV(d))}</th>`).join('');
+      const corpo=manDados.pessoas.map((p,pi)=>{
+        const cels=dias.map(d=>{const on=p.folgas.has(d);return `<td><button type="button" class="v196-cel" data-p="${pi}" data-d="${d}" aria-pressed="${on}" aria-label="${escapar(p.nome)}, ${escapar(rotuloDiaV(d))}">${on?'F':'·'}</button></td>`;}).join('');
+        const n=dias.filter(d=>p.folgas.has(d)).length;
+        return `<tr><th scope="row">${escapar(p.nome)}</th>${cels}<td class="v196-manual-cont ${n===2?'ok':'ruim'}" data-cont="${pi}-${si}">${n}/2</td></tr>`;
+      }).join('');
+      return `<div class="v196-tab-rolagem"><table><caption>Semana de ${escapar(fmt(dias[0]))} — toque para marcar folga (2 por pessoa)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
+    }).join('');
+  }
+  function manToggle(botao){
+    if(!manDados)return;const pi=Number(botao.dataset.p),d=botao.dataset.d,p=manDados.pessoas[pi];if(!p)return;
+    if(p.folgas.has(d))p.folgas.delete(d);else p.folgas.add(d);
+    const on=p.folgas.has(d);botao.setAttribute('aria-pressed',on?'true':'false');botao.textContent=on?'F':'·';
+    const si=manDados.semanas.findIndex(dias=>dias.includes(d));
+    if(si>=0){const n=manDados.semanas[si].filter(x=>p.folgas.has(x)).length,c=manEl('v196Manual5x2Grade')?.querySelector(`[data-cont="${pi}-${si}"]`);if(c){c.textContent=n+'/2';c.className='v196-manual-cont '+(n===2?'ok':'ruim');}}
+  }
+  function manConferir(){
+    if(!manDados)return manEstado();
+    const erros=[],avisos=[];
+    const pessoas=manDados.pessoas.map(p=>{
+      const semanas=manDados.semanas.map(dias=>{
+        const folgas=dias.filter(d=>p.folgas.has(d)).slice().sort();
+        const consec=folgas.length===2&&adjacentes(folgas[0],folgas[1]);
+        if(folgas.length!==2)erros.push(`${p.nome}, semana de ${fmt(dias[0])}: ${folgas.length} folga(s) — precisa de 2.`);
+        else if(consec)avisos.push(`${p.nome}, semana de ${fmt(dias[0])}: duas folgas coladas (último recurso).`);
+        return {inicio:dias[0],fim:dias[5],folgas,modoFolga:consec?'ultimo-recurso':'separada'};
+      });
+      return {nome:p.nome,semanas};
+    });
+    const r={periodo:manDados.periodo,pessoas};
+    const box=manEl('v196Manual5x2Resultado');if(!box)return manEstado();
+    const lista=(t,itens,aberto)=>itens.length?`<details${aberto?' open':''}><summary>${escapar(t)}: ${itens.length}</summary><ul>${itens.map(x=>`<li>${escapar(x)}</li>`).join('')}</ul></details>`:'';
+    box.innerHTML=`<h4>✋ Conferência da escala à mão — sem validade real</h4><p>${escapar(r.periodo)}.</p>
+      <p><b>${erros.length} erro(s) e ${avisos.length} aviso(s).</b> ${erros.length?'':'✅ Duas folgas por semana em todas as pessoas.'}</p>
+      ${lista('Erros',erros,true)}${lista('Avisos',avisos,false)}
+      <details open><summary>Como ficaram as folgas (resumo por semana)</summary>${tabResumo(r)}</details>
+      <details><summary>Folgas por pessoa (pessoa × dias da semana)</summary>${tabGrade(r)}</details>
+      <p>Os domingos continuam no 2×1 oficial. Este ensaio não confere feriados, cobertura nem jornada. Nada foi aplicado ou guardado.</p>`;
+    return manEstado();
+  }
+  ['click','change'].forEach(tipo=>window.addEventListener(tipo,event=>{
+    if(!event.target?.closest?.('#v196Manual5x2Card'))return;
+    event.stopImmediatePropagation();
+    if(tipo==='change'&&event.target.id==='v196Manual5x2Habilitar'){manHabilitar(event.target.checked);return;}
+    if(tipo==='click'){
+      const cel=event.target.closest('.v196-cel');if(cel){manToggle(cel);return;}
+      if(event.target.closest('#v196Manual5x2Montar'))manMontar();
+      else if(event.target.closest('#v196Manual5x2Conferir'))manConferir();
+      else if(event.target.closest('#v196Manual5x2Limpar'))manLimpar();
+    }
+  },true));
+  ['mes','ano'].forEach(id=>el(id)?.addEventListener('change',manLimpar));
+  window.v196Manual5x2=Object.freeze({habilitar:manHabilitar,montar:manMontar,conferir:manConferir,limpar:manLimpar,estado:manEstado});
+  manLimpar();
   habilitar(false);
 })();
 </script>
