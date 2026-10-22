@@ -1369,6 +1369,37 @@ async function testarTabelaEManual5x2(browser, app, nome, abrir, pref){   // V29
   await p.close();
 }
 
+async function testarSugestao5x2(browser, app, nome, abrir){   // V294: o botão “Sugerir folgas distribuídas” espalha e não deixa ninguém passar de 5 dias seguidos
+  console.log('\n▶ ' + nome + ' — 🧪 sugerir folgas distribuídas (escala à mão 5×2)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const api = window.v292Manual5x2; if(!api || typeof api.sugerir !== 'function') return { faltaApi: true };
+    api.habilitar(true); api.montar(); api.sugerir();
+    const grade = document.getElementById('v292Manual5x2Grade'); if(!grade) return { semGrade: true };
+    const tabelas = [...grade.querySelectorAll('table')];
+    let maxPorDia = 0, pessoasTotal = 0, pessoasCom2 = 0, totalPessoas = 0;
+    tabelas.forEach(t => {
+      const linhas = [...t.querySelectorAll('tbody tr')];
+      const nCols = [...t.querySelectorAll('thead th')].length - 2;
+      const porDia = new Array(Math.max(0, nCols)).fill(0);
+      linhas.forEach(tr => { const cels = [...tr.querySelectorAll('.v292-cel')]; let n = 0; cels.forEach((c, i) => { if(c.getAttribute('aria-pressed') === 'true'){ n++; porDia[i]++; } }); pessoasTotal++; if(n === 2) pessoasCom2++; });
+      porDia.forEach(v => { if(v > maxPorDia) maxPorDia = v; });
+    });
+    totalPessoas = tabelas.length ? [...tabelas[0].querySelectorAll('tbody tr')].length : 0;
+    api.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado').innerText;
+    const m = box.match(/(\d+) erro\(s\)/);
+    return { maxPorDia, pessoasTotal, pessoasCom2, totalPessoas, erros: m ? +m[1] : -1 };
+  });
+  ok(!r.faltaApi && !r.semGrade, nome + ': a escala à mão tem o botão “Sugerir folgas distribuídas”');
+  ok(r.pessoasTotal > 0 && r.pessoasCom2 === r.pessoasTotal, nome + ': a sugestão dá 2 folgas por semana a todas as pessoas (' + r.pessoasCom2 + '/' + r.pessoasTotal + ')');
+  ok(r.totalPessoas === 0 || r.maxPorDia <= Math.max(1, Math.floor(r.totalPessoas / 2)), nome + ': a sugestão não deixa mais que metade da equipe de folga no mesmo dia (máx ' + r.maxPorDia + ' de ' + r.totalPessoas + ')');
+  ok(r.erros === 0, nome + ': a conferência da sugestão não acusa erro (2 folgas e no máximo 5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript na sugestão' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarCobertura5x2(browser, app, nome, abrir){   // V198: o ensaio 5×2 não pode deixar nenhum dia sem ninguém trabalhando
   console.log('\n▶ ' + nome + ' — 🧪 cobertura do ensaio 5×2 (ninguém deixa o dia descoberto)');
   const { p, erros } = await novaPagina(browser);
@@ -1679,6 +1710,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 292) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); });
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 196) await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); });
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 293) await testarTabelaEManual5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 'v292');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
