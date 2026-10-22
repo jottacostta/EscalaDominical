@@ -201,15 +201,15 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 - **Proteção:** o ensaio não chama aplicação, geração, render oficial, histórico, Excel ou Storage para guardar o resultado; recarregar apaga habilitação e resultado. As cópias atuais e as versões V291/V195 arquivadas foram conferidas byte a byte.
 - **Testes independentes:** um agente testou apenas Setores e outro apenas Encarregados. Ambos confirmaram resultado visível, duas folgas por semana, isolamento dos estados oficiais, zero pageerror/console.error e geração oficial preservada.
 - **Limites registrados:** timers oficiais de manutenção continuam existindo, sem gravação causada pelo ensaio; o Setores acusou três sequências de seis dias quando havia escala oficial prévia; e o Encarregados apresentou variações preexistentes em duas gerações limpas. Nada disso deve ser tratado como homologação do regime 5×2.
-- **Próximo passo:** a PR deve passar pela suíte rápida e completa; depois, o dono decide se a área experimental entra no `main`. A distribuição real, cobertura, jornada, feriados e a idempotência do Encarregados continuam pendentes.
+- **Próximo passo:** a [PR #108 — área experimental V292/V196](https://github.com/jottacostta/EscalaDominical/pull/108) foi rebaseada sobre `main` após a incorporação das PRs #106 e #107 e aguarda o último CI antes do merge. A distribuição real, cobertura, jornada, feriados e a idempotência do Encarregados continuam pendentes.
 - **Assinado:** Manus
 
 ### 2026-10-21 — Gabriel×toast + notificações 20 s — Setores V291 / Encarregados V195 — Claude
 - **Problema:** no celular o botão do Gabriel (`right:16px`, `width:58px`, `z-index:1300`) sobrepunha o X de fechar da notificação toast, tornando o X inacessível.
 - **Fix CSS:** uma media query adiciona `left:12px; right:82px; transform:none; width:auto` à `.toast-stack` em telas ≤ 899px — os 82px reservam espaço para o Gabriel (16+58+8px de gap).
 - **Fix timeout:** avisos persistentes passam a fechar automaticamente após 20 s (Encarregados estava 8–15 s; Setores estava "nunca"). Verde (ok) continua 10 s; não-persistente mantém 3–4 s.
-- **PRs:** [#106 — V195 Encarregados](https://github.com/jottacostta/EscalaDominical/pull/106) e [#107 — V291 Setores](https://github.com/jottacostta/EscalaDominical/pull/107). Aguardam revisão de Manus/JottaCostta.
-- **Continuidade:** após merge, atualizar "Estado atual" para V291/V195 e "Próximo número" para V292/V196 (já antecipado aqui). — *Claude*
+- **PRs:** [#106 — V195 Encarregados](https://github.com/jottacostta/EscalaDominical/pull/106) e [#107 — V291 Setores](https://github.com/jottacostta/EscalaDominical/pull/107) foram mescladas na `main`; a área experimental continua na [PR #108 — V292/V196](https://github.com/jottacostta/EscalaDominical/pull/108).
+- **Continuidade:** os links e o estado atual já apontam para V292/V196; a documentação detalhada da simulação está em [`RELATORIO_TESTE_5x2_INTERCALADO_V292_V196.md`](RELATORIO_TESTE_5x2_INTERCALADO_V292_V196.md). — *Claude*
 
 
 ### 2026-10-20 — Distribuição das duas folgas — Setores V290 / Encarregados V194 — Manus
