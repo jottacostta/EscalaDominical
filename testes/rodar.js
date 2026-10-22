@@ -1336,6 +1336,39 @@ async function testarToastNaoCobreGabriel(browser, app, nome, abrir){   // V291/
   await ctx.close();
 }
 
+async function testarTabelaEManual5x2(browser, app, nome, abrir, pref){   // V293/V197: tabela de folgas no ensaio + grade editável da escala à mão
+  console.log('\n▶ ' + nome + ' — 🧪 tabela de folgas e escala à mão (ensaio 5×2)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(pref => {
+    const out={}, ensaio=window[pref+'Teste5x2'], manual=window[pref+'Manual5x2'];
+    if(!ensaio||!manual){out.faltaApi=true;return out;}
+    ensaio.habilitar(true); ensaio.simular();
+    const saida=document.getElementById(pref+'Teste5x2Resultado');
+    out.ensaioTabela=/class="v\d+-tab"/.test(saida?saida.innerHTML:'');
+    manual.habilitar(true); manual.montar();
+    const grade=document.getElementById(pref+'Manual5x2Grade');
+    out.grade=grade?grade.querySelectorAll('.'+pref+'-cel').length:0;
+    const tr0=grade?grade.querySelector('tbody tr'):null, cels=tr0?[...tr0.querySelectorAll('.'+pref+'-cel')]:[];
+    if(cels[0])cels[0].click(); if(cels[2])cels[2].click();
+    manual.conferir();
+    const box=document.getElementById(pref+'Manual5x2Resultado'), html=box?box.innerHTML:'';
+    out.conf=/Confer[êe]ncia/i.test(html); out.confTabela=/class="v\d+-tab"/.test(html);
+    out.erroFaltam=/precisa de 2/.test(html);
+    out.marcou=!!(cels[0]&&cels[0].getAttribute('aria-pressed')==='true');
+    return out;
+  }, pref);
+  ok(!r.faltaApi, nome + ': as APIs do ensaio 5×2 estão presentes');
+  ok(r.ensaioTabela, nome + ': o ensaio 5×2 mostra as folgas em tabela');
+  ok(r.grade > 0, nome + ': a escala à mão monta a grade editável (' + r.grade + ' células)');
+  ok(r.marcou, nome + ': dá para marcar uma folga tocando na célula');
+  ok(r.conf && r.confTabela, nome + ': “Conferir” mostra a conferência com a tabela de folgas');
+  ok(r.erroFaltam, nome + ': a conferência à mão acusa quem ainda não tem 2 folgas');
+  ok(!erros.length, nome + ': sem erro de JavaScript no ensaio de folgas' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1619,6 +1652,8 @@ async function testarSemTxt(browser, app, nome, dados){
 
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 292) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); });
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 196) await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); });
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 293) await testarTabelaEManual5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 'v292');
+       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); } }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
