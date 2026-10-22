@@ -1503,6 +1503,48 @@ async function testarDomingos2x1(browser, app, nome, abrir){   // V296: o ensaio
   await p.close();
 }
 
+async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à mão contempla feriados (rodízio H/f, compensatória, DSR), sem furar ≤5 seguidos
+  console.log('\n▶ ' + nome + ' — 🧪 feriados no ensaio à mão (rodízio, compensatória, DSR)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; if(!m || typeof m.conferir !== 'function') return { faltaApi: true };
+    m.habilitar(true); m.montar(); m.sugerir(); m.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
+    if(!t) return { semTabela: true };
+    const colFer = [...t.querySelectorAll('thead th.v292-col-fer')].length;
+    const H = [...t.querySelectorAll('tbody td.v292-fer-trab')].length;
+    const f = [...t.querySelectorAll('tbody td.v292-fer-folga')].length;
+    const erros = (box.innerText.match(/(\d+) erro\(s\)/) || [])[1];
+    return { colFer, H, f, erros: erros ? +erros : -1 };
+  });
+  ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece');
+  ok(r.colFer > 0, nome + ': os feriados do mês viram colunas destacadas na grade (' + r.colFer + ')');
+  ok(r.H > 0 && r.f > 0, nome + ': nos feriados de dia útil há rodízio — parte trabalha (H=' + r.H + ') e parte folga (f=' + r.f + ')');
+  ok(r.erros === 0, nome + ': a conferência com feriados não acusa erro (compensatória, DSR e ≤5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript com feriados' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
+  console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; m.habilitar(true); m.montar(); m.sugerir(); m.conferir();
+    const btn = document.getElementById('v292Manual5x2Imprimir'); if(!btn) return { semBotao: true };
+    let written = '';
+    const fake = { document: { write: s => { written += s; }, close: () => {} }, focus: () => {}, print: () => {} };
+    const orig = window.open; window.open = () => fake;
+    try { btn.click(); } finally { window.open = orig; }
+    return { temBotao: true, temTabela: /table[^>]*v292-tab-mes/.test(written), temTitulo: /Escala do mês/.test(written) };
+  });
+  ok(!r.semBotao && r.temBotao, nome + ': existe o botão “Imprimir tabela mensal”');
+  ok(r.temTabela && r.temTitulo, nome + ': imprimir abre uma janela só com a grade mensal');
+  ok(!erros.length, nome + ': sem erro de JavaScript ao imprimir' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1790,6 +1832,8 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
