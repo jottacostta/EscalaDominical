@@ -2653,6 +2653,16 @@ table.v292-tab th,table.v292-tab td{border:1px solid var(--border,#cbd5e1);paddi
 table.v292-tab th[scope=row]{text-align:left;white-space:nowrap}
 table.v292-tab td.v292-folga{background:var(--brand,#0047BA);color:#fff;font-weight:700}
 table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
+.v292-manual-grade{overflow-x:auto;margin:8px 0}
+.v292-manual-grade table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0;font-variant-numeric:tabular-nums}
+.v292-manual-grade caption{text-align:left;font-weight:700;margin-bottom:4px;font-size:13px}
+.v292-manual-grade th,.v292-manual-grade td{border:1px solid var(--border,#cbd5e1);padding:2px;text-align:center}
+.v292-manual-grade th[scope=row]{text-align:left;white-space:nowrap;padding:4px 6px}
+.v292-cel{min-width:42px;min-height:42px;border:0;background:transparent;cursor:pointer;font-size:16px;border-radius:6px;color:var(--muted,#64748b)}
+.v292-cel[aria-pressed=true]{background:var(--brand,#0047BA);color:#fff;font-weight:700}
+.v292-manual-cont{font-weight:700}
+.v292-manual-cont.ruim{color:var(--danger,#a1121d)}
+.v292-manual-cont.ok{color:var(--ok,#047857)}
 @media(max-width:600px){.v292-teste-acoes button{width:100%}.v292-teste-area{padding:12px}.v292-teste-numeros{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
@@ -3087,6 +3097,18 @@ table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
       <button type="button" class="btn secondary" id="btnHistorico">📦 Guardar histórico do mês</button>
     </div>
   </div>
+  <section id="v292Manual5x2Area" class="v292-teste-area v292-manual-area gb-sem-icone" aria-labelledby="v292Manual5x2Titulo" data-v273-ignorar style="margin-top:16px">
+    <h4 id="v292Manual5x2Titulo">🧪 Escala à mão 5×2 — ensaio sem validade real</h4>
+    <p>Monte as folgas na mão para testar. Toque nos dias (segunda a sábado) para marcar ou tirar a folga de cada pessoa — duas folgas por semana. O domingo continua como já está. Nada é aplicado nem guardado.</p>
+    <label class="v292-teste-habilitar" for="v292Manual5x2Habilitar"><input id="v292Manual5x2Habilitar" type="checkbox"><span>Habilitar ensaio à mão (só para testar)</span></label>
+    <div class="v292-teste-acoes">
+      <button id="v292Manual5x2Montar" class="btn" type="button" disabled>✋ Montar grade</button>
+      <button id="v292Manual5x2Conferir" class="btn" type="button" disabled>✅ Conferir folgas</button>
+      <button id="v292Manual5x2Limpar" class="btn secondary" type="button">🗑️ Limpar</button>
+    </div>
+    <div id="v292Manual5x2Grade" class="v292-manual-grade"></div>
+    <div id="v292Manual5x2Resultado" class="v292-teste-resultado" role="status" aria-live="polite" aria-atomic="true"></div>
+  </section>
 </section>
 
 <div id="regrasHelpFonte" hidden><div class="legend">
@@ -17063,6 +17085,100 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   },true));
   ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',limpar));
   window.v292Teste5x2={habilitar,simular,limpar,estado};
+  // ── Ensaio de escala à mão (grade editável): mesma isolação, reusa as tabelas. Sem validade real. ──
+  let manHab=false,manDados=null;
+  function isoData(iso){const p=String(iso).split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+  function difDias(a,b){return Math.round((isoData(a)-isoData(b))/86400000);}
+  function manAtualizar(){
+    if(el('v292Manual5x2Habilitar'))el('v292Manual5x2Habilitar').checked=manHab;
+    if(el('v292Manual5x2Montar'))el('v292Manual5x2Montar').disabled=!manHab;
+    if(el('v292Manual5x2Conferir'))el('v292Manual5x2Conferir').disabled=!manHab||!manDados;
+  }
+  function manLimpar(){manDados=null;const g=el('v292Manual5x2Grade');if(g)g.replaceChildren();const b=el('v292Manual5x2Resultado');if(b)b.replaceChildren();manAtualizar();return estadoManual();}
+  function manHabilitar(v){manHab=v===true;if(!manHab)manLimpar();else manAtualizar();return estadoManual();}
+  function estadoManual(){return {habilitado:manHab,montado:!!manDados,semValidadeReal:true};}
+  function manMontar(){
+    if(!manHab)return estadoManual();
+    const b=el('v292Manual5x2Resultado');
+    const e=entrada(),pedido={entrada:e,plano:null,erro:''};
+    document.dispatchEvent(new CustomEvent('v292:construir-teste-5x2',{detail:pedido}));
+    if(pedido.erro||!pedido.plano){if(b)b.textContent='Abra a equipe e escolha o mês antes de montar a grade.';return estadoManual();}
+    const plano=pedido.plano,todas=Object.values(plano.pessoas||{});
+    const inicios=[...new Set(todas.flatMap(p=>(p.semanas||[]).map(w=>w.inicio)))].sort();
+    const semanas=inicios.map(ini=>{const ref=todas.flatMap(p=>p.semanas||[]).find(w=>w.inicio===ini);return {inicio:ini,fim:ref?ref.fim:ini,dias:diasDaSemana(ini).filter(d=>isoData(d).getDay()!==0)};});
+    const pessoas=Object.entries(plano.pessoas||{}).map(([id,p])=>({id,nome:p.nome,folgas:new Set()}));
+    manDados={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,domingos:e.domingos||{},mes:e.mes,ano:e.ano,semanas,pessoas};
+    manRenderGrade();if(b)b.replaceChildren();manAtualizar();return estadoManual();
+  }
+  function manRenderGrade(){
+    const g=el('v292Manual5x2Grade');if(!g||!manDados)return;
+    g.innerHTML=manDados.semanas.map((s,si)=>{
+      const cab=s.dias.map(d=>`<th scope="col">${esc(rotuloDia(d))}</th>`).join('');
+      const corpo=manDados.pessoas.map((p,pi)=>{
+        const cels=s.dias.map(d=>{const on=p.folgas.has(d);return `<td><button type="button" class="v292-cel" data-p="${pi}" data-d="${d}" aria-pressed="${on}" aria-label="${esc(p.nome)}, ${esc(rotuloDia(d))}">${on?'F':'·'}</button></td>`;}).join('');
+        const n=s.dias.filter(d=>p.folgas.has(d)).length;
+        return `<tr><th scope="row">${esc(p.nome)}</th>${cels}<td class="v292-manual-cont ${n===2?'ok':'ruim'}" data-cont="${pi}-${si}">${n}/2</td></tr>`;
+      }).join('');
+      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga (2 por pessoa)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
+    }).join('');
+  }
+  function manToggle(botao){
+    if(!manDados)return;const pi=Number(botao.dataset.p),d=botao.dataset.d,p=manDados.pessoas[pi];if(!p)return;
+    if(p.folgas.has(d))p.folgas.delete(d);else p.folgas.add(d);
+    const on=p.folgas.has(d);botao.setAttribute('aria-pressed',on?'true':'false');botao.textContent=on?'F':'·';
+    const si=manDados.semanas.findIndex(s=>s.dias.includes(d));
+    if(si>=0){const s=manDados.semanas[si],n=s.dias.filter(x=>p.folgas.has(x)).length,c=el('v292Manual5x2Grade')?.querySelector(`[data-cont="${pi}-${si}"]`);if(c){c.textContent=n+'/2';c.className='v292-manual-cont '+(n===2?'ok':'ruim');}}
+  }
+  function maxSeguidos(p){
+    const ultimo=new Date(manDados.ano,manDados.mes+1,0).getDate();let run=0,mx=0;
+    for(let d=1;d<=ultimo;d++){
+      const dt=new Date(manDados.ano,manDados.mes,d),iso=`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+      let folga;
+      if(dt.getDay()===0){const lista=manDados.domingos[d]||manDados.domingos[iso]||[];folga=!(Array.isArray(lista)&&lista.map(Number).includes(Number(p.id)));}
+      else folga=p.folgas.has(iso);
+      if(folga)run=0;else{run++;if(run>mx)mx=run;}
+    }
+    return mx;
+  }
+  function manConferir(){
+    if(!manDados)return estadoManual();
+    const erros=[],avisos=[];
+    const pessoas=manDados.pessoas.map(p=>{
+      const semanas=manDados.semanas.map(s=>{
+        const folgas=s.dias.filter(d=>p.folgas.has(d)).slice().sort();
+        const consec=folgas.length===2&&Math.abs(difDias(folgas[0],folgas[1]))===1;
+        if(folgas.length!==2)erros.push(`${p.nome}, semana de ${fmt(s.inicio)}: ${folgas.length} folga(s) — precisa de 2.`);
+        else if(consec)avisos.push(`${p.nome}, semana de ${fmt(s.inicio)}: duas folgas coladas (último recurso).`);
+        return {inicio:s.inicio,fim:s.fim,folgas,modoFolga:consec?'ultimo-recurso':'separada'};
+      });
+      const seq=maxSeguidos(p);if(seq>5)erros.push(`${p.nome}: trabalharia ${seq} dias seguidos (máximo 5 no 5×2).`);
+      return {nome:p.nome,semanas};
+    });
+    const r={setor:manDados.setor,periodo:manDados.periodo,pessoas};
+    const box=el('v292Manual5x2Resultado');if(!box)return estadoManual();
+    const lista=(t,itens,aberto)=>itens.length?`<details${aberto?' open':''}><summary>${esc(t)} (${itens.length})</summary><ul>${itens.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:'';
+    box.innerHTML=`<strong>✋ Conferência da escala à mão — sem validade real</strong><p>${esc(r.setor)} · ${esc(r.periodo)}.</p>
+      <p><b>${erros.length} erro(s) e ${avisos.length} aviso(s).</b> ${erros.length?'':'✅ Duas folgas por semana em todas as pessoas.'}</p>
+      ${lista('Ver erros',erros,true)}${lista('Ver avisos',avisos,false)}
+      <details open><summary>Como ficaram as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
+      <details><summary>Folgas por pessoa (pessoa × dias da semana)</summary>${tabelaGrade(r)}</details>
+      <p>Este ensaio confere só 2 folgas por semana, dias separados e no máximo 5 dias seguidos. Não confere cobertura da loja, feriados nem jornada de 42h/40h. Nada foi aplicado ou guardado.</p>`;
+    return estadoManual();
+  }
+  ['click','change'].forEach(tipo=>window.addEventListener(tipo,event=>{
+    if(!event.target?.closest?.('#v292Manual5x2Area'))return;
+    event.stopImmediatePropagation();
+    if(tipo==='change'&&event.target.id==='v292Manual5x2Habilitar'){manHabilitar(event.target.checked);return;}
+    if(tipo==='click'){
+      const cel=event.target.closest('.v292-cel');if(cel){manToggle(cel);return;}
+      if(event.target.closest('#v292Manual5x2Montar'))manMontar();
+      else if(event.target.closest('#v292Manual5x2Conferir'))manConferir();
+      else if(event.target.closest('#v292Manual5x2Limpar'))manLimpar();
+    }
+  },true));
+  ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',manLimpar));
+  window.v292Manual5x2={habilitar:manHabilitar,montar:manMontar,conferir:manConferir,limpar:manLimpar,estado:estadoManual};
+  manAtualizar();
   atualizar();
 })();
 </script>
