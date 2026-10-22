@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V290</title>
+<title>Escala de Setores — V291</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V291 [Claude] — AVISO NÃO TAPA O GABRIEL, X MAIOR E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); o X de fechar ganhou alvo de toque de 44 px; avisos comuns fecham sozinhos em 20 s e os de erro grave ficam até o usuário fechar.
 V290 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: deixa o corte 6×1/5×2 claro, guarda CCT e plano no histórico e exige gerar de novo ao mudar a opção.
 V285 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
 )
@@ -972,13 +973,14 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .load-check-notice h3{margin:0 0 6px;font-size:16px}.load-check-notice p{margin:0 0 12px;font-size:13px;line-height:1.45;color:#475569}.load-check-actions{display:flex;gap:8px;flex-wrap:wrap}.load-check-actions .btn{flex:1;min-width:145px}.load-check-close{position:absolute;right:8px;top:7px;border:0;background:transparent;font-size:22px;color:#64748b;cursor:pointer;padding:2px 7px}
 @media (prefers-color-scheme:dark){.load-check-notice{background:#0f172a;color:#f8fafc}.load-check-notice p{color:#cbd5e1}}
 .toast-stack{position:fixed;left:50%;bottom:calc(88px + var(--safe-bottom));transform:translateX(-50%);z-index:1100;display:flex;flex-direction:column;gap:8px;width:min(94vw,440px);pointer-events:none}
+@media(max-width:899px){.toast-stack{left:12px;right:82px;transform:none;width:auto}}
 .toast{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:11px;background:#1E293B;color:#fff;box-shadow:var(--sh-lg);font-size:13px;font-weight:600;pointer-events:auto;animation:v45ToastIn .22s cubic-bezier(.32,.72,0,1)}
 .toast span{display:block;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.4}
 .toast-ok{background:var(--ok)}
 .toast-info{background:var(--info)}
 .toast-warn{background:var(--warn)}
 .toast-danger{background:var(--danger)}
-.toast button{border:0;background:transparent;color:inherit;font-size:20px;line-height:1;padding:0 2px;cursor:pointer}
+.toast button{border:0;background:transparent;color:inherit;font-size:20px;line-height:1;padding:0;cursor:pointer;min-width:44px;min-height:44px;margin:-10px -8px -10px 0;display:flex;align-items:center;justify-content:center;flex:none}
 @keyframes v45ToastIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 .progress-overlay{position:fixed;inset:0;z-index:1050;background:rgba(15,23,42,.42);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px}
@@ -2718,7 +2720,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V290 · configuração e histórico do 5×2</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V291 · Aviso não cobre o Gabriel, X maior; comum fecha em 20 s, erro fica</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -8775,8 +8777,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     t.appendChild(close);
     stack.appendChild(t);
     while(stack.children.length > 3) stack.firstElementChild.remove();
-    { // V273: aviso verde fecha em 10 s (mouse em cima = espera); os demais mantêm o prazo antigo; persistente não-verde nunca fecha
-      const ms = type==='ok' ? 10000 : (persistent ? 0 : 3000);
+    { // V273: aviso verde fecha em 10 s (mouse em cima = espera); V291: aviso comum fecha em 20 s, erro grave fica até fechar
+      const ms = type==='ok' ? 10000 : (type==='danger'&&persistent ? 0 : (persistent ? 20000 : 3000));
       if(ms){ let h=null; const fechar=()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),180); };
         const arma=n=>{ clearTimeout(h); h=setTimeout(fechar,n); };
         arma(ms);
