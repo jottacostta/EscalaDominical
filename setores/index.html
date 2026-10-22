@@ -17101,6 +17101,26 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }).join('');
     return `<div class="v292-tab-rolagem"><table class="v292-tab v292-tab-mes"><caption>D = trabalha domingo · H = trabalha feriado · F = folga da semana · f = folga no feriado · · = trabalha · – = domingo de descanso</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>`;
   }
+  // V297: imprime só a grade mensal numa janela nova (isolada), sem validade real.
+  function imprimirMensal(boxEl,setor,periodo){
+    const t=boxEl&&boxEl.querySelector('table.v292-tab-mes');
+    if(!t){window.showToast?.('Gere a tabela do mês antes de imprimir.','info',true);return;}
+    const titulo=`Escala do mês — ${setor||'Setor'} · ${periodo||''} (ensaio 5×2, sem validade real)`;
+    const css='<style>body{font-family:system-ui,Arial;margin:12px;color:#0f172a}h3{margin:0 0 8px}'
+      +'table{border-collapse:collapse;font-size:10px;width:100%;font-variant-numeric:tabular-nums}'
+      +'th,td{border:1px solid #cbd5e1;padding:3px 4px;text-align:center}th[scope=row]{text-align:left;white-space:nowrap}'
+      +'caption{text-align:left;font-weight:700;margin-bottom:6px}'
+      +'td.v292-dom-trab{background:#ea580c;color:#fff;font-weight:700}td.v292-dom-folga{background:#fff7ed;color:#c2410c}'
+      +'th.v292-col-dom{background:#fff7ed;color:#9a3412}th.v292-col-fer{background:#fef9c3;color:#854d0e}'
+      +'td.v292-fer-trab{background:#ca8a04;color:#fff;font-weight:700}td.v292-fer-folga{background:#fef9c3;color:#854d0e;font-weight:700}'
+      +'td.v292-folga{background:#0047BA;color:#fff;font-weight:700}td.v292-trab{color:#64748b}'
+      +'@media print{@page{size:landscape;margin:8mm}}</style>';
+    const w=window.open('','_blank');
+    if(!w){window.showToast?.('Permita pop-ups para imprimir a tabela.','danger',true);return;}
+    w.document.write('<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><title>'+esc(titulo)+'</title>'+css+'</head><body><h3>'+esc(titulo)+'</h3>'+t.outerHTML
+      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. D = trabalha domingo · H = trabalha feriado · F = folga da semana · f = folga no feriado · · = trabalha · – = descanso.</p></body></html>');
+    w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},300);
+  }
   function mostrar(){
     const box=el('v292Teste5x2Resultado');if(!box||!resultado)return;
     const r=resultado,n=r.resumo;
@@ -17112,6 +17132,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       ${lista('Ver erros',r.erros)}${lista('Ver avisos',r.avisos)}
       <details open><summary>Como ficariam as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
       <details open><summary>Escala do mês (pessoa × dias — domingos e folgas)</summary>${tabelaMensal(r)}</details>
+      <p><button type="button" id="v292Teste5x2Imprimir" class="btn">🖨️ Imprimir tabela mensal</button></p>
       <p>Nada foi aplicado ou guardado. Ao recarregar, este resultado desaparece.</p>`;
   }
   function simular(){
@@ -17138,6 +17159,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(tipo==='change'&&event.target.id==='v292Teste5x2Habilitar')habilitar(event.target.checked);
     if(tipo==='click'&&event.target.closest('#v292Teste5x2Simular'))simular();
     if(tipo==='click'&&event.target.closest('#v292Teste5x2Limpar'))limpar();
+    if(tipo==='click'&&event.target.closest('#v292Teste5x2Imprimir'))imprimirMensal(el('v292Teste5x2Resultado'),resultado?.setor,resultado?.periodo);
   },true));
   ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',limpar));
   window.v292Teste5x2={habilitar,simular,limpar,estado};
@@ -17297,7 +17319,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       ${lista('Ver erros',erros,true)}${lista('Ver avisos',avisos,false)}
       <details open><summary>Como ficaram as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
       <details open><summary>Escala do mês (pessoa × dias — domingos e folgas)</summary>${tabelaMensal(r)}</details>
-      <p>Este ensaio confere só 2 folgas por semana, dias separados e no máximo 5 dias seguidos. Não confere cobertura da loja, feriados nem jornada de 42h/40h. Nada foi aplicado ou guardado.</p>`;
+      <p><button type="button" id="v292Manual5x2Imprimir" class="btn">🖨️ Imprimir tabela mensal</button></p>
+      <p>Este ensaio confere as folgas da semana conforme o domingo (2×1) e os feriados (rodízio, folga compensatória em até 20 dias e DSR), com no máximo 5 dias seguidos. Não confere jornada de 42h/40h. Nada foi aplicado ou guardado.</p>`;
     return estadoManual();
   }
   ['click','change'].forEach(tipo=>window.addEventListener(tipo,event=>{
@@ -17306,6 +17329,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(tipo==='change'&&event.target.id==='v292Manual5x2Habilitar'){manHabilitar(event.target.checked);return;}
     if(tipo==='click'){
       const cel=event.target.closest('.v292-cel');if(cel){manToggle(cel);return;}
+      if(event.target.closest('#v292Manual5x2Imprimir')){imprimirMensal(el('v292Manual5x2Resultado'),manDados?.setor,manDados?.periodo);return;}
       if(event.target.closest('#v292Manual5x2Montar'))manMontar();
       else if(event.target.closest('#v292Manual5x2Sugerir'))manSugerir();
       else if(event.target.closest('#v292Manual5x2Conferir'))manConferir();
