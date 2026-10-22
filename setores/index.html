@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V299</title>
+<title>Escala de Setores — V300</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V300 [Claude] — ENSAIO 5×2 SÓ NA ESCALA À MÃO (GERAR): a área automática “🧪 Testar 5×2” que ficava em Configurações foi retirada; o ensaio 5×2 (grade mensal, domingos 2×1, feriados, cenários variados e impressão colorida) continua inteiro na escala à mão, em Gerar. O motor interno que monta e audita o 5×2 (coordenado por Manus) permanece intacto; só a tela automática de teste saiu. Sem validade real.
 V299 [Claude] — IMPRESSÃO COLORIDA DA GRADE MENSAL: a impressão da tabela do ensaio 5×2 sai colorida (fundo dos domingos, feriados e folgas), com `print-color-adjust: exact` na janela de impressão — antes o navegador tirava as cores de fundo e saía em preto e branco. Só no ensaio, sem validade real.
 V298 [Claude] — CENÁRIOS VARIADOS A CADA “SUGERIR FOLGAS”: na escala à mão, cada clique em “Sugerir folgas distribuídas” gera um cenário diferente e coerente — sorteia o rodízio 2×1 dos domingos e o rodízio dos feriados (variando quem entra em cada grupo) e embaralha as folgas da semana, sempre respeitando as regras (2 folgas se trabalha domingo / 1 se folga, feriados com compensatória e DSR, no máximo 5 dias seguidos). Dá para clicar várias vezes e comparar opções. Só no ensaio à mão, sem validade real.
 V297 [Claude] — FERIADOS NO ENSAIO À MÃO: a grade mensal passa a mostrar os feriados do mês (colunas 🟡). Nos feriados de dia útil há rodízio de quem trabalha (H) e quem folga (f); quem trabalha o feriado ganha 1 folga compensatória na semana (dentro de 20 dias); quem folga no feriado tem o feriado como descanso da semana (DSR prevalece). Feriado que cai no domingo segue o rodízio 2×1 do domingo, só marcado. Mantém no máximo 5 dias seguidos. Só no ensaio à mão, sem validade real.
@@ -2779,7 +2780,7 @@ table.v292-tab-mes td.v292-cel-fer{outline:2px solid #ca8a04;outline-offset:-2px
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V299 · Ensaio 5×2: impressão colorida da grade mensal</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V300 · Ensaio 5×2 só na escala à mão (Gerar)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2872,18 +2873,6 @@ table.v292-tab-mes td.v292-cel-fer{outline:2px solid #ca8a04;outline-offset:-2px
     </div>
   </div>
   <div id="motorEscalaResumo" class="alert info" role="status" style="margin:10px 0 0"></div>
-  <section id="v292Teste5x2Area" class="v292-teste-area gb-sem-icone" aria-labelledby="v292Teste5x2Titulo" data-v273-ignorar>
-    <h4 id="v292Teste5x2Titulo">🧪 Testar 5×2 — sem validade real</h4>
-    <p><b>Não altera escala oficial, domingos, feriados, histórico, Excel nem dados guardados.</b></p>
-    <p>Usa a equipe e o mês/ano selecionados. Força 5×2 só durante o teste.</p>
-    <p>Ao recarregar, o resultado desaparece. A opção do teste também será desligada.</p>
-    <label class="v292-teste-habilitar" for="v292Teste5x2Habilitar"><input id="v292Teste5x2Habilitar" type="checkbox"><span>Habilitar ensaio (só para testar)</span></label>
-    <div class="v292-teste-acoes">
-      <button id="v292Teste5x2Simular" class="btn" type="button" disabled>🧪 Simular 5×2</button>
-      <button id="v292Teste5x2Limpar" class="btn secondary" type="button">🗑️ Limpar resultado</button>
-    </div>
-    <div id="v292Teste5x2Resultado" class="v292-teste-resultado" role="status" aria-live="polite" aria-atomic="true"></div>
-  </section>
 </div>
 
 <div class="horarios-config-card">
@@ -16985,7 +16974,6 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const chave=dt=>`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
   const fmt=s=>String(s).split('-').reverse().join('/');
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let habilitado=false,resultado=null,ocupado=false;
   // Calendário local: usa apenas helpers puros, não o leitor com cache do app.
   function calendario(ano,mes,extras){
     const f={},pascoa=dataPascoa(ano);
@@ -17035,13 +17023,6 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       'Este teste não confirma cobertura da loja nem jornada de 42h ou 40h.'
     ]};
   }
-  function atualizar(){
-    if(el('v292Teste5x2Habilitar'))el('v292Teste5x2Habilitar').checked=habilitado;
-    if(el('v292Teste5x2Simular'))el('v292Teste5x2Simular').disabled=!habilitado||ocupado;
-  }
-  function habilitar(valor){habilitado=valor===true;if(!habilitado)limpar();atualizar();return estado();}
-  function limpar(){resultado=null;const box=el('v292Teste5x2Resultado');if(box)box.replaceChildren();return estado();}
-  function estado(){return {v:292,habilitado,ocupado,semValidadeReal:true,resultado:resultado?copia(resultado):null};}
   const DIASEM=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   function diasDaSemana(inicio){const p=String(inicio).split('-').map(Number),out=[];for(let k=0;k<7;k++){const dt=new Date(p[0],p[1]-1,p[2]+k);out.push(`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`);}return out;}
   function rotuloDia(iso){const p=String(iso).split('-').map(Number),dt=new Date(p[0],p[1]-1,p[2]);return `${DIASEM[dt.getDay()]} ${pad(p[2])}`;}
@@ -17108,48 +17089,6 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. D = trabalha domingo · H = trabalha feriado · F = folga da semana · f = folga no feriado · · = trabalha · – = descanso.</p></body></html>');
     w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},300);
   }
-  function mostrar(){
-    const box=el('v292Teste5x2Resultado');if(!box||!resultado)return;
-    const r=resultado,n=r.resumo;
-    const lista=(titulo,itens)=>itens.length?`<details><summary>${esc(titulo)} (${itens.length})</summary><ul>${itens.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></details>`:'';
-    box.innerHTML=`<strong>🧪 Teste concluído — sem validade real</strong><p>${esc(r.setor)} · ${esc(r.periodo)}. O 5×2 foi forçado só neste teste.</p>
-      <div class="v292-teste-numeros">${[[n.pessoas,'Pessoas'],[n.semanas,'Semanas completas'],[n.pessoasSemanas,'Semanas por pessoa (total)'],[n.folgas,'Folgas designadas'],[n.folgasSeparadas,'Folgas separadas'],[n.ultimoRecurso,'Semanas com último recurso']].map(([v,t])=>`<div><b>${v}</b>${t}</div>`).join('')}</div>
-      <p>Duas folgas de segunda a sábado por semana. Domingos continuam como estão.</p>
-      <p><b>Conferência do teste: ${r.erros.length} erro(s) e ${r.avisos.length} aviso(s).</b></p>
-      ${lista('Ver erros',r.erros)}${lista('Ver avisos',r.avisos)}
-      <details open><summary>Como ficariam as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
-      <details open><summary>Escala do mês (pessoa × dias — domingos e folgas)</summary>${tabelaMensal(r)}</details>
-      <p><button type="button" id="v292Teste5x2Imprimir" class="btn">🖨️ Imprimir tabela mensal</button></p>
-      <p>Nada foi aplicado ou guardado. Ao recarregar, este resultado desaparece.</p>`;
-  }
-  function simular(){
-    if(ocupado)return estado();
-    if(!habilitado){el('v292Teste5x2Resultado').textContent='Marque “Habilitar ensaio” antes de simular.';return estado();}
-    ocupado=true;resultado=null;atualizar();
-    try{
-      const e=entrada(),pedido={entrada:e,plano:null,erro:''};
-      document.dispatchEvent(new CustomEvent('v292:construir-teste-5x2',{detail:pedido}));
-      if(pedido.erro||!pedido.plano)throw new Error(pedido.erro||'Não consegui simular. Recarregue o app e tente novamente.');
-      const plano=pedido.plano,pessoas=Object.entries(plano.pessoas||{}).map(([id,p])=>({id,nome:p.nome,semanas:copia(p.semanas||[])})),semanas=pessoas.flatMap(p=>p.semanas);
-      const separadas=semanas.filter(w=>w.modoFolga==='separada'&&w.folgas.length===2);
-      resultado={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,mes:e.mes,ano:e.ano,domingos:e.domingos||{},semValidadeReal:true,resumo:{pessoas:pessoas.length,semanas:plano.semanas.length,pessoasSemanas:semanas.length,folgas:semanas.reduce((n,w)=>n+w.folgas.length,0),folgasSeparadas:separadas.length*2,paresSeparados:separadas.length,ultimoRecurso:semanas.filter(w=>w.modoFolga==='ultimo-recurso').length},erros:copia(plano.auditoria.erros),avisos:[...e.avisos,...plano.auditoria.avisos],pessoas};
-      mostrar();
-    }catch(err){const box=el('v292Teste5x2Resultado');if(box)box.textContent='Não foi possível simular. '+(err?.message||'Recarregue o app e tente novamente.');}
-    finally{ocupado=false;atualizar();}
-    return estado();
-  }
-  // Captura na janela, antes dos salvamentos e da memória do Gabriel no document.
-  // Só esta área é isolada. O comportamento nativo (checkbox, teclado, details) continua.
-  ['click','change','input','keydown'].forEach(tipo=>window.addEventListener(tipo,event=>{
-    if(!event.target?.closest?.('#v292Teste5x2Area'))return;
-    event.stopImmediatePropagation();
-    if(tipo==='change'&&event.target.id==='v292Teste5x2Habilitar')habilitar(event.target.checked);
-    if(tipo==='click'&&event.target.closest('#v292Teste5x2Simular'))simular();
-    if(tipo==='click'&&event.target.closest('#v292Teste5x2Limpar'))limpar();
-    if(tipo==='click'&&event.target.closest('#v292Teste5x2Imprimir'))imprimirMensal(el('v292Teste5x2Resultado'),resultado?.setor,resultado?.periodo);
-  },true));
-  ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',limpar));
-  window.v292Teste5x2={habilitar,simular,limpar,estado};
   // ── Ensaio de escala à mão (grade editável): mesma isolação, reusa as tabelas. Sem validade real. ──
   let manHab=false,manDados=null;
   function isoData(iso){const p=String(iso).split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
@@ -17341,7 +17280,6 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',manLimpar));
   window.v292Manual5x2={habilitar:manHabilitar,montar:manMontar,sugerir:manSugerir,conferir:manConferir,limpar:manLimpar,estado:estadoManual};
   manAtualizar();
-  atualizar();
 })();
 </script>
 
