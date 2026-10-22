@@ -7,10 +7,12 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V195</title>
+<title>Escala 2×1 — Encarregados V196</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V196 [Manus] — 🧪 TESTAR 5×2 SEM VALIDADE REAL: ensaio separado em Configurações, com cópias da equipe e resultado só na tela.
+       Não altera escala oficial, domingos 2×1, feriados, histórico, Excel ou dados guardados; recarregar apaga o teste.
 V195 [Claude] — AVISO NÃO TAPA O GABRIEL, X MAIOR E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); o X de fechar ganhou alvo de toque de 44 px; avisos comuns fecham sozinhos em 20 s e os de erro grave ficam até o usuário fechar.
 V194 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: deixa o corte 6×1/5×2 claro, guarda CCT e plano no histórico e exige gerar de novo ao mudar a opção.
 V188 [Grok] — GABRIEL RESPONDE REGRAS DO APP: responde perguntas sobre o funcionamento e regras já estabelecidas; qualquer outro assunto pede para procurar o subgerente administrativo. Não altera a escala.
@@ -1975,6 +1977,22 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 @media(max-width:620px){.v286-motor-options{grid-template-columns:1fr}.v286-motor-option{min-height:0}}
 </style>
 
+<style id="v196-teste-5x2">
+#v196Teste5x2Card{margin-top:16px;padding:14px;border:2px dashed var(--brand,#0047BA);border-radius:12px;background:var(--surface-2,#f8fafc);color:var(--text,#172033)}
+#v196Teste5x2Card h3,#v196Teste5x2Resultado h4{margin:0 0 8px;font-size:16px;line-height:1.4}
+#v196Teste5x2Card p{font-size:13px;line-height:1.5;margin:8px 0}
+#v196Teste5x2Card .v196-teste-habilitar{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 4px;cursor:pointer;font-size:14px;font-weight:700}
+#v196Teste5x2Habilitar{width:24px;height:24px;flex:0 0 24px;margin:0;accent-color:var(--brand,#0047BA)}
+#v196Teste5x2Card .v196-teste-acoes{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+#v196Teste5x2Card .v196-teste-acoes button{min-height:48px;min-width:44px;flex:1 1 180px;font-size:14px}
+#v196Teste5x2Card button:disabled{opacity:.65;cursor:not-allowed}
+#v196Teste5x2Resultado{margin-top:12px;padding:12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;background:var(--surface,#fff);font-size:13px;line-height:1.5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#v196Teste5x2Resultado details{margin-top:8px}
+#v196Teste5x2Resultado summary{min-height:44px;display:list-item;padding:10px 6px;cursor:pointer;font-weight:700}
+#v196Teste5x2Resultado ul{padding-left:22px;margin:6px 0}
+#v196Teste5x2Resultado li{margin:6px 0}
+#v196Teste5x2Card :is(button,input,summary):focus-visible{outline:3px solid var(--brand,#0047BA);outline-offset:3px}
+</style>
 </head>
 <body class="em-inicio">
 
@@ -2029,7 +2047,7 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V195 · Aviso não cobre o Gabriel, X maior; comum fecha em 20 s, erro fica</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V196 · Teste 5×2 separado, sem validade real e sem guardar resultado</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2127,6 +2145,18 @@ document.addEventListener('input',function(e){ const x=e.target; if(!x||!x.class
     </div>
   </div>
   <div id="motorEscalaResumo" class="alert info" role="status" style="margin:10px 0 0"></div>
+  <section id="v196Teste5x2Card" class="v196-teste-card" aria-labelledby="v196Teste5x2Titulo" data-v273-ignorar="1">
+    <h3 id="v196Teste5x2Titulo">🧪 Testar 5×2 — sem validade real</h3>
+    <p id="v196Teste5x2Aviso"><b>Não altera a escala oficial nem os domingos 2×1.</b><br>Não altera feriados, histórico, Excel nem dados guardados.</p>
+    <p>Usa cópias da equipe, do mês e do ano escolhidos.<br>Força 5×2 só no teste, mesmo antes de 16/12/2026.<br>Domingos ficam fora e continuam no 2×1 oficial.</p>
+    <label class="v196-teste-habilitar" for="v196Teste5x2Habilitar"><input id="v196Teste5x2Habilitar" type="checkbox" autocomplete="off" aria-describedby="v196Teste5x2Aviso"><span>Habilitar ensaio 5×2 (não guarda no aparelho)</span></label>
+    <div class="v196-teste-acoes">
+      <button id="v196Teste5x2Simular" class="btn" type="button" disabled>🧪 Simular 5×2</button>
+      <button id="v196Teste5x2Limpar" class="btn secondary" type="button" disabled>🗑️ Limpar resultado</button>
+    </div>
+    <p>Só distribui folgas de segunda a sábado, conforme os dias permitidos de DSR.<br>Não confere feriados, horas nem cobertura. Recarregar apaga o ensaio.</p>
+    <div id="v196Teste5x2Resultado" role="status" aria-live="polite" aria-atomic="false">O ensaio está desligado.</div>
+  </section>
 </div>
 
 <div class="grid">
@@ -6787,7 +6817,8 @@ $('btnWhats').onclick=async (ev)=>{
     pronto=true; ultimo=''; salvar();
   };
 
-  let t=null; const agendar=()=>{clearTimeout(t); t=setTimeout(salvar,300);};
+  // V196: cliques e controles do ensaio não agendam o rascunho oficial.
+  let t=null; const agendar=ev=>{if(ev?.target?.closest?.('#v196Teste5x2Card'))return;clearTimeout(t); t=setTimeout(salvar,300);};
   document.addEventListener('input',agendar,true);
   document.addEventListener('change',agendar,true);
   document.addEventListener('click',agendar,true);
@@ -10964,6 +10995,137 @@ function perguntarOrientacaoImpressao(cb){
   if(typeof restaurar==='function'){const restaurarComMotor=function(p){const r=restaurar.apply(this,arguments);const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy;if(c&&typeof c==='object'){cfg={v:1,cctMensal:c.cctMensal===true};salvarCfg();}const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano;if(saved&&auditar(saved).erros.length===0)aplicar(saved);else if(saved){ultimaAuditoria=auditar(saved);limpar();renderStatus(ultimaAuditoria);}else limpar();renderStatus();return r;};window.v194RestaurarProjeto=restaurarComMotor;window.restaurarProjeto=restaurarComMotor;}
   ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>{persistidosCache=null;persistidosAssinatura='';limpar();}));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderStatus(),{once:true});else renderStatus();
+})();
+</script>
+
+<script>
+(function(){
+  'use strict';
+  /* ═════ V196 [Manus] — 🧪 TESTE 5×2 SEM VALIDADE REAL ═════
+     Planejador separado: lê cópias da equipe e dos dias de DSR; só desenha aqui.
+     Não usa motor oficial, histórico, feriados, domingos ou armazenamento.
+     Não há flag global de regime, aplicação de plano nem saída para Excel.
+  */
+  const el=id=>document.getElementById(id);
+  const card=el('v196Teste5x2Card'),controle=el('v196Teste5x2Habilitar');
+  const botao=el('v196Teste5x2Simular'),apagar=el('v196Teste5x2Limpar'),saida=el('v196Teste5x2Resultado');
+  if(!card||!controle||!botao||!apagar||!saida)return;
+  const copia=o=>JSON.parse(JSON.stringify(o));
+  const pad=n=>String(n).padStart(2,'0');
+  const dataKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const dataDe=s=>{const [a,m,d]=s.split('-').map(Number);return new Date(a,m-1,d,12);};
+  const fmt=s=>dataDe(s).toLocaleDateString('pt-BR');
+  const escapar=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const adjacentes=(a,b)=>Math.abs(Math.round((dataDe(a)-dataDe(b))/86400000))===1;
+  let habilitado=false,resultado=null;
+  function estado(){return {versao:196,habilitado,semValidadeReal:true,domingoPolicy:'2x1',resultado:resultado?copia(resultado):null};}
+  function limpar(){
+    resultado=null;apagar.disabled=true;saida.replaceChildren();
+    saida.textContent=habilitado?'Sem resultado. Toque em “🧪 Simular 5×2”.':'O ensaio está desligado. Marque “Habilitar ensaio 5×2” para simular.';
+    return estado();
+  }
+  function habilitar(valor){habilitado=valor===true;controle.checked=habilitado;botao.disabled=!habilitado;limpar();return estado();}
+  function lerEntrada(){
+    const textoMes=el('mes')?.value,textoAno=el('ano')?.value,mes=Number(textoMes),ano=Number(textoAno);
+    if(textoMes===''||textoAno===''||!Number.isInteger(mes)||mes<0||mes>11||!Number.isInteger(ano)||ano<1900||ano>2200)
+      throw new Error('Escolha um mês e um ano entre 1900 e 2200.');
+    const lista=copia(typeof equipe!=='undefined'&&Array.isArray(equipe)?equipe:[]);
+    if(!lista.length)throw new Error('Carregue a equipe no passo 1. Depois volte para simular.');
+    const dias=copia(typeof diasDsrPermitidos!=='undefined'&&Array.isArray(diasDsrPermitidos)?diasDsrPermitidos:[1,2,3,4,5,6]);
+    return {mes,ano,lista,dias:[...new Set(dias.map(Number).filter(d=>d>=1&&d<=6))].sort((a,b)=>a-b)};
+  }
+  function semanasDoEnsaio(entrada){
+    const inicio=new Date(entrada.ano,entrada.mes,1,12),fim=new Date(entrada.ano,entrada.mes+1,0,12),semanas=[];
+    inicio.setDate(inicio.getDate()-((inicio.getDay()+6)%7));
+    for(let d=new Date(inicio);d<=fim;d.setDate(d.getDate()+7)){
+      const dias=[];for(let k=0;k<6;k++){const x=new Date(d);x.setDate(x.getDate()+k);dias.push(dataKey(x));}
+      semanas.push(dias);
+    }
+    return semanas;
+  }
+  function construirEmMemoria(entrada){
+    const semanas=semanasDoEnsaio(entrada),pessoas=[],excluidas=[],avisos=[],carga={};
+    entrada.lista.forEach((f,i)=>{
+      const nome=String(f?.nome||'Pessoa '+(i+1));
+      if(!f||['AF','EP'].includes(String(f.situacao||'A').toUpperCase())||f.aptoDomingo===false){
+        excluidas.push(nome);return;
+      }
+      const permitidos=entrada.dias.filter(d=>!(f.setor==='Padaria'&&d===6)&&!(f.setor==='FLV'&&(d===3||d===4)));
+      const fixa=Number(f.folgaFixa),temFixa=!f.folgaPendente&&fixa>=1&&fixa<=6;
+      const base=temFixa?permitidos.slice().sort((a,b)=>Math.min(Math.abs(a-fixa),7-Math.abs(a-fixa))-Math.min(Math.abs(b-fixa),7-Math.abs(b-fixa))||a-b)[0]:null;
+      if(!temFixa)avisos.push(`${nome}: folga fixa de segunda a sábado não definida; dias escolhidos só no teste.`);
+      else if(base!==fixa)avisos.push(`${nome}: folga fixa indisponível; o teste usa outro dia permitido, sem trocar o cadastro.`);
+      const semanasPessoa=semanas.map(dias=>{
+        const candidatas=dias.filter(s=>permitidos.includes(dataDe(s).getDay())),opcoes=[];
+        for(let a=0;a<candidatas.length;a++)for(let b=a+1;b<candidatas.length;b++){
+          const par=[candidatas[a],candidatas[b]];
+          if(base!==null&&base!==undefined&&!par.some(s=>dataDe(s).getDay()===base))continue;
+          opcoes.push({folgas:par,adj:adjacentes(...par)?1:0,carga:par.reduce((n,s)=>n+(carga[s]||0),0)});
+        }
+        // Folgas juntas só entram quando não existe nenhum par separado permitido.
+        opcoes.sort((a,b)=>a.adj-b.adj||a.carga-b.carga||a.folgas.join().localeCompare(b.folgas.join()));
+        const melhor=opcoes[0],folgas=melhor?melhor.folgas:[];
+        folgas.forEach(s=>{carga[s]=(carga[s]||0)+1;});
+        return {inicio:dias[0],fim:dias[5],folgas,modoFolga:melhor?(melhor.adj?'ultimo-recurso':'separada'):'sem-par'};
+      });
+      pessoas.push({indice:i,nome,permitidos,base,semanas:semanasPessoa});
+    });
+    return {periodo:`${entrada.ano}-${pad(entrada.mes+1)}`,semanas,pessoas,excluidas,avisos};
+  }
+  function auditarEmMemoria(plano){
+    const erros=[],avisos=[...plano.avisos];
+    if(!plano.pessoas.length)erros.push('Não há pessoas disponíveis para o teste. Confira a equipe no passo 1.');
+    plano.pessoas.forEach(p=>p.semanas.forEach((w,k)=>{
+      const dias=plano.semanas[k],validas=w.folgas.length===2&&new Set(w.folgas).size===2&&w.folgas.every(s=>dias.includes(s)&&p.permitidos.includes(dataDe(s).getDay()));
+      if(!validas)erros.push(`${p.nome}: faltam duas folgas possíveis na semana de ${fmt(w.inicio)}. Confira os dias de DSR permitidos.`);
+      if(p.base!==null&&p.base!==undefined&&!w.folgas.some(s=>dataDe(s).getDay()===p.base))erros.push(`${p.nome}: a folga base não entrou na semana de ${fmt(w.inicio)}.`);
+      if(w.modoFolga==='ultimo-recurso')avisos.push(`${p.nome}: folgas juntas em ${w.folgas.map(fmt).join(' e ')}; último recurso.`);
+    }));
+    const registros=plano.pessoas.flatMap(p=>p.semanas),folgas=registros.flatMap(w=>w.folgas);
+    const prefixo=plano.periodo+'-';
+    avisos.push('Domingos ficam fora do ensaio e permanecem no 2×1 oficial.');
+    avisos.push('Feriados, compensações, horas e cobertura da loja não são conferidos neste teste.');
+    avisos.push('Sem domingos, este resultado não comprova cinco dias de trabalho na semana.');
+    if(plano.semanas.flat().some(s=>!s.startsWith(prefixo)))avisos.push('Semanas da virada incluem dias do mês vizinho, somente no teste.');
+    if(plano.excluidas.length)avisos.push(`${plano.excluidas.length} pessoa(s) fora do ensaio: ${plano.excluidas.join(', ')}.`);
+    return {erros:[...new Set(erros)],avisos:[...new Set(avisos)],resumo:{pessoas:plano.pessoas.length,foraDoEnsaio:plano.excluidas.length,semanas:plano.semanas.length,pessoasSemanas:registros.length,folgas:folgas.length,folgasNoMes:folgas.filter(s=>s.startsWith(prefixo)).length,paresSeparados:registros.filter(w=>w.modoFolga==='separada').length,ultimoRecurso:registros.filter(w=>w.modoFolga==='ultimo-recurso').length}};
+  }
+  function mostrar(){
+    const r=resultado,a=r.auditoria,n=a.resumo;
+    const lista=itens=>itens.length?'<ul>'+itens.map(t=>`<li>${escapar(t)}</li>`).join('')+'</ul>':'<p>Nenhum erro na distribuição experimental.</p>';
+    saida.innerHTML=`<h4>🧪 Resultado de ${escapar(r.periodo)} — sem validade real</h4>
+      <p>5×2 forçado somente neste ensaio, inclusive antes de 16/12/2026.</p>
+      <p><b>${n.pessoas} pessoas · ${n.semanas} semanas · ${n.pessoasSemanas} combinações pessoa/semana.</b></p>
+      <p>${n.folgas} folgas no teste (${n.folgasNoMes} dentro do mês escolhido).</p>
+      <p><b>Folgas separadas: ${n.paresSeparados} pares (${n.paresSeparados*2} folgas).</b><br>Último recurso (folgas juntas): ${n.ultimoRecurso} pares.</p>
+      <p><b>Domingos fora do ensaio: continuam no 2×1 oficial.</b></p>
+      <p>A escala oficial e os dados guardados não mudaram. Recarregar apaga este resultado.</p>
+      <details${a.erros.length?' open':''}><summary>Erros: ${a.erros.length}</summary>${lista(a.erros)}</details>
+      <details><summary>Avisos: ${a.avisos.length}</summary>${lista(a.avisos)}</details>
+      <details><summary>Ver pessoas, semanas e folgas</summary><p>Duas folgas de segunda a sábado, sem incluir domingos.</p>
+        ${r.pessoas.map(p=>`<details class="v196-teste-pessoa"><summary>${escapar(p.nome)} · ${p.semanas.length} semanas</summary><ul>${p.semanas.map(w=>`<li>${fmt(w.inicio)} a ${fmt(w.fim)}: ${w.folgas.length?w.folgas.map(fmt).join(' e '):'sem par de folgas'} — ${w.modoFolga==='separada'?'separadas':w.modoFolga==='ultimo-recurso'?'último recurso':'confira os erros'}.</li>`).join('')}</ul></details>`).join('')}
+      </details>`;
+    apagar.disabled=false;
+  }
+  function simular(){
+    if(!habilitado){limpar();return estado();}
+    try{
+      const entrada=lerEntrada(),plano=construirEmMemoria(entrada);
+      plano.auditoria=auditarEmMemoria(plano);resultado=plano;mostrar();
+    }catch(e){
+      resultado=null;apagar.disabled=false;saida.textContent='Não foi possível simular. '+(e instanceof Error?e.message:'Confira a equipe, o mês e o ano.');
+    }
+    return estado();
+  }
+  controle.addEventListener('change',()=>habilitar(controle.checked));
+  botao.addEventListener('click',simular);apagar.addEventListener('click',limpar);
+  ['mes','ano'].forEach(id=>el(id)?.addEventListener('change',limpar));
+  el('dsrDiasConfig')?.addEventListener('change',limpar);
+  // Dados novos exigem um novo ensaio; não mexemos em nenhum render oficial.
+  const listaEquipe=el('equipeLista');
+  if(listaEquipe)new MutationObserver(()=>{if(resultado)limpar();}).observe(listaEquipe,{childList:true});
+  window.v196Teste5x2=Object.freeze({habilitar,simular,limpar,estado});
+  habilitar(false);
 })();
 </script>
 

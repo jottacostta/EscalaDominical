@@ -7,10 +7,12 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V291</title>
+<title>Escala de Setores — V292</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V292 [Manus] — TESTAR 5×2 SEM VALIDADE REAL: área 🧪 em Configurações simula duas folgas semanais apenas em cópias na memória, mesmo antes do corte.
+       Resultado na própria tela, sem alterar escala oficial, domingos, feriados, histórico, Excel ou dados guardados; desaparece ao recarregar.
 V291 [Claude] — AVISO NÃO TAPA O GABRIEL, X MAIOR E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query limita a largura); o X de fechar ganhou alvo de toque de 44 px; avisos comuns fecham sozinhos em 20 s e os de erro grave ficam até o usuário fechar.
 V290 [Manus] — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: deixa o corte 6×1/5×2 claro, guarda CCT e plano no histórico e exige gerar de novo ao mudar a opção.
 V285 [ChatGPT] — corrige roteamento do Gabriel para preservar identidade, data/hora, contexto e perguntas fora do dicionário; busca por nome restrita a mensagens que parecem ser nomes.
@@ -2624,6 +2626,29 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 @media(max-width:620px){.v286-motor-options{grid-template-columns:1fr}.v286-motor-option{min-height:0}}
 </style>
 
+<style id="v292-teste-5x2">
+.v292-teste-area{margin-top:16px;padding:14px;border:2px dashed var(--brand,#0047BA);border-radius:12px;background:var(--surface,#fff);color:var(--text,#172033)}
+.v292-teste-area h4{margin:0 0 8px;font-size:16px;line-height:1.4}
+.v292-teste-area p{margin:8px 0;font-size:13px;line-height:1.5}
+.v292-teste-habilitar{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 4px;box-sizing:border-box;cursor:pointer;font-weight:700}
+.v292-teste-habilitar input{width:22px;height:22px;margin:0;accent-color:var(--brand,#0047BA);flex-shrink:0}
+.v292-teste-acoes{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.v292-teste-acoes button{min-height:48px;min-width:44px;padding:12px 16px;white-space:normal;font-size:14px}
+.v292-teste-acoes button:disabled{opacity:1;background:var(--surface-2,#eef2f6);color:var(--muted,#4b5563);border-color:var(--border,#cbd5e1);cursor:not-allowed}
+.v292-teste-area :focus-visible{outline:3px solid var(--brand,#0047BA);outline-offset:3px}
+.v292-teste-resultado{padding:12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.v292-teste-resultado:empty{display:none}
+.v292-teste-numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:12px 0}
+.v292-teste-numeros div{padding:10px;border-radius:8px;background:var(--surface-2,#eef2f6);font-size:12px}
+.v292-teste-numeros b{display:block;font-size:20px;color:var(--brand,#0047BA)}
+.v292-teste-area summary{display:flex;align-items:center;min-height:44px;padding:6px 0;cursor:pointer;font-weight:700;font-size:13px}
+.v292-teste-area summary::before{content:'▸';margin-right:8px}
+.v292-teste-area details[open]>summary::before{content:'▾'}
+.v292-teste-area ul{padding-left:20px;font-size:13px;line-height:1.5}
+.v292-teste-pessoa{padding:8px 0;border-top:1px solid var(--border,#cbd5e1)}
+@media(max-width:600px){.v292-teste-acoes button{width:100%}.v292-teste-area{padding:12px}.v292-teste-numeros{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
 </head>
 <body>
 <script>
@@ -2720,7 +2745,7 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V291 · Aviso não cobre o Gabriel, X maior; comum fecha em 20 s, erro fica</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V292 · Teste 5×2 em Configurações, sem validade real e sem guardar</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2813,6 +2838,18 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
     </div>
   </div>
   <div id="motorEscalaResumo" class="alert info" role="status" style="margin:10px 0 0"></div>
+  <section id="v292Teste5x2Area" class="v292-teste-area gb-sem-icone" aria-labelledby="v292Teste5x2Titulo" data-v273-ignorar>
+    <h4 id="v292Teste5x2Titulo">🧪 Testar 5×2 — sem validade real</h4>
+    <p><b>Não altera escala oficial, domingos, feriados, histórico, Excel nem dados guardados.</b></p>
+    <p>Usa a equipe e o mês/ano selecionados. Força 5×2 só durante o teste.</p>
+    <p>Ao recarregar, o resultado desaparece. A opção do teste também será desligada.</p>
+    <label class="v292-teste-habilitar" for="v292Teste5x2Habilitar"><input id="v292Teste5x2Habilitar" type="checkbox"><span>Habilitar ensaio (só para testar)</span></label>
+    <div class="v292-teste-acoes">
+      <button id="v292Teste5x2Simular" class="btn" type="button" disabled>🧪 Simular 5×2</button>
+      <button id="v292Teste5x2Limpar" class="btn secondary" type="button">🗑️ Limpar resultado</button>
+    </div>
+    <div id="v292Teste5x2Resultado" class="v292-teste-resultado" role="status" aria-live="polite" aria-atomic="true"></div>
+  </section>
 </div>
 
 <div class="horarios-config-card">
@@ -16556,14 +16593,16 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return dt.getFullYear()===a&&dt.getMonth()===m-1&&dt.getDate()===d?dt:null;
   };
   const dataHojeMes=()=>{
+    if(v292ContextoTeste)return {mes:v292ContextoTeste.mes,ano:v292ContextoTeste.ano}; // V292: nunca escreve nos campos oficiais.
     const mes=Number(document.getElementById('mes')?.value),ano=Number(document.getElementById('ano')?.value);
     return Number.isInteger(mes)&&Number.isInteger(ano)&&mes>=0&&mes<12&&ano>=1900&&ano<=2200?{mes,ano}:null;
   };
-  const baseRegime=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))&&String(s)>=CORTE?'5x2':'6x1';
-  const equipeAtual=()=>{try{return Array.isArray(equipe)?equipe:[];}catch(e){return Array.isArray(window.equipe)?window.equipe:[];}};
-  const domingosAtuais=()=>{try{return trabalhoDomingo||{};}catch(e){return{};}};
-  const feriadosAtuais=()=>{const m=dataHojeMes();try{return m?feriados(m.ano,m.mes)||{}:{};}catch(e){return{};}};
-  const trabalhoFeriadoAtual=()=>{try{return trabalhoFeriado||{};}catch(e){return{};}};
+  let v292ContextoTeste=null; // V292: só ativo na construção síncrona em memória; restaurado em finally.
+  const baseRegime=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))&&(v292ContextoTeste||String(s)>=CORTE)?'5x2':'6x1';
+  const equipeAtual=()=>{if(v292ContextoTeste)return v292ContextoTeste.equipe;try{return Array.isArray(equipe)?equipe:[];}catch(e){return Array.isArray(window.equipe)?window.equipe:[];}};
+  const domingosAtuais=()=>{if(v292ContextoTeste)return v292ContextoTeste.domingos;try{return trabalhoDomingo||{};}catch(e){return{};}};
+  const feriadosAtuais=()=>{if(v292ContextoTeste)return v292ContextoTeste.feriados;const m=dataHojeMes();try{return m?feriados(m.ano,m.mes)||{}:{};}catch(e){return{};}};
+  const trabalhoFeriadoAtual=()=>{if(v292ContextoTeste)return v292ContextoTeste.trabalhoFeriado;try{return trabalhoFeriado||{};}catch(e){return{};}};
   const configPadrao={v:1,cctMensal:false};
   let cfg=Object.assign({},configPadrao);
   try{
@@ -16642,6 +16681,17 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const originalFixa=window.folgaFixaAtivaNaData;
   const originalComp=window.temFolgaCompensatoria;
   function descansoExistente(i,dt){
+    // V292: nenhum leitor oficial, cache, histórico ou armazenamento é chamado no teste.
+    if(v292ContextoTeste){
+      const c=v292ContextoTeste,k=dataKey(dt),f=c.equipe[i];
+      if((c.descansos[k]||[]).some(x=>Number(x.i)===Number(i)))return true;
+      if(Object.entries(c.compensatorias).some(([id,s])=>Number(id.split('_')[1])===Number(i)&&s===k))return true;
+      if(f&&dt.getDay()>=1&&dt.getDay()<=6&&Number(f.folgaFixa)===dt.getDay())return true;
+      const noMes=dt.getFullYear()===c.ano&&dt.getMonth()===c.mes;
+      if(noMes&&c.feriados[dt.getDate()]&&!(c.trabalhoFeriado[dt.getDate()]||[]).map(Number).includes(Number(i)))return true;
+      if(dt.getDay()===0)return !(noMes?(c.domingos[dt.getDate()]||[]):(c.anteriores[k]||[])).map(Number).includes(Number(i));
+      return false;
+    }
     const f=equipeAtual()[i],chave=funcionarioChave(f,i)+'|'+dataKey(dt);
     if(indicePlanosGuardados().has(chave))return true;
     try{if(typeof originalEh==='function'&&originalEh(i,dt))return true;}catch(e){}
@@ -16663,6 +16713,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return false;
   }
   function semanaSalva(chave,inicio){
+    if(v292ContextoTeste)return []; // V292: ensaio sem ler planos guardados.
     const planos=planosGuardados();
     for(const plano of Object.values(planos)){
       const p=Object.values(plano?.pessoas||{}).find(x=>String(x?.chave||'')===chave);
@@ -16726,6 +16777,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return buscar(false)||buscar(true);
   }
   function construir(){
+    const cctMensal=v292ContextoTeste?false:cfg.cctMensal; // V292: duas folgas no ensaio; CCT oficial intacta.
     const semanas=semanasDoMes(),pessoas={},designadas={},erros=[],carga=cargaRestosBase(semanas);
     equipeAtual().forEach((f,i)=>{
       const chave=funcionarioChave(f,i),pessoaDesignadas=new Set(),semanasPessoa=[];
@@ -16733,7 +16785,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         if(!semanaTem5x2(sem))return;
         const inicio=dataKey(sem[0]),salvas=semanaSalva(chave,inicio);
         let selecionadas=new Set(salvas.filter(s=>dataDe(s)&&dataGerenciada(dataDe(s))&&dataDe(s).getDay()!==0&&sem.some(d=>dataKey(d)===s)));
-        const alvo=cfg.cctMensal?(selecionadas.size?selecionadas.size:1):2;
+        const alvo=cctMensal?(selecionadas.size?selecionadas.size:1):2;
         let modoFolga='separada';
         // Preferimos duas folgas em dias diferentes; só juntamos quando não há outra combinação válida.
         if(selecionadas.size!==alvo){
@@ -16741,7 +16793,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           const existentes=sem.filter(dt=>dt.getDay()>=1&&dt.getDay()<=6&&dataGerenciada(dt)&&descansoExistente(i,dt)).sort((a,b)=>pontuar(i,b,carga,pessoaDesignadas)-pontuar(i,a,carga,pessoaDesignadas));
           existentes.slice(0,alvo).forEach(dt=>selecionadas.add(dataKey(dt)));
           const escolha=escolherFolgas(i,sem,selecionadas,alvo,pessoaDesignadas,carga);
-          if(!escolha)erros.push(`${f?.nome||'Pessoa '+(i+1)}: não encontrei ${cfg.cctMensal?'uma':'duas'} folga(s) possíveis na semana de ${inicio}.`);
+          if(!escolha)erros.push(`${f?.nome||'Pessoa '+(i+1)}: não encontrei ${cctMensal?'uma':'duas'} folga(s) possíveis na semana de ${inicio}.`);
           else{selecionadas=escolha.selecionadas;modoFolga=escolha.modoFolga;}
         }else{
           const datas=[...selecionadas].map(dataDe).filter(Boolean);for(let a=0;a<datas.length;a++)for(let b=a+1;b<datas.length;b++)if(vizinha(datas[a],datas[b]))modoFolga='ultimo-recurso';
@@ -16749,17 +16801,18 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         const folgas=Array.from(selecionadas).sort(),consecutivas=folgas.some((s,k)=>k&&vizinha(dataDe(s),dataDe(folgas[k-1])));
         if(consecutivas)modoFolga='ultimo-recurso';
         folgas.forEach(k=>{pessoaDesignadas.add(k);if(!designadas[k])designadas[k]=[];if(!designadas[k].includes(i))designadas[k].push(i);carga[k]=(carga[k]||0)+1;});
-        semanasPessoa.push({inicio,fim:dataKey(sem[6]),regime:'5x2',folgas,designadas:folgas.slice(),modoFolga,consecutivas,cctMensal:!!cfg.cctMensal});
-        if((!cfg.cctMensal&&folgas.length!==2)||(cfg.cctMensal&&folgas.length<1))erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} ficou com ${folgas.length} folga(s), mas a regra escolhida não foi atendida.`);
+        semanasPessoa.push({inicio,fim:dataKey(sem[6]),regime:'5x2',folgas,designadas:folgas.slice(),modoFolga,consecutivas,cctMensal:!!cctMensal});
+        if((!cctMensal&&folgas.length!==2)||(cctMensal&&folgas.length<1))erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} ficou com ${folgas.length} folga(s), mas a regra escolhida não foi atendida.`);
       });
       pessoas[String(i)]={chave,nome:String(f?.nome||''),matricula:String(f?.matricula||''),folgas:Array.from(pessoaDesignadas).sort(),semanas:semanasPessoa};
     });
-    const plano={schema:2,regime:'5x2',corte5x2:CORTE,periodo:periodoChave(),domingoPolicy:SETORES?'existente':'2x1',cctMensal:!!cfg.cctMensal,pessoas,designadas,semanas:semanas.map(sem=>({inicio:dataKey(sem[0]),fim:dataKey(sem[6]),regime:semanaTem5x2(sem)?'5x2':'6x1'})),erros};
+    const plano={schema:2,regime:'5x2',corte5x2:CORTE,periodo:periodoChave(),domingoPolicy:SETORES?'existente':'2x1',cctMensal:!!cctMensal,pessoas,designadas,semanas:semanas.map(sem=>({inicio:dataKey(sem[0]),fim:dataKey(sem[6]),regime:semanaTem5x2(sem)?'5x2':'6x1'})),erros};
     plano.adicionadas=copia(designadas);plano.auditoria=auditar(plano);return plano;
   }
   function semanaTem5x2(sem){return sem.some(dataGerenciada);}
   function trabalhandoNoPlano(plano,i,dt){return !descansoExistente(i,dt)&&!chaveNoPlano(plano,i,dataKey(dt));}
   function auditar(plano){
+    if(plano?.experimento==='v292'&&!v292ContextoTeste)return {ok:false,erros:['Teste sem validade real: não pode ser usado na escala oficial.'],avisos:[]}; // V292: trava só planos experimentais.
     const erros=[...(Array.isArray(plano?.erros)?plano.erros:[])],avisos=[];
     if(!plano||typeof plano!=='object'||plano.regime!=='5x2'||!plano.pessoas||typeof plano.pessoas!=='object')return{ok:false,erros:['Plano 5×2 ausente ou inválido.'],avisos:[]};
     const equipeAtualLista=equipeAtual(),semanas=semanasDoMes(),esperadas=semanas.filter(semanaTem5x2),designadas=plano.designadas||plano.adicionadas||{},porData=new Map();
@@ -16805,6 +16858,19 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     });
     return{ok:erros.length===0,erros:[...new Set(erros)],avisos:[...new Set(avisos)]};
   }
+  // V292: canal privado da interface; não acrescenta método nas APIs dos motores oficiais.
+  document.addEventListener('v292:construir-teste-5x2',event=>{
+    const pedido=event.detail,anterior=v292ContextoTeste;
+    if(!pedido||!pedido.entrada)return;
+    try{
+      v292ContextoTeste=copia(pedido.entrada);
+      if(!v292ContextoTeste||!Array.isArray(v292ContextoTeste.equipe))throw new Error('Abra a equipe antes de simular.');
+      const plano=construir();
+      plano.experimento='v292';plano.semValidadeReal=true;
+      pedido.plano=copia(plano);
+    }catch(e){pedido.erro='Não consegui montar o teste. Confira a equipe, o mês e o ano.';}
+    finally{v292ContextoTeste=anterior;}
+  });
   function aplicar(plano){
     const a=auditar(plano);
     if(a.erros.length){planoAtual=null;ultimaAuditoria=a;geracaoPendente=false;renderStatus(a);return false;}
@@ -16856,6 +16922,115 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   if(typeof restaurar==='function'){const restaurarComMotor=function(p){const r=restaurar.apply(this,arguments);const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy;if(c&&typeof c==='object'){cfg={v:1,cctMensal:c.cctMensal===true};salvarCfg();}const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano;if(saved&&auditar(saved).erros.length===0)aplicar(saved);else if(saved){ultimaAuditoria=auditar(saved);limpar();renderStatus(ultimaAuditoria);}else limpar();renderStatus();return r;};window.v290RestaurarProjeto=restaurarComMotor;window.restaurarProjeto=restaurarComMotor;}
   ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>{persistidosCache=null;persistidosAssinatura='';limpar();}));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderStatus(),{once:true});else renderStatus();
+})();
+</script>
+
+<script>
+(function(){
+  'use strict';
+  /* ═════ V292 [Manus] — 🧪 TESTAR 5×2 SEM VALIDADE REAL ═════
+     Só lê cópias. O canal interno constrói e audita em memória, sem aplicar.
+     Nenhum resultado ou preferência entra nas APIs oficiais ou no histórico.
+  */
+  const el=id=>document.getElementById(id);
+  const copia=o=>JSON.parse(JSON.stringify(o));
+  const pad=n=>String(n).padStart(2,'0');
+  const chave=dt=>`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+  const fmt=s=>String(s).split('-').reverse().join('/');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let habilitado=false,resultado=null,ocupado=false;
+  // Calendário local: usa apenas helpers puros, não o leitor com cache do app.
+  function calendario(ano,mes,extras){
+    const f={},pascoa=dataPascoa(ano);
+    const movel=(dias,nome,desde)=>{if(desde&&ano<desde)return;const d=new Date(pascoa);d.setDate(d.getDate()+dias);if(d.getMonth()===mes)f[d.getDate()]=nome;};
+    movel(-47,'Carnaval');movel(-2,'Sexta-feira da Paixão');movel(60,'Corpus Christi',2026);
+    _parseFeriadosExtras(extras).forEach(x=>{if(x.m===mes&&(x.a===null||x.a===ano)&&x.d<=new Date(ano,mes+1,0).getDate())f[x.d]=x.nome;});
+    if(mes===0){f[1]='Ano Novo';f[20]='São Sebastião';}
+    if(mes===3){f[21]='Tiradentes';f[23]='São Jorge';}
+    if(mes===4)f[1]='Dia do Trabalho';if(mes===8)f[7]='Independência do Brasil';
+    if(mes===9){f[12]='Nossa Senhora Aparecida';f[obterDiaComerciario(ano)]='Dia do Comerciário';}
+    if(mes===10){f[2]='Finados';f[15]='Proclamação da República';f[20]='Consciência Negra';}
+    if(mes===11)f[25]='Natal';return f;
+  }
+  function entrada(){
+    const mes=Number(el('mes')?.value),ano=Number(el('ano')?.value);
+    if(!el('ano')?.value||!Number.isInteger(mes)||mes<0||mes>11||!Number.isInteger(ano)||ano<1900||ano>2200)throw new Error('Escolha um mês e um ano válidos em Configurações.');
+    const eq=copia(Array.isArray(equipe)?equipe:[]);
+    if(!eq.length)throw new Error('Abra a equipe do setor antes de simular.');
+    const dom=copia(trabalhoDomingo||{}),manual=copia(selecaoManualDomingo||{}),lideres=copia(liderancaManualDomingo||{});
+    const descansos=copia(descansosDomingo||{}),comps=copia(folgasCompensatorias||{}),tf=copia(trabalhoFeriado||{});
+    const anteriores={},ult=new Date(ano,mes,0,12);ult.setDate(ult.getDate()-ult.getDay());
+    const pen=new Date(ult);pen.setDate(pen.getDate()-7);
+    eq.forEach((_,i)=>{
+      // Os controles do mês passado já refletem o histórico aberto; só leitura.
+      if(el('hist_ult_'+i)?.checked)(anteriores[chave(ult)]||(anteriores[chave(ult)]=[])).push(i);
+      if(el('hist_pen_'+i)?.checked)(anteriores[chave(pen)]||(anteriores[chave(pen)]=[])).push(i);
+    });
+    for(let d=1;d<=new Date(ano,mes+1,0).getDate();d++){
+      if(new Date(ano,mes,d).getDay()!==0)continue;
+      if(!Array.isArray(dom[d])||!dom[d].length){
+        const l=lideres[d]||{},ids=[...(manual[d]||[]),...(Array.isArray(l.mais)?l.mais:[]),...['enc','sub'].map(k=>l[k]).filter(x=>x!==null&&x!==undefined&&x!=='')];
+        dom[d]=[...new Set(ids.map(Number).filter(i=>eq[i]))];
+      }
+    }
+    // Folgas já escolhidas são copiadas, nunca redistribuídas ou escritas no app.
+    const adicionar=(s,i)=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s)))return;(descansos[s]||(descansos[s]=[])).push({i:Number(i)});};
+    Object.values(lideres).forEach(l=>Object.entries(l?.dsr||{}).forEach(([i,x])=>{adicionar(x?.ant,i);adicionar(x?.pos,i);}));
+    if(el('modoGeracao')?.value==='manual')Object.entries(copia(antecipacoesFolgaManual||{})).forEach(([k,s])=>adicionar(s,k.split('_')[1]));
+    return {mes,ano,equipe:eq,domingos:dom,anteriores,descansos,compensatorias:comps,feriados:calendario(ano,mes,el('feriadosExtras')?.value||''),trabalhoFeriado:tf,setor:el('setorSelecionado')?.value||'Setor selecionado',avisos:[
+      'Domingos e feriados não são redistribuídos. As escolhas atuais são apenas lidas.',
+      'Sem escolhas de domingo ou feriado, o teste considera essas pessoas de folga.',
+      'As semanas completas incluem dias dos meses vizinhos. Não há continuidade guardada.',
+      'Este teste não confirma cobertura da loja nem jornada de 42h ou 40h.'
+    ]};
+  }
+  function atualizar(){
+    if(el('v292Teste5x2Habilitar'))el('v292Teste5x2Habilitar').checked=habilitado;
+    if(el('v292Teste5x2Simular'))el('v292Teste5x2Simular').disabled=!habilitado||ocupado;
+  }
+  function habilitar(valor){habilitado=valor===true;if(!habilitado)limpar();atualizar();return estado();}
+  function limpar(){resultado=null;const box=el('v292Teste5x2Resultado');if(box)box.replaceChildren();return estado();}
+  function estado(){return {v:292,habilitado,ocupado,semValidadeReal:true,resultado:resultado?copia(resultado):null};}
+  function mostrar(){
+    const box=el('v292Teste5x2Resultado');if(!box||!resultado)return;
+    const r=resultado,n=r.resumo;
+    const lista=(titulo,itens)=>itens.length?`<details><summary>${esc(titulo)} (${itens.length})</summary><ul>${itens.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></details>`:'';
+    box.innerHTML=`<strong>🧪 Teste concluído — sem validade real</strong><p>${esc(r.setor)} · ${esc(r.periodo)}. O 5×2 foi forçado só neste teste.</p>
+      <div class="v292-teste-numeros">${[[n.pessoas,'Pessoas'],[n.semanas,'Semanas completas'],[n.pessoasSemanas,'Semanas por pessoa (total)'],[n.folgas,'Folgas designadas'],[n.folgasSeparadas,'Folgas separadas'],[n.ultimoRecurso,'Semanas com último recurso']].map(([v,t])=>`<div><b>${v}</b>${t}</div>`).join('')}</div>
+      <p>Duas folgas de segunda a sábado por semana. Domingos continuam como estão.</p>
+      <p><b>Conferência do teste: ${r.erros.length} erro(s) e ${r.avisos.length} aviso(s).</b></p>
+      ${lista('Ver erros',r.erros)}${lista('Ver avisos',r.avisos)}
+      <details><summary>Ver pessoas, semanas e folgas</summary>${r.pessoas.map(p=>`<div class="v292-teste-pessoa"><b>${esc(p.nome)}</b><ul>${p.semanas.map(w=>`<li>${fmt(w.inicio)} a ${fmt(w.fim)}: ${w.folgas.map(fmt).join(' e ')||'sem folgas'} · ${w.modoFolga==='ultimo-recurso'?'último recurso':'folgas separadas'}</li>`).join('')}</ul></div>`).join('')}</details>
+      <p>Nada foi aplicado ou guardado. Ao recarregar, este resultado desaparece.</p>`;
+  }
+  function simular(){
+    if(ocupado)return estado();
+    if(!habilitado){el('v292Teste5x2Resultado').textContent='Marque “Habilitar ensaio” antes de simular.';return estado();}
+    ocupado=true;resultado=null;atualizar();
+    try{
+      const e=entrada(),pedido={entrada:e,plano:null,erro:''};
+      document.dispatchEvent(new CustomEvent('v292:construir-teste-5x2',{detail:pedido}));
+      if(pedido.erro||!pedido.plano)throw new Error(pedido.erro||'Não consegui simular. Recarregue o app e tente novamente.');
+      const plano=pedido.plano,pessoas=Object.values(plano.pessoas||{}).map(p=>({nome:p.nome,semanas:copia(p.semanas||[])})),semanas=pessoas.flatMap(p=>p.semanas);
+      const separadas=semanas.filter(w=>w.modoFolga==='separada'&&w.folgas.length===2);
+      resultado={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,semValidadeReal:true,resumo:{pessoas:pessoas.length,semanas:plano.semanas.length,pessoasSemanas:semanas.length,folgas:semanas.reduce((n,w)=>n+w.folgas.length,0),folgasSeparadas:separadas.length*2,paresSeparados:separadas.length,ultimoRecurso:semanas.filter(w=>w.modoFolga==='ultimo-recurso').length},erros:copia(plano.auditoria.erros),avisos:[...e.avisos,...plano.auditoria.avisos],pessoas};
+      mostrar();
+    }catch(err){const box=el('v292Teste5x2Resultado');if(box)box.textContent='Não foi possível simular. '+(err?.message||'Recarregue o app e tente novamente.');}
+    finally{ocupado=false;atualizar();}
+    return estado();
+  }
+  // Captura na janela, antes dos salvamentos e da memória do Gabriel no document.
+  // Só esta área é isolada. O comportamento nativo (checkbox, teclado, details) continua.
+  ['click','change','input','keydown'].forEach(tipo=>window.addEventListener(tipo,event=>{
+    if(!event.target?.closest?.('#v292Teste5x2Area'))return;
+    event.stopImmediatePropagation();
+    if(tipo==='change'&&event.target.id==='v292Teste5x2Habilitar')habilitar(event.target.checked);
+    if(tipo==='click'&&event.target.closest('#v292Teste5x2Simular'))simular();
+    if(tipo==='click'&&event.target.closest('#v292Teste5x2Limpar'))limpar();
+  },true));
+  ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',limpar));
+  window.v292Teste5x2={habilitar,simular,limpar,estado};
+  atualizar();
 })();
 </script>
 

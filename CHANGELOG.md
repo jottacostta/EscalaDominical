@@ -6,6 +6,8 @@ Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓR
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Documentação
+- **21/10/2026** — A bateria exploratória do Gabriel no CI foi reduzida de 500 para 100 chamadas: 50 intenções canônicas em cada aplicativo. A execução antiga foi cancelada; o workflow passa a usar `npm run test:gabriel-100` e publicar o artefato `relatorio-gabriel-100`. — *Manus*
+- **21/10/2026** — Criada a área experimental de teste 5×2 nas versões V292/V196. O ensaio força duas folgas em cópias na memória antes do corte, mostra o resultado na tela e não altera escala oficial, domingos, feriados, histórico, Excel ou dados guardados. As validações focais encontraram isolamento causal, mas também registraram timers de manutenção preexistentes e limites que impedem tratar o ensaio como homologação operacional ou jurídica. — *Manus*
 - **20/10/2026** — Decisão operacional: domingos permanecem no 2×1 até existir nova CCT; o novo rodízio mensal do anexo não entra nesta etapa do motor 5×2. — *Manus*
 - **20/10/2026** — Incluído `docs/INVESTIGACAO_SIMULACAO_5x2.md`: auditoria dos motores V286/V190 e simulação das duas folgas nas fases de 42h e 40h com os dados fictícios do repositório. A investigação não altera os motores nem declara conformidade horária antes de existir o modelo de jornada. — *Manus*
 - **20/10/2026** — Copiado `docs/PLANO_5x2.md` da PR #96 para esta branch; o documento organiza as fases de diagnóstico, motor 5×2, transição legal e homologação, sem alterar o comportamento dos aplicativos. — *Manus*
@@ -13,7 +15,10 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **17/10/2026** — Iniciada documentação em seis pilares: PRD, TRD, fluxos, Design System, modelo de dados e plano. Os documentos registram lacunas a validar; não alteram o comportamento nem as versões dos aplicativos. — *ChatGPT*
 
 ## Escala de Setores
+- **V292** — 🧪 TESTE 5×2 SEM VALIDADE REAL: acrescenta em Configurações uma área para habilitar, simular e limpar duas folgas semanais usando somente cópias em memória, inclusive antes de 16/12/2026. O resultado é visível apenas na tela e desaparece ao recarregar; não altera a escala oficial, domingos, feriados, histórico, Excel ou dados guardados. — *Manus*
+
 - **V291** — 🔔 AVISO NÃO TAPA O GABRIEL E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query `right:82px` em telas ≤899px); avisos persistentes fecham automaticamente após 20 s (antes nunca fechavam). — *Claude*
+
 - **V290** — ⚙️ DISTRIBUIÇÃO DAS DUAS FOLGAS: monta cinco dias trabalhados e duas folgas por semana, prefere folgas em dias diferentes e só aceita folgas consecutivas como último recurso quando não há outra combinação válida. Guarda essa decisão no plano e avisa na conferência; domingos, CCT e histórico continuam com as regras da V289. — *Manus*
 - **V289** — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: mostra 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026, mantém a seleção automática por data, deixa a compensação mensal desligada até haver CCT e exige nova geração ao mudar. O histórico guarda plano 5×2, CCT, política dominical e segmentos do período, e a restauração preserva o restante dos dados. Escalas à mão e mistas continuam no fluxo próprio, sem o motor automático substituir as marcações. — *Manus*
 - **V286** — ⚙️ DOIS MOTORES POR DATA: acrescenta em Configurações o plano automático do 6×1 até 15/12/2026 e do 5×2 a partir de 16/12/2026, com teste do mês misto de dezembro. O motor 6×1 existente permanece intacto nesta etapa; a camada expõe `window.escalaMotor` para o próximo dispatcher do gerador. — *Manus*
@@ -163,7 +168,10 @@ As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 - **V127** — correções: erro do motor 50% (inicioUnidade), alvo com liderança, virada de ano, histórico por matrícula/nome, sessão salva restaurada, sugestão de liderança 2×1, impressão/PDF, feriados extras.
 
 ## Escala 2×1 de Encarregados
+- **V196** — 🧪 TESTE 5×2 SEM VALIDADE REAL: cria em Configurações um ensaio separado que distribui duas folgas em cópias na memória antes do corte, mantendo os domingos no 2×1 oficial. O resultado não é aplicado, guardado nem exportado e desaparece ao recarregar. — *Manus*
+
 - **V195** — 🔔 AVISO NÃO TAPA O GABRIEL E FECHA EM 20 S: no celular a notificação não cobre mais o botão do Gabriel (media query `right:82px` em telas ≤899px); avisos persistentes fecham automaticamente após 20 s (antes 8–15 s). — *Claude*
+
 - **V194** — ⚙️ DISTRIBUIÇÃO DAS DUAS FOLGAS: monta cinco dias trabalhados e duas folgas por semana, prefere folgas em dias diferentes e só aceita folgas consecutivas como último recurso quando não há outra combinação válida. Guarda essa decisão no plano e avisa na conferência; domingos continuam no 2×1 e a CCT segue com as regras da V193. — *Manus*
 - **V193** — ⚙️ CONFIGURAÇÃO E HISTÓRICO DO 5×2: mostra 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026, mantém domingos no 2×1, deixa a compensação mensal desligada até haver CCT e exige nova geração ao mudar. O histórico guarda plano 5×2, CCT, política dominical e segmentos do período, e a restauração preserva o restante dos dados. — *Manus*
 - **V190** — ⚙️ DOIS MOTORES POR DATA: acrescenta em Mês e opções o plano automático do 6×1 até 15/12/2026 e do 5×2 a partir de 16/12/2026; domingos continuam separados no 2×1. O motor 6×1 existente permanece intacto nesta etapa; a camada expõe `window.escalaMotor` para o próximo dispatcher do gerador. — *Manus*
