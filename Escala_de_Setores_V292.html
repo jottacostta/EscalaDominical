@@ -2646,6 +2646,13 @@ details.v271-leu ul{margin:6px 0 6px 18px;padding:0}
 .v292-teste-area details[open]>summary::before{content:'▾'}
 .v292-teste-area ul{padding-left:20px;font-size:13px;line-height:1.5}
 .v292-teste-pessoa{padding:8px 0;border-top:1px solid var(--border,#cbd5e1)}
+.v292-tab-rolagem{overflow-x:auto;margin:4px 0 8px}
+table.v292-tab{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0;font-variant-numeric:tabular-nums}
+table.v292-tab caption{text-align:left;font-weight:700;margin-bottom:4px;font-size:13px}
+table.v292-tab th,table.v292-tab td{border:1px solid var(--border,#cbd5e1);padding:5px 7px;text-align:center}
+table.v292-tab th[scope=row]{text-align:left;white-space:nowrap}
+table.v292-tab td.v292-folga{background:var(--brand,#0047BA);color:#fff;font-weight:700}
+table.v292-tab td.v292-trab{color:var(--muted,#64748b)}
 @media(max-width:600px){.v292-teste-acoes button{width:100%}.v292-teste-area{padding:12px}.v292-teste-numeros{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
@@ -16991,6 +16998,31 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function habilitar(valor){habilitado=valor===true;if(!habilitado)limpar();atualizar();return estado();}
   function limpar(){resultado=null;const box=el('v292Teste5x2Resultado');if(box)box.replaceChildren();return estado();}
   function estado(){return {v:292,habilitado,ocupado,semValidadeReal:true,resultado:resultado?copia(resultado):null};}
+  const DIASEM=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  function diasDaSemana(inicio){const p=String(inicio).split('-').map(Number),out=[];for(let k=0;k<7;k++){const dt=new Date(p[0],p[1]-1,p[2]+k);out.push(`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`);}return out;}
+  function rotuloDia(iso){const p=String(iso).split('-').map(Number),dt=new Date(p[0],p[1]-1,p[2]);return `${DIASEM[dt.getDay()]} ${pad(p[2])}`;}
+  function semanasOrdenadas(r){return [...new Set(r.pessoas.flatMap(p=>p.semanas.map(w=>w.inicio)))].sort();}
+  function tabelaResumo(r){
+    const mapa=new Map();
+    r.pessoas.forEach(p=>p.semanas.forEach(w=>{const s=mapa.get(w.inicio)||{inicio:w.inicio,fim:w.fim,sep:0,ult:0};if(w.modoFolga==='ultimo-recurso')s.ult++;else s.sep++;mapa.set(w.inicio,s);}));
+    const linhas=[...mapa.values()].sort((a,b)=>a.inicio<b.inicio?-1:1);
+    if(!linhas.length)return '<p>Sem semanas para mostrar.</p>';
+    return `<div class="v292-tab-rolagem"><table class="v292-tab"><thead><tr><th scope="col">Semana</th><th scope="col">Folgas separadas</th><th scope="col">Último recurso</th></tr></thead><tbody>${linhas.map(s=>`<tr><th scope="row">${esc(fmt(s.inicio))} a ${esc(fmt(s.fim))}</th><td>${s.sep}</td><td class="${s.ult?'v292-folga':''}">${s.ult}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function tabelaGrade(r){
+    const inicios=semanasOrdenadas(r);
+    if(!inicios.length)return '<p>Sem folgas para mostrar.</p>';
+    return inicios.map(ini=>{
+      const dias=diasDaSemana(ini);
+      const cab=dias.map(d=>`<th scope="col">${esc(rotuloDia(d))}</th>`).join('');
+      const corpo=r.pessoas.map(p=>{
+        const w=p.semanas.find(x=>x.inicio===ini),folgas=new Set(w?w.folgas:[]);
+        const cels=dias.map(d=>folgas.has(d)?'<td class="v292-folga" title="Folga">F</td>':'<td class="v292-trab" title="Trabalha">·</td>').join('');
+        return `<tr><th scope="row">${esc(p.nome)}</th>${cels}</tr>`;
+      }).join('');
+      return `<details><summary>Semana de ${esc(fmt(ini))}</summary><div class="v292-tab-rolagem"><table class="v292-tab"><caption>F = folga · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div></details>`;
+    }).join('');
+  }
   function mostrar(){
     const box=el('v292Teste5x2Resultado');if(!box||!resultado)return;
     const r=resultado,n=r.resumo;
@@ -17000,7 +17032,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <p>Duas folgas de segunda a sábado por semana. Domingos continuam como estão.</p>
       <p><b>Conferência do teste: ${r.erros.length} erro(s) e ${r.avisos.length} aviso(s).</b></p>
       ${lista('Ver erros',r.erros)}${lista('Ver avisos',r.avisos)}
-      <details><summary>Ver pessoas, semanas e folgas</summary>${r.pessoas.map(p=>`<div class="v292-teste-pessoa"><b>${esc(p.nome)}</b><ul>${p.semanas.map(w=>`<li>${fmt(w.inicio)} a ${fmt(w.fim)}: ${w.folgas.map(fmt).join(' e ')||'sem folgas'} · ${w.modoFolga==='ultimo-recurso'?'último recurso':'folgas separadas'}</li>`).join('')}</ul></div>`).join('')}</details>
+      <details open><summary>Como ficariam as folgas (resumo por semana)</summary>${tabelaResumo(r)}</details>
+      <details><summary>Folgas por pessoa (pessoa × dias da semana)</summary>${tabelaGrade(r)}</details>
       <p>Nada foi aplicado ou guardado. Ao recarregar, este resultado desaparece.</p>`;
   }
   function simular(){
