@@ -1400,6 +1400,32 @@ async function testarSugestao5x2(browser, app, nome, abrir){   // V294: o botão
   await p.close();
 }
 
+async function testarCobertura5x2(browser, app, nome, abrir){   // V198: o ensaio 5×2 não pode deixar nenhum dia sem ninguém trabalhando
+  console.log('\n▶ ' + nome + ' — 🧪 cobertura do ensaio 5×2 (ninguém deixa o dia descoberto)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const api = window.v196Teste5x2 || window.v292Teste5x2; if(!api) return { faltaApi: true };
+    api.habilitar(true); const st = api.simular(), res = st && st.resultado;
+    if(!res || !Array.isArray(res.semanas) || !Array.isArray(res.pessoas)) return { semResultado: true };
+    const dataDe = s => { const a = String(s).split('-').map(Number); return new Date(a[0], a[1]-1, a[2]); };
+    let descobertos = 0;
+    res.semanas.forEach((dias, k) => dias.forEach(s => {
+      const podem = res.pessoas.filter(pp => pp.permitidos && pp.permitidos.includes(dataDe(s).getDay()));
+      if(!podem.length) return;
+      const folgam = podem.filter(pp => pp.semanas[k] && pp.semanas[k].folgas.includes(s)).length;
+      if(folgam >= podem.length) descobertos++;
+    }));
+    const erros = (res.auditoria && res.auditoria.erros) || [];
+    return { descobertos, erroNinguem: erros.filter(e => /Ninguém trabalharia/.test(e)).length, pessoas: res.auditoria && res.auditoria.resumo ? res.auditoria.resumo.pessoas : res.pessoas.length };
+  });
+  ok(!r.faltaApi && !r.semResultado, nome + ': o ensaio 5×2 produz resultado para conferir a cobertura');
+  ok(!r.descobertos, nome + ': nenhum dia fica sem ninguém trabalhando no ensaio 5×2' + (r.descobertos ? ' — ' + r.descobertos + ' dia(s) descoberto(s)' : ''));
+  ok(!r.erroNinguem, nome + ': a conferência não acusa dia descoberto');
+  ok(!erros.length, nome + ': sem erro de JavaScript na cobertura' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarApk(browser, app, nome){
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   if(v < (nome === 'Setores' ? 237 : 168)) return;
@@ -1686,6 +1712,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 293) await testarTabelaEManual5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 'v292');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
+       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); } }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
