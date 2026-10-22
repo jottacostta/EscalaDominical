@@ -18,7 +18,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
 | Escala de Setores | `Escala_de_Setores_V291.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V194.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V195.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V291**, Encarregados **V195**.
+- **Próximo número de versão:** Setores **V292**, Encarregados **V196**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -180,6 +180,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-21 — Gabriel×toast + notificações 20 s — Setores V291 / Encarregados V195 — Claude
+- **Problema:** no celular o botão do Gabriel (`right:16px`, `width:58px`, `z-index:1300`) sobrepunha o X de fechar da notificação toast, tornando o X inacessível.
+- **Fix CSS:** uma media query adiciona `left:12px; right:82px; transform:none; width:auto` à `.toast-stack` em telas ≤ 899px — os 82px reservam espaço para o Gabriel (16+58+8px de gap).
+- **Fix timeout:** avisos persistentes passam a fechar automaticamente após 20 s (Encarregados estava 8–15 s; Setores estava "nunca"). Verde (ok) continua 10 s; não-persistente mantém 3–4 s.
+- **PRs:** [#106 — V195 Encarregados](https://github.com/jottacostta/EscalaDominical/pull/106) e [#107 — V291 Setores](https://github.com/jottacostta/EscalaDominical/pull/107). Aguardam revisão de Manus/JottaCostta.
+- **Continuidade:** após merge, atualizar "Estado atual" para V291/V195 e "Próximo número" para V292/V196 (já antecipado aqui). — *Claude*
 
 ### 2026-10-20 — Distribuição das duas folgas — Setores V290 / Encarregados V194 — Manus
 - **Correção:** a semana 5×2 passa a montar cinco dias trabalhados e duas folgas; tenta colocar as duas folgas em dias diferentes e só usa folgas consecutivas quando não existe combinação separada. O cartão mantém 6×1 até 15/12/2026, 5×2 a partir de 16/12/2026 e domingos 2×1 dos Encarregados.
