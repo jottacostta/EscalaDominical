@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V319**, Encarregados **V201**.
+- **Próximo número de versão:** Setores **V320**, Encarregados **V201**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — Limpar e Aceitar aparecem já no 1º Gerar — Setores V319 — Claude
+- **Pergunta do Gerente:** “Colocou o botão para reiniciar a escala no card gerar?”. Ao tirar a foto do passo 5 apareceu o defeito: no 1º 🚀 Gerar só a dica aparecia, sem 🧹 Limpar escala e ✅ Aceitar cenário.
+- **Causa:** o 🚀 Gerar da tela mostra “gerando” e roda `gerarSetoresCore` num `setTimeout`; o `render()` do embrulho de `window.gerarSetores` rodava antes, quando ainda não havia escala (`temEscala()` falso). O teste da V318 só procurava os botões depois de 3 gerações.
+- **Correção (`// V319`, no bloco V318):** `MutationObserver` em `#domingosCard` (atributo `style`) e `#domingosArea` (filhos) chama `render()` com 60 ms de espera, sem atrapalhar o “Tem certeza?” aberto.
+- **Testes:** `testarConcordoCenarioLimpar` confere os dois botões logo após o 1º Gerar (≥319): V318 falha, V319 passa. Suíte completa V319: ✅ Tudo certo (1214 s).
+- **Assinado:** Claude
 
 ### 2026-10-23 — Concordo, cenário novo, Limpar e Aceitar cenário — Setores V318 — Claude
 - **Pedido do Gerente:** o aviso do Por cargo não bloqueia e pede o “concordo”; botão no card Gerar que limpe a escala; no Automático + Por cargo cada Gerar cria um cenário novo com quem está disponível; botão “Aceitar cenário” que fica guardado e permite mudanças dentro dele. Escolhas: **janela antes de gerar**; documentação no PR seguinte (este).
@@ -948,6 +955,7 @@ Modelo de entrada:
 
 O detalhe de cada versão está no `CHANGELOG.md`.
 - **V318 — o “✅ Concordo” é clicado sozinho nos testes:** `novaPagina` (em `testes/rodar.js`) aceita a janela do Por cargo automaticamente. Um teste que queira ver a janela precisa ligar `window.__v318Manual = true` logo depois do `goto`.
+- **V319 — a área de botões do passo 5 depende da tela:** o 🚀 Gerar termina depois do clique (tela “gerando”). Quem acrescentar algo que dependa da escala pronta deve observar `#domingosCard`/`#domingosArea` (como o V319), não só embrulhar `gerarSetores`.
 - **V318 — cenário novo é sorteado:** no Automático + Por cargo, dois cliques em Gerar dão escalas diferentes de propósito. Teste que compara duas gerações seguidas nesse modo precisa aceitar o cenário antes (ou chamar `gerarSetores()` direto, que não troca a semente).
 
 ---
