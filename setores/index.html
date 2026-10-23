@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V314</title>
+<title>Escala de Setores — V315</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V315 [Claude] — 2×1: QUEM ESTÁ HÁ MAIS TEMPO SEM DOMINGO ENTRA PRIMEIRO: no 🤖 Automático, o número do Por cargo é o teto; dentro
+       dele, entram primeiro quem fecha a dupla e, depois, quem está há mais domingos sem trabalhar (contando o mês passado: quem folgou
+       o último domingo começa a dupla no 1º). Quem trabalhou os 2 últimos domingos continua bloqueado no 1º. Assim ninguém disponível
+       fica esperando mais que os outros.
 V314 [Claude] — 2×1: QUEM COMEÇA A DUPLA TRABALHA O DOMINGO SEGUINTE: no 🤖 Automático, quem trabalhou o domingo anterior (e não o de
        antes) entra primeiro no domingo seguinte, para fechar os 2 domingos seguidos; depois folga 1 e fica apto de novo. Quem trabalhou só o
        último domingo do mês passado trabalha o 1º e folga o 2º. Vale também no Por cargo, sem passar do número pedido (com poucas vagas,
@@ -2841,7 +2845,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V314 · 2×1: quem começa a dupla trabalha o domingo seguinte</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V315 · 2×1: quem está há mais tempo sem domingo entra primeiro</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -8156,9 +8160,16 @@ function gerarSetoresCore(){
   }
   // V314: quem trabalhou o domingo anterior e não o de antes fecha a dupla neste domingo. Sem o mês passado marcado,
   // quem tem a vez de folga no 2º domingo conta como se tivesse trabalhado o último domingo do mês passado (trabalha o 1º e folga o 2º).
+  // V315: quantos domingos seguidos a pessoa está sem trabalhar antes do domingo idx (conta os 2 últimos do mês passado).
+  const setorTemMesPassado=rodizio2x1&&ativosOperacionais.some(i=>{ const h=historicoManual(i); return h.penultimo||h.ultimo; });   // V315
+  function domingosDeFolga(i,idx){
+    let n=0;
+    for(let k=idx-1;k>=0;k--){ if((trabalhoDomingo[doms[k]]||[]).includes(i)) return n; n++; }
+    const h=historicoManual(i); if(h.ultimo) return n; n++; if(h.penultimo) return n; return n+1;
+  }
   function fechaDupla(i,idx){
     const e=estadoAnterior(i,idx); if(e[0]||!e[1]) return false;
-    if(idx===1){ const h=historicoManual(i); if(!h.penultimo&&!h.ultimo&&faseFolga.get(i)===1) return false; }
+    if(idx===1&&!setorTemMesPassado){ const h=historicoManual(i); if(!h.penultimo&&!h.ultimo&&faseFolga.get(i)===1) return false; }   // V315: só sem nenhum “Mês passado” marcado no setor (“Nenhum” marcado é informação real)
     return true;
   }
   if(modo!=='grupos') alvo=alvoMax;
@@ -8299,6 +8310,7 @@ function gerarSetoresCore(){
       // V306: rodízio 2×1 — cada pessoa tem a sua vez de folga (1 a cada 3 domingos); fora da vez ela entra primeiro.
       if(rodizio2x1&&faseFolga.has(i)) score+=(idx%3!==faseFolga.get(i))?20000:0;
       if(rodizio2x1&&fechaDupla(i,idx)) score+=60000;   // V314: quem trabalhou só o domingo anterior fecha a dupla — prioridade máxima
+      else if(rodizio2x1) score+=Math.min(domingosDeFolga(i,idx),4)*25000;   // V315: depois, quem está há mais domingos sem trabalhar (conta o mês passado) começa a dupla
       const dsC=descansosDoCandidato(i,doms[idx]);
       dsC.forEach(dt=>{ score-=cargaFolgasDoSetorParaCandidato(i,dt)*35; });
       // Equilibra também o dia da semana do DSR entre os domingos já

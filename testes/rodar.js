@@ -1852,14 +1852,16 @@ async function testarDuplaPorCargo(browser, app, nome){
   for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
   await p.waitForTimeout(800);
   const r = await p.evaluate(() => { const doms = domingosDoMes(2026, 10), ops = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !ehLiderancaDomingo(equipe[i]));
-    let isolado = 0, tres = 0, ultSo = 0, ultSoNo1 = 0;
+    let isolado = 0, tres = 0, ultSo = 0, ultSoNo1 = 0, maxFolga = 0, trabMin = 99;
     ops.forEach(i => { const h = historicoManual(i), s = [h.penultimo ? 1 : 0, h.ultimo ? 1 : 0, ...doms.map(d => (trabalhoDomingo[d] || []).includes(i) ? 1 : 0)];
       if(!s[0] && s[1]){ ultSo++; if(s[2]) ultSoNo1++; }
+      let run = 0; s.forEach(v => { run = v ? 0 : run + 1; if(run > maxFolga) maxFolga = run; }); trabMin = Math.min(trabMin, s.slice(2).reduce((a, b) => a + b, 0));
       for(let k = 2; k < s.length; k++){ if(s[k - 2] && s[k - 1] && s[k]) tres++; if(!s[k - 2] && s[k - 1] && !s[k] && !(k === 3 && !s[0] && !s[1])) isolado++; } });   // sem mês passado: trabalhar o 1º e folgar o 2º é permitido
-    return { porDom: doms.map(d => (trabalhoDomingo[d] || []).filter(i => ops.includes(i)).length), isolado, tres, ultSo, ultSoNo1, bloq: /bloqueada/i.test($('validacao').innerText) }; });
+    return { maxFolga, trabMin, porDom: doms.map(d => (trabalhoDomingo[d] || []).filter(i => ops.includes(i)).length), isolado, tres, ultSo, ultSoNo1, bloq: /bloqueada/i.test($('validacao').innerText) }; });
   ok(r.isolado === 0 && r.tres === 0, nome + ': quem começa a dupla trabalha o domingo seguinte — nenhum domingo isolado (' + r.isolado + ') e ninguém com 3 seguidos (' + r.tres + ')');
   ok(r.porDom.every(n => n === 11) && !r.bloq, nome + ': o número do Por cargo continua valendo (' + r.porDom.join(', ') + ' operacionais)');
   ok(r.ultSoNo1 === r.ultSo, nome + ': quem trabalhou só o último domingo do mês passado trabalha o 1º (' + r.ultSoNo1 + ' de ' + r.ultSo + ')');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 315) ok(r.trabMin >= 1 && r.maxFolga <= 4, nome + ': com o Por cargo como teto, ninguém disponível fica esperando demais — todos trabalham ao menos 1 domingo (mín. ' + r.trabMin + ') e a maior espera é ' + r.maxFolga + ' domingos (V315: entra primeiro quem está há mais tempo sem domingo)');
   ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
