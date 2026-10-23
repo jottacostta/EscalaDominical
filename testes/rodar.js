@@ -1910,6 +1910,24 @@ async function testarVagaUnicaSemTurno(browser, app, nome){
   await p.close();
 }
 
+async function testarAvisoTetoPorCargo(browser, app, nome){   // V317: o Por cargo avisa quando o número é menor que o 2×1 de todos precisa
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 317) return;
+  console.log('\n▶ ' + nome + ' — 🟡 Por cargo avisa quando o 2×1 de todos não cabe');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_cargos_25.txt')); await p.waitForTimeout(2500);
+  const r = await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    const fn = funcoesDoSetor().find(x => /acougueiro/.test(x.chave)); const aviso = () => [...document.querySelectorAll('#configFuncao .fn-aviso-2x1')].map(x => x.textContent);
+    coberturaFuncao.base[fn.chave] = 5; renderConfigFuncao(); const com5 = aviso();
+    coberturaFuncao.base[fn.chave] = 8; renderConfigFuncao(); const com8 = aviso().filter(t => /A[CÇ]OUGUEIRO/i.test(t));
+    return { n: fn.ids.length, com5, com8 }; });
+  ok(r.com5.some(t => /Para o 2×1 de todos, A[CÇ]OUGUEIRO precisa de 8 por domingo/i.test(t) && /Com 5, alguns esperam a vez/.test(t)), nome + ': com 5 de ' + r.n + ' açougueiros aparece “precisa de 8 por domingo… Com 5, alguns esperam a vez”');
+  ok(!r.com8.length, nome + ': com 8 açougueiros o aviso some');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -2242,7 +2260,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores'); await testarMesPassadoGuardado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDuplaPorCargo(browser, APP_SETORES, 'Setores'); await testarVagaUnicaSemTurno(browser, APP_SETORES, 'Setores');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores'); await testarMesPassadoGuardado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDuplaPorCargo(browser, APP_SETORES, 'Setores'); await testarVagaUnicaSemTurno(browser, APP_SETORES, 'Setores'); await testarAvisoTetoPorCargo(browser, APP_SETORES, 'Setores');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
