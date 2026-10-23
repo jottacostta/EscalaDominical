@@ -1,6 +1,6 @@
 INÍCIO DE UMA NOVA CONVERSA — PROJETO ESCALA DOMINICAL (Supermercados Guanabara)
 ==================================================================================
-Atualizado em 22/10/2026, com a Setores V298 · Encarregados V198 e a área experimental 5×2 sem validade real (tabela, escala à mão, cobertura, sugestão de folgas, grade mensal, rodízio 2×1 dos domingos, feriados, botão de imprimir colorido e cenários variados a cada clique). Assinado: Claude
+Atualizado em 23/10/2026, com a Setores V301 · Encarregados V198. O ensaio 5×2 à mão (sem validade real) fica só no passo Gerar (a área automática de Configurações saiu na V300): grade mensal, rodízio 2×1 dos domingos, feriados com folga compensatória em até 20 dias (pode cair em semana seguinte; a semana que recebe fica com 3 folgas), cenários variados a cada clique, impressão colorida e os rótulos T (trabalha domingo), t (trabalha feriado), F (folga), DSR (folga que compensa o domingo trabalhado) e F02/F15/F20… (folga compensatória do feriado daquele dia). Assinado: Claude
 
 COMO USAR ESTE ARQUIVO
 ----------------------
