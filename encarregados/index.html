@@ -7,10 +7,13 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V199</title>
+<title>Escala 2×1 — Encarregados V200</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V200 [Claude] — MOTOR 5×2: FOLGA A MAIS PARA NÃO PASSAR DE 5 DIAS SEGUIDOS: quando a folga fixa e o feriado ficam no fim da semana
+       e ainda sobram 6 dias seguidos (ex.: folga fixa sexta 24/12/2027 + Natal no sábado), o motor 5×2 oficial acrescenta 1 folga
+       (até 3 de segunda a sábado). Antes o plano de dezembro/2027 era recusado. Mesma correção da Setores V306.
 V199 [Claude] — MOTOR 5×2 OFICIAL PARAMETRIZADO (6×1/5×2) E DOMINGO CONTANDO COMO DESCANSO: o motor oficial passa a ler os parâmetros de cada regime
        num lugar só (6×1 = 1 descanso e até 6 dias seguidos; 5×2 = 2 descansos e até 5 dias seguidos). A partir de 16/12/2026, quem folga no domingo
        tira só 1 folga de segunda a sábado (o domingo já é um dos 2 descansos); quem trabalha o domingo tira 2. A folga compensatória do feriado é
@@ -2082,7 +2085,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V199 · Motor 5×2 oficial: domingo conta como descanso, até 5 dias seguidos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V200 · Motor 5×2: folga a mais para não passar de 5 dias seguidos</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10936,7 +10939,7 @@ function perguntarOrientacaoImpressao(cb){
   function escolherFolgas(i,sem,selecionadas,alvo,pessoaDesignadas,carga){
     const base=[...selecionadas];let falta=alvo-base.length;
     // V199: se as folgas que já existem deixam mais de 5 dias seguidos, cabe 1 folga a mais (até 2 de seg–sáb).
-    if(falta<=0&&base.length<2&&sequencia(i,sem,selecionadas,pessoaDesignadas).excesso)falta=1;
+    if(falta<=0&&base.length<3&&sequencia(i,sem,selecionadas,pessoaDesignadas).excesso)falta=1;   // V200: até 3 (ex.: folga fixa + feriado no fim da semana ainda deixavam 6 dias seguidos)
     if(falta<=0)return{selecionadas:new Set(selecionadas),modoFolga:custoCombinacao(i,base,[],carga,pessoaDesignadas).adj?'ultimo-recurso':'separada'};
     const avaliar=datas=>{const set=new Set(selecionadas);datas.forEach(dt=>set.add(dataKey(dt)));return{datas,set,custo:custoCombinacao(i,base,datas,carga,pessoaDesignadas),seq:sequencia(i,sem,set,pessoaDesignadas)};};
     // V199: ordem — 1) nunca passar de 5 dias seguidos; 2) folgas separadas; 3) melhor pontuação (evita terminar a semana com sequência longa).
@@ -10962,7 +10965,7 @@ function perguntarOrientacaoImpressao(cb){
         const inicio=dataKey(sem[0]),salvas=semanaSalva(chave,inicio);
         let selecionadas=new Set(salvas.filter(s=>dataDe(s)&&dataGerenciada(dataDe(s))&&dataDe(s).getDay()!==0&&sem.some(d=>dataKey(d)===s)));
         const alvo=cfg.cctMensal?(selecionadas.size?selecionadas.size:1):alvoSemana(i,sem,false); // V199: domingo de folga já é 1 dos 2 descansos
-        const herdada=salvas.length>0&&selecionadas.size>alvo&&selecionadas.size<=2; // V199: semana já guardada no mês anterior não perde folga
+        const herdada=salvas.length>0&&selecionadas.size>alvo&&selecionadas.size<=3; // V199/V200: semana já guardada no mês anterior não perde folga
         let modoFolga='separada';
         // Preferimos duas folgas em dias diferentes; só juntamos quando não há outra combinação válida.
         if(selecionadas.size!==alvo&&!herdada){
@@ -10979,7 +10982,7 @@ function perguntarOrientacaoImpressao(cb){
         if(consecutivas)modoFolga='ultimo-recurso';
         folgas.forEach(k=>{pessoaDesignadas.add(k);if(!designadas[k])designadas[k]=[];if(!designadas[k].includes(i))designadas[k].push(i);carga[k]=(carga[k]||0)+1;});
         semanasPessoa.push({inicio,fim:dataKey(sem[6]),regime:'5x2',folgas,designadas:folgas.slice(),modoFolga,consecutivas,alvo,domingoFolga:domingoDeFolga(i,sem),cctMensal:!!cfg.cctMensal});
-        if((!cfg.cctMensal&&(folgas.length<alvo||folgas.length>2))||(cfg.cctMensal&&folgas.length<1))erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} ficou com ${folgas.length} folga(s), mas a regra escolhida não foi atendida.`);
+        if((!cfg.cctMensal&&(folgas.length<alvo||folgas.length>3))||(cfg.cctMensal&&folgas.length<1))erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} ficou com ${folgas.length} folga(s), mas a regra escolhida não foi atendida.`);
       });
       pessoas[String(i)]={chave,nome:String(f?.nome||''),matricula:String(f?.matricula||''),folgas:Array.from(pessoaDesignadas).sort(),semanas:semanasPessoa};
     });
@@ -11002,7 +11005,8 @@ function perguntarOrientacaoImpressao(cb){
         if(!wk){add(`${f?.nome||'Pessoa '+(i+1)}: falta a semana 5×2 de ${inicio}.`);return;}
         const folgas=Array.isArray(wk.folgas)?wk.folgas:[];
         const alvo=alvoSemana(i,sem,plano.cctMensal); // V199: 2 descansos contando o domingo de folga
-        if(folgas.length<alvo||(!plano.cctMensal&&folgas.length>2))add(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} tem ${folgas.length} folga(s), não ${plano.cctMensal?'ao menos 1':alvo}.`);
+        if(folgas.length<alvo||(!plano.cctMensal&&folgas.length>3))add(   // V200: 3 só quando a folga a mais evita passar de 5 dias seguidos
+          `${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} tem ${folgas.length} folga(s), não ${plano.cctMensal?'ao menos 1':alvo}.`);
         const unicas=new Set();
         folgas.forEach(s=>{
           const dt=dataDe(s);
