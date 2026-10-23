@@ -1791,6 +1791,30 @@ async function testarAcougueSemFixo(browser, app, nome){
   await p.close();
 }
 
+/* V312 — Por cargo: domingo confirmado (📌) com mais gente de um cargo do que o pedido não bloqueia; fica o número pedido */
+async function testarConfirmadosPorCargo(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 312) return;
+  console.log('\n▶ ' + nome + ' — 📌 Por cargo: confirmados acima do número pedido');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_cargos_25.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    coberturaFuncao.base = {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = /acougueiro/.test(fn.chave) ? 5 : /camara/.test(fn.chave) ? 5 : 1; });
+    const ac = equipe.map((f, i) => i).filter(i => /^ACOUGUEIRO/.test(equipe[i].cargo)).slice(0, 6);   // confirmado antes, quando eram 6
+    aceitosFuncao = {}; aceitosFuncao[isoDomingo(2026, 10, 15)] = ac.map(i => equipe[i].matricula); salvarCfgFuncao(); try{ sugerirLiderancaDomingo(); }catch(e){}
+    document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(800);
+  const r = await p.evaluate(() => { const ac = (trabalhoDomingo[15] || []).map(Number).filter(i => /^ACOUGUEIRO/.test(equipe[i].cargo)).length;
+    const t = $('validacao').innerText; return { ac, ops: (trabalhoDomingo[15] || []).map(Number).filter(i => !ehLiderancaDomingo(equipe[i])).length, bloqueada: /bloqueada/i.test(t), aviso: /pede 5 de ACOUGUEIRO, e 6 estavam confirmados\. .+ saiu deste domingo/.test(t), guardados: (aceitosFuncao[isoDomingo(2026, 10, 15)] || []).length }; });
+  ok(!r.bloqueada && r.ac === 5 && r.ops === 11, nome + ': com 6 açougueiros confirmados e o Por cargo pedindo 5, o domingo fica com 5 (' + r.ac + ' açougueiros, ' + r.ops + ' operacionais) e a geração não bloqueia');
+  ok(r.aviso && r.guardados === 5, nome + ': o app avisa quem saiu da confirmação e guarda só os 5 confirmados');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -2123,7 +2147,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');

@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V311</title>
+<title>Escala de Setores — V312</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V312 [Claude] — POR CARGO: CONFIRMADOS NÃO PASSAM DO NÚMERO PEDIDO: quando um domingo foi confirmado (📌) com mais pessoas de um
+       cargo do que o Por cargo pede agora (ex.: confirmado com 6 açougueiros e depois o número foi para 5), o app mantém só a quantidade
+       pedida, avisa quem saiu da confirmação e não bloqueia mais a geração (antes: “Geração bloqueada — 15: 13 escalados; alvo total 12”).
 V311 [Claude] — SEM NÚMERO FIXO NO AÇOUGUE: o Açougue deixa de ter 11 operacionais + 1 liderança guardados no código (e as vagas fixas
        3+2 açougueiros e 3+3 operadores/balconistas). Como em qualquer setor, a quantidade do domingo vem de “Como dividir o setor”; no
        “Por cargo” vale o número escolhido para cada cargo. Lojas com equipes maiores não ficam mais travadas (ex.: “13 escalados; alvo 12”).
@@ -2831,7 +2834,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V311 · Sem número fixo no Açougue: vale o Por cargo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V312 · Por cargo: confirmados não passam do número pedido</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -8317,8 +8320,18 @@ function gerarSetoresCore(){
       // V137: o encarregado define quantos de cada cargo; quem ele confirmou (📌) é mantido;
       // o motor completa cada cargo só com pessoas daquele cargo que podem trabalhar.
       const fixos=fixosPorIdx[idx]||[];
-      const fixosOk=fixos.filter(i=>candidatos.includes(i));
-      fixos.filter(i=>!fixosOk.includes(i)).forEach(i=>avisos.push(`${formatarDataDomingo(doms[idx])}: ${equipe[i].nome} não pôde ser mantido neste domingo (regra de 2 domingos seguidos, DSR ou 6×1) — o motor escolheu outra pessoa.`));
+      let fixosOk=fixos.filter(i=>candidatos.includes(i));
+      // V312: vale o número do Por cargo. Confirmados (📌) além da quantidade pedida para o cargo saem, com aviso (antes o domingo
+      // ficava acima do pedido e a auditoria final bloqueava: “13 escalados; alvo total 12”).
+      { const cont={}, sairam=[];
+        fixosOk=fixosOk.filter(i=>{ const k=chaveFuncaoDistribuicao(i), q=Number(metasFuncoesGlobal[k]?.porDomingo?.[idx]?.total??Infinity); cont[k]=(cont[k]||0)+1; if(cont[k]<=q) return true; sairam.push(i); return false; });
+        if(sairam.length){
+          const porCargo={}; sairam.forEach(i=>{ const k=chaveFuncaoDistribuicao(i); (porCargo[k]||(porCargo[k]=[])).push(i); });
+          Object.entries(porCargo).forEach(([k,ids])=>avisos.push(`${formatarDataDomingo(doms[idx])}: o Por cargo pede ${metasFuncoesGlobal[k]?.porDomingo?.[idx]?.total} de ${metasFuncoesGlobal[k]?.cargo||k}, e ${(cont[k]||0)} estavam confirmados. ${ids.map(i=>equipe[i].nome).join(', ')} ${ids.length===1?'saiu':'saíram'} deste domingo.`));
+          const iso=isoDomingo(ano,mes,doms[idx]), fora=new Set(sairam.map(i=>String(equipe[i].matricula)));
+          aceitosFuncao[iso]=(aceitosFuncao[iso]||[]).filter(m=>!fora.has(String(m))); try{ salvarCfgFuncao(); }catch(e){}
+        } }
+      fixos.filter(i=>!candidatos.includes(i)).forEach(i=>avisos.push(`${formatarDataDomingo(doms[idx])}: ${equipe[i].nome} não pôde ser mantido neste domingo (regra de 2 domingos seguidos, DSR ou 6×1) — o motor escolheu outra pessoa.`));
       const mistaFix=modoGeracaoAtual==='mista'?(selecaoManualDomingo[String(doms[idx])]||[]).map(Number).filter(i=>candidatos.includes(i)):[];
       const base0=[...new Set([...fixosOk,...mistaFix])];
       const trabalhaEm=(i,j)=>{
