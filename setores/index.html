@@ -7,10 +7,17 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V312</title>
+<title>Escala de Setores — V314</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V314 [Claude] — 2×1: QUEM COMEÇA A DUPLA TRABALHA O DOMINGO SEGUINTE: no 🤖 Automático, quem trabalhou o domingo anterior (e não o de
+       antes) entra primeiro no domingo seguinte, para fechar os 2 domingos seguidos; depois folga 1 e fica apto de novo. Quem trabalhou só o
+       último domingo do mês passado trabalha o 1º e folga o 2º. Vale também no Por cargo, sem passar do número pedido (com poucas vagas,
+       quem espera a vez folga mais de um domingo, mas ninguém trabalha um domingo isolado).
+V313 [Claude] — “MÊS PASSADO” GUARDADO NA HORA: cada escolha no card Mês passado (Nenhum/Penúltimo/Último/Ambos) é guardada no
+       aparelho no mesmo instante, por setor e mês, e volta sozinha ao recarregar a página, trocar de mês e voltar ou gerar a escala, até o
+       histórico ser salvo (antes as escolhas sumiam ao recarregar). A escolha feita à mão vale sobre o preenchimento automático.
 V312 [Claude] — POR CARGO: CONFIRMADOS NÃO PASSAM DO NÚMERO PEDIDO: quando um domingo foi confirmado (📌) com mais pessoas de um
        cargo do que o Por cargo pede agora (ex.: confirmado com 6 açougueiros e depois o número foi para 5), o app mantém só a quantidade
        pedida, avisa quem saiu da confirmação e não bloqueia mais a geração (antes: “Geração bloqueada — 15: 13 escalados; alvo total 12”).
@@ -2834,7 +2841,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V312 · Por cargo: confirmados não passam do número pedido</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V314 · 2×1: quem começa a dupla trabalha o domingo seguinte</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -8147,6 +8154,13 @@ function gerarSetoresCore(){
     });
     livres.forEach((ids,g)=>ids.forEach(i=>{ const c=cont.get(g),fase=c.indexOf(Math.min(...c)); faseFolga.set(i,fase); c[fase]++; }));
   }
+  // V314: quem trabalhou o domingo anterior e não o de antes fecha a dupla neste domingo. Sem o mês passado marcado,
+  // quem tem a vez de folga no 2º domingo conta como se tivesse trabalhado o último domingo do mês passado (trabalha o 1º e folga o 2º).
+  function fechaDupla(i,idx){
+    const e=estadoAnterior(i,idx); if(e[0]||!e[1]) return false;
+    if(idx===1){ const h=historicoManual(i); if(!h.penultimo&&!h.ultimo&&faseFolga.get(i)===1) return false; }
+    return true;
+  }
   if(modo!=='grupos') alvo=alvoMax;
 
   // CONTINUIDADE REAL DOS GRUPOS: o ponteiro vem do histórico anterior.
@@ -8283,7 +8297,8 @@ function gerarSetoresCore(){
       if(!e[0]&&e[1])score+=28;
       if(!e[0]&&!e[1])score+=18;
       // V306: rodízio 2×1 — cada pessoa tem a sua vez de folga (1 a cada 3 domingos); fora da vez ela entra primeiro.
-      if(rodizio2x1&&faseFolga.has(i)) score+=(idx%3!==faseFolga.get(i))?20000+((!e[0]&&e[1])?1000:0):0;
+      if(rodizio2x1&&faseFolga.has(i)) score+=(idx%3!==faseFolga.get(i))?20000:0;
+      if(rodizio2x1&&fechaDupla(i,idx)) score+=60000;   // V314: quem trabalhou só o domingo anterior fecha a dupla — prioridade máxima
       const dsC=descansosDoCandidato(i,doms[idx]);
       dsC.forEach(dt=>{ score-=cargaFolgasDoSetorParaCandidato(i,dt)*35; });
       // Equilibra também o dia da semana do DSR entre os domingos já
@@ -8316,6 +8331,15 @@ function gerarSetoresCore(){
       if(ui===p.u2) return c2<p.meta2?180:-120;
       return 0;
     };
+    // V314: rodízio 2×1 — quem trabalhou o domingo anterior (e não o de antes) TEM de trabalhar este, para fechar a dupla.
+    // Entram na base da escolha antes de todos, sem passar do número pedido para o cargo neste domingo.
+    const fechamDupla=(jaNaBase)=>{   // usa fechaDupla(i,idx), definida junto da vez de folga
+      if(!rodizio2x1) return [];
+      const cont={}; (jaNaBase||[]).forEach(i=>{ const k=chaveFuncaoDistribuicao(i); cont[k]=(cont[k]||0)+1; });
+      return candidatos.filter(i=>fechaDupla(i,idx)&&!(jaNaBase||[]).includes(i))
+        .sort((a,b)=>pontua(b)-pontua(a))
+        .filter(i=>{ const k=chaveFuncaoDistribuicao(i), q=Number(metasFuncoesGlobal[k]?.porDomingo?.[idx]?.total??Infinity); cont[k]=(cont[k]||0)+1; return cont[k]<=q; });
+    };
     if(modo==='funcao'){
       // V137: o encarregado define quantos de cada cargo; quem ele confirmou (📌) é mantido;
       // o motor completa cada cargo só com pessoas daquele cargo que podem trabalhar.
@@ -8333,7 +8357,7 @@ function gerarSetoresCore(){
         } }
       fixos.filter(i=>!candidatos.includes(i)).forEach(i=>avisos.push(`${formatarDataDomingo(doms[idx])}: ${equipe[i].nome} não pôde ser mantido neste domingo (regra de 2 domingos seguidos, DSR ou 6×1) — o motor escolheu outra pessoa.`));
       const mistaFix=modoGeracaoAtual==='mista'?(selecaoManualDomingo[String(doms[idx])]||[]).map(Number).filter(i=>candidatos.includes(i)):[];
-      const base0=[...new Set([...fixosOk,...mistaFix])];
+      const base0=[...new Set([...fixosOk,...mistaFix])]; base0.push(...fechamDupla(base0));   // V314
       const trabalhaEm=(i,j)=>{
         if(j===-2) return !!historicoManual(i).penultimo;
         if(j===-1) return !!historicoManual(i).ultimo;
@@ -8359,6 +8383,7 @@ function gerarSetoresCore(){
     }
     // A cobertura funcional continua sendo obrigatória, mas agora a escolha
     // também obedece à distribuição matemática de cada cargo + turno.
+    base=[...new Set([...base,...fechamDupla(base)])].slice(0,Math.max(alvoDia,base.length));   // V314: quem fecha a dupla entra primeiro
     const escolhidos=selecionarComDistribuicaoDeFuncoes(candidatos,idx,alvoDia,metasFuncoesGlobal,base,pontua,pontuaTransicao);
     return escolhidos.length>alvoDia?escolhidos.slice(0,alvoDia):escolhidos;
   }
@@ -17624,5 +17649,47 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 })();
 </script>
 
+<script>
+(function(){
+  'use strict';
+  /* ═════ V313 — ⏮️ “MÊS PASSADO” GUARDADO NA HORA ═════
+     Cada toque em Nenhum/Penúltimo/Último/Ambos é guardado no aparelho, por setor e mês
+     (localStorage escalaSetores.v313MesPassado = {"setor|aaaa-mm": {pessoa: [penúltimo, último]}}).
+     A escolha volta sempre que o card é redesenhado (recarregar, trocar de mês e voltar, gerar, abrir o setor)
+     e vale até o histórico ser salvo — e continua depois, até ser trocada. */
+  const CH='escalaSetores.v313MesPassado';
+  const $=id=>document.getElementById(id);
+  const ler=()=>{try{const o=JSON.parse(localStorage.getItem(CH)||'{}');return o&&typeof o==='object'?o:{};}catch(e){return {};}};
+  const gravar=o=>{try{const ks=Object.keys(o).sort((a,b)=>(o[a].t||0)-(o[b].t||0));while(ks.length>24)delete o[ks.shift()];localStorage.setItem(CH,JSON.stringify(o));}catch(e){}};
+  const chaveMes=()=>{const s=String($('setorSelecionado')?.value||'').trim(),m=Number($('mes')?.value),a=Number($('ano')?.value);return s&&Number.isInteger(m)&&a?`${s}|${a}-${String(m+1).padStart(2,'0')}`:'';};
+  const pessoa=f=>String(f?.matricula||'').trim()||('n:'+String(f?.nome||'').trim().toUpperCase());
+  let aplicando=false;
+  function guardar(){
+    if(aplicando)return;
+    const k=chaveMes();if(!k||!Array.isArray(equipe)||!equipe.length)return;
+    const marc={};equipe.forEach((f,i)=>{const p=$('hist_pen_'+i),u=$('hist_ult_'+i);if(p&&u)marc[pessoa(f)]=[!!p.checked,!!u.checked];});
+    const o=ler();o[k]={t:Date.now(),marc};gravar(o);
+  }
+  function aplicar(){
+    const k=chaveMes(),reg=k&&ler()[k];if(!reg||!reg.marc||!Array.isArray(equipe))return false;
+    aplicando=true;
+    try{
+      equipe.forEach((f,i)=>{const v=reg.marc[pessoa(f)];if(!v)return;const p=$('hist_pen_'+i),u=$('hist_ult_'+i);if(p)p.checked=!!v[0];if(u)u.checked=!!v[1];});
+      try{sincronizarHistoricoUI();}catch(e){}
+    }finally{aplicando=false;}
+    return true;
+  }
+  // a escolha feita à mão vale sobre o redesenho do card e sobre o preenchimento automático pelo mês anterior
+  const montarOrig=window.montarHistoricoManual;
+  if(typeof montarOrig==='function')window.montarHistoricoManual=function(){const r=montarOrig.apply(this,arguments);try{aplicar();}catch(e){}return r;};
+  const autoOrig=window.aplicarHistoricoAutomatico;
+  if(typeof autoOrig==='function')window.aplicarHistoricoAutomatico=function(){const r=autoOrig.apply(this,arguments);try{if(aplicar())return true;}catch(e){}return r;};
+  // guarda na hora em cada toque do card
+  document.addEventListener('click',e=>{if(e.target.closest?.('#historicoLista [data-hist-state]'))setTimeout(guardar,0);});
+  ['mes','ano','setorSelecionado'].forEach(id=>$(id)?.addEventListener('change',()=>setTimeout(aplicar,0)));
+  window.v313MesPassado={guardar,aplicar,chave:chaveMes,ler};
+  setTimeout(aplicar,0);
+})();
+</script>
 </body>
 </html>
