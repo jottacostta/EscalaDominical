@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V303</title>
+<title>Escala de Setores — V304</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V304 [Claude] — FERIADO NO DOMINGO DÁ FOLGA A MAIS NO ENSAIO À MÃO: quando o feriado cai no domingo, quem trabalha esse domingo fica com
+       DSR1 e DSR2 na semana e ganha mais 1 folga do feriado (F + dia, ex.: F15), num dia útil (seg–sáb) em até 20 dias. Quem folga nesse domingo
+       não ganha folga a mais (o domingo já é F). A sugestão marca essa folga e a conferência cobra. Só no ensaio, sem validade real.
 V303 [Claude] — MOTOR 5×2 OFICIAL PARAMETRIZADO (6×1/5×2) E DOMINGO CONTANDO COMO DESCANSO: o motor oficial passa a ler os parâmetros de cada regime
        num lugar só (6×1 = 1 descanso e até 6 dias seguidos; 5×2 = 2 descansos e até 5 dias seguidos). A partir de 16/12/2026, quem folga no domingo
        tira só 1 folga de segunda a sábado (o domingo já é um dos 2 descansos); quem trabalha o domingo tira 2. A folga compensatória do feriado é
@@ -2790,7 +2793,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V303 · Motor 5×2 oficial: domingo conta como descanso, até 5 dias seguidos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V304 · Ensaio 5×2: feriado no domingo dá folga a mais para quem trabalha</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -17214,7 +17217,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return out;
   }
   // V301: feriados de dia útil que a pessoa trabalha (cada um gera 1 folga compensatória).
-  function manFeriadosTrabalhados(p){return (manDados.feriados||[]).filter(iso=>manTrabalhaFeriado(p,iso)).slice().sort();}
+  // V304: o feriado que cai no domingo também conta — quem trabalha esse domingo ganha DSR1/DSR2 na semana e mais 1 folga do feriado (F + dia) em até 20 dias.
+  function manTrabalhaDomingoFeriado(p,iso){const l=manDados.domingos[Number(iso.slice(8,10))]||manDados.domingos[iso]||[];return Array.isArray(l)&&l.map(Number).includes(Number(p.id));}
+  function manFeriadosTrabalhados(p){return (manDados.feriados||[]).filter(iso=>manTrabalhaFeriado(p,iso)).concat((manDados.feriadosDom||[]).filter(iso=>manTrabalhaDomingoFeriado(p,iso))).sort();}
   // V301: casa cada feriado trabalhado com uma folga de dia útil dentro de 20 dias corridos (seg–sáb), ALÉM das folgas-base da semana.
   // As primeiras folgas de cada semana contam como base (regra do domingo/DSR); as que sobram servem de compensatória se caírem na janela de 20 dias.
   function manCasarCompensatorias(p){
