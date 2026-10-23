@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V311.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V312.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V199.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V312**, Encarregados **V200**.
+- **Próximo número de versão:** Setores **V313**, Encarregados **V200**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — Por cargo: confirmados não passam do número pedido — Setores V312 — Claude
+- **Print do Gerente (Açougue, 🤖 Automático + Por cargo 5/5/1 + 1 liderança):** “Geração bloqueada — 15: 13 escalados; alvo total 12”. Lista do 15/11: 1 Enc + **6 açougueiros** + 5 operadores de câmara fria + 1 balconista.
+- **Causa (✅ reproduzida com dados fictícios `testes/dados/setores_acougue_cargos_25.txt`):** o 15/11 tinha sido confirmado (`aceitosFuncao`) com 6 açougueiros. `selecionarPorFuncaoUsuario` começa pela base (`fixosOk`) e nunca tira ninguém; `alvosPorDomingo` usa `max(soma do Por cargo, nº de confirmados)`, que continuava 11 porque só havia 6 confirmados. Resultado: 12 operacionais contra alvo 11 → auditoria final bloqueia.
+- **Correção (`gerarSetoresCore`, modo funcao, trecho `// V312`):** confirmados além do `metasFuncoesGlobal[cargo].porDomingo[idx].total` saem (na ordem guardada), com aviso “o Por cargo pede 5 de ACOUGUEIRO, e 6 estavam confirmados. X saiu deste domingo.”, e `aceitosFuncao[iso]` é regravado sem eles. Decisão do Gerente: vale o Por cargo.
+- **Não era:** a V311, o ensaio 5×2, o feriado no domingo nem a folga de domingo (testado: folga fixa no domingo escolhida à mão nunca entra; a do ERP continua “a definir”, decisão mantida pelo Gerente).
+- **Testes:** `testarConfirmadosPorCargo` (falha na V311 com 6 açougueiros/12 operacionais; passa na V312 com 5/11, sem bloqueio, aviso e 5 guardados).
+- **Assinado:** Claude
 
 ### 2026-10-23 — Ensaio 5×2: 2×1 com o mês passado, domingo-feriado, liderança e escolhas da 6×1 + Açougue sem número fixo — Setores V307 a V311 — Claude
 - **V311 (decisão do Gerente, print “Geração bloqueada pela auditoria final — 15: 13 escalados; alvo total 12 (11 operacionais + 1 liderança)”):** retirado todo número fixo do Açougue: `alvosPorDomingo=11` no motor, `alvoCoberturaAtual()` = 11, as cotas 3+2/3+3 de `escolherComCoberturaFuncional` (agora devolve `null`), `coberturaOperacionalAçougue` em `coberturaOperacional` (não é mais chamada) e a divisão fixa de horários (6 na abertura → metade). Resumo de escalados soma `lideresSelecionadosDomingo(d)` em qualquer setor. Regra do AGENTS.md §5 reescrita. Teste novo `testarAcougueSemFixo` com dados fictícios `testes/dados/setores_acougue_24.txt` (24 pessoas): Por cargo pedindo 14 → 14 em cada domingo; Metade no automático → 13–16 (V310: 11 fixos, falha).
