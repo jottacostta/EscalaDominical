@@ -1486,8 +1486,10 @@ async function testarDomingos2x1(browser, app, nome, abrir){   // V296: o ensaio
     const linhas = [...t.querySelectorAll('tbody tr')];
     let maxSeg = 0, semRodizio = 0;
     const porDomingoFolga = domCols.map(() => 0);
+    const v310 = +((document.title.match(/V(\d+)/) || [])[1]) >= 310, lid = new Set(equipe.filter(f => ehLiderancaDomingo(f)).map(f => f.nome));   // V310: a liderança vem do passo ③, fora do rodízio
     linhas.forEach(tr => {
       const tds = [...tr.children];
+      if(v310 && lid.has(tds[0].textContent.trim())) return;
       const seq = domCols.map(ci => tds[ci].classList.contains('v292-dom-trab') ? 1 : 0);   // 1 = trabalha no domingo (classe, não a letra — o rótulo virou "T" na V301)
       seq.forEach((v, j) => { if(!v) porDomingoFolga[j]++; });
       let run = 0, mx = 0; seq.forEach(v => { if(v){ run++; if(run > mx) mx = run; } else run = 0; });
@@ -1501,7 +1503,7 @@ async function testarDomingos2x1(browser, app, nome, abrir){   // V296: o ensaio
   });
   ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece com os domingos');
   ok(r.maxSeg <= 2, nome + ': ninguém trabalha 3 domingos seguidos (máx ' + r.maxSeg + ' seguidos)');
-  ok(r.semRodizio === 0, nome + ': todos entram no rodízio 2×1 (ninguém trabalha ou folga todos os domingos)');
+  ok(r.semRodizio === 0, nome + ': todos entram no rodízio 2×1 (ninguém trabalha ou folga todos os domingos; a liderança segue o passo ③)');
   ok(r.todoDomingoTemFolga && r.todoDomingoTemTrabalho, nome + ': em cada domingo parte da equipe folga e parte trabalha (cobertura 2×1)');
   ok(r.erros === 0, nome + ': a conferência não acusa erro com o rodízio 2×1' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
   ok(!erros.length, nome + ': sem erro de JavaScript no rodízio 2×1' + (erros.length ? ': ' + erros[0] : ''));
