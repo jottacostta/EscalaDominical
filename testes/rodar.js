@@ -1763,6 +1763,32 @@ async function testarEnsaioUsaEscolhas6x1(browser, app, nome, abrir){   // V310:
   await p.close();
 }
 
+/* V311 — Açougue sem número fixo: a quantidade do domingo vem de “Como dividir o setor” ou do Por cargo (loja grande não trava) */
+async function testarAcougueSemFixo(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 311) return;
+  console.log('\n▶ ' + nome + ' — 🥩 Açougue sem número fixo (11 + 1): vale o Por cargo');
+  const abrirAco = async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_24.txt')); await p.waitForTimeout(2500); };
+  const gerar = async (p, modo, prep) => {
+    await p.evaluate(([modo, prep]) => { const c = $('modoCobertura'); c.value = modo; c.dispatchEvent(new Event('change', { bubbles: true })); try{ sugerirLiderancaDomingo(); }catch(e){}
+      if(prep){ coberturaFuncao.base = coberturaFuncao.base || {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = Math.floor(fn.ids.length * 2 / 3); }); salvarCfgFuncao(); } }, [modo, prep]);
+    await p.waitForTimeout(400);
+    await p.evaluate(() => { trabalhoDomingo = {}; document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+    for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+    await p.waitForTimeout(800);
+    return p.evaluate(() => { const doms = domingosDoMes(+$('ano').value, +$('mes').value), ops = i => !ehLiderancaDomingo(equipe[i]);
+      const q = d => (trabalhoDomingo[d] || []).map(Number).filter(ops).length, pedido = funcoesDoSetor().reduce((n, fn) => n + qtdFuncaoBase(fn.chave), 0);
+      return { ops: doms.map(q), pedido, alvo: alvoCoberturaAtual(), metadeOps: Math.max(1, Math.round(equipe.filter(f => !foraDom(f) && !ehLiderancaDomingo(f)).length / 2)), bloqueado: /bloqueada/i.test($('validacao').innerText), texto: $('validacao').innerText.replace(/\s+/g, ' ').slice(0, 200) }; });
+  };
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrirAco(p); await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const cargo = await gerar(p, 'funcao', true);
+  ok(cargo.pedido > 11 && !cargo.bloqueado && cargo.ops.every(n => n === cargo.pedido), nome + ': no Por cargo, cada domingo do Açougue tem o número pedido (' + cargo.ops.join(', ') + ' operacionais; pedido ' + cargo.pedido + ', acima dos antigos 11) — ' + cargo.texto.slice(0, 80));
+  const metade = await gerar(p, '50', false);
+  ok(!metade.bloqueado && metade.ops.some(n => n > 11) && metade.alvo === metade.metadeOps, nome + ': no “Metade”, o Açougue segue a conta geral, sem 11 fixo (' + metade.ops.join(', ') + ' operacionais no automático; escala à mão: metade = ' + metade.alvo + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -2095,7 +2121,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');

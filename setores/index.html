@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V310</title>
+<title>Escala de Setores — V311</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V311 [Claude] — SEM NÚMERO FIXO NO AÇOUGUE: o Açougue deixa de ter 11 operacionais + 1 liderança guardados no código (e as vagas fixas
+       3+2 açougueiros e 3+3 operadores/balconistas). Como em qualquer setor, a quantidade do domingo vem de “Como dividir o setor”; no
+       “Por cargo” vale o número escolhido para cada cargo. Lojas com equipes maiores não ficam mais travadas (ex.: “13 escalados; alvo 12”).
 V310 [Claude] — ENSAIO 5×2 USA AS ESCOLHAS DA ESCALA 6×1: tudo o que foi escolhido na montagem 6×1 vira o ensaio 5×2 — os domingos
        (como dividir o setor, rodízio 2×1, Por cargo, grupos, Açougue), a liderança do passo ③ e quem trabalha cada feriado (se ninguém foi marcado no feriado, o ensaio faz o rodízio). Por isso o
        ensaio pede para gerar a escala 6×1 do mês primeiro (🪄 Gerar escala). O ensaio só monta as folgas da semana do 5×2. Só no ensaio.
@@ -2828,7 +2831,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V310 · Ensaio 5×2 usa as escolhas da escala 6×1</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V311 · Sem número fixo no Açougue: vale o Por cargo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -6351,8 +6354,7 @@ function coberturaOperacionalAçougue(indices,d=null){
 function coberturaOperacional(indices,d=null){
   if(($('modoCobertura')?.value||'')==='funcao') return {ok:true,faltas:[]}; // V137: quem manda é a configuração por função
   const setorAtual=norm(equipe[indices.find(i=>equipe[i])]?.setor||$('setorSelecionado')?.value||'');
-  if(setorAtual==='açougue' || setorAtual==='acougue') return coberturaOperacionalAçougue(indices,d);
-  return {ok:true,faltas:[]};
+  return {ok:true,faltas:[]};   // V311: sem cobertura fixa do Açougue (3/2/3/3 e 11); a quantidade por cargo é a do Por cargo
 }
 function escolherPorCarga(cands,simAtual,turnoAtual){
   return [...cands].sort((a,b)=>{
@@ -8115,7 +8117,7 @@ function gerarSetoresCore(){
 
   // V102 — Açougue: 11 operacionais + 1 liderança = 12 no domingo.
   const setorEhAcougue = ['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''));
-  if(setorEhAcougue && modo==='50') doms.forEach(d=>{ if(d!==bal) alvosPorDomingo[d]=11; });
+  // V311: sem número fixo para o Açougue (antes 11). A quantidade vem do “Como dividir o setor” (rodízio 2×1/metade, grupos ou Por cargo).
   // V137 — cobertura por função: o alvo de cada domingo é a soma das quantidades definidas pelo encarregado.
   const fixosPorIdx=[];
   if(modo==='funcao'){
@@ -8172,6 +8174,7 @@ function gerarSetoresCore(){
   function escolherComCoberturaFuncional(idx,d,candidatos,pontua,alvo){
     const setorAtual=norm($('setorSelecionado')?.value||'');
     if(modo==='funcao') return null;
+    return null;   // V311: sem cotas fixas por setor (antes o Açougue exigia 3+2 açougueiros e 3+3 operadores/balconistas). Use o Por cargo.
     if(setorAtual!=='açougue' && setorAtual!=='acougue') return null;
     const disponiveis=new Set(candidatos);
     const escolhidos=[];
@@ -8717,7 +8720,7 @@ function atribuirHorariosAutomaticosDomingo(d,indices,isBalanco=false){
     horariosGeradosDomingo[String(d)][String(i)]=`${h[0]}-${h[1]}`;
   };
 
-  if(setor==='açougue'||setor==='acougue'){
+  if(false&&(setor==='açougue'||setor==='acougue')){   // V311: sem a divisão fixa 3+2 / 3+3 do Açougue; vale a divisão geral abaixo
     const acoes=operacionais.filter(cargoEhAcougueiro);
     const apoios=operacionais.filter(cargoEhApoioAcougue);
     const escolherMaisProximo=(lista,n,faixa)=>[...lista].sort((a,b)=>{
@@ -8745,7 +8748,7 @@ function atribuirHorariosAutomaticosDomingo(d,indices,isBalanco=false){
     const restantes=operacionais.filter(i=>!usados.has(i));
     restantes.forEach(i=>{
       const qtdA=Object.values(horariosGeradosDomingo[String(d)]).filter(h=>horaMinutos(h)<720).length;
-      gravar(i,qtdA<6?'ABERTURA':'FECHAMENTO');
+      gravar(i,qtdA<Math.ceil(operacionais.length/2)?'ABERTURA':'FECHAMENTO');   // V311: metade abre (antes 6 fixo)
     });
   }else{
     const metaA=Math.ceil(operacionais.length/2);
@@ -8778,7 +8781,7 @@ function alvoCoberturaAtual(){
   if($('modoCobertura')?.value==='funcao'){ const ds=domingosDoMes(+$('ano').value,+$('mes').value); return Math.max(1,...ds.map(d=>funcoesDoSetor().reduce((n,fn)=>n+qtdFuncao(fn.chave,chaveDataLocal(new Date(+$('ano').value,+$('mes').value,d))),0))); }
   const nPromo=ativosOperacionais.filter(ehPromotorIdx).length;   // V258: promotor conta 1 por domingo
   const base=nPromo?Math.max(1,1+Math.round((ativosOperacionais.length-nPromo)/2)):Math.max(1,Math.round(ativosOperacionais.length/2));
-  if(['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''))&&($('modoCobertura')?.value||'50')==='50') return 11;   // V235: Açougue = 11 operacionais (regra V102 do motor e da cobertura do Açougue)
+  // V311: o Açougue não tem mais 11 fixo; segue a mesma conta dos outros setores (ou o Por cargo).
   const req=coberturaOperacional(ativosOperacionais);
   return Math.max(base, req.ok?0:4);
 }
@@ -9388,8 +9391,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const rows=dist.map(x=>{
       const n=(window.trabalhoDomingo?.[x.d]||[]).length;
       const alvoOperacional=Number(window.ultimaEscala?.alvosPorDomingo?.[x.d]||alvo||n);
-      const setorAcougue=['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''));
-      const alvoDia=setorAcougue ? alvoOperacional+1 : alvoOperacional;
+      const alvoDia=alvoOperacional+(typeof lideresSelecionadosDomingo==='function'?lideresSelecionadosDomingo(x.d).length:0);   // V311: liderança escolhida, em qualquer setor
       const pct=alvoDia?Math.min(100,Math.round(n/alvoDia*100)):0;
       const cells=dias.map(k=>`<div class="summary-dsr-day"><b>${nomes[k]}</b><span class="summary-dsr-value ${x.cont[k]?'':'zero'}">${x.cont[k]}</span></div>`).join('');
       return `<div class="summary-dsr-row">
@@ -9446,8 +9448,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const lineRows = doms.map(d => {
       const n = (window.trabalhoDomingo?.[d]||[]).length;
       const alvoOperacional = Number(window.ultimaEscala?.alvosPorDomingo?.[d]||alvo||n);
-      const setorAcougue = ['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''));
-      const alvoDia = setorAcougue ? alvoOperacional+1 : alvoOperacional;
+      const alvoDia = alvoOperacional+(typeof lideresSelecionadosDomingo==='function'?lideresSelecionadosDomingo(d).length:0);   // V311
       const pct = alvoDia ? Math.min(100, Math.round(n/alvoDia*100)) : 0;
       return `<div class="summary-line"><div><b>${String(d).padStart(2,'0')}/${String(window.ultimaEscala.mes+1).padStart(2,'0')}</b><span>${n}/${alvoDia} escalados</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
     }).join('');
