@@ -18,7 +18,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
 | Escala de Setores | `Escala_de_Setores_V314.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V199.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V200.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V315**, Encarregados **V200**.
+- **Próximo número de versão:** Setores **V315**, Encarregados **V201**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — Motor 5×2: folga a mais para não passar de 5 dias seguidos — Encarregados V200 — Claude
+- **Pendência da V306 (Setores), pedida pelo Gerente:** o motor 5×2 do Encarregados limitava a 2 folgas de seg–sáb. Com folga fixa na sexta (24/12/2027) + Natal no sábado, as 2 vagas já estavam ocupadas e sobravam 6 dias seguidos (18–23/12) → plano recusado.
+- **Correção (camada V194, trechos `// V200`):** `escolherFolgas` acrescenta 1 folga quando há excesso, até 3 de seg–sáb; `construir`, `auditar` e `herdada` aceitam até 3.
+- **Testes:** `testarEnc5x2FolgaAMais` (V199: “6 dias seguidos na fronteira 2027-12-23”; V200: folgas 23, 24 e 25/12, sem erro).
+- **Assinado:** Claude
 
 ### 2026-10-23 — 2×1: quem começa a dupla trabalha o domingo seguinte — Setores V314 — Claude
 - **Pedido do Gerente (print do Açougue, Por cargo 5/5/1):** “se foi escalado no domingo 1 tem que estar no outro domingo — são dois domingos trabalhados seguidos; só não, se trabalhou o último domingo do mês passado: aí trabalha o 1º, folga o 2º e fica apto no 3º”. Com 5 vagas de 12 açougueiros, a V306 dava prioridade à “vez de folga” e só +1000 a quem fechava a dupla → domingos isolados (12 em nov/2026 nos dados fictícios).
