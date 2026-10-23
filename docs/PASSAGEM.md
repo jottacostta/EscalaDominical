@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V306.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V309.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V199.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V307**, Encarregados **V200**.
+- **Próximo número de versão:** Setores **V310**, Encarregados **V200**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — Ensaio 5×2: 2×1 com o mês passado, domingo-feriado e liderança — Setores V307/V308/V309 — Claude
+- **Pedidos do Gerente:** (1) “a escala manual 5×2 ensaio não está seguindo o domingo 2×1”; (2) domingo trabalhado, mesmo sendo feriado, dá 2 folgas antecipadas + 2 posteriores + a folga do feriado em 20 dias (só no ensaio; 2 antes + 2 depois); (3) liderança: segue a regra que existe hoje no 6×1, que será adaptada ao 5×2 — “tudo será adaptado para o 5×2 na oficial e no ensaio”.
+- **V307 (✅ causa confirmada):** `manSortearCenario` usava `p%3` sem olhar `domAnteriores` → 23–25 pessoas com 3 domingos seguidos com o mês passado marcado; com números por função, 44–46 quebras. Novo `manFasesFolga(ordem,off)` → `manDados.faseFolga` (pen+ult → 0, ult → 1, pen → 2, sem histórico espalhado por função e, no empate, na equipe). Rodízio padrão = quem não está na vez; `manSortearPorFuncao` ordena quem está fora da vez primeiro. Teste `testarEnsaio2x1MesPassado` (falha na V306 com 25 de 3 seguidos; passa com 0 e 1 quebra em 250).
+- **V308:** `manPosteriorFeriadoDom(p,s)` — na semana depois de um domingo-feriado trabalhado, o domingo de folga seguinte não desconta descanso (alvo 2, rótulos DSR1/DSR2). `testarFeriadoDomingo5x2` ganhou a conferência da semana depois (falha na V307: só a semana antes tinha DSR1/DSR2).
+- **V309:** liderança fora de `gruposFn` e do rodízio; `manEscalarLideranca` usa `lideresSelecionadosDomingo` (passo ③) ou `calcularSugestaoLideranca()` (mesma regra oficial: uma só/por turno/várias, blocos de 2, nunca 3 seguidos). Conferência: 2 lideranças com `liderancaUnica()` = erro; sem liderança = aviso (opcional, como na oficial). Teste `testarLiderancaDuplas5x2`: sugestão oficial, escolha do passo ③ e setor de uma só (E E S S E).
+- **Pendente:** levar ao motor oficial 5×2 no go-live (decisão do Gerente). Açougue com 13 no domingo 15/11 (print do Gerente, “alvo total 12”) — falta saber o modo (Automático/Misto/Manual) para reproduzir.
+- **Assinado:** Claude
 
 ### 2026-10-23 — Automático no rodízio 2×1 dos domingos — Setores V306 — Claude
 - **Pergunta do Gerente:** por que o automático 6×1 não seguia o 2×1? **Causa (✅ confirmada):** `calcularMetasDistribuicaoFuncoes` dava “2 domingos por pessoa no mês” e o alvo era `round(operacionais/2)` → FL nov/2026 com 22 de 44 por domingo, 47 quebras do padrão e só a trava de 3 seguidos.

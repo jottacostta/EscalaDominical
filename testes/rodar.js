@@ -1561,7 +1561,7 @@ async function testarFeriadoDomingo5x2(browser, app, nome, abrir){   // V304: fe
     if(!t) return { semTabela: true };
     const cab = [...t.querySelectorAll('thead th')].slice(1).map(th => th.textContent);
     const col = cab.findIndex(x => /15/.test(x) && /🟡/.test(x));
-    let trab = 0, trabComF15 = 0, folga = 0, folgaComF15 = 0, dsrSemana = 0, f15ForaPrazo = 0;
+    let trab = 0, trabComF15 = 0, folga = 0, folgaComF15 = 0, dsrSemana = 0, f15ForaPrazo = 0, dsrDepois = 0, trabFolga22 = 0;
     const avisos = box.textContent;   // a folga do feriado pode cair no começo do mês seguinte (fora da grade); a conferência lista a data
     [...t.querySelectorAll('tbody tr')].forEach(tr => {
       const tds = [...tr.querySelectorAll('td')], dom = tds[col] && tds[col].textContent.trim(), nomeP = tr.querySelector('th').textContent.trim();
@@ -1569,15 +1569,17 @@ async function testarFeriadoDomingo5x2(browser, app, nome, abrir){   // V304: fe
       const f15 = tds.map((td, k) => td.textContent.trim() === 'F15' ? k : -1).filter(k => k >= 0);
       f15.forEach(k => { if(k <= col || k > col + 20) f15ForaPrazo++; });
       const semana = tds.slice(col - 6, col).map(td => td.textContent.trim());   // seg–sáb da semana do dia 15
-      if(dom === 'T'){ trab++; if(comp15 && f15.length <= 1) trabComF15++; if(semana.includes('DSR1') && semana.includes('DSR2')) dsrSemana++; }
+      const depois = tds.slice(col + 1, col + 7).map(td => td.textContent.trim());   // V308: seg–sáb da semana depois do dia 15
+      if(dom === 'T'){ trab++; if(comp15 && f15.length <= 1) trabComF15++; if(semana.includes('DSR1') && semana.includes('DSR2')) dsrSemana++; if(depois.filter(x => /^DSR[12]$/.test(x) || x === 'F').length >= 2) dsrDepois++; /* F num dia útil = feriado de folga (vale como descanso) */ if(tds[col + 7] && tds[col + 7].textContent.trim() === 'F') trabFolga22++; }
       else if(dom === 'F'){ folga++; if(f15.length || comp15) folgaComF15++; }
     });
     const texto = box.innerText, nErros = (texto.match(/(\d+) erro\(s\)/) || [])[1];
-    return { col, trab, trabComF15, folga, folgaComF15, dsrSemana, f15ForaPrazo, erros: nErros ? +nErros : -1 };
+    return { dsrDepois, trabFolga22, col, trab, trabComF15, folga, folgaComF15, dsrSemana, f15ForaPrazo, erros: nErros ? +nErros : -1 };
   });
   ok(!r.semTabela && r.col >= 0, nome + ': o domingo 15/11 aparece como feriado (🟡) na grade mensal');
   ok(r.trab > 0 && r.trabComF15 === r.trab, nome + ': quem trabalha o domingo-feriado ganha 1 folga do feriado (F15) — ' + r.trabComF15 + ' de ' + r.trab + ', conferido na lista de avisos');
   ok(r.dsrSemana === r.trab, nome + ': e continua com DSR1 e DSR2 na semana (' + r.dsrSemana + ' de ' + r.trab + ')');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 308) ok(r.dsrDepois === r.trab && r.trabFolga22 > 0, nome + ': e tem 2 descansos na semana depois (DSR1/DSR2, ou o feriado de folga), mesmo quem folga o domingo seguinte (' + r.dsrDepois + ' de ' + r.trab + '; ' + r.trabFolga22 + ' folgam o 22)');
   ok(r.folga > 0 && r.folgaComF15 === 0, nome + ': quem folga o domingo-feriado não ganha folga a mais (' + r.folgaComF15 + ' de ' + r.folga + ')');
   ok(r.f15ForaPrazo === 0, nome + ': a folga F15 cai depois do feriado, dentro de 20 dias');
   ok(r.erros === 0, nome + ': a conferência não acusa erro' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
@@ -1665,6 +1667,70 @@ async function testarRodizio2x1Automatico(browser, app, nome, abrir){
   ok(r.quebras <= Math.ceil(r.trans * 0.05), nome + ': o padrão trabalha 2, folga 1 se mantém no mês (' + r.quebras + ' quebra(s) em ' + r.trans + ' passagens)');
   ok(/rodízio 2×1/.test(r.val), nome + ': o resultado diz que a escala segue o rodízio 2×1');
   ok(r.alvoMao === Math.max(1, Math.round(grupos.n / 2)), nome + ': a escala à mão continua com a metade da equipe (' + r.alvoMao + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEnsaio2x1MesPassado(browser, app, nome, abrir){   // V307: o ensaio à mão segue o 2×1 dos domingos contando o mês passado
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 307) return;
+  console.log('\n▶ ' + nome + ' — 🧪 ensaio à mão: domingos no 2×1 com o mês passado');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const g = { dois: [], ult: [], nada: [] };
+    const v309 = /V(\d+)/.test(document.title) && +document.title.match(/V(\d+)/)[1] >= 309;   // V309: a liderança tem regra própria (duplas de domingos)
+    equipe.forEach((f, i) => { if(foraDom(f) || (v309 && ehLiderancaDomingo(f))) return; const t = i % 3 === 0 ? 'dois' : i % 3 === 1 ? 'ult' : 'nada'; const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); if(cp) cp.checked = t === 'dois'; if(cu) cu.checked = t !== 'nada'; g[t].push(i); });
+    const m = window.v292Manual5x2; m.habilitar(true); m.montar();
+    const medir = () => { const dom = m.domingoPorFuncao.domingos(), dias = Object.keys(dom).map(Number).sort((a, b) => a - b), t = d => (dom[d] || []).map(Number);
+      let tres = 0, quebras = 0, trans = 0;
+      [...g.dois, ...g.ult, ...g.nada].forEach(i => { const h = historicoManual(i), s = [h.penultimo ? 1 : 0, h.ultimo ? 1 : 0, ...dias.map(d => t(d).includes(i) ? 1 : 0)];
+        for(let k = 2; k < s.length; k++){ trans++; if(s[k - 2] && s[k - 1] && s[k]) tres++; else if((!s[k - 2] && s[k - 1] && !s[k]) || (!s[k - 1] && !s[k])) quebras++; } });
+      const d1 = t(dias[0]);
+      return { tres, quebras, trans, doisNo1: g.dois.filter(i => d1.includes(i)).length, ultNo1: g.ult.filter(i => d1.includes(i)).length }; };
+    m.sugerir(); const a = medir(); m.sugerir(); const b = medir();   // dois cenários sorteados
+    return { a, b, nDois: g.dois.length, nUlt: g.ult.length };
+  });
+  [r.a, r.b].forEach((x, k) => {
+    ok(x.tres === 0, nome + ' (cenário ' + (k + 1) + '): ninguém faz 3 domingos seguidos contando o mês passado (' + x.tres + ')');
+    ok(x.doisNo1 === 0 && x.ultNo1 === r.nUlt, nome + ' (cenário ' + (k + 1) + '): quem fez os 2 últimos domingos folga o 1º (' + x.doisNo1 + '/' + r.nDois + ' entraram) e quem fez só o último trabalha o 1º (' + x.ultNo1 + '/' + r.nUlt + ')');
+    ok(x.quebras <= Math.ceil(x.trans * 0.05), nome + ' (cenário ' + (k + 1) + '): trabalha 2, folga 1 se mantém (' + x.quebras + ' quebra(s) em ' + x.trans + ')');
+  });
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarLiderancaDuplas5x2(browser, app, nome, abrir){   // V309: a liderança do ensaio segue a regra oficial (passo ③)
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 309) return;
+  console.log('\n▶ ' + nome + ' — 🧪 ensaio à mão: liderança pela regra oficial');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2, doms = domingosDoMes(2026, 10), out = {};
+    const lidDoEnsaio = () => { const dom = m.domingoPorFuncao.domingos(); return doms.map(d => (dom[d] || []).map(Number).filter(i => ehLiderancaDomingo(equipe[i])).sort((a, b) => a - b).join(',')); };
+    const rodar = () => { m.habilitar(true); m.montar(); m.sugerir(); m.conferir(); const res = document.getElementById('v292Manual5x2Resultado').innerText; return { lid: lidDoEnsaio(), erros: +((res.match(/(\d+) erro\(s\)/) || [])[1] ?? -1) }; };
+    equipe.forEach((f, i) => { const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); if(cp) cp.checked = false; if(cu) cu.checked = false; });
+    // 1) sem escolha no passo ③: igual à sugestão oficial
+    liderancaManualDomingo = {};
+    const sug = calcularSugestaoLideranca(), esperado = doms.map(d => lideresDoRegistro(sug[String(d)]).sort((a, b) => a - b).join(','));
+    out.sugerida = { ...rodar(), esperado };
+    // 2) com escolha no passo ③: usa a escolha
+    sugerirLiderancaDomingo(); const k = Object.keys(liderancaManualDomingo).find(x => x !== '__ref'); const outro = equipe.findIndex((f, i) => ehLiderancaDomingo(f) && !lideresSelecionadosDomingo(+k).includes(i));
+    if(k && outro >= 0) liderancaManualDomingo[k] = { mais: [outro] };
+    out.escolhida = { ...rodar(), esperado: doms.map(d => lideresSelecionadosDomingo(d).slice().sort((a, b) => a - b).join(',')) };
+    // 3) setor com uma liderança só (1 Encarregado + 1 Sub): Enc, Enc, Sub, Sub…, nunca os dois juntos
+    liderancaManualDomingo = {}; definirLiderTurno(false); definirLiderVarias(false);
+    const enc = equipe.findIndex(f => tipoLiderancaDomingo(f) === 'enc'), sub = equipe.findIndex(f => tipoLiderancaDomingo(f) === 'sub');
+    equipe.forEach((f, i) => { if(ehLiderancaDomingo(f) && i !== enc && i !== sub) f.__bk = f.situacao, f.situacao = 'AF'; });
+    const u = rodar(), tipos = u.lid.map(x => x.split(',').filter(Boolean).map(i => tipoLiderancaDomingo(equipe[+i]) === 'enc' ? 'E' : 'S').join(''));
+    equipe.forEach(f => { if('__bk' in f){ f.situacao = f.__bk; delete f.__bk; } });
+    out.unica = { tipos: tipos.join(' '), erros: u.erros };
+    return out;
+  });
+  ok(r.sugerida.lid.join('|') === r.sugerida.esperado.join('|') && r.sugerida.erros === 0, nome + ': sem escolha no passo ③, o ensaio usa a sugestão oficial de liderança (' + r.sugerida.lid.join(' | ') + ')');
+  ok(r.escolhida.lid.join('|') === r.escolhida.esperado.join('|') && r.escolhida.erros === 0, nome + ': com a liderança escolhida no passo ③, o ensaio usa a escolha');
+  ok(/^(E E S S E|S S E E S|E S S E E|S E E S S)$/.test(r.unica.tipos) && r.unica.erros === 0, nome + ': setor com uma liderança só — 1 por domingo, em blocos de 2 (' + r.unica.tipos + '), nunca Encarregado e Sub juntos');
   ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
@@ -2001,7 +2067,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');

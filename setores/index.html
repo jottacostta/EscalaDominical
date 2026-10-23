@@ -7,10 +7,22 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V306</title>
+<title>Escala de Setores — V309</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V309 [Claude] — LIDERANÇA DO ENSAIO À MÃO PELA REGRA OFICIAL: a liderança do ensaio 5×2 segue a mesma regra da escala oficial (passo ③):
+       a liderança escolhida no passo ③ ou, se não houver, a sugestão oficial — blocos de 2 domingos, nunca 3 seguidos; com uma liderança só,
+       o Encarregado faz 2 domingos e o Subencarregado os 2 seguintes, nunca os dois juntos. A liderança sai dos números por função e a
+       conferência acusa 2 lideranças no domingo quando o setor é de uma só. Só no ensaio, sem validade real.
+V308 [Claude] — DOMINGO-FERIADO TRABALHADO: 2 FOLGAS ANTES, 2 DEPOIS E A DO FERIADO, NO ENSAIO À MÃO: quem trabalha o domingo que é
+       feriado tem 2 folgas na semana antes (DSR1/DSR2), 2 folgas na semana depois (DSR1/DSR2), mesmo que folgue o domingo seguinte, e mais
+       a folga do feriado (F + dia) em até 20 dias. Antes, a semana depois ficava com 1 folga quando o domingo seguinte era de folga. Só no
+       ensaio, sem validade real.
+V307 [Claude] — ENSAIO 5×2 À MÃO SEGUE O 2×1 COM O MÊS PASSADO: o sorteio dos domingos do ensaio passa a dar a cada pessoa a sua vez
+       de folga (1 a cada 3 domingos) vinda do mês passado — trabalhou os 2 últimos domingos folga o 1º; só o último folga o 2º. Antes o rodízio
+       ignorava o mês passado e 23 a 25 pessoas ficavam com 3 domingos seguidos. Com os números por função (V305), quem está fora da sua vez de
+       folga entra primeiro. Só no ensaio, sem validade real.
 V306 [Claude] — AUTOMÁTICO SEGUE O RODÍZIO 2×1 NOS DOMINGOS: com “🤖 Automático” em “Quem monta a escala”, cada pessoa disponível
        trabalha 2 domingos e folga 1, em qualquer opção de “Como dividir o setor”. Quem trabalhou só o último domingo do mês passado trabalha o 1º;
        quem trabalhou os 2 últimos folga o 1º; quem folgou volta. No “Metade da equipe” o automático passa a escalar cerca de 2 de cada 3 por
@@ -2813,7 +2825,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V306 · Automático: domingos no rodízio 2×1</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V309 · Ensaio 5×2: liderança pela regra oficial</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -17228,7 +17240,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     manDados={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,mes:e.mes,ano:e.ano,semanas,pessoas,feriados,feriadosDom,feriadosSet,nomesFer,domingosOficiais:copia(e.domingos||{}),eligDom,eligFer,domingos:{},feriadoTrab:{}};
     // V305: funções de quem pode trabalhar no domingo e os 2 últimos domingos do mês passado (para ninguém fazer 3 seguidos).
     const fnDe=f=>{try{return window.v199Graf?.funcaoDoCargo?.(f.cargo)||String(f.cargo||'Sem cargo');}catch(_){return String(f.cargo||'Sem cargo');}};
-    manDados.gruposFn={};eligDom.forEach(i=>{const fn=fnDe(e.equipe[i]);(manDados.gruposFn[fn]||(manDados.gruposFn[fn]=[])).push(i);});
+    // V309: liderança à parte, pela MESMA regra da escala oficial (passo ③): a escolhida no passo ③ ou a sugestão oficial
+    // (blocos de 2 domingos, nunca 3 seguidos; uma só = Encarregado OU Sub, nunca os dois; por turno; várias).
+    const ehLid=f=>{try{return typeof ehLiderancaDomingo==='function'&&ehLiderancaDomingo(f);}catch(_){return false;}};
+    const todosLid=eligDom.filter(i=>ehLid(e.equipe[i]));
+    manDados.lideranca=todosLid.length?{todos:todosLid}:null;
+    const naLideranca=new Set(todosLid);
+    manDados.gruposFn={};eligDom.filter(i=>!naLideranca.has(i)).forEach(i=>{const fn=fnDe(e.equipe[i]);(manDados.gruposFn[fn]||(manDados.gruposFn[fn]=[])).push(i);});
     manDados.foraDomFn={};e.equipe.forEach((f,i)=>{if(f&&!eligDom.includes(i)){const fn=fnDe(f);manDados.foraDomFn[fn]=(manDados.foraDomFn[fn]||0)+1;}});
     {const ult=new Date(e.ano,e.mes,0);ult.setDate(ult.getDate()-ult.getDay());const pen=new Date(ult);pen.setDate(pen.getDate()-7);const k=dt=>`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
       manDados.domAnteriores=[(e.anteriores||{})[k(pen)]||[],(e.anteriores||{})[k(ult)]||[]].map(l=>new Set(l.map(Number)));}
@@ -17241,17 +17259,50 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const maxSeguro=n=>Math.floor(n*2/3);   // 2×1: cada pessoa faz no máximo 2 de cada 3 domingos
   function manTemMetas(){return !!manDados&&Object.keys(manDados.gruposFn||{}).some(fn=>metaDomFuncao[chaveMeta(fn)]!=null);}
   function manMeta(fn){const v=metaDomFuncao[chaveMeta(fn)],n=(manDados.gruposFn[fn]||[]).length;return v!=null?Math.max(0,Math.min(n,v)):maxSeguro(n);}
+  // V307: vez de folga no rodízio 2×1 (folga no domingo k quando k%3===fase). Mês passado: trabalhou os 2 últimos → folga o 1º;
+  // só o último → folga o 2º; só o penúltimo → folga o 3º. Sem histórico: espalha em cada função (sorteio muda a cada clique).
+  function manFasesFolga(ordem,off){
+    const fase=new Map(),[pen,ult]=manDados.domAnteriores||[new Set(),new Set()],fnDe=new Map();
+    Object.entries(manDados.gruposFn||{}).forEach(([fn,ids])=>ids.forEach(i=>fnDe.set(i,fn)));
+    const cont={},livres=[],total=[0,0,0];   // equilibra em cada função e, no empate, na equipe toda
+    ordem.forEach(i=>{const fn=fnDe.get(i)||'',c=cont[fn]||(cont[fn]=[0,0,0]);
+      const f=pen.has(i)&&ult.has(i)?0:ult.has(i)?1:pen.has(i)?2:null;
+      if(f===null)livres.push(i);else{fase.set(i,f);c[f]++;total[f]++;}});
+    livres.forEach(i=>{const c=cont[fnDe.get(i)||''];let f=off%3;for(let k=0;k<3;k++){const x=(off+k)%3;if(c[x]<c[f]||(c[x]===c[f]&&total[x]<total[f]))f=x;}fase.set(i,f);c[f]++;total[f]++;});
+    return fase;
+  }
+  // V309: liderança do ensaio = regra oficial do 6×1 (adaptada ao 5×2 no go-live). Usa a liderança escolhida no passo ③;
+  // se o mês não tem nenhuma, usa a sugestão oficial (calcularSugestaoLideranca: blocos de 2 domingos, nunca 3 seguidos).
+  function manEscalarLideranca(dom,diasDom){
+    const L=new Set(manDados.lideranca.todos);
+    let reg={};
+    try{
+      const escolhida=diasDom.some(d=>lideresSelecionadosDomingo(d).length);
+      if(escolhida)diasDom.forEach(d=>{reg[String(d)]={mais:lideresSelecionadosDomingo(d)};});
+      else reg=calcularSugestaoLideranca()||{};
+      manDados.liderancaOrigem=escolhida?'escolhida':'sugerida';
+    }catch(e){reg={};manDados.liderancaOrigem='sem';}
+    manDados.liderancaDomingos={};
+    diasDom.forEach(d=>{
+      const oficial=(manDados.domingosOficiais||{})[d];
+      if(Array.isArray(oficial)&&oficial.length)return;   // domingo já escalado fica como está
+      const ids=lideresDoRegistro(reg[String(d)]).filter(i=>L.has(i));
+      dom[d]=[...(Array.isArray(dom[d])?dom[d]:[]).filter(i=>!L.has(i)),...ids];
+      manDados.liderancaDomingos[d]=ids;
+    });
+  }
   function manSortearPorFuncao(dom,diasDom){
     const cont={};
     Object.entries(manDados.gruposFn||{}).forEach(([fn,ids])=>{
       const quer=manMeta(fn);let ant2=manDados.domAnteriores?.[0]||new Set(),ant1=manDados.domAnteriores?.[1]||new Set();
-      diasDom.forEach(d=>{
+      diasDom.forEach((d,k)=>{
         let escolhidos;
         const oficial=(manDados.domingosOficiais||{})[d];
         if(Array.isArray(oficial)&&oficial.length)escolhidos=ids.filter(i=>oficial.map(Number).includes(i));   // domingo já escalado fica como está
         else{
           const livres=embaralhar(ids.filter(i=>!(ant1.has(i)&&ant2.has(i))));   // nunca 3 domingos seguidos
-          livres.sort((a,b)=>(cont[a]||0)-(cont[b]||0));   // quem trabalhou menos domingos entra primeiro
+          const foraDaVez=i=>k%3!==manDados.faseFolga?.get(i)?1:0;   // V307: 2×1 — quem não está na sua vez de folga entra primeiro
+          livres.sort((a,b)=>foraDaVez(b)-foraDaVez(a)||(cont[a]||0)-(cont[b]||0));   // depois, quem trabalhou menos domingos
           escolhidos=livres.slice(0,quer);
           if(escolhidos.length<quer)manDados.faltaDomingo.push({d,fn,quer,teve:escolhidos.length});
           dom[d]=(Array.isArray(dom[d])?dom[d]:[]).concat(escolhidos);
@@ -17276,6 +17327,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const usando=manTemMetas();
     box.innerHTML=`<details open><summary>☀️ Quantos trabalham no domingo, por função</summary>
       <p>Escolha quantas pessoas de cada função trabalham <b>em cada domingo</b>. Depois toque em <b>💡 Sugerir folgas distribuídas</b>.</p>
+      ${manDados.lideranca?`<p>👔 <b>Liderança:</b> segue a mesma regra da escala oficial (passo ③ “Quem lidera no domingo”): em blocos de 2 domingos, nunca 3 seguidos — com uma liderança só, o Encarregado faz 2 domingos e o Subencarregado os 2 seguintes, nunca os dois juntos. Se você escolheu a liderança no passo ③, o ensaio usa a sua escolha. Ela não entra nos números abaixo.</p>`:''}
       <div class="v305-fn-lista">${itens}</div>
       <p><b>Total por domingo: <span id="v305Total">${total}</span></b>. <span id="v305Status">${manTextoStatus()}</span></p>
       <p><button type="button" class="btn secondary" id="v305FnVoltar"${usando?'':' hidden'}>↩️ Voltar ao rodízio automático</button></p></details>`;
@@ -17299,10 +17351,13 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!manDados)return;
     const ultimo=new Date(manDados.ano,manDados.mes+1,0).getDate(),diasDom=[];
     for(let d=1;d<=ultimo;d++)if(new Date(manDados.ano,manDados.mes,d).getDay()===0)diasDom.push(d);
-    const dom=copia(manDados.domingosOficiais||{}),ordem=embaralhar((manDados.eligDom||[]).slice()),off=Math.floor(Math.random()*3);
+    const lid=manDados.lideranca,naLid=new Set(lid?lid.todos:[]);   // V309
+    const dom=copia(manDados.domingosOficiais||{}),ordem=embaralhar((manDados.eligDom||[]).filter(i=>!naLid.has(i))),off=Math.floor(Math.random()*3);
     manDados.faltaDomingo=[];
+    manDados.faseFolga=manFasesFolga(ordem,off);   // V307: vez de folga de cada pessoa (1 a cada 3 domingos), vinda do mês passado
     if(manTemMetas())manSortearPorFuncao(dom,diasDom);   // V305: o gerente escolheu quantos trabalham por função
-    else diasDom.forEach((d,k)=>{if(Array.isArray(dom[d])&&dom[d].length)return;dom[d]=ordem.filter((_,p)=>p%3!==(k+off)%3);});   // 2×1: grupo da vez folga
+    else diasDom.forEach((d,k)=>{if(Array.isArray(dom[d])&&dom[d].length)return;dom[d]=ordem.filter(i=>k%3!==manDados.faseFolga.get(i));});   // 2×1: cada um folga na sua vez (V307: antes ignorava o mês passado)
+    if(lid)manEscalarLideranca(dom,diasDom);   // V309
     manDados.domingos=dom;
     const ferTrab={},ordemF=embaralhar((manDados.eligFer||[]).slice()),offF=Math.floor(Math.random()*2);
     (manDados.feriados||[]).forEach((iso,fk)=>{ferTrab[iso]=ordemF.filter((_,pos)=>(pos+fk+offF)%2===0);});   // metade trabalha cada feriado, alternando
@@ -17314,9 +17369,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function manDiasFolgaveis(s){return s.dias.filter(d=>!manDados.feriadosSet.has(d));}
   // V297/V301: plano da semana. 5×2 = 2 descansos/semana de seg–sáb. Domingo de folga e feriado de folga (DSR) já contam como descanso.
   // A folga compensatória por feriado trabalhado NÃO entra aqui: ela cai em até 20 dias corridos (seg–sáb) e é casada à parte (pode ser noutra semana). V301.
+  // V308: semana logo depois de um domingo-feriado trabalhado — tem 2 folgas de seg–sáb mesmo que o domingo seguinte seja de folga.
+  function manPosteriorFeriadoDom(p,s){const dt=isoData(s.inicio);dt.setDate(dt.getDate()-1);const iso=`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;return (manDados.feriadosDom||[]).includes(iso)&&manTrabalhaDomingoFeriado(p,iso);}
   function manPlanoSemana(p,s){
     const fers=manFeriadosDaSemana(s);let total=2,jaDesc=0,trabFer=false,folgaFer=false;
-    if(!manTrabalhaDomingo(p,s))jaDesc++;                       // folga no domingo = 1 descanso
+    if(!manTrabalhaDomingo(p,s)&&!manPosteriorFeriadoDom(p,s))jaDesc++;   // folga no domingo = 1 descanso (V308: não vale na semana depois do domingo-feriado trabalhado)
     fers.forEach(iso=>{if(manTrabalhaFeriado(p,iso))trabFer=true;else{jaDesc++;folgaFer=true;}});   // folga no feriado = descanso (DSR); trabalha feriado = compensatória (casada em até 20 dias)
     return {alvoF:Math.max(0,total-jaDesc),fers,trabFer,folgaFer};
   }
@@ -17354,7 +17411,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const rotulos={};
     manDados.semanas.forEach(s=>{
       const base=baseSem.get(s.inicio)||0;if(base<1)return;
-      let off=manTrabalhaDomingo(p,s)?0:1;                        // domingo de folga ocupa a 1ª posição
+      let off=manTrabalhaDomingo(p,s)||manPosteriorFeriadoDom(p,s)?0:1;   // domingo de folga ocupa a 1ª posição (V308: depois do domingo-feriado trabalhado, as 2 folgas são DSR1/DSR2)
       manFeriadosDaSemana(s).forEach(iso=>{if(!manTrabalhaFeriado(p,iso))off++;});   // cada feriado de folga (DSR) também ocupa uma posição
       const fs=manDiasFolgaveis(s).filter(d=>p.folgas.has(d)&&!compDias.has(d)).slice().sort();   // folgas-base (fora a compensatória)
       fs.slice(0,base).forEach((iso,i)=>{rotulos[iso]='DSR'+(off+i+1);});
@@ -17488,7 +17545,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         const folgas=manDiasFolgaveis(s).filter(d=>p.folgas.has(d)).slice().sort();
         const base=casar.baseSem.get(s.inicio)||0,compW=casar.porSemana.get(s.inicio)||0,alvo=base+compW;
         const consec=folgas.some((d,k)=>k&&Math.abs(difDias(d,folgas[k-1]))===1);
-        if(folgas.length!==alvo){const motivo=manTrabalhaDomingo(p,s)?'trabalha no domingo':'folga no domingo',extra=compW?` + ${compW} compensatória`:'';erros.push(`${p.nome}, semana de ${fmt(s.inicio)}: ${folgas.length} folga(s) em dia útil — precisa de ${alvo} (${base} da semana${extra}, ${motivo}).`);}
+        if(folgas.length!==alvo){const motivo=manTrabalhaDomingo(p,s)?'trabalha no domingo':manPosteriorFeriadoDom(p,s)?'semana depois do domingo-feriado trabalhado':'folga no domingo',extra=compW?` + ${compW} compensatória`:'';erros.push(`${p.nome}, semana de ${fmt(s.inicio)}: ${folgas.length} folga(s) em dia útil — precisa de ${alvo} (${base} da semana${extra}, ${motivo}).`);}
         else if(consec&&folgas.length>=2)avisos.push(`${p.nome}, semana de ${fmt(s.inicio)}: folgas coladas (último recurso).`);
         return {inicio:s.inicio,fim:s.fim,folgas,modoFolga:consec?'ultimo-recurso':'separada'};
       });
@@ -17500,6 +17557,10 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const compMap={};casar.pares.forEach(x=>{if(x.dia)compMap[x.dia]=Number(x.fer.slice(8,10));});   // V301: dia da folga → dia do feriado que ela compensa (rótulo F02, F15…)
       return {id:p.id,nome:p.nome,semanas,comp:[...casar.compDias],compMap,rotulos:casar.rotulos};
     });
+    if(manDados.lideranca){const L=new Set(manDados.lideranca.todos);Object.entries(manDados.domingos||{}).forEach(([d,l])=>{const ids=(l||[]).map(Number).filter(i=>L.has(i));   // V309: mesma conferência da oficial
+      const tipos=ids.map(i=>tipoLiderancaDomingo(equipe[i]));
+      if(typeof liderancaUnica==='function'&&liderancaUnica()&&ids.length>1)erros.push(`Domingo ${pad(Number(d))}: ${ids.length} lideranças — neste setor é uma só por domingo (Encarregado ou Subencarregado, nunca os dois).`);
+      else if(!ids.length)avisos.push(`Domingo ${pad(Number(d))}: sem liderança (opcional, como na escala oficial).`);});}
     (manDados.faltaDomingo||[]).forEach(x=>avisos.push(`Domingo ${pad(x.d)}: ${x.fn} ficou com ${x.teve} de ${x.quer}. O resto já faria 3 domingos seguidos.`));   // V305
     const r={setor:manDados.setor,periodo:manDados.periodo,mes:manDados.mes,ano:manDados.ano,domingos:manDados.domingos,feriados:manDados.feriados,feriadosDom:manDados.feriadosDom,feriadoTrab:manDados.feriadoTrab,nomesFer:manDados.nomesFer,pessoas};
     const box=el('v292Manual5x2Resultado');if(!box)return estadoManual();
