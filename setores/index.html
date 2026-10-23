@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V305</title>
+<title>Escala de Setores — V306</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V306 [Claude] — AUTOMÁTICO SEGUE O RODÍZIO 2×1 NOS DOMINGOS: com “🤖 Automático” em “Quem monta a escala”, cada pessoa disponível
+       trabalha 2 domingos e folga 1, em qualquer opção de “Como dividir o setor”. Quem trabalhou só o último domingo do mês passado trabalha o 1º;
+       quem trabalhou os 2 últimos folga o 1º; quem folgou volta. No “Metade da equipe” o automático passa a escalar cerca de 2 de cada 3 por
+       domingo (antes: metade); no Açougue (11), “Por cargo” e grupos as quantidades pedidas continuam e o 2×1 escolhe quem entra. A liderança
+       continua à parte (passo ③). Escala à mão e mista não mudam.
 V305 [Claude] — QUANTOS TRABALHAM NO DOMINGO, POR FUNÇÃO, NO ENSAIO À MÃO: depois de “Montar grade” aparece um campo para cada função
        (ex.: Operador de Caixa) com quantas pessoas trabalham em cada domingo. Começa com o máximo seguro do 2×1 (2 de cada 3) e o “Sugerir
        folgas” sorteia os domingos com esses números, sem ninguém fazer 3 domingos seguidos (conta o mês passado). Se faltar gente, a conferência
@@ -2808,7 +2813,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V305 · Ensaio 5×2: quantos trabalham no domingo, por função</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V306 · Automático: domingos no rodízio 2×1</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3030,7 +3035,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
     <div class="field" style="grid-column:1/-1">
       <label for="modoCobertura">Como dividir o setor nos domingos</label>
       <select id="modoCobertura">
-        <option value="50">Metade da equipe em cada domingo</option>
+        <option value="50">Metade da equipe em cada domingo (no 🤖 Automático: rodízio 2×1, 2 de cada 3)</option>
         <option value="grupos">Grupos que eu mesmo monto (setor com 6 pessoas ou mais)</option>
         <option value="funcao">Por cargo — eu escolho quantas lideranças e quantos de cada cargo</option>
       </select>
@@ -6347,7 +6352,7 @@ function atualizarModoCobertura(){
   const ativos=equipe.filter(f=>!foraDom(f)&&!ehLiderancaDomingo(f)).length;
   const alvo=Math.max(1,Math.round(ativos/2));
   const resumo=$('coberturaResumo');
-  if(resumo) resumo.textContent=modo==='grupos' ? 'Modo por grupos: defina os grupos abaixo.' : modo==='funcao' ? 'Por cargo: no quadro abaixo, escolha quantas lideranças e quantos de cada cargo trabalham em cada domingo. O app escolhe quem está disponível e você confirma ou troca no Resultado.' : `Metade da equipe: ${ativos} elegível(is) → ${alvo} por domingo.`;
+  if(resumo) resumo.textContent=modo==='grupos' ? 'Modo por grupos: defina os grupos abaixo.' : modo==='funcao' ? 'Por cargo: no quadro abaixo, escolha quantas lideranças e quantos de cada cargo trabalham em cada domingo. O app escolhe quem está disponível e você confirma ou troca no Resultado.' : (($('modoGeracao')?.value||'motor')==='motor'?`🤖 Automático: rodízio 2×1 — cada pessoa trabalha 2 domingos e folga 1. ${ativos} elegível(is) → cerca de ${Math.max(1,Math.round(ativos*2/3))} por domingo.`:`Metade da equipe: ${ativos} elegível(is) → ${alvo} por domingo.`);   // V306
   $('configGrupos').style.display=modo==='grupos'?'block':'none';
   if($('v240ExGrupos')) $('v240ExGrupos').style.display=modo==='grupos'?'':'none';   // V240: o exemplo é dos grupos
   if($('configFuncao')){ $('configFuncao').style.display=modo==='funcao'?'block':'none'; if(modo==='funcao'){ carregarCfgFuncao(); renderConfigFuncao(); } }
@@ -7585,7 +7590,7 @@ function distribuirQuantidadeEquilibrada(total, slots, preferirPrimeiro=false){
   }
   return out;
 }
-function calcularMetasDistribuicaoFuncoes(doms, indices){
+function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306: rodizio2x1 = automático (2 de cada 3 domingos por pessoa)
   const mapa={};
   const porFuncao=new Map();
   indices.forEach(i=>{
@@ -7601,9 +7606,10 @@ function calcularMetasDistribuicaoFuncoes(doms, indices){
     const meta={cargo:equipe[ids[0]].cargo,total:ids.length,abertura:ab.length,fechamento:fe.length,semTurno:semTurno.length,porDomingo:[]};
     // Cada funcionário operacional deve participar de 2 domingos no ciclo.
     // A distribuição é feita separadamente por função e por turno.
-    const qa=ab.length ? distribuirQuantidadeEquilibrada(ab.length*2,doms.length) : Array(doms.length).fill(0);
-    const qf=fe.length ? distribuirQuantidadeEquilibrada(fe.length*2,doms.length) : Array(doms.length).fill(0);
-    const qo=semTurno.length ? distribuirQuantidadeEquilibrada(semTurno.length*2,doms.length) : Array(doms.length).fill(0);
+    const part=n=>rodizio2x1?Math.round(n*2*doms.length/3):n*2;   // V306: 2×1 = 2 de cada 3 domingos (antes: 2 domingos no mês)
+    const qa=ab.length ? distribuirQuantidadeEquilibrada(part(ab.length),doms.length) : Array(doms.length).fill(0);
+    const qf=fe.length ? distribuirQuantidadeEquilibrada(part(fe.length),doms.length) : Array(doms.length).fill(0);
+    const qo=semTurno.length ? distribuirQuantidadeEquilibrada(part(semTurno.length),doms.length) : Array(doms.length).fill(0);
     meta.porDomingo=doms.map((d,idx)=>({total:qa[idx]+qf[idx]+qo[idx],abertura:qa[idx],fechamento:qf[idx],outros:qo[idx]}));
     if(/promotor/.test(chave)){   // V258: promotor = 1 por domingo (alterna abertura/fechamento quando há dos dois)
       const tur=doms.map((d,idx)=>ab.length&&fe.length?(idx%2?'fe':'ab'):ab.length?'ab':fe.length?'fe':'ou');
@@ -8043,6 +8049,8 @@ function gerarSetoresCore(){
   const ativosOperacionais=ativos.filter(i=>!ehLiderancaDomingo(equipe[i]));
   if(!ativos.length){ const v=$('validacao'); if(v){ v.className='alert bad'; v.innerHTML='⛔ <b>Ninguém da equipe pode trabalhar no domingo</b>: todos estão afastados (AF/EP), de férias, marcados como não aptos ou com folga fixa no domingo. Confira a equipe no passo 1.'; } const sb=$('statusBadge'); if(sb) sb.textContent='Ninguém apto ao domingo'; window.showToast('Não há funcionários aptos ao domingo.','warn'); return; }   // V216: o status ficava preso em “Gerando…”
   const modo=$('modoCobertura')?.value||'50';
+  const rodizio2x1=modoGeracaoAtual==='motor';   // V306: no 🤖 Automático vale o rodízio 2×1 (trabalha 2 domingos, folga 1) em qualquer modo de cobertura
+  const fatorDom=rodizio2x1?2/3:1/2;
   if(modoGeracaoAtual==='manual' || modoGeracaoAtual==='mista'){
     const errosPre=auditarSelecaoAntesDaGeracao(modoGeracaoAtual);
     if(errosPre.length){
@@ -8076,16 +8084,16 @@ function gerarSetoresCore(){
     const tamanhos=gruposValidos.map(g=>g.length);
     alvo=Math.max(...tamanhos,2);
   }else{
-    alvo=Math.max(1,Math.round(ativosOperacionais.length/2));
+    alvo=Math.max(1,Math.round(ativosOperacionais.length*fatorDom));   // V306
   }
 
   // Antes de escolher qualquer domingo, o motor calcula a demanda por função
   // e turno para o ciclo inteiro. Isso impede que um domingo receba 7
   // Açougueiros e outro apenas 4 quando o quadro pede uma distribuição 6/6/6/6.
-  const metasFuncoesGlobal=modo==='funcao' ? metasFuncaoUsuario(doms,ano,mes) : calcularMetasDistribuicaoFuncoes(doms,ativosOperacionais);
+  const metasFuncoesGlobal=modo==='funcao' ? metasFuncaoUsuario(doms,ano,mes) : calcularMetasDistribuicaoFuncoes(doms,ativosOperacionais,rodizio2x1);
   const alvosCalculados=metasTotaisPorDomingo(metasFuncoesGlobal,doms);
   const somaMetas=alvosCalculados.reduce((a,b)=>a+b,0);
-  const alvoCiclo=Math.max(1,Math.round(ativosOperacionais.length/2));
+  const alvoCiclo=Math.max(1,Math.round(ativosOperacionais.length*fatorDom));   // V306
   const alvosAjustados=ativosOperacionais.some(ehPromotorIdx)&&modo!=='funcao'?alvosCalculados.slice():garantirAlvoGlobal(alvosCalculados,alvoCiclo);   // V258: com promotor (1 por domingo) a soma das metas já é o alvo
   alvosPorDomingo={};
   doms.forEach((d,idx)=>alvosPorDomingo[d]=(modo==='grupos'?alvo:alvosAjustados[idx]||alvoCiclo));
@@ -8103,6 +8111,22 @@ function gerarSetoresCore(){
     });
   }
   const alvoMax=modo==='funcao' ? Math.max(1,...Object.values(alvosPorDomingo)) : Math.max(alvoCiclo,...Object.values(alvosPorDomingo));
+  // V306: vez de folga de cada pessoa no rodízio 2×1 (domingo idx em que idx%3===fase). Vem do mês passado:
+  // trabalhou os 2 últimos → folga o 1º; só o último → folga o 2º; folgou o último → folga o 3º.
+  // Sem histórico (folgou os 2), a vez é espalhada para equilibrar cada função e turno.
+  const faseFolga=new Map();
+  if(rodizio2x1){
+    const livres=new Map(),cont=new Map();
+    const grupoDe=i=>(chaveFuncaoDistribuicao(i)||'')+'|'+norm(equipe[i].turno||'');
+    ativosOperacionais.forEach(i=>{
+      const h=historicoManual(i)||{},g=grupoDe(i);
+      if(!cont.has(g))cont.set(g,[0,0,0]);
+      const fase=h.penultimo&&h.ultimo?0:h.ultimo?1:h.penultimo?2:null;
+      if(fase===null){ if(!livres.has(g))livres.set(g,[]); livres.get(g).push(i); }
+      else{ faseFolga.set(i,fase); cont.get(g)[fase]++; }
+    });
+    livres.forEach((ids,g)=>ids.forEach(i=>{ const c=cont.get(g),fase=c.indexOf(Math.min(...c)); faseFolga.set(i,fase); c[fase]++; }));
+  }
   if(modo!=='grupos') alvo=alvoMax;
 
   // CONTINUIDADE REAL DOS GRUPOS: o ponteiro vem do histórico anterior.
@@ -8237,6 +8261,8 @@ function gerarSetoresCore(){
       if(feitos[i]===minFeitos)score+=40;
       if(!e[0]&&e[1])score+=28;
       if(!e[0]&&!e[1])score+=18;
+      // V306: rodízio 2×1 — cada pessoa tem a sua vez de folga (1 a cada 3 domingos); fora da vez ela entra primeiro.
+      if(rodizio2x1&&faseFolga.has(i)) score+=(idx%3!==faseFolga.get(i))?20000+((!e[0]&&e[1])?1000:0):0;
       const dsC=descansosDoCandidato(i,doms[idx]);
       dsC.forEach(dt=>{ score-=cargaFolgasDoSetorParaCandidato(i,dt)*35; });
       // Equilibra também o dia da semana do DSR entre os domingos já
@@ -8508,7 +8534,7 @@ function gerarSetoresCore(){
   const resumo=modo==='grupos'
     ?`grupos em blocos de 2 domingos: ${gruposValidos.map((g,i)=>`G${i+1}=${g.length}`).join(' • ')} • ${alvo} por domingo`
     :modo==='funcao'?`por função (${Object.values(metasFuncoesGlobal).filter(m=>m.porDomingo?.[0]?.total).map(m=>`${m.porDomingo[0].total} ${m.cargo}`).join(', ')||'—'})`
-    :`${(()=>{ const at=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i])), np=at.filter(ehPromotorIdx).length; return !np?'aproximadamente 50% ('+alvo+' por domingo)':'1 promotor por domingo'+(at.length>np?' + metade do resto da equipe':''); })()} • horário dominical ajustável pela necessidade`;   // V258
+    :`${(()=>{ const at=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i])), np=at.filter(ehPromotorIdx).length; return !np?(rodizio2x1?'rodízio 2×1 — cada pessoa trabalha 2 domingos e folga 1 (cerca de '+alvo+' por domingo)':'aproximadamente 50% ('+alvo+' por domingo)'):'1 promotor por domingo'+(at.length>np?(rodizio2x1?' + 2 de cada 3 do resto da equipe (rodízio 2×1)':' + metade do resto da equipe'):''); })()} • horário dominical ajustável pela necessidade`;   // V258
   if(modoGeracaoAtual==='manual'){
     $('validacao').className=todos.length?'alert bad':'alert ok';
     $('validacao').textContent=(todos.length ?'⛔ Escala manual bloqueada na auditoria final: '+todos.join(' | ') :`✋ Escala manual de ${$('setorSelecionado').value} validada e gerada.`)
@@ -8842,7 +8868,7 @@ function atualizarModoGeracao(){
   if(mi)mi.style.display=modoGeracao==='mista'?'block':'none';
   if(modoGeracao!=='motor' || existeBalanco){renderSelecaoDomingosGeracao(); if(equipe.length)montarEscalaFeriados();}
 }
-$('modoGeracao')?.addEventListener('change',()=>{selecaoManualDomingo={};horariosManuaisDomingo={};horariosManuaisFeriado={};antecipacoesFolgaManual={};atualizarModoGeracao();});
+$('modoGeracao')?.addEventListener('change',()=>{selecaoManualDomingo={};horariosManuaisDomingo={};horariosManuaisFeriado={};antecipacoesFolgaManual={};atualizarModoGeracao();try{if(($('modoCobertura')?.value||'50')==='50')atualizarModoCobertura();}catch(e){}});   // V306: no “Metade”, o resumo muda entre automático (2×1) e à mão (só o texto; os outros modos não são recarregados)
 $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnGerar')?.click(); });
 </script>
 
@@ -16867,7 +16893,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function escolherFolgas(i,sem,selecionadas,alvo,pessoaDesignadas,carga){
     const base=[...selecionadas];let falta=alvo-base.length;
     // V303: se as folgas que já existem deixam mais de 5 dias seguidos, cabe 1 folga a mais (até 2 de seg–sáb).
-    if(falta<=0&&base.length<2&&sequencia(i,sem,selecionadas,pessoaDesignadas).excesso)falta=1;
+    if(falta<=0&&base.length<3&&sequencia(i,sem,selecionadas,pessoaDesignadas).excesso)falta=1;   // V306: até 3 (ex.: folga fixa + feriado no fim da semana ainda deixavam 6 dias seguidos)
     if(falta<=0)return{selecionadas:new Set(selecionadas),modoFolga:custoCombinacao(i,base,[],carga,pessoaDesignadas).adj?'ultimo-recurso':'separada'};
     const avaliar=datas=>{const set=new Set(selecionadas);datas.forEach(dt=>set.add(dataKey(dt)));return{datas,set,custo:custoCombinacao(i,base,datas,carga,pessoaDesignadas),seq:sequencia(i,sem,set,pessoaDesignadas)};};
     // V303: ordem — 1) nunca passar de 5 dias seguidos; 2) folgas separadas; 3) melhor pontuação (evita terminar a semana com sequência longa).
@@ -16894,7 +16920,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         const inicio=dataKey(sem[0]),salvas=semanaSalva(chave,inicio);
         let selecionadas=new Set(salvas.filter(s=>dataDe(s)&&dataGerenciada(dataDe(s))&&dataDe(s).getDay()!==0&&sem.some(d=>dataKey(d)===s)));
         const alvo=cctMensal?(selecionadas.size?selecionadas.size:1):alvoSemana(i,sem,false); // V303: domingo de folga já é 1 dos 2 descansos
-        const herdada=salvas.length>0&&selecionadas.size>alvo&&selecionadas.size<=2; // V303: semana já guardada no mês anterior não perde folga
+        const herdada=salvas.length>0&&selecionadas.size>alvo&&selecionadas.size<=3; // V303: semana já guardada no mês anterior não perde folga
         let modoFolga='separada';
         // Preferimos duas folgas em dias diferentes; só juntamos quando não há outra combinação válida.
         if(selecionadas.size!==alvo&&!herdada){
@@ -16911,7 +16937,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         if(consecutivas)modoFolga='ultimo-recurso';
         folgas.forEach(k=>{pessoaDesignadas.add(k);if(!designadas[k])designadas[k]=[];if(!designadas[k].includes(i))designadas[k].push(i);carga[k]=(carga[k]||0)+1;});
         semanasPessoa.push({inicio,fim:dataKey(sem[6]),regime:'5x2',folgas,designadas:folgas.slice(),modoFolga,consecutivas,alvo,domingoFolga:domingoDeFolga(i,sem),cctMensal:!!cctMensal});
-        if((!cctMensal&&(folgas.length<alvo||folgas.length>2))||(cctMensal&&folgas.length<1))erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} ficou com ${folgas.length} folga(s), mas a regra escolhida não foi atendida.`);
+        if((!cctMensal&&(folgas.length<alvo||folgas.length>3))||(cctMensal&&folgas.length<1))erros.push(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} ficou com ${folgas.length} folga(s), mas a regra escolhida não foi atendida.`);
       });
       pessoas[String(i)]={chave,nome:String(f?.nome||''),matricula:String(f?.matricula||''),folgas:Array.from(pessoaDesignadas).sort(),semanas:semanasPessoa};
     });
@@ -16935,7 +16961,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         if(!wk){add(`${f?.nome||'Pessoa '+(i+1)}: falta a semana 5×2 de ${inicio}.`);return;}
         const folgas=Array.isArray(wk.folgas)?wk.folgas:[];
         const alvo=alvoSemana(i,sem,plano.cctMensal); // V303: 2 descansos contando o domingo de folga
-        if(folgas.length<alvo||(!plano.cctMensal&&folgas.length>2))add(`${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} tem ${folgas.length} folga(s), não ${plano.cctMensal?'ao menos 1':alvo}.`);
+        if(folgas.length<alvo||(!plano.cctMensal&&folgas.length>3))add(   // V306: 3 só quando a folga a mais evita passar de 5 dias seguidos
+          `${f?.nome||'Pessoa '+(i+1)}: a semana de ${inicio} tem ${folgas.length} folga(s), não ${plano.cctMensal?'ao menos 1':alvo}.`);
         const unicas=new Set();
         folgas.forEach(s=>{
           const dt=dataDe(s);

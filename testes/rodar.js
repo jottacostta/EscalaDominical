@@ -214,7 +214,9 @@ async function testarSetores(browser){
     }
     await p.evaluate(() => { const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); });
     await p.waitForTimeout(400);
-    const i = await p.evaluate(() => equipe.findIndex((f, i) => !foraDom(f) && !ehLiderancaDomingo(f) && !historicoManual(i).ultimo && !historicoManual(i).penultimo));
+    const i = await p.evaluate(() => { let k = equipe.findIndex((f, i) => !foraDom(f) && !ehLiderancaDomingo(f) && !historicoManual(i).ultimo && !historicoManual(i).penultimo);
+      if(k < 0){ k = equipe.findIndex(f => !foraDom(f) && !ehLiderancaDomingo(f)); ['hist_pen_', 'hist_ult_'].forEach(id => { const c = $(id + k); if(c){ c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); } }); renderSelecaoDomingosGeracao(); }   // V306: no rodízio 2×1 todo mundo trabalha 1 dos 2 últimos domingos
+      return k; });
     const doms = await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).filter(d => d !== balancoDoMes(+$('ano').value, +$('mes').value)));
     for(const d of doms.slice(0, 3)){ await p.evaluate(([d, i]) => document.querySelector(`#selecaoDomingosManual input[data-dom="${d}"][data-func="${i}"]`).click(), [d, i]); await p.waitForTimeout(200); }
     const tag = await p.evaluate(([d, i]) => document.querySelector(`#selecaoDomingosManual input[data-dom="${d}"][data-func="${i}"]`).closest('.dom-func').querySelector('.v217-tag')?.textContent || '', [doms[2], i]);
@@ -1626,6 +1628,47 @@ async function testarDomingoPorFuncao5x2(browser, app, nome, abrir){   // V305: 
   await p.close();
 }
 
+/* V306 — 🤖 automático segue o rodízio 2×1 nos domingos (trabalha 2, folga 1), com o mês passado */
+async function testarRodizio2x1Automatico(browser, app, nome, abrir){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 306) return;
+  console.log('\n▶ ' + nome + ' — 🤖 automático no rodízio 2×1 dos domingos');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  // mês passado: 1/3 trabalhou os 2 últimos domingos, 1/3 só o último, 1/3 nenhum
+  const grupos = await p.evaluate(() => {
+    const ops = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !ehLiderancaDomingo(equipe[i])), g = { dois: [], ult: [], nada: [] };
+    ops.forEach((i, k) => { const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); const t = k % 3 === 0 ? 'dois' : k % 3 === 1 ? 'ult' : 'nada'; if(cp) cp.checked = t === 'dois'; if(cu) cu.checked = t !== 'nada'; g[t].push(i); });
+    $('modoCobertura').value = '50'; $('modoCobertura').dispatchEvent(new Event('change', { bubbles: true }));
+    $('modoGeracao').value = 'motor'; $('modoGeracao').dispatchEvent(new Event('change', { bubbles: true }));
+    return { ...g, n: ops.length, resumo: $('coberturaResumo').textContent };
+  });
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(1200);
+  const r = await p.evaluate(g => {
+    const doms = domingosDoMes(2026, 10), ops = [...g.dois, ...g.ult, ...g.nada], t = d => (trabalhoDomingo[d] || []).map(Number);
+    const porDom = doms.map(d => t(d).filter(i => ops.includes(i)).length);
+    let tres = 0, quebras = 0, trans = 0;
+    ops.forEach(i => { const h = historicoManual(i), s = [h.penultimo ? 1 : 0, h.ultimo ? 1 : 0, ...doms.map(d => t(d).includes(i) ? 1 : 0)];
+      for(let k = 2; k < s.length; k++){ trans++; if(s[k - 2] && s[k - 1] && s[k]) tres++; else if(!s[k - 2] && s[k - 1] && !s[k]) quebras++; else if(!s[k - 1] && !s[k]) quebras++; } });
+    const d1 = t(doms[0]);
+    return { porDom, tres, quebras, trans, doisNo1: g.dois.filter(i => d1.includes(i)).length, ultNo1: g.ult.filter(i => d1.includes(i)).length, nadaNo1: g.nada.filter(i => d1.includes(i)).length,
+      val: $('validacao').innerText, alvoMao: alvoCoberturaAtual() };
+  }, grupos);
+  const esperado = Math.round(grupos.n * 2 / 3);
+  ok(/rodízio 2×1/.test(grupos.resumo), nome + ': o cartão “Como dividir o setor” explica o rodízio 2×1 do automático');
+  ok(r.porDom.every(q => Math.abs(q - esperado) <= 1), nome + ': no “Metade da equipe”, o automático escala 2 de cada 3 em cada domingo (' + r.porDom.join(', ') + '; esperado ~' + esperado + ')');
+  ok(r.tres === 0, nome + ': ninguém trabalha 3 domingos seguidos (' + r.tres + ')');
+  ok(r.doisNo1 === 0, nome + ': quem trabalhou os 2 últimos domingos do mês passado folga o 1º domingo (' + r.doisNo1 + ' de ' + grupos.dois.length + ' entraram)');
+  ok(r.ultNo1 >= grupos.ult.length - 1 && r.nadaNo1 >= grupos.nada.length - 1, nome + ': quem trabalhou só o último (' + r.ultNo1 + '/' + grupos.ult.length + ') e quem folgou (' + r.nadaNo1 + '/' + grupos.nada.length + ') trabalham o 1º domingo');
+  ok(r.quebras <= Math.ceil(r.trans * 0.05), nome + ': o padrão trabalha 2, folga 1 se mantém no mês (' + r.quebras + ' quebra(s) em ' + r.trans + ' passagens)');
+  ok(/rodízio 2×1/.test(r.val), nome + ': o resultado diz que a escala segue o rodízio 2×1');
+  ok(r.alvoMao === Math.max(1, Math.round(grupos.n / 2)), nome + ': a escala à mão continua com a metade da equipe (' + r.alvoMao + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -1958,7 +2001,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
