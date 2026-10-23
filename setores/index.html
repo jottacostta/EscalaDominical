@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V319</title>
+<title>Escala de Setores — V320</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V320 [Claude] — 2×1 SEM 1º DOMINGO LOTADO E FOLGAS ALTERNADAS (bateria com a planilha real): (1) no 🤖 Automático, a sobra
+       de cada cargo/turno ia sempre para o 1º domingo (ex.: Padaria 12 de 12 no 1º e 6 no 3º); agora gira pelos domingos (8/8/8/8).
+       (2) Quem é o único do seu cargo folgava no mesmo domingo que os outros sozinhos (ex.: Manutenção 2/2/0/2/2); agora a vez de folga
+       alterna no setor todo e, no Por cargo, num cargo sem ninguém sobrando quem está na sua vez de folga folga (salvo para fechar a
+       dupla). O 2×1, o teto do Por cargo e o mês passado continuam valendo.
 V319 [Claude] — 🧹 LIMPAR E ✅ ACEITAR APARECEM JÁ NO 1º GERAR: na V318 os botões “🧹 Limpar escala” e “✅ Aceitar cenário” só
        apareciam a partir do 2º toque em 🚀 Gerar escala (a área era montada antes de a geração terminar). Agora aparecem assim que os
        domingos da escala aparecem na tela.
@@ -2860,7 +2865,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V319 · Limpar e Aceitar aparecem já no 1º Gerar</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V320 · 2×1 sem 1º domingo lotado e folgas alternadas</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -7640,6 +7645,10 @@ function distribuirQuantidadeEquilibrada(total, slots, preferirPrimeiro=false){
 function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306: rodizio2x1 = automático (2 de cada 3 domingos por pessoa)
   const mapa={};
   const porFuncao=new Map();
+  let giro=0;   // V320: no 2×1, a sobra de cada cargo/turno vai para o domingo seguinte ao da sobra anterior
+  const repartir=(total,slots)=>{ if(!rodizio2x1) return distribuirQuantidadeEquilibrada(total,slots);
+    const out=Array(slots).fill(0); if(!slots||total<=0) return out; const b=Math.floor(total/slots), r=total%slots;
+    for(let j=0;j<slots;j++) out[j]=b; for(let k=0;k<r;k++) out[(giro+k)%slots]++; giro=(giro+r)%slots; return out; };
   indices.forEach(i=>{
     const f=equipe[i], chave=chaveFuncaoDistribuicao(i);
     if(!chave) return;
@@ -7654,9 +7663,9 @@ function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306:
     // Cada funcionário operacional deve participar de 2 domingos no ciclo.
     // A distribuição é feita separadamente por função e por turno.
     const part=n=>rodizio2x1?Math.round(n*2*doms.length/3):n*2;   // V306: 2×1 = 2 de cada 3 domingos (antes: 2 domingos no mês)
-    const qa=ab.length ? distribuirQuantidadeEquilibrada(part(ab.length),doms.length) : Array(doms.length).fill(0);
-    const qf=fe.length ? distribuirQuantidadeEquilibrada(part(fe.length),doms.length) : Array(doms.length).fill(0);
-    const qo=semTurno.length ? distribuirQuantidadeEquilibrada(part(semTurno.length),doms.length) : Array(doms.length).fill(0);
+    const qa=ab.length ? repartir(part(ab.length),doms.length) : Array(doms.length).fill(0);
+    const qf=fe.length ? repartir(part(fe.length),doms.length) : Array(doms.length).fill(0);
+    const qo=semTurno.length ? repartir(part(semTurno.length),doms.length) : Array(doms.length).fill(0);
     meta.porDomingo=doms.map((d,idx)=>({total:qa[idx]+qf[idx]+qo[idx],abertura:qa[idx],fechamento:qf[idx],outros:qo[idx]}));
     if(/promotor/.test(chave)){   // V258: promotor = 1 por domingo (alterna abertura/fechamento quando há dos dois)
       const tur=doms.map((d,idx)=>ab.length&&fe.length?(idx%2?'fe':'ab'):ab.length?'ab':fe.length?'fe':'ou');
@@ -8164,17 +8173,18 @@ function gerarSetoresCore(){
   // Sem histórico (folgou os 2), a vez é espalhada para equilibrar cada função e turno.
   const faseFolga=new Map();
   if(rodizio2x1){
-    const livres=new Map(),cont=new Map();
+    const livres=new Map(),cont=new Map(),geral=[0,0,0];   // V320: geral = quantos folgam em cada vez no setor todo
     const grupoDe=i=>(chaveFuncaoDistribuicao(i)||'')+'|'+norm(equipe[i].turno||'');
     ativosOperacionais.forEach(i=>{
       const h=historicoManual(i)||{},g=grupoDe(i);
       if(!cont.has(g))cont.set(g,[0,0,0]);
       const fase=h.penultimo&&h.ultimo?0:h.ultimo?1:h.penultimo?2:null;
       if(fase===null){ if(!livres.has(g))livres.set(g,[]); livres.get(g).push(i); }
-      else{ faseFolga.set(i,fase); cont.get(g)[fase]++; }
+      else{ faseFolga.set(i,fase); cont.get(g)[fase]++; geral[fase]++; }
     });
     const cenarioNovo=modo==='funcao'&&window.__v318Semente&&typeof window.v318Ordem==='function';   // V318: cada 🚀 Gerar (Automático + Por cargo) sorteia um cenário novo
-    livres.forEach((ids,g)=>(cenarioNovo?window.v318Ordem(ids):ids).forEach(i=>{ const c=cont.get(g),fase=c.indexOf(Math.min(...c)); faseFolga.set(i,fase); c[fase]++; }));
+    livres.forEach((ids,g)=>(cenarioNovo?window.v318Ordem(ids):ids).forEach(i=>{ const c=cont.get(g); let fase=0; for(let f=1;f<3;f++) if(c[f]<c[fase]||(c[f]===c[fase]&&geral[f]<geral[fase])) fase=f;   // V320: empate no cargo → a vez com menos gente no setor
+      faseFolga.set(i,fase); c[fase]++; geral[fase]++; }));
   }
   // V314: quem trabalhou o domingo anterior e não o de antes fecha a dupla neste domingo. Sem o mês passado marcado,
   // quem tem a vez de folga no 2º domingo conta como se tivesse trabalhado o último domingo do mês passado (trabalha o 1º e folga o 2º).
@@ -8397,7 +8407,12 @@ function gerarSetoresCore(){
         return (fixosPorIdx[j]||[]).includes(i);
       };
       const violaFixosFuturos=i=>{ for(let a=idx-2;a<=idx;a++){ if(trabalhaEm(i,a)&&trabalhaEm(i,a+1)&&trabalhaEm(i,a+2)) return true; } return false; };
-      const cands=candidatos.filter(i=>base0.includes(i)||!violaFixosFuturos(i));
+      let cands=candidatos.filter(i=>base0.includes(i)||!violaFixosFuturos(i));
+      // V320: no 2×1, num cargo sem ninguém sobrando (ex.: único do cargo), quem está na sua vez de folga folga neste domingo
+      // (salvo se precisa fechar a dupla). Assim os cargos pequenos não folgam todos no mesmo domingo.
+      if(rodizio2x1){ const nCargo={}; cands.forEach(i=>{ const k=chaveFuncaoDistribuicao(i); nCargo[k]=(nCargo[k]||0)+1; });
+        cands=cands.filter(i=>{ if(base0.includes(i)||!faseFolga.has(i)||idx%3!==faseFolga.get(i)||fechaDupla(i,idx)) return true;
+          const k=chaveFuncaoDistribuicao(i); return nCargo[k]>Number(metasFuncoesGlobal[k]?.porDomingo?.[idx]?.total??Infinity); }); }
       const pref=new Set((sugestaoAnteriorFuncao[isoDomingo(ano,mes,doms[idx])]||[]).map(idxPorMatricula).filter(i=>i>=0));
       const r=selecionarPorFuncaoUsuario(cands,idx,metasFuncoesGlobal,base0,pontua,pontuaTransicao,pref);
       coberturaSubstDomingo[doms[idx]]=r.cobertas||[];
