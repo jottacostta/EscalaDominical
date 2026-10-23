@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V301</title>
+<title>Escala de Setores — V302</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V302 [Claude] — DSR NUMERADO (DSR1/DSR2) NO ENSAIO À MÃO: as folgas da semana do 5×2 passam a aparecer como descanso semanal numerado. Quem trabalha o domingo tem as 2 folgas de seg–sáb como **DSR1** e **DSR2**; quem folga no domingo tem o domingo como **F** e a folga da semana como **DSR2** (o domingo/feriado de folga ocupa a 1ª posição do descanso). F passa a ser só folga no domingo ou no feriado; a compensatória do feriado trabalhado segue **F02/F15/F20…** (pelo dia do feriado). Antes (V301) a folga da semana aparecia como “DSR” único + “F”. Só no ensaio à mão, sem validade real.
 V301 [Claude] — FOLGA DO FERIADO DENTRO DE 20 DIAS NO ENSAIO À MÃO: a folga compensatória de quem trabalha um feriado deixa de ser forçada na mesma semana e passa a cair num dia útil (seg–sáb) dentro de 20 dias corridos, podendo ser numa semana seguinte, como no motor oficial. A grade marca essa folga como “C” (roxa), o contador da semana conta a compensatória que caiu nela, e a conferência mostra a data de cada compensatória (quantos dias depois do feriado) e avisa se não couber nos 20 dias. Antes o ensaio só somava +1 folga na própria semana do feriado, sem simular o prazo. Novos rótulos na grade: T = trabalha domingo · t = trabalha feriado · F = folga (domingo, feriado ou da semana) · DSR = folga da semana que compensa o domingo trabalhado · F02/F15/F20… = folga compensatória do feriado daquele dia (em até 20 dias). Impressão colorida acompanha os rótulos. Só no ensaio à mão, sem validade real.
 V300 [Claude] — ENSAIO 5×2 SÓ NA ESCALA À MÃO (GERAR): a área automática “🧪 Testar 5×2” que ficava em Configurações foi retirada; o ensaio 5×2 (grade mensal, domingos 2×1, feriados, cenários variados e impressão colorida) continua inteiro na escala à mão, em Gerar. O motor interno que monta e audita o 5×2 (coordenado por Manus) permanece intacto; só a tela automática de teste saiu. Sem validade real.
 V299 [Claude] — IMPRESSÃO COLORIDA DA GRADE MENSAL: a impressão da tabela do ensaio 5×2 sai colorida (fundo dos domingos, feriados e folgas), com `print-color-adjust: exact` na janela de impressão — antes o navegador tirava as cores de fundo e saía em preto e branco. Só no ensaio, sem validade real.
@@ -2783,7 +2784,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V301 · Ensaio 5×2: folga do feriado em até 20 dias</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V302 · Ensaio 5×2: DSR da semana numerado (DSR1/DSR2)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -17061,17 +17062,17 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const dias=diasDoMes(r.ano,r.mes),ferSet=new Set(r.feriados||[]);
     const cab=dias.map(iso=>{const dt=isoData(iso),dom=dt.getDay()===0,fer=ehFeriado(r,iso);return `<th scope="col" class="${fer?'v292-col-fer':dom?'v292-col-dom':''}"${fer?` title="Feriado: ${esc(r.nomesFer[iso])}"`:''}>${DIASEM[dt.getDay()]}<br>${pad(Number(iso.slice(8,10)))}${fer?'<br>🟡':''}</th>`;}).join('');
     const corpo=r.pessoas.map(p=>{
-      const folgas=new Set(p.semanas.flatMap(w=>w.folgas||[])),compMap=p.compMap||{},dsrSet=new Set(p.dsr||[]);   // V301: compMap = dia da folga compensatória → dia do feriado; dsrSet = folga que compensa o domingo trabalhado
+      const folgas=new Set(p.semanas.flatMap(w=>w.folgas||[])),compMap=p.compMap||{},rot=p.rotulos||{};   // V302: compMap = folga compensatória → dia do feriado; rot = folga da semana → DSR1/DSR2
       const cels=dias.map(iso=>{
         if(isoData(iso).getDay()===0)return domTrabalha(r,p,iso)?`<td class="v292-dom-trab${ehFeriado(r,iso)?' v292-cel-fer':''}" title="Trabalha no domingo${ehFeriado(r,iso)?' (feriado)':''}">T</td>`:`<td class="v292-dom-folga" title="Folga no domingo${ehFeriado(r,iso)?' (feriado)':''}">F</td>`;
         if(ferSet.has(iso))return ferTrabalha(r,p,iso)?'<td class="v292-fer-trab" title="Trabalha no feriado">t</td>':'<td class="v292-fer-folga" title="Folga no feriado (DSR)">F</td>';
         if(compMap[iso]!=null)return `<td class="v292-comp" title="Folga compensatória do feriado dia ${pad(compMap[iso])} (dentro de 20 dias)">F${pad(compMap[iso])}</td>`;
-        if(dsrSet.has(iso))return '<td class="v292-folga" title="Folga da semana (DSR do domingo trabalhado)">DSR</td>';
+        if(rot[iso])return `<td class="v292-folga" title="Folga da semana (descanso semanal ${esc(rot[iso])})">${esc(rot[iso])}</td>`;
         return folgas.has(iso)?'<td class="v292-folga" title="Folga da semana">F</td>':'<td class="v292-trab" title="Trabalha">·</td>';
       }).join('');
       return `<tr><th scope="row">${esc(p.nome)}</th>${cels}</tr>`;
     }).join('');
-    return `<div class="v292-tab-rolagem"><table class="v292-tab v292-tab-mes"><caption>T = trabalha domingo · t = trabalha feriado · F = folga (domingo, feriado ou da semana) · DSR = folga da semana que compensa o domingo trabalhado · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias) · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>`;
+    return `<div class="v292-tab-rolagem"><table class="v292-tab v292-tab-mes"><caption>T = trabalha domingo · t = trabalha feriado · F = folga no domingo ou no feriado · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias) · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>`;
   }
   // V297: imprime só a grade mensal numa janela nova (isolada), sem validade real.
   function imprimirMensal(boxEl,setor,periodo){
@@ -17091,7 +17092,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const w=window.open('','_blank');
     if(!w){window.showToast?.('Permita pop-ups para imprimir a tabela.','danger',true);return;}
     w.document.write('<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><title>'+esc(titulo)+'</title>'+css+'</head><body><h3>'+esc(titulo)+'</h3>'+t.outerHTML
-      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. T = trabalha domingo · t = trabalha feriado · F = folga (domingo, feriado ou da semana) · DSR = folga da semana que compensa o domingo trabalhado · F02/F15/… = folga compensatória do feriado (em até 20 dias) · · = trabalha.</p></body></html>');
+      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. T = trabalha domingo · t = trabalha feriado · F = folga no domingo ou no feriado · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado (em até 20 dias) · · = trabalha.</p></body></html>');
     w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},300);
   }
   // ── Ensaio de escala à mão (grade editável): mesma isolação, reusa as tabelas. Sem validade real. ──
@@ -17181,15 +17182,17 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const porSemana=new Map();
     manDados.semanas.forEach(s=>porSemana.set(s.inicio,manDiasFolgaveis(s).filter(d=>compDias.has(d)).length));
     const sobrando=sobras.filter(d=>!usadas.has(d));   // folgas a mais, não casadas com feriado nenhum
-    // V301: nas semanas em que a pessoa trabalha o domingo, 1 folga da semana é o DSR (descanso que compensa o domingo trabalhado).
-    const dsrDias=new Set();
+    // V302: numera os descansos da semana. O domingo de folga (e o feriado de folga) ocupam a 1ª posição (ficam “F”);
+    // as folgas-base de dia útil recebem DSR a partir daí → DSR1/DSR2. Trabalha o domingo: DSR1 e DSR2; folga no domingo: a folga da semana é DSR2.
+    const rotulos={};
     manDados.semanas.forEach(s=>{
-      if(!manTrabalhaDomingo(p,s))return;                         // só quando trabalha o domingo; folga no domingo o próprio domingo já é o descanso
       const base=baseSem.get(s.inicio)||0;if(base<1)return;
+      let off=manTrabalhaDomingo(p,s)?0:1;                        // domingo de folga ocupa a 1ª posição
+      manFeriadosDaSemana(s).forEach(iso=>{if(!manTrabalhaFeriado(p,iso))off++;});   // cada feriado de folga (DSR) também ocupa uma posição
       const fs=manDiasFolgaveis(s).filter(d=>p.folgas.has(d)&&!compDias.has(d)).slice().sort();   // folgas-base (fora a compensatória)
-      if(fs[0])dsrDias.add(fs[0]);
+      fs.slice(0,base).forEach((iso,i)=>{rotulos[iso]='DSR'+(off+i+1);});
     });
-    return {compDias,porSemana,semData,pares,baseSem,sobrando,dsrDias};
+    return {compDias,porSemana,semData,pares,baseSem,sobrando,rotulos};
   }
   // V297: a pessoa descansa neste dia? (domingo de folga, feriado de folga, ou folga de seg–sáb)
   function manDiaFolga(p,iso){const dt=isoData(iso);if(dt.getDay()===0){const d=Number(iso.slice(8,10)),l=manDados.domingos[d]||manDados.domingos[iso]||[];return !(l.map(Number).includes(Number(p.id)));}if(manDados.feriadosSet&&manDados.feriadosSet.has(iso))return !manTrabalhaFeriado(p,iso);return p.folgas.has(iso);}
@@ -17221,15 +17224,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         const casar=casarAll[pi];
         const cels=s.dias.map(d=>{
           if(manDados.feriadosSet.has(d)){const trab=manTrabalhaFeriado(p,d);return `<td class="${trab?'v292-fer-trab':'v292-fer-folga'}" title="Feriado ${esc(manDados.nomesFer[d]||'')} — ${trab?'trabalha (folga compensatória em até 20 dias)':'folga (DSR)'}">${trab?'t':'F'}</td>`;}
-          const on=p.folgas.has(d),comp=casar.compDias.has(d),par=comp?casar.pares.find(x=>x.dia===d):null,ferDia=par?pad(Number(par.fer.slice(8,10))):'',dsr=!comp&&casar.dsrDias.has(d);
-          const rot=comp?`Folga compensatória do feriado dia ${ferDia} (dentro de 20 dias)`:dsr?`Folga da semana (DSR do domingo trabalhado): ${esc(p.nome)}, ${esc(rotuloDia(d))}`:`${esc(p.nome)}, ${esc(rotuloDia(d))}`;
-          return `<td><button type="button" class="v292-cel${comp?' v292-comp':''}" data-p="${pi}" data-d="${d}" aria-pressed="${on}" title="${rot}" aria-label="${rot}">${on?(comp?'F'+ferDia:(dsr?'DSR':'F')):'·'}</button></td>`;
+          const on=p.folgas.has(d),comp=casar.compDias.has(d),par=comp?casar.pares.find(x=>x.dia===d):null,ferDia=par?pad(Number(par.fer.slice(8,10))):'',dsr=!comp?casar.rotulos[d]:'';
+          const rot=comp?`Folga compensatória do feriado dia ${ferDia} (dentro de 20 dias)`:dsr?`Folga da semana (descanso semanal ${dsr}): ${esc(p.nome)}, ${esc(rotuloDia(d))}`:`${esc(p.nome)}, ${esc(rotuloDia(d))}`;
+          return `<td><button type="button" class="v292-cel${comp?' v292-comp':''}" data-p="${pi}" data-d="${d}" aria-pressed="${on}" title="${rot}" aria-label="${rot}">${on?(comp?'F'+ferDia:(dsr||'F')):'·'}</button></td>`;
         }).join('');
         const base=casar.baseSem.get(s.inicio)||0,compW=casar.porSemana.get(s.inicio)||0,alvo=base+compW;
         const n=manDiasFolgaveis(s).filter(d=>p.folgas.has(d)).length;
         return `<tr><th scope="row">${esc(p.nome)}${manTrabalhaDomingo(p,s)?'':' <small style="color:var(--muted)">(folga dom.)</small>'}</th>${cels}<td class="v292-manual-cont ${n===alvo?'ok':'ruim'}" data-cont="${pi}-${si}">${n}/${alvo}</td></tr>`;
       }).join('');
-      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga. t = trabalha no feriado · F = folga (no feriado ou da semana) · DSR = folga que compensa o domingo trabalhado · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
+      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga. t = trabalha no feriado · F = folga no feriado · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
     }).join('');
   }
   function manToggle(botao){
@@ -17242,9 +17245,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const g=el('v292Manual5x2Grade');if(!g||!manDados)return;const p=manDados.pessoas[pi];if(!p)return;
     const casar=manCasarCompensatorias(p);
     g.querySelectorAll(`.v292-cel[data-p="${pi}"]`).forEach(btn=>{
-      const d=btn.dataset.d,on=p.folgas.has(d),comp=casar.compDias.has(d),par=comp?casar.pares.find(x=>x.dia===d):null,ferDia=par?pad(Number(par.fer.slice(8,10))):'',dsr=!comp&&casar.dsrDias.has(d);
-      btn.setAttribute('aria-pressed',on?'true':'false');btn.classList.toggle('v292-comp',comp);btn.textContent=on?(comp?'F'+ferDia:(dsr?'DSR':'F')):'·';
-      const rot=comp?`Folga compensatória do feriado dia ${ferDia} (dentro de 20 dias)`:dsr?`Folga da semana (DSR do domingo trabalhado): ${p.nome}, ${rotuloDia(d)}`:`${p.nome}, ${rotuloDia(d)}`;btn.title=rot;btn.setAttribute('aria-label',rot);
+      const d=btn.dataset.d,on=p.folgas.has(d),comp=casar.compDias.has(d),par=comp?casar.pares.find(x=>x.dia===d):null,ferDia=par?pad(Number(par.fer.slice(8,10))):'',dsr=!comp?casar.rotulos[d]:'';
+      btn.setAttribute('aria-pressed',on?'true':'false');btn.classList.toggle('v292-comp',comp);btn.textContent=on?(comp?'F'+ferDia:(dsr||'F')):'·';
+      const rot=comp?`Folga compensatória do feriado dia ${ferDia} (dentro de 20 dias)`:dsr?`Folga da semana (descanso semanal ${dsr}): ${p.nome}, ${rotuloDia(d)}`:`${p.nome}, ${rotuloDia(d)}`;btn.title=rot;btn.setAttribute('aria-label',rot);
     });
     manDados.semanas.forEach((s,si)=>{
       const base=casar.baseSem.get(s.inicio)||0,compW=casar.porSemana.get(s.inicio)||0,alvo=base+compW,n=manDiasFolgaveis(s).filter(x=>p.folgas.has(x)).length;
@@ -17328,7 +17331,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       if(casar.sobrando.length)avisos.push(`${p.nome}: ${casar.sobrando.length} folga(s) a mais, sem feriado trabalhado para compensar.`);
       const seq=maxSeguidos(p);if(seq>5)erros.push(`${p.nome}: trabalharia ${seq} dias seguidos (máximo 5 no 5×2).`);
       const compMap={};casar.pares.forEach(x=>{if(x.dia)compMap[x.dia]=Number(x.fer.slice(8,10));});   // V301: dia da folga → dia do feriado que ela compensa (rótulo F02, F15…)
-      return {id:p.id,nome:p.nome,semanas,comp:[...casar.compDias],compMap,dsr:[...casar.dsrDias]};
+      return {id:p.id,nome:p.nome,semanas,comp:[...casar.compDias],compMap,rotulos:casar.rotulos};
     });
     const r={setor:manDados.setor,periodo:manDados.periodo,mes:manDados.mes,ano:manDados.ano,domingos:manDados.domingos,feriados:manDados.feriados,feriadosDom:manDados.feriadosDom,feriadoTrab:manDados.feriadoTrab,nomesFer:manDados.nomesFer,pessoas};
     const box=el('v292Manual5x2Resultado');if(!box)return estadoManual();
