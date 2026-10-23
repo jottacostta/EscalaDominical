@@ -1583,6 +1583,49 @@ async function testarFeriadoDomingo5x2(browser, app, nome, abrir){   // V304: fe
   await p.close();
 }
 
+async function testarDomingoPorFuncao5x2(browser, app, nome, abrir){   // V305: no ensaio à mão, o gerente escolhe quantos trabalham no domingo por função
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 305) return;
+  console.log('\n▶ ' + nome + ' — 🧪 quantos trabalham no domingo, por função (ensaio à mão)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; m.habilitar(true); m.montar();
+    const box = document.getElementById('v292Manual5x2Funcoes'), inputs = [...box.querySelectorAll('input[data-v305fn]')];
+    const fns = m.domingoPorFuncao.funcoes(), nomes = Object.keys(fns);
+    const padrao = nomes.every(fn => fns[fn].porDomingo === Math.floor(fns[fn].pessoas * 2 / 3));
+    // pede um número diferente do padrão em cada função, pela tela (evento change)
+    const quer = {};
+    inputs.forEach(inp => { const fn = inp.dataset.v305fn, n = fns[fn].pessoas; quer[fn] = Math.max(0, Math.floor(n / 2)); inp.value = String(quer[fn]); inp.dispatchEvent(new Event('change', { bubbles: true })); });
+    const textoUsa = /usa estes números/.test(box.innerText) && !document.getElementById('v305FnVoltar').hidden;
+    m.sugerir(); m.conferir();
+    const dom = m.domingoPorFuncao.domingos(), grupos = {}, eq = equipe;
+    const fnDe = i => window.v199Graf.funcaoDoCargo(eq[i].cargo);
+    const dias = Object.keys(dom).map(Number).sort((a, b) => a - b);
+    let contaCerta = true, tres = 0;
+    dias.forEach(d => { const c = {}; dom[d].forEach(i => { const fn = fnDe(i); c[fn] = (c[fn] || 0) + 1; }); nomes.forEach(fn => { if((c[fn] || 0) !== quer[fn]) contaCerta = false; }); });
+    eq.forEach((_, i) => { for(let k = 2; k < dias.length; k++) if([0, 1, 2].every(j => dom[dias[k - j]].map(Number).includes(i))) { tres++; break; } });
+    const res = document.getElementById('v292Manual5x2Resultado').innerText, nErros = (res.match(/(\d+) erro\(s\)/) || [])[1];
+    // pedir mais que o 2×1 aguenta: o app avisa em vez de furar a regra
+    const grande = nomes.find(fn => fns[fn].pessoas >= 3);
+    m.domingoPorFuncao.definir(grande, fns[grande].pessoas); m.sugerir(); m.conferir();
+    const falta = m.domingoPorFuncao.falta(), avisoFalta = /ficou com \d+ de \d+\. O resto já faria 3 domingos seguidos/.test(document.getElementById('v292Manual5x2Resultado').textContent);
+    const alertaTela = /alguém pode fazer 3 domingos seguidos/.test(box.innerText);
+    m.domingoPorFuncao.voltar(); const voltou = !/usa estes números/.test(box.innerText);
+    return { nFn: nomes.length, nInputs: inputs.length, padrao, textoUsa, contaCerta, tres, erros: nErros ? +nErros : -1, falta: falta.length, avisoFalta, alertaTela, voltou };
+  });
+  ok(r.nFn > 0 && r.nInputs === r.nFn, nome + ': depois de “Montar grade” aparece 1 campo por função (' + r.nInputs + ' funções)');
+  ok(r.padrao, nome + ': cada campo começa com o máximo seguro do 2×1 (2 de cada 3 pessoas)');
+  ok(r.textoUsa, nome + ': ao mudar um número, a tela diz que o sorteio usa os números e mostra “↩️ Voltar ao rodízio automático”');
+  ok(r.contaCerta, nome + ': cada domingo tem exatamente o número pedido de cada função');
+  ok(r.tres === 0, nome + ': ninguém trabalha 3 domingos seguidos (' + r.tres + ')');
+  ok(r.erros === 0, nome + ': a conferência não acusa erro' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(r.falta > 0 && r.avisoFalta && r.alertaTela, nome + ': pedir a função inteira todo domingo não fura o 2×1 — a tela alerta e a conferência avisa quem faltou (' + r.falta + ' domingo(s))');
+  ok(r.voltou, nome + ': “↩️ Voltar ao rodízio automático” desfaz os números');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -1915,7 +1958,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');

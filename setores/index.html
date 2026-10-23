@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V304</title>
+<title>Escala de Setores — V305</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V305 [Claude] — QUANTOS TRABALHAM NO DOMINGO, POR FUNÇÃO, NO ENSAIO À MÃO: depois de “Montar grade” aparece um campo para cada função
+       (ex.: Operador de Caixa) com quantas pessoas trabalham em cada domingo. Começa com o máximo seguro do 2×1 (2 de cada 3) e o “Sugerir
+       folgas” sorteia os domingos com esses números, sem ninguém fazer 3 domingos seguidos (conta o mês passado). Se faltar gente, a conferência
+       avisa. “↩️ Voltar ao rodízio automático” desfaz. Só no ensaio, sem validade real.
 V304 [Claude] — FERIADO NO DOMINGO DÁ FOLGA A MAIS NO ENSAIO À MÃO: quando o feriado cai no domingo, quem trabalha esse domingo fica com
        DSR1 e DSR2 na semana e ganha mais 1 folga do feriado (F + dia, ex.: F15), num dia útil (seg–sáb) em até 20 dias. Quem folga nesse domingo
        não ganha folga a mais (o domingo já é F). A sugestão marca essa folga e a conferência cobra. Só no ensaio, sem validade real.
@@ -2697,6 +2701,17 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
 @media(max-width:600px){.v292-teste-acoes button{width:100%}.v292-teste-area{padding:12px}.v292-teste-numeros{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
+<style id="v305-domingo-funcao">
+.v305-funcoes{margin:10px 0}
+.v305-funcoes details{border:1px solid var(--border,#cbd5e1);border-radius:10px;padding:10px;background:var(--surface,#fff)}
+.v305-funcoes summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:center}
+.v305-fn-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:8px 0}
+.v305-fn-item{display:flex;align-items:center;gap:8px;border:1px solid var(--border,#cbd5e1);border-radius:8px;padding:6px 8px;font-variant-numeric:tabular-nums}
+.v305-fn-item span{flex:1}
+.v305-fn-item input{width:72px;min-height:44px;font-size:16px;text-align:center;font-variant-numeric:tabular-nums;color:var(--text,#0f172a);background:var(--surface,#fff);border:1px solid var(--border,#94a3b8);border-radius:8px}
+.v305-fn-alerta{color:var(--warn-text,#7a4d00);font-weight:700}
+.v305-funcoes .btn{min-height:44px}
+</style>
 </head>
 <body>
 <script>
@@ -2793,7 +2808,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V304 · Ensaio 5×2: feriado no domingo dá folga a mais para quem trabalha</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V305 · Ensaio 5×2: quantos trabalham no domingo, por função</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3126,6 +3141,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
       <button id="v292Manual5x2Conferir" class="btn" type="button" disabled>✅ Conferir folgas</button>
       <button id="v292Manual5x2Limpar" class="btn secondary" type="button">🗑️ Limpar</button>
     </div>
+    <div id="v292Manual5x2Funcoes" class="v305-funcoes"></div>
     <div id="v292Manual5x2Grade" class="v292-manual-grade"></div>
     <div id="v292Manual5x2Resultado" class="v292-teste-resultado" role="status" aria-live="polite" aria-atomic="true"></div>
   </section>
@@ -17151,6 +17167,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   // ── Ensaio de escala à mão (grade editável): mesma isolação, reusa as tabelas. Sem validade real. ──
   let manHab=false,manDados=null;
+  const metaDomFuncao={};   // V305: quantos trabalham no domingo por função ({"setor|função": n}); só no ensaio, some ao recarregar
   function isoData(iso){const p=String(iso).split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
   function difDias(a,b){return Math.round((isoData(a)-isoData(b))/86400000);}
   function manAtualizar(){
@@ -17159,7 +17176,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(el('v292Manual5x2Sugerir'))el('v292Manual5x2Sugerir').disabled=!manHab||!manDados;
     if(el('v292Manual5x2Conferir'))el('v292Manual5x2Conferir').disabled=!manHab||!manDados;
   }
-  function manLimpar(){manDados=null;const g=el('v292Manual5x2Grade');if(g)g.replaceChildren();const b=el('v292Manual5x2Resultado');if(b)b.replaceChildren();manAtualizar();return estadoManual();}
+  function manLimpar(){manDados=null;const g=el('v292Manual5x2Grade');if(g)g.replaceChildren();const fx=el('v292Manual5x2Funcoes');if(fx)fx.replaceChildren();   // V305
+    const b=el('v292Manual5x2Resultado');if(b)b.replaceChildren();manAtualizar();return estadoManual();}
   function manHabilitar(v){manHab=v===true;if(!manHab)manLimpar();else manAtualizar();return estadoManual();}
   function estadoManual(){return {habilitado:manHab,montado:!!manDados,semValidadeReal:true};}
   function manMontar(){
@@ -17181,9 +17199,73 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const feriadosSet=new Set(feriados);
     // V298: guarda as bases para sortear cenários diferentes a cada “Sugerir folgas”.
     manDados={periodo:`${pad(e.mes+1)}/${e.ano}`,setor:e.setor,mes:e.mes,ano:e.ano,semanas,pessoas,feriados,feriadosDom,feriadosSet,nomesFer,domingosOficiais:copia(e.domingos||{}),eligDom,eligFer,domingos:{},feriadoTrab:{}};
+    // V305: funções de quem pode trabalhar no domingo e os 2 últimos domingos do mês passado (para ninguém fazer 3 seguidos).
+    const fnDe=f=>{try{return window.v199Graf?.funcaoDoCargo?.(f.cargo)||String(f.cargo||'Sem cargo');}catch(_){return String(f.cargo||'Sem cargo');}};
+    manDados.gruposFn={};eligDom.forEach(i=>{const fn=fnDe(e.equipe[i]);(manDados.gruposFn[fn]||(manDados.gruposFn[fn]=[])).push(i);});
+    manDados.foraDomFn={};e.equipe.forEach((f,i)=>{if(f&&!eligDom.includes(i)){const fn=fnDe(f);manDados.foraDomFn[fn]=(manDados.foraDomFn[fn]||0)+1;}});
+    {const ult=new Date(e.ano,e.mes,0);ult.setDate(ult.getDate()-ult.getDay());const pen=new Date(ult);pen.setDate(pen.getDate()-7);const k=dt=>`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+      manDados.domAnteriores=[(e.anteriores||{})[k(pen)]||[],(e.anteriores||{})[k(ult)]||[]].map(l=>new Set(l.map(Number)));}
+    manRenderFuncoes();
     manSortearCenario();
     manRenderGrade();if(b)b.replaceChildren();manAtualizar();return estadoManual();
   }
+  // V305: quantos trabalham no domingo, por função (só no ensaio à mão).
+  const chaveMeta=fn=>(manDados?.setor||'')+'|'+fn;
+  const maxSeguro=n=>Math.floor(n*2/3);   // 2×1: cada pessoa faz no máximo 2 de cada 3 domingos
+  function manTemMetas(){return !!manDados&&Object.keys(manDados.gruposFn||{}).some(fn=>metaDomFuncao[chaveMeta(fn)]!=null);}
+  function manMeta(fn){const v=metaDomFuncao[chaveMeta(fn)],n=(manDados.gruposFn[fn]||[]).length;return v!=null?Math.max(0,Math.min(n,v)):maxSeguro(n);}
+  function manSortearPorFuncao(dom,diasDom){
+    const cont={};
+    Object.entries(manDados.gruposFn||{}).forEach(([fn,ids])=>{
+      const quer=manMeta(fn);let ant2=manDados.domAnteriores?.[0]||new Set(),ant1=manDados.domAnteriores?.[1]||new Set();
+      diasDom.forEach(d=>{
+        let escolhidos;
+        const oficial=(manDados.domingosOficiais||{})[d];
+        if(Array.isArray(oficial)&&oficial.length)escolhidos=ids.filter(i=>oficial.map(Number).includes(i));   // domingo já escalado fica como está
+        else{
+          const livres=embaralhar(ids.filter(i=>!(ant1.has(i)&&ant2.has(i))));   // nunca 3 domingos seguidos
+          livres.sort((a,b)=>(cont[a]||0)-(cont[b]||0));   // quem trabalhou menos domingos entra primeiro
+          escolhidos=livres.slice(0,quer);
+          if(escolhidos.length<quer)manDados.faltaDomingo.push({d,fn,quer,teve:escolhidos.length});
+          dom[d]=(Array.isArray(dom[d])?dom[d]:[]).concat(escolhidos);
+        }
+        escolhidos.forEach(i=>{cont[i]=(cont[i]||0)+1;});
+        ant2=ant1;ant1=new Set(escolhidos);
+      });
+    });
+  }
+  function manRenderFuncoes(){
+    const box=el('v292Manual5x2Funcoes');if(!box)return;
+    if(!manDados){box.replaceChildren();return;}
+    const fns=Object.keys(manDados.gruposFn||{}).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+    if(!fns.length){box.innerHTML='<p>Ninguém da equipe pode trabalhar no domingo (folga fixa no domingo ou afastados).</p>';return;}
+    let total=0;
+    const itens=fns.map(fn=>{
+      const n=manDados.gruposFn[fn].length,v=manMeta(fn),seg=maxSeguro(n);total+=v;
+      const alerta=`<small class="v305-fn-alerta" data-v305alerta${v>seg?'':' hidden'}><br>🟡 Acima de ${seg}, alguém pode fazer 3 domingos seguidos. O app avisa se faltar gente.</small>`;
+      const fora=manDados.foraDomFn[fn]?`<br><small>${manDados.foraDomFn[fn]} fora do domingo (folga fixa no domingo ou afastado)</small>`:'';
+      return `<label class="v305-fn-item"><span><b>${esc(fn)}</b><br><small>de ${n} ${n===1?'pessoa':'pessoas'}</small>${fora}${alerta}</span><input type="number" inputmode="numeric" min="0" max="${n}" step="1" value="${v}" data-v305fn="${esc(fn)}" aria-label="Quantos de ${esc(fn)} trabalham em cada domingo"></label>`;
+    }).join('');
+    const usando=manTemMetas();
+    box.innerHTML=`<details open><summary>☀️ Quantos trabalham no domingo, por função</summary>
+      <p>Escolha quantas pessoas de cada função trabalham <b>em cada domingo</b>. Depois toque em <b>💡 Sugerir folgas distribuídas</b>.</p>
+      <div class="v305-fn-lista">${itens}</div>
+      <p><b>Total por domingo: <span id="v305Total">${total}</span></b>. <span id="v305Status">${manTextoStatus()}</span></p>
+      <p><button type="button" class="btn secondary" id="v305FnVoltar"${usando?'':' hidden'}>↩️ Voltar ao rodízio automático</button></p></details>`;
+  }
+  function manTextoStatus(){return manTemMetas()?'✅ O sorteio dos domingos usa estes números.':'Ainda vale o rodízio 2×1 automático. Mude um número para usar os seus.';}
+  function manMetaMudou(inp){
+    const fn=inp.dataset.v305fn,n=(manDados?.gruposFn?.[fn]||[]).length;let v=Math.round(Number(inp.value));
+    if(!Number.isFinite(v)||v<0)v=0;if(v>n)v=n;
+    metaDomFuncao[chaveMeta(fn)]=v;inp.value=String(v);
+    // só atualiza o que muda (o quadro não é redesenhado, para não perder o campo em que a pessoa está)
+    const al=inp.closest('.v305-fn-item')?.querySelector('[data-v305alerta]');if(al)al.hidden=!(v>maxSeguro(n));
+    const tot=el('v305Total');if(tot)tot.textContent=String(Object.keys(manDados.gruposFn).reduce((a,k)=>a+manMeta(k),0));
+    const st=el('v305Status');if(st)st.textContent=manTextoStatus();
+    const bv=el('v305FnVoltar');if(bv)bv.hidden=!manTemMetas();
+    window.showToast?.(`${fn}: ${v} por domingo. Toque em 💡 Sugerir folgas distribuídas para usar.`,'info');
+  }
+  function manMetasVoltar(){Object.keys(manDados?.gruposFn||{}).forEach(fn=>delete metaDomFuncao[chaveMeta(fn)]);manRenderFuncoes();window.showToast?.('Voltou ao rodízio 2×1 automático. Toque em 💡 Sugerir folgas distribuídas.','info');}
   function embaralhar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
   // V298: sorteia um cenário coerente — rodízio 2×1 dos domingos e rodízio dos feriados, variando quem entra em cada grupo e a fase. Mantém os domingos já escalados.
   function manSortearCenario(){
@@ -17191,7 +17273,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const ultimo=new Date(manDados.ano,manDados.mes+1,0).getDate(),diasDom=[];
     for(let d=1;d<=ultimo;d++)if(new Date(manDados.ano,manDados.mes,d).getDay()===0)diasDom.push(d);
     const dom=copia(manDados.domingosOficiais||{}),ordem=embaralhar((manDados.eligDom||[]).slice()),off=Math.floor(Math.random()*3);
-    diasDom.forEach((d,k)=>{if(Array.isArray(dom[d])&&dom[d].length)return;dom[d]=ordem.filter((_,p)=>p%3!==(k+off)%3);});   // 2×1: grupo da vez folga
+    manDados.faltaDomingo=[];
+    if(manTemMetas())manSortearPorFuncao(dom,diasDom);   // V305: o gerente escolheu quantos trabalham por função
+    else diasDom.forEach((d,k)=>{if(Array.isArray(dom[d])&&dom[d].length)return;dom[d]=ordem.filter((_,p)=>p%3!==(k+off)%3);});   // 2×1: grupo da vez folga
     manDados.domingos=dom;
     const ferTrab={},ordemF=embaralhar((manDados.eligFer||[]).slice()),offF=Math.floor(Math.random()*2);
     (manDados.feriados||[]).forEach((iso,fk)=>{ferTrab[iso]=ordemF.filter((_,pos)=>(pos+fk+offF)%2===0);});   // metade trabalha cada feriado, alternando
@@ -17389,6 +17473,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const compMap={};casar.pares.forEach(x=>{if(x.dia)compMap[x.dia]=Number(x.fer.slice(8,10));});   // V301: dia da folga → dia do feriado que ela compensa (rótulo F02, F15…)
       return {id:p.id,nome:p.nome,semanas,comp:[...casar.compDias],compMap,rotulos:casar.rotulos};
     });
+    (manDados.faltaDomingo||[]).forEach(x=>avisos.push(`Domingo ${pad(x.d)}: ${x.fn} ficou com ${x.teve} de ${x.quer}. O resto já faria 3 domingos seguidos.`));   // V305
     const r={setor:manDados.setor,periodo:manDados.periodo,mes:manDados.mes,ano:manDados.ano,domingos:manDados.domingos,feriados:manDados.feriados,feriadosDom:manDados.feriadosDom,feriadoTrab:manDados.feriadoTrab,nomesFer:manDados.nomesFer,pessoas};
     const box=el('v292Manual5x2Resultado');if(!box)return estadoManual();
     const lista=(t,itens,aberto)=>itens.length?`<details${aberto?' open':''}><summary>${esc(t)} (${itens.length})</summary><ul>${itens.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:'';
@@ -17405,6 +17490,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!event.target?.closest?.('#v292Manual5x2Area'))return;
     event.stopImmediatePropagation();
     if(tipo==='change'&&event.target.id==='v292Manual5x2Habilitar'){manHabilitar(event.target.checked);return;}
+    if(tipo==='change'&&event.target.matches?.('[data-v305fn]')){manMetaMudou(event.target);return;}   // V305
+    if(tipo==='click'&&event.target.closest('#v305FnVoltar')){manMetasVoltar();return;}
     if(tipo==='click'){
       const cel=event.target.closest('.v292-cel');if(cel){manToggle(cel);return;}
       if(event.target.closest('#v292Manual5x2Imprimir')){imprimirMensal(el('v292Manual5x2Resultado'),manDados?.setor,manDados?.periodo);return;}
@@ -17415,7 +17502,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }
   },true));
   ['mes','ano','setorSelecionado','arquivoTxt','arquivoProjetoJSON'].forEach(id=>el(id)?.addEventListener('change',manLimpar));
-  window.v292Manual5x2={habilitar:manHabilitar,montar:manMontar,sugerir:manSugerir,conferir:manConferir,limpar:manLimpar,estado:estadoManual};
+  window.v292Manual5x2={habilitar:manHabilitar,montar:manMontar,sugerir:manSugerir,conferir:manConferir,limpar:manLimpar,estado:estadoManual,
+    domingoPorFuncao:{definir:(fn,n)=>{metaDomFuncao[chaveMeta(fn)]=n;manRenderFuncoes();},funcoes:()=>manDados?Object.fromEntries(Object.entries(manDados.gruposFn).map(([fn,ids])=>[fn,{pessoas:ids.length,porDomingo:manMeta(fn)}])):{},domingos:()=>copia(manDados?.domingos||{}),falta:()=>copia(manDados?.faltaDomingo||[]),voltar:manMetasVoltar}};   // V305
   manAtualizar();
 })();
 </script>
