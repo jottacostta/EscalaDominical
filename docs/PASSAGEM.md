@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V300.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V301.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V198.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.

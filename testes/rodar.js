@@ -1486,7 +1486,7 @@ async function testarDomingos2x1(browser, app, nome, abrir){   // V296: o ensaio
     const porDomingoFolga = domCols.map(() => 0);
     linhas.forEach(tr => {
       const tds = [...tr.children];
-      const seq = domCols.map(ci => tds[ci].textContent.trim() === 'D' ? 1 : 0);   // 1 = trabalha no domingo
+      const seq = domCols.map(ci => tds[ci].classList.contains('v292-dom-trab') ? 1 : 0);   // 1 = trabalha no domingo (classe, não a letra — o rótulo virou "T" na V301)
       seq.forEach((v, j) => { if(!v) porDomingoFolga[j]++; });
       let run = 0, mx = 0; seq.forEach(v => { if(v){ run++; if(run > mx) mx = run; } else run = 0; });
       if(mx > maxSeg) maxSeg = mx;
@@ -1512,19 +1512,32 @@ async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à
   await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
   const r = await p.evaluate(() => {
     const m = window.v292Manual5x2; if(!m || typeof m.conferir !== 'function') return { faltaApi: true };
-    m.habilitar(true); m.montar(); m.sugerir(); m.conferir();
+    m.habilitar(true); m.montar(); m.sugerir();
+    const g = document.getElementById('v292Manual5x2Grade');
+    const gradeC = g ? g.querySelectorAll('button.v292-cel.v292-comp').length : 0;   // V301: folga compensatória na grade editável
+    const gradeRuim = g ? g.querySelectorAll('.v292-manual-cont.ruim').length : -1;
+    m.conferir();
     const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
     if(!t) return { semTabela: true };
     const colFer = [...t.querySelectorAll('thead th.v292-col-fer')].length;
     const H = [...t.querySelectorAll('tbody td.v292-fer-trab')].length;
     const f = [...t.querySelectorAll('tbody td.v292-fer-folga')].length;
-    const erros = (box.innerText.match(/(\d+) erro\(s\)/) || [])[1];
-    return { colFer, H, f, erros: erros ? +erros : -1 };
+    const texto = box.innerText;
+    const erros = (texto.match(/(\d+) erro\(s\)/) || [])[1];
+    const avisoComp = /folga compensat[oó]ria do feriado .* dentro de 20/i.test(texto);   // V301: cita o prazo de 20 dias
+    const naoCoube = /não coube em 20 dias/i.test(texto);
+    return { colFer, H, f, erros: erros ? +erros : -1, gradeC, gradeRuim, avisoComp, naoCoube };
   });
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece');
   ok(r.colFer > 0, nome + ': os feriados do mês viram colunas destacadas na grade (' + r.colFer + ')');
   ok(r.H > 0 && r.f > 0, nome + ': nos feriados de dia útil há rodízio — parte trabalha (H=' + r.H + ') e parte folga (f=' + r.f + ')');
   ok(r.erros === 0, nome + ': a conferência com feriados não acusa erro (compensatória, DSR e ≤5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  if(v >= 301){   // V301: a folga compensatória de feriado trabalhado cai em até 20 dias (seg–sáb), podendo ser noutra semana
+    ok(r.gradeC > 0 && !r.naoCoube, nome + ': quem trabalha feriado ganha folga compensatória (C) marcada dentro de 20 dias (C=' + r.gradeC + ', sem “não coube”)');
+    ok(r.avisoComp, nome + ': a conferência mostra a data da folga compensatória dentro do prazo de 20 dias');
+    ok(r.gradeRuim === 0, nome + ': com a compensatória contada na semana certa, nenhum contador fica errado');
+  }
   ok(!erros.length, nome + ': sem erro de JavaScript com feriados' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
