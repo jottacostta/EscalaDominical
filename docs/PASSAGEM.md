@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V318**, Encarregados **V201**.
+- **Próximo número de versão:** Setores **V319**, Encarregados **V201**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,17 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — Concordo, cenário novo, Limpar e Aceitar cenário — Setores V318 — Claude
+- **Pedido do Gerente:** o aviso do Por cargo não bloqueia e pede o “concordo”; botão no card Gerar que limpe a escala; no Automático + Por cargo cada Gerar cria um cenário novo com quem está disponível; botão “Aceitar cenário” que fica guardado e permite mudanças dentro dele. Escolhas: **janela antes de gerar**; documentação no PR seguinte (este).
+- **Onde está o código:** bloco `V318` antes de `</body>` (`window.v318` = `naoCabe`, `concordou`, `aceito`, `limparEscala`, `aceitarCenario`, `render`) e a área `#v318Acoes` logo abaixo de `#validacao` no passo 5.
+  - **Concordo:** listener de clique em **captura** no `document` para `#btnGerar` (pega barra de baixo, menu e atalho). Se `naoCabe()` (cargos com `qtdFuncaoBase < maxSustentavelFuncao`) não tem o “concordo” guardado, para o clique e abre `#v318Janela`. O concordo fica em `localStorage escalaSetores.v318Concordo` por setor, com a assinatura `cargo:q/mx` — mudou o número, pergunta de novo.
+  - **Cenário novo:** no mesmo listener, com Automático + Por cargo e sem cenário aceito, `window.__v318Semente` recebe um número novo e `sugestaoAnteriorFuncao` é zerada. Em `gerarSetoresCore` (`// V318`): quem não tem Mês passado recebe a vez de folga em ordem sorteada (`v318Ordem`) e `pontua` soma `v318Sorte(i,idx)*45` (menos que 1 domingo de diferença = 100, então não passa por cima do 2×1 nem da justiça). O sorteio é repetível dentro do cenário: o 🔄 Trocar (que chama `gerarSetores`, não o botão) não embaralha o resto.
+  - **Limpar escala:** pede “Tem certeza?”; apaga `aceitosFuncao` dos domingos do mês, `sugestaoAnteriorFuncao`, o aceito do mês, a escolha à mão, e roda o `$('mes').onchange()` (zera domingos/feriados do mês como uma troca de mês); depois `salvarSetorAtual()`.
+  - **Aceitar cenário:** `confirmarTodosDomingosFuncao()` + `localStorage escalaSetores.v318Aceito` (`setor|ano-mês`). Com aceito, o Gerar não sorteia de novo (os domingos estão confirmados) e mostra o aviso para usar 🧹 Limpar se quiser outro.
+- **Testes:** `testarConcordoCenarioLimpar` (≥318, `setores_acougue_cargos_25.txt`, nov/2026, 5/5/1): janela abre e não gera; Voltar fecha sem gerar; Concordo gera; não pergunta de novo; 3 Gerar = 3 cenários, todos com 0 de 3 domingos seguidos e dentro do teto; Aceitar confirma tudo e o Gerar mantém; Limpar pede certeza e apaga. Em `novaPagina` um `MutationObserver` clica sozinho no “✅ Concordo” nos testes antigos (como o `dialog.accept`); o teste novo liga `window.__v318Manual` para testar a janela de verdade.
+- **Merge:** PR #132 (V316 + V317 + V318) mesclada a pedido do Gerente; a suíte completa da V318 foi conferida depois.
+- **Assinado:** Claude
 
 ### 2026-10-23 — Por cargo avisa quando o 2×1 não cabe — Setores V317 — Claude
 - **Pedido do Gerente:** “Marcos Valério continua fora da escala 2×1”. Com 12 açougueiros e teto 5 por domingo há ~25 vagas no mês (≈2 domingos por pessoa); o 2×1 de todos precisaria de 8 por domingo. O Gerente escolheu **“App avisa quando não cabe”**: fica o teto, o app avisa.
@@ -936,6 +947,8 @@ Modelo de entrada:
   - V162: sem passo Grupos.
 
 O detalhe de cada versão está no `CHANGELOG.md`.
+- **V318 — o “✅ Concordo” é clicado sozinho nos testes:** `novaPagina` (em `testes/rodar.js`) aceita a janela do Por cargo automaticamente. Um teste que queira ver a janela precisa ligar `window.__v318Manual = true` logo depois do `goto`.
+- **V318 — cenário novo é sorteado:** no Automático + Por cargo, dois cliques em Gerar dão escalas diferentes de propósito. Teste que compara duas gerações seguidas nesse modo precisa aceitar o cenário antes (ou chamar `gerarSetores()` direto, que não troca a semente).
 
 ---
 
