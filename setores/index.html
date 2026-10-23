@@ -7,10 +7,22 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V315</title>
+<title>Escala de Setores — V318</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V318 [Claude] — CONCORDO, CENÁRIO NOVO, LIMPAR E ACEITAR CENÁRIO: (1) quando o Por cargo não cabe no 2×1 de todos, o 🚀 Gerar
+       abre uma janela “O 2×1 não cabe para todos” com ✅ Concordo, gerar assim / ↩️ Voltar e mudar os números (não bloqueia; depois de
+       concordar não pergunta de novo até mudar os números). (2) No Automático + Por cargo, cada 🚀 Gerar sorteia um cenário novo com quem
+       está disponível (o 2×1, o teto e os domingos confirmados continuam valendo). (3) 🧹 Limpar escala no passo 5 apaga a escala do mês e
+       os domingos confirmados (pede “Tem certeza?”). (4) ✅ Aceitar cenário confirma todos os domingos e guarda no aparelho; o 🔄 Trocar
+       continua funcionando dentro do cenário aceito.
+V317 [Claude] — POR CARGO AVISA QUANDO O 2×1 NÃO CABE: no 🤖 Automático, se o número escolhido para um cargo é menor do que o 2×1
+       de todos precisa (2 de cada 3 pessoas do cargo), o card mostra: “Para o 2×1 de todos, Açougueiro precisa de 8 por domingo (2 de cada 3).
+       Com 5, alguns esperam a vez.” O número do Por cargo continua sendo o teto; o motor não muda.
+V316 [Claude] — POR CARGO: 1 VAGA NÃO FICA PRESA A UM TURNO: quando um cargo tem só 1 vaga no domingo (ex.: 1 balconista), o app não
+       reserva mais essa vaga para o turno com mais gente. Antes, com 2 balconistas na abertura e 1 no fechamento, a vaga ia sempre para a
+       abertura e o do fechamento nunca trabalhava domingo. Agora entra quem o rodízio 2×1 indicar, de qualquer turno.
 V315 [Claude] — 2×1: QUEM ESTÁ HÁ MAIS TEMPO SEM DOMINGO ENTRA PRIMEIRO: no 🤖 Automático, o número do Por cargo é o teto; dentro
        dele, entram primeiro quem fecha a dupla e, depois, quem está há mais domingos sem trabalhar (contando o mês passado: quem folgou
        o último domingo começa a dupla no 1º). Quem trabalhou os 2 últimos domingos continua bloqueado no 1º. Assim ninguém disponível
@@ -2845,7 +2857,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V315 · 2×1: quem está há mais tempo sem domingo entra primeiro</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V318 · Concordo, cenário novo, Limpar e Aceitar cenário</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3143,6 +3155,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <h2 class="section-title"><span class="st-num">5</span> Gerar e conferir a escala</h2>
 <div class="guia"><span class="passo">Passo 5 de 5</span><b>O que fazer:</b> toque no botão verde <b>🚀 Gerar escala</b> (na barra de baixo). Depois confira o resultado e toque em <b>📊 Baixar planilha Excel</b><span class="so-celular"> ou <b>📱 Copiar para WhatsApp</b></span>. Se aparecer um aviso amarelo ou vermelho, toque nele: o app leva você até o problema. Por fim, toque em <b>📦 Guardar histórico do mês</b>: no mês seguinte ele vira o “mês passado”.</div>
   <div id="validacao" class="alert" aria-live="polite">Tudo preenchido? Toque em <b>🚀 Gerar escala</b> na barra verde lá embaixo.</div>
+  <div id="v318Acoes" class="v318-acoes" aria-live="polite"></div>
   <button type="button" class="btn success" id="btnGerar" style="display:none" aria-hidden="true" tabindex="-1">🚀 Gerar escala</button>
   <div class="card" id="laticinioCard" style="display:none;margin-top:10px">
     <h2 class="section-title">Revezamento de Laticínios</h2>
@@ -7900,6 +7913,7 @@ function metasFuncaoUsuario(doms,ano,mes){
       let a=Math.round(q*fn.ab/n), f=Math.round(q*fn.fe/n);
       if(q>=2 && fn.ab && fn.fe){ if(!a)a=1; if(!f)f=1; }   // Abertura + Fechamento
       while(a+f>q){ if(a>=f)a--; else f--; }
+      if(q<2){ a=0; f=0; }   // V316: com 1 vaga não se reserva turno (antes a vaga ia sempre para o turno com mais gente e quem era do outro nunca trabalhava)
       return {total:q,abertura:a,fechamento:f,outros:q-a-f};
     });
     mapa[fn.chave]={cargo:fn.rotulo,total:fn.ids.length,abertura:fn.ab,fechamento:fn.fe,semTurno:fn.ids.length-fn.ab-fn.fe,porDomingo};
@@ -7950,7 +7964,7 @@ function renderConfigFuncao(){
     <p class="hint" style="margin:0 0 6px">Ex.: Açougue → 1 liderança, 3 Açougueiros, 3 Operadores de Câmara Fria e 1 Balconista. O app escolhe <b>quem</b> está disponível; você confirma ou troca no Resultado.</p>
     ${window.v240LinhaLider?.()||''}
     ${fns.map(fn=>{ const q=qtdFuncaoBase(fn.chave), mx=maxSustentavelFuncao(fn);
-      return `<div class="fn-row"><div class="fn-info"><b>${htmlEsc(fn.rotulo)}</b><small>${fn.ids.length} no quadro • ${fn.ab} abertura • ${fn.fe} fechamento${q>mx?` • <span style="color:var(--info,#0B6BA8)">ℹ️ em alguns domingos virão menos que ${q}: quem trabalhou 2 domingos seguidos folga no 3º (2×1)</span>`:''}</small></div>
+      return `<div class="fn-row"><div class="fn-info"><b>${htmlEsc(fn.rotulo)}</b><small>${fn.ids.length} no quadro • ${fn.ab} abertura • ${fn.fe} fechamento${q>mx?` • <span style="color:var(--info,#0B6BA8)">ℹ️ em alguns domingos virão menos que ${q}: quem trabalhou 2 domingos seguidos folga no 3º (2×1)</span>`:''}</small>${q<mx&&($('modoGeracao')?.value||'motor')==='motor'?`<div class="fn-aviso-2x1" style="margin-top:4px;padding:4px 8px;border-radius:8px;background:var(--warn-lt,#FFF1C7);color:var(--warn-ink,#7A5700);font-size:12.5px">🟡 Para o 2×1 de todos, ${htmlEsc(fn.rotulo)} precisa de <b>${mx}</b> por domingo (2 de cada 3). Com <b>${q}</b>, alguns esperam a vez.</div>`:''}</div>
         <div class="fn-qtd"><button type="button" data-fn-menos="${htmlEsc(fn.chave)}" aria-label="menos">−</button><input type="number" inputmode="numeric" min="0" max="${fn.ids.length}" value="${q}" data-fn-base="${htmlEsc(fn.chave)}" aria-label="Quantidade de ${htmlEsc(fn.rotulo)}"><button type="button" data-fn-mais="${htmlEsc(fn.chave)}" aria-label="mais">+</button></div></div>
         ${fns.length>1?`<div class="fn-sub" style="display:flex;align-items:center;gap:8px;margin:-4px 0 8px;font-size:12.5px;color:var(--ink-2)"><span style="flex:none">🔁 Se faltar, cobrir com:</span><select data-fn-subst="${htmlEsc(fn.chave)}" style="flex:1;min-width:0;padding:6px 8px;font-size:12.5px"><option value="">ninguém (fica com menos)</option>${fns.filter(o=>o.chave!==fn.chave).map(o=>`<option value="${htmlEsc(o.chave)}" ${substitutoFuncao(fn.chave)===o.chave?'selected':''}>${htmlEsc(o.rotulo)}</option>`).join('')}</select></div>`:''}`;}).join('')}
     <div class="alert info" style="margin-top:8px">${(()=>{ const nl=lid?(window.v240QtdLider?.()||0):0; return nl?`Por domingo: <b>${nl}</b> liderança${nl===1?'':'s'} + <b>${total}</b> operacionais = <b>${nl+total}</b> pessoas.`:`Por domingo: <b>${total}</b> operacionais.`; })()}</div>
@@ -8156,7 +8170,8 @@ function gerarSetoresCore(){
       if(fase===null){ if(!livres.has(g))livres.set(g,[]); livres.get(g).push(i); }
       else{ faseFolga.set(i,fase); cont.get(g)[fase]++; }
     });
-    livres.forEach((ids,g)=>ids.forEach(i=>{ const c=cont.get(g),fase=c.indexOf(Math.min(...c)); faseFolga.set(i,fase); c[fase]++; }));
+    const cenarioNovo=modo==='funcao'&&window.__v318Semente&&typeof window.v318Ordem==='function';   // V318: cada 🚀 Gerar (Automático + Por cargo) sorteia um cenário novo
+    livres.forEach((ids,g)=>(cenarioNovo?window.v318Ordem(ids):ids).forEach(i=>{ const c=cont.get(g),fase=c.indexOf(Math.min(...c)); faseFolga.set(i,fase); c[fase]++; }));
   }
   // V314: quem trabalhou o domingo anterior e não o de antes fecha a dupla neste domingo. Sem o mês passado marcado,
   // quem tem a vez de folga no 2º domingo conta como se tivesse trabalhado o último domingo do mês passado (trabalha o 1º e folga o 2º).
@@ -8329,6 +8344,7 @@ function gerarSetoresCore(){
         score+=(maiorCarga-carga)*55;
         if(carga===0)score+=90;
       });
+      if(rodizio2x1&&modo==='funcao'&&window.__v318Semente&&typeof window.v318Sorte==='function') score+=window.v318Sorte(i,idx)*45;   // V318: cenário novo a cada Gerar
       score-=i*0.0001;
       return score;
     };
@@ -17701,6 +17717,113 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   ['mes','ano','setorSelecionado'].forEach(id=>$(id)?.addEventListener('change',()=>setTimeout(aplicar,0)));
   window.v313MesPassado={guardar,aplicar,chave:chaveMes,ler};
   setTimeout(aplicar,0);
+})();
+</script>
+
+<style>
+.v318-acoes{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.v318-acoes:empty{display:none}
+.v318-acoes .v318-linha{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.v318-acoes .v318-dica{margin:0;font-size:13px;color:var(--ink-2)}
+.v318-acoes .v318-aceito{padding:8px 10px;border-radius:10px;background:var(--ok-lt,#E7F6EC);color:var(--ok-ink,#145C2E);font-size:13.5px}
+.v318-acoes .v318-certeza{padding:10px;border-radius:10px;background:var(--warn-lt,#FFF1C7);color:var(--warn-ink,#7A5700);font-size:13.5px}
+.v318-janela{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.v318-janela .v318-caixa{background:var(--surface,#fff);color:var(--ink,#111);border-radius:16px;max-width:460px;width:100%;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.v318-janela h3{margin:0 0 8px;font-size:18px}
+.v318-janela ul{margin:6px 0 10px;padding-left:20px}
+.v318-janela .v318-linha{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+</style>
+<script>
+/* V318 — Concordo antes de gerar (quando o Por cargo não cabe no 2×1 de todos), cenário novo a cada Gerar,
+   🧹 Limpar escala e ✅ Aceitar cenário (guardado no aparelho). */
+(function(){
+  const $i=id=>document.getElementById(id);
+  const ler=k=>{ try{ return JSON.parse(localStorage.getItem(k)||'{}')||{}; }catch(e){ return {}; } };
+  const gravar=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
+  const K_CONC='escalaSetores.v318Concordo', K_ACEITO='escalaSetores.v318Aceito';
+  const automatico=()=>($i('modoGeracao')?.value||'motor')==='motor';
+  const porCargo=()=>($i('modoCobertura')?.value||'50')==='funcao';
+  const setor=()=>{ try{ return chaveSetorFuncao(); }catch(e){ return ''; } };
+  const chaveMes=()=>setor()+'|'+(+$i('ano').value)+'-'+(+$i('mes').value);
+  // Sorteio repetível dentro do mesmo cenário (o 🔄 Trocar não embaralha o resto); muda a cada 🚀 Gerar.
+  function hash(t){ let h=2166136261; for(let k=0;k<t.length;k++){ h^=t.charCodeAt(k); h=Math.imul(h,16777619); } return (h>>>0)/4294967296; }
+  window.v318Sorte=(i,idx)=>hash(window.__v318Semente+'|'+(equipe[i]?.matricula??i)+'|'+idx);
+  window.v318Ordem=ids=>ids.slice().sort((a,b)=>window.v318Sorte(a,-1)-window.v318Sorte(b,-1));
+  // Cargos em que o número escolhido é menor que o 2×1 de todos precisa (2 de cada 3).
+  function naoCabe(){
+    if(!automatico()||!porCargo()) return [];
+    try{ carregarCfgFuncao(); return funcoesDoSetor().map(fn=>({rotulo:fn.rotulo,q:qtdFuncaoBase(fn.chave),mx:maxSustentavelFuncao(fn),chave:fn.chave})).filter(x=>x.q<x.mx); }catch(e){ return []; }
+  }
+  const assinatura=l=>l.map(x=>x.chave+':'+x.q+'/'+x.mx).join(';');
+  const concordou=l=>!l.length||ler(K_CONC)[setor()]===assinatura(l);
+  function concordar(l){ const c=ler(K_CONC); c[setor()]=assinatura(l); gravar(K_CONC,c); }
+  const aceito=()=>!!ler(K_ACEITO)[chaveMes()];
+  function marcarAceito(v){ const a=ler(K_ACEITO); if(v) a[chaveMes()]=true; else delete a[chaveMes()]; gravar(K_ACEITO,a); }
+  const temEscala=()=>{ try{ return Object.values(trabalhoDomingo||{}).some(l=>Array.isArray(l)&&l.length)&&$i('domingosCard')?.style.display!=='none'; }catch(e){ return false; } };
+
+  function fecharJanela(){ $i('v318Janela')?.remove(); }
+  function abrirJanela(l){
+    fecharJanela();
+    const j=document.createElement('div'); j.id='v318Janela'; j.className='v318-janela';
+    j.innerHTML=`<div class="v318-caixa" role="dialog" aria-modal="true" aria-labelledby="v318JanelaTit">
+      <h3 id="v318JanelaTit">🟡 O 2×1 não cabe para todos</h3>
+      <p style="margin:0">Com os números do <b>Por cargo</b>, nem todo mundo consegue trabalhar 2 domingos e folgar 1:</p>
+      <ul>${l.map(x=>`<li><b>${htmlEsc(x.rotulo)}</b>: precisa de <b>${x.mx}</b> por domingo; você escolheu <b>${x.q}</b>.</li>`).join('')}</ul>
+      <p style="margin:0">Se você concordar, o app gera assim e <b>alguns esperam a vez</b>. O número que você escolheu continua sendo o máximo.</p>
+      <div class="v318-linha"><button type="button" class="btn success" id="v318Concordo">✅ Concordo, gerar assim</button><button type="button" class="btn secondary" id="v318Voltar">↩️ Voltar e mudar os números</button></div></div>`;
+    document.body.appendChild(j);
+    $i('v318Concordo').onclick=()=>{ concordar(l); fecharJanela(); $i('btnGerar')?.click(); };
+    $i('v318Voltar').onclick=()=>{ fecharJanela(); try{ window.v45GotoStep?.(2,false); }catch(e){} setTimeout(()=>$i('configFuncao')?.scrollIntoView({behavior:'smooth',block:'start'}),300); };
+    setTimeout(()=>$i('v318Concordo')?.focus(),0);
+  }
+  // Antes de qualquer 🚀 Gerar escala (barra de baixo, menu, atalho): pede o “concordo” e prepara o cenário novo.
+  document.addEventListener('click',e=>{
+    if(!e.target.closest?.('#btnGerar')) return;
+    const l=naoCabe();
+    if(!concordou(l)){ e.preventDefault(); e.stopImmediatePropagation(); abrirJanela(l); return; }
+    if(automatico()&&porCargo()){
+      if(aceito()) setTimeout(()=>window.showToast?.('Cenário aceito: o 🚀 Gerar mantém o que você aceitou. Para um cenário novo, toque em 🧹 Limpar escala.','info'),400);
+      else{ window.__v318Semente=Math.floor(Math.random()*1e9)+1; try{ sugestaoAnteriorFuncao={}; }catch(err){} }
+    }
+  },true);
+
+  function limparEscala(){
+    const ano=+$i('ano').value, mes=+$i('mes').value;
+    try{ carregarCfgFuncao(); domingosDoMes(ano,mes).forEach(d=>{ const iso=isoDomingo(ano,mes,d); delete aceitosFuncao[iso]; }); sugestaoAnteriorFuncao={}; salvarCfgFuncao(); }catch(e){}
+    marcarAceito(false); window.__v318Semente=0;
+    try{ selecaoManualDomingo={}; horariosManuaisDomingo={}; horariosManuaisFeriado={}; antecipacoesFolgaManual={}; }catch(e){}
+    try{ $i('mes').onchange?.(); }catch(e){}
+    ['painelMes','domingosCard','tabelaCard'].forEach(id=>{ const x=$i(id); if(x) x.style.display='none'; });
+    const v=$i('validacao'); if(v){ v.className='alert'; v.innerHTML='🧹 Escala limpa. Toque em <b>🚀 Gerar escala</b> na barra verde lá embaixo para fazer uma nova.'; }
+    try{ salvarSetorAtual(); }catch(e){}
+    render(); window.showToast?.('Escala limpa. Pode gerar uma nova.','ok');
+  }
+  function aceitarCenario(){
+    if(!temEscala()) return;
+    try{ confirmarTodosDomingosFuncao(); }catch(e){}
+    marcarAceito(true); render();
+    window.showToast?.('Cenário aceito e guardado. Para mudar alguém, use 🔄 Trocar no domingo.','ok');
+  }
+  function render(certeza){
+    const box=$i('v318Acoes'); if(!box) return;
+    if(!(window.equipe||equipe||[]).length){ box.innerHTML=''; return; }
+    const gerada=temEscala(), cargo=automatico()&&porCargo(), ok=cargo&&aceito();
+    let h='';
+    if(cargo&&!ok) h+=`<p class="v318-dica">🎲 No Automático + Por cargo, cada toque em <b>🚀 Gerar escala</b> traz um <b>cenário novo</b> com quem está disponível. Gostou? Toque em <b>✅ Aceitar cenário</b>.</p>`;
+    if(ok) h+=`<div class="v318-aceito">✅ <b>Cenário aceito e guardado.</b> Para mudar alguém, use <b>🔄 Trocar</b> no domingo. Para um cenário novo, toque em <b>🧹 Limpar escala</b>.</div>`;
+    if(certeza) h+=`<div class="v318-certeza">⚠️ <b>Tem certeza?</b> Isso apaga a escala deste mês e os domingos confirmados. A equipe, o Por cargo e o Mês passado continuam.<div class="v318-linha" style="margin-top:8px"><button type="button" class="btn danger sm" id="v318LimparSim">🧹 Sim, limpar tudo</button><button type="button" class="btn secondary sm" id="v318LimparNao">Cancelar</button></div></div>`;
+    else if(gerada) h+=`<div class="v318-linha">${cargo&&!ok?`<button type="button" class="btn success sm" id="v318Aceitar">✅ Aceitar cenário</button>`:''}<button type="button" class="btn secondary sm" id="v318Limpar">🧹 Limpar escala</button></div>`;
+    box.innerHTML=h;
+    if($i('v318Aceitar')) $i('v318Aceitar').onclick=aceitarCenario;
+    if($i('v318Limpar')) $i('v318Limpar').onclick=()=>render(true);
+    if($i('v318LimparSim')) $i('v318LimparSim').onclick=limparEscala;
+    if($i('v318LimparNao')) $i('v318LimparNao').onclick=()=>render(false);
+  }
+  const orig=window.gerarSetores;
+  if(typeof orig==='function') window.gerarSetores=function(){ const r=orig.apply(this,arguments); try{ render(); }catch(e){} return r; };
+  ['mes','ano','modoCobertura','modoGeracao','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(()=>{ try{ render(); if(id==='modoGeracao'&&porCargo()) renderConfigFuncao(); }catch(e){} },0)));
+  window.v318={naoCabe,concordou,aceito,limparEscala,aceitarCenario,render};
+  setTimeout(()=>{ try{ render(); }catch(e){} },800);
 })();
 </script>
 </body>
