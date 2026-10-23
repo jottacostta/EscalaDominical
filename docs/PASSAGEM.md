@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V303.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V304.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V199.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V304**, Encarregados **V200**.
+- **Próximo número de versão:** Setores **V305**, Encarregados **V200**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — Feriado no domingo dá folga a mais no ensaio à mão — Setores V304 — Claude
+- **Pedido do Gerente:** no ensaio 5×2, feriado que cai no domingo — além do DSR, quem trabalha tem direito a mais uma folga referente ao feriado. Decisão do Gerente: **só quem trabalha** o domingo-feriado ganha a folga (mesma regra do motor oficial, AGENTS.md §5).
+- **Causa:** `manFeriadosTrabalhados` só olhava os feriados de dia útil (`manDados.feriados`); os de domingo (`manDados.feriadosDom`) ficavam só marcados.
+- **Mudança:** novo `manTrabalhaDomingoFeriado(p,iso)` (lê `manDados.domingos`) e `manFeriadosTrabalhados` passa a incluir os domingos-feriado trabalhados. A sugestão (`manSugerir`), o casamento de 20 dias (`manCasarCompensatorias`), a conferência e o rótulo F15 saem daí, sem outra mudança. A semana continua com DSR1/DSR2 (o domingo trabalhado não desconta descanso).
+- **Testes:** novo `testarFeriadoDomingo5x2` (gated ≥304, nov/2026 com 15/11 no domingo): quem trabalha o 15/11 tem a folga do feriado listada na conferência (a grade mostra F15 quando cai em novembro; nos dias 1–5/12 ela fica fora da grade), DSR1+DSR2 na semana, quem folga não ganha folga a mais, F15 dentro de 20 dias, 0 erro. **Falha na V303** (0 de 33) e passa na V304. Suíte rápida: ✅ Tudo certo (1117 s).
+- **Assinado:** Claude
 
 ### 2026-10-23 — Motor 5×2 oficial parametrizado (6×1/5×2) — Setores V303 / Encarregados V199 — Claude
 - **Pedido do Gerente:** verificar se Manus terminou a branch `manus/parametriza-regime-6x1-5x2` (motor parametrizado 6×1/5×2 + correção do DSR); se não, terminar a tarefa. A branch **nunca foi publicada** no GitHub (nem PR); a #123 (V302, DSR1/DSR2 no ensaio à mão) foi mergeada antes, por ordem do Gerente. Este PR refaz do zero a parte do motor oficial (issue #116, item 1).

@@ -1547,6 +1547,42 @@ async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à
   await p.close();
 }
 
+async function testarFeriadoDomingo5x2(browser, app, nome, abrir){   // V304: feriado no domingo — quem trabalha ganha DSR1/DSR2 + 1 folga do feriado (F15) em até 20 dias
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 304) return;
+  console.log('\n▶ ' + nome + ' — 🧪 feriado no domingo (15/11/2026) no ensaio à mão');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; m.habilitar(true); m.montar(); m.sugerir(); m.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
+    if(!t) return { semTabela: true };
+    const cab = [...t.querySelectorAll('thead th')].slice(1).map(th => th.textContent);
+    const col = cab.findIndex(x => /15/.test(x) && /🟡/.test(x));
+    let trab = 0, trabComF15 = 0, folga = 0, folgaComF15 = 0, dsrSemana = 0, f15ForaPrazo = 0;
+    const avisos = box.textContent;   // a folga do feriado pode cair no começo do mês seguinte (fora da grade); a conferência lista a data
+    [...t.querySelectorAll('tbody tr')].forEach(tr => {
+      const tds = [...tr.querySelectorAll('td')], dom = tds[col] && tds[col].textContent.trim(), nomeP = tr.querySelector('th').textContent.trim();
+      const comp15 = avisos.includes(nomeP + ': folga compensatória do feriado 15/11/2026 em');
+      const f15 = tds.map((td, k) => td.textContent.trim() === 'F15' ? k : -1).filter(k => k >= 0);
+      f15.forEach(k => { if(k <= col || k > col + 20) f15ForaPrazo++; });
+      const semana = tds.slice(col - 6, col).map(td => td.textContent.trim());   // seg–sáb da semana do dia 15
+      if(dom === 'T'){ trab++; if(comp15 && f15.length <= 1) trabComF15++; if(semana.includes('DSR1') && semana.includes('DSR2')) dsrSemana++; }
+      else if(dom === 'F'){ folga++; if(f15.length || comp15) folgaComF15++; }
+    });
+    const texto = box.innerText, nErros = (texto.match(/(\d+) erro\(s\)/) || [])[1];
+    return { col, trab, trabComF15, folga, folgaComF15, dsrSemana, f15ForaPrazo, erros: nErros ? +nErros : -1 };
+  });
+  ok(!r.semTabela && r.col >= 0, nome + ': o domingo 15/11 aparece como feriado (🟡) na grade mensal');
+  ok(r.trab > 0 && r.trabComF15 === r.trab, nome + ': quem trabalha o domingo-feriado ganha 1 folga do feriado (F15) — ' + r.trabComF15 + ' de ' + r.trab + ', conferido na lista de avisos');
+  ok(r.dsrSemana === r.trab, nome + ': e continua com DSR1 e DSR2 na semana (' + r.dsrSemana + ' de ' + r.trab + ')');
+  ok(r.folga > 0 && r.folgaComF15 === 0, nome + ': quem folga o domingo-feriado não ganha folga a mais (' + r.folgaComF15 + ' de ' + r.folga + ')');
+  ok(r.f15ForaPrazo === 0, nome + ': a folga F15 cai depois do feriado, dentro de 20 dias');
+  ok(r.erros === 0, nome + ': a conferência não acusa erro' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -1879,7 +1915,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
