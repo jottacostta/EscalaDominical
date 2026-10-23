@@ -1516,6 +1516,7 @@ async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à
     const g = document.getElementById('v292Manual5x2Grade');
     const gradeC = g ? g.querySelectorAll('button.v292-cel.v292-comp').length : 0;   // V301: folga compensatória na grade editável
     const gradeRuim = g ? g.querySelectorAll('.v292-manual-cont.ruim').length : -1;
+    const dsrLabels = g ? [...new Set([...g.querySelectorAll('button.v292-cel[aria-pressed="true"]:not(.v292-comp)')].map(b => b.textContent.trim()))] : [];   // V302: folgas da semana numeradas (DSR1/DSR2)
     m.conferir();
     const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
     if(!t) return { semTabela: true };
@@ -1526,7 +1527,7 @@ async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à
     const erros = (texto.match(/(\d+) erro\(s\)/) || [])[1];
     const avisoComp = /folga compensat[oó]ria do feriado .* dentro de 20/i.test(texto);   // V301: cita o prazo de 20 dias
     const naoCoube = /não coube em 20 dias/i.test(texto);
-    return { colFer, H, f, erros: erros ? +erros : -1, gradeC, gradeRuim, avisoComp, naoCoube };
+    return { colFer, H, f, erros: erros ? +erros : -1, gradeC, gradeRuim, avisoComp, naoCoube, dsrLabels };
   });
   const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
   ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece');
@@ -1537,6 +1538,10 @@ async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à
     ok(r.gradeC > 0 && !r.naoCoube, nome + ': quem trabalha feriado ganha folga compensatória (C) marcada dentro de 20 dias (C=' + r.gradeC + ', sem “não coube”)');
     ok(r.avisoComp, nome + ': a conferência mostra a data da folga compensatória dentro do prazo de 20 dias');
     ok(r.gradeRuim === 0, nome + ': com a compensatória contada na semana certa, nenhum contador fica errado');
+  }
+  if(v >= 302){   // V302: as folgas da semana aparecem como DSR numerado (DSR1/DSR2), não mais como "DSR"/"F" solto
+    ok(r.dsrLabels.includes('DSR1') && r.dsrLabels.includes('DSR2'), nome + ': as folgas da semana aparecem numeradas (DSR1 e DSR2) — ' + JSON.stringify(r.dsrLabels));
+    ok(!r.dsrLabels.includes('DSR') && !r.dsrLabels.includes('F'), nome + ': folga da semana não aparece como “DSR” solto nem “F” (F fica só no domingo/feriado)');
   }
   ok(!erros.length, nome + ': sem erro de JavaScript com feriados' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
