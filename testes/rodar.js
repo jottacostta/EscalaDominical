@@ -1815,6 +1815,26 @@ async function testarConfirmadosPorCargo(browser, app, nome){
   await p.close();
 }
 
+/* V313 — o card “Mês passado” guarda a escolha na hora e ela volta ao recarregar, trocar de mês e gerar */
+async function testarMesPassadoGuardado(browser, app, nome, abrir){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 313) return;
+  console.log('\n▶ ' + nome + ' — ⏮️ “Mês passado” guardado na hora');
+  const { p, erros, ctx } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const ler = () => p.evaluate(() => equipe.slice(0, 8).map((f, i) => ($('hist_pen_' + i)?.checked ? 'P' : '-') + ($('hist_ult_' + i)?.checked ? 'U' : '-')).join(' '));
+  await p.evaluate(() => { window.v45GotoStep?.(2, false); const est = ['ambos', 'ult', 'pen', 'nenhum', 'ambos', 'ult', 'pen', 'ambos'];
+    document.querySelectorAll('#historicoLista .history-row').forEach((row, k) => { if(k < 8) row.querySelector(`[data-hist-state="${est[k]}"]`)?.click(); }); });
+  await p.waitForTimeout(300);
+  const esperado = 'PU -U P- -- PU -U P- PU', escolhido = await ler();
+  await p.waitForTimeout(2500); await p.reload(); await p.waitForTimeout(4000); const recarregar = await ler();
+  await mudarMes(p, 11, 2026); await p.waitForTimeout(600); await mudarMes(p, 10, 2026); await p.waitForTimeout(800); const voltar = await ler();
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(4000); const gerar = await ler();
+  ok(escolhido === esperado, nome + ': o card registra a escolha (' + escolhido + ')');
+  ok(recarregar === esperado, nome + ': a escolha continua depois de recarregar a página (' + recarregar + ')');
+  ok(voltar === esperado && gerar === esperado, nome + ': continua ao trocar de mês e voltar (' + voltar + ') e depois de gerar (' + gerar + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
   console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
   const { p, erros } = await novaPagina(browser);
@@ -2147,7 +2167,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores'); await testarMesPassadoGuardado(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');

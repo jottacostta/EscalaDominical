@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V312.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V313.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V199.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V313**, Encarregados **V200**.
+- **Próximo número de versão:** Setores **V314**, Encarregados **V200**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-23 — “Mês passado” guardado na hora — Setores V313 — Claude
+- **Pedido do Gerente:** no card Mês passado, depois de escolher, salvar automaticamente e manter até o histórico ser salvo.
+- **Causa (✅ reproduzida):** as escolhas só existiam nos checkboxes `hist_pen_i`/`hist_ult_i`; ao recarregar, o card era redesenhado por `montarHistoricoManual` a partir de `statusHistoricoPorFuncionario` (vazio) e o rascunho não reaplicava → tudo voltava a “Nenhum”.
+- **Mudança:** bloco `V313` antes de `</body>`: `localStorage escalaSetores.v313MesPassado` = `{"setor|aaaa-mm": {t, marc: {matrícula ou n:NOME: [penúltimo, último]}}}` (máx. 24 meses/setores). Grava em cada clique em `[data-hist-state]`; embrulha `montarHistoricoManual` e `aplicarHistoricoAutomatico` para reaplicar a escolha (a escolha à mão vale sobre o automático); reaplica ao trocar mês/ano/setor. API `window.v313MesPassado = {guardar, aplicar, chave, ler}`.
+- **Testes:** `testarMesPassadoGuardado` (falha na V312 depois de recarregar; passa na V313: recarregar, trocar de mês e voltar, gerar).
+- **Assinado:** Claude
 
 ### 2026-10-23 — Por cargo: confirmados não passam do número pedido — Setores V312 — Claude
 - **Print do Gerente (Açougue, 🤖 Automático + Por cargo 5/5/1 + 1 liderança):** “Geração bloqueada — 15: 13 escalados; alvo total 12”. Lista do 15/11: 1 Enc + **6 açougueiros** + 5 operadores de câmara fria + 1 balconista.
