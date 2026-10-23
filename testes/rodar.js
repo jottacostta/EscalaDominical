@@ -1857,7 +1857,8 @@ async function testarDuplaPorCargo(browser, app, nome){
       if(!s[0] && s[1]){ ultSo++; if(s[2]) ultSoNo1++; }
       let run = 0; s.forEach(v => { run = v ? 0 : run + 1; if(run > maxFolga) maxFolga = run; }); trabMin = Math.min(trabMin, s.slice(2).reduce((a, b) => a + b, 0));
       for(let k = 2; k < s.length; k++){ if(s[k - 2] && s[k - 1] && s[k]) tres++; if(!s[k - 2] && s[k - 1] && !s[k] && !(k === 3 && !s[0] && !s[1])) isolado++; } });   // sem mês passado: trabalhar o 1º e folgar o 2º é permitido
-    return { maxFolga, trabMin, porDom: doms.map(d => (trabalhoDomingo[d] || []).filter(i => ops.includes(i)).length), isolado, tres, ultSo, ultSoNo1, bloq: /bloqueada/i.test($('validacao').innerText) }; });
+    const balc = equipe.map((f, i) => i).filter(i => /BALCONISTA/.test(equipe[i].cargo)).map(i => doms.filter(d => (trabalhoDomingo[d] || []).includes(i)).length);
+    return { balc, maxFolga, trabMin, porDom: doms.map(d => (trabalhoDomingo[d] || []).filter(i => ops.includes(i)).length), isolado, tres, ultSo, ultSoNo1, bloq: /bloqueada/i.test($('validacao').innerText) }; });
   ok(r.isolado === 0 && r.tres === 0, nome + ': quem começa a dupla trabalha o domingo seguinte — nenhum domingo isolado (' + r.isolado + ') e ninguém com 3 seguidos (' + r.tres + ')');
   ok(r.porDom.every(n => n === 11) && !r.bloq, nome + ': o número do Por cargo continua valendo (' + r.porDom.join(', ') + ' operacionais)');
   ok(r.ultSoNo1 === r.ultSo, nome + ': quem trabalhou só o último domingo do mês passado trabalha o 1º (' + r.ultSoNo1 + ' de ' + r.ultSo + ')');
@@ -1884,6 +1885,29 @@ async function testarEnc5x2FolgaAMais(browser, app, nome, abrir){
   });
   ok(!r.erros.length && r.folgas.length === 3, nome + ': com folga fixa na sexta e Natal no sábado, entra 1 folga a mais (' + r.folgas.join(', ') + ') e ninguém passa de 5 dias seguidos' + (r.erros.length ? ' — ' + r.erros[0] : ''));
   ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
+/* V316 — Por cargo: com 1 vaga, a vaga não fica presa ao turno com mais gente (2 balconistas na abertura + 1 no fechamento) */
+async function testarVagaUnicaSemTurno(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 316) return;
+  console.log('\n▶ ' + nome + ' — 🕐 Por cargo: 1 vaga não fica presa a um turno');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_balcao_26.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    coberturaFuncao.base = {}; aceitosFuncao = {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = /acougueiro/.test(fn.chave) ? 5 : /camara/.test(fn.chave) ? 5 : 1; }); salvarCfgFuncao();
+    try{ sugerirLiderancaDomingo(); }catch(e){}
+    document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(800);
+  const r = await p.evaluate(() => { const doms = domingosDoMes(2026, 10);
+    return equipe.map((f, i) => i).filter(i => /BALCONISTA/.test(equipe[i].cargo)).map(i => ({ turno: turnoPeso(equipe[i].turno) || equipe[i].turno, n: doms.filter(d => (trabalhoDomingo[d] || []).includes(i)).length })); });
+  const fech = r.filter(x => /FECH/.test(x.turno));
+  ok(r.length === 3 && fech.length === 1 && r.every(x => x.n >= 1), nome + ': 3 balconistas (2 abertura, 1 fechamento) e 1 vaga — todos trabalham no mês, inclusive o do fechamento (' + r.map(x => x.turno.slice(0, 4) + ':' + x.n).join(', ') + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
 }
 
 async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
@@ -2218,7 +2242,7 @@ async function testarSemTxt(browser, app, nome, dados){
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores'); await testarMesPassadoGuardado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDuplaPorCargo(browser, APP_SETORES, 'Setores');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores'); await testarMesPassadoGuardado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDuplaPorCargo(browser, APP_SETORES, 'Setores'); await testarVagaUnicaSemTurno(browser, APP_SETORES, 'Setores');
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
