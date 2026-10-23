@@ -1955,6 +1955,7 @@ async function testarConcordoCenarioLimpar(browser, app, nome){   // V318: conco
   await p.evaluate(() => { $('btnGerar').click(); document.getElementById('v318Concordo').click(); }); await esperar();
   const f1 = await foto();
   ok(await tem(), nome + ': “✅ Concordo, gerar assim” gera a escala (não bloqueia)');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 319) ok(await p.evaluate(() => !!document.getElementById('v318Limpar') && !!document.getElementById('v318Aceitar')), nome + ': já no 1º 🚀 Gerar aparecem os botões “🧹 Limpar escala” e “✅ Aceitar cenário” (V319)');
   const fs = [f1];
   for(let k = 0; k < 2; k++){ const janela = await p.evaluate(() => { $('btnGerar').click(); return !!document.getElementById('v318Janela'); }); if(janela) fs.push(null); await p.waitForTimeout(1500); fs.push(await foto()); }
   ok(!fs.includes(null), nome + ': depois de concordar, não pergunta de novo enquanto os números não mudam');
