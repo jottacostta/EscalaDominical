@@ -2179,7 +2179,9 @@ async function testarSetorForaDaEscala(browser, app, nome){   // V325: setor for
   const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.evaluate(() => document.getElementById('btnImportarERPHome').click())]);
   await fc.setFiles(ARQ); await p.waitForSelector('#erpModal', { timeout: 20000 });
   const previa = await p.evaluate(() => document.querySelector('#erpModal')?.innerText || '');
-  await p.click('#erpAplicar'); await p.waitForTimeout(1500);
+  await p.click('#erpAplicar'); await p.waitForTimeout(800);
+  // espera o "apto ao domingo" do SESMT assentar (evita flake de tempo): a aplicação do ERP é assíncrona
+  await p.waitForFunction(() => { const te = Array.isArray(todasEquipes) ? todasEquipes : []; const s = te.filter(f => /sesmt/i.test(String(f.setor || ''))); return s.length >= 1 && s.every(f => foraDom(f)); }, { timeout: 15000 }).catch(() => {});
   const r = await p.evaluate(() => {
     const te = Array.isArray(todasEquipes) ? todasEquipes : [];
     const sesmt = te.filter(f => /sesmt/i.test(String(f.setor || '')));
@@ -2257,8 +2259,8 @@ async function testarCompFeriadoSoQuemTrabalha(browser, app, nome){   // V327: f
 }
 
 async function testarOrdemCompensatorias(browser, app, nome){   // Regra do Gerente: feriados 2, 15, 20 — compensatória programada na ordem do feriado (2→15→20) e sempre em até 20 dias
-  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 327) return;
-  console.log('\n▶ ' + nome + ' — 🗓️ compensatória: ordem 2→15→20 e sempre em até 20 dias');
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 328) return;
+  console.log('\n▶ ' + nome + ' — 🗓️ compensatória: ordem 2→15→20 e sempre em até 20 dias (muitas pessoas)');
   const { p, erros } = await novaPagina(browser);
   await p.goto('file://' + app); await p.waitForTimeout(1200);
   await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
@@ -2267,22 +2269,23 @@ async function testarOrdemCompensatorias(browser, app, nome){   // Regra do Gere
   const r = await p.evaluate(() => {
     const fe = document.getElementById('feriadosExtras'); if(fe){ fe.value = '02/11 - Teste A\n20/11 - Teste B'; fe.dispatchEvent(new Event('change', { bubbles: true })); }
     const fer = feriados(2026, 10);
-    // pessoas 0 e 1 trabalham os três feriados (2 e 20 de dia útil; 15 no domingo)
-    trabalhoDomingo = { 15: [0, 1] }; trabalhoFeriado = { 2: [0, 1], 20: [0, 1] };
+    // muitas pessoas trabalhando os três feriados (2 e 20 de dia útil; 15 no domingo) — cenário do Milton
+    const todos = equipe.map((f, i) => i).slice(0, 25);
+    trabalhoDomingo = { 15: todos }; trabalhoFeriado = { 2: todos, 20: todos };
     sugestoesFolgasFeriado = {}; folgasCompensatorias = {}; sugestoesRecusadasFeriado = {}; feriadosPausadosSugestao = {};
     gerarSugestoesFolgasFeriado();
     const info = i => [2, 15, 20].map(d => { const sug = sugestoesFolgasFeriado[d + '_' + i]; if(!sug) return { d, falta: true }; const dias = Math.round((new Date(sug + 'T12:00:00') - new Date(2026, 10, d, 12)) / 864e5); return { d, sug, dias }; });
-    // ordem de PROGRAMAÇÃO: zera e refaz observando a ordem em que as chaves entram
-    const ordem = []; const origGer = window.gerarSugestoesFolgasFeriado;
-    return { temFer: !!(fer[2] && fer[15] && fer[20]), p0: info(0), p1: info(1) };
+    const pessoas = todos.map(i => ({ nome: equipe[i].nome.split(' ')[0], sug: info(i) }));
+    return { temFer: !!(fer[2] && fer[15] && fer[20]), nPessoas: todos.length, pessoas };
   });
   ok(r.temFer, nome + ': 02/11, 15/11 e 20/11 são feriados em novembro/2026');
-  const todas = [...r.p0, ...r.p1];
-  ok(todas.every(x => !x.falta), nome + ': todo feriado trabalhado recebe uma folga compensatória (' + todas.filter(x => x.falta).map(x => 'F' + x.d).join(',') + ' sem data)');
-  ok(todas.every(x => x.falta || (x.dias >= 1 && x.dias <= 20)), nome + ': cada folga compensatória cai em até 20 dias do feriado (' + todas.map(x => 'F' + x.d + '=' + (x.dias ?? '—') + 'd').join(', ') + ')');
+  const todas = r.pessoas.flatMap(x => x.sug);
+  ok(todas.every(x => !x.falta), nome + ': todo feriado trabalhado recebe uma folga compensatória (' + todas.filter(x => x.falta).length + ' sem data)');
+  ok(todas.every(x => x.falta || (x.dias >= 1 && x.dias <= 20)), nome + ': cada folga compensatória cai em até 20 dias do feriado (janela de 20 dias sempre respeitada)');
   // dentro de cada pessoa, a compensatória do 2 não pode ser depois da do 15, nem a do 15 depois da do 20 (ordem do feriado)
   const emOrdem = ps => { const ds = [2, 15, 20].map(d => ps.find(x => x.d === d)?.sug).filter(Boolean); return ds.every((v, k) => k === 0 || ds[k - 1] <= v); };
-  ok(emOrdem(r.p0) && emOrdem(r.p1), nome + ': a compensatória do dia 2 vem antes da do 15, e a do 15 antes da do 20 (p0 ' + r.p0.map(x => x.sug || '—').join('/') + ')');
+  const fora = r.pessoas.filter(x => !emOrdem(x.sug));
+  ok(fora.length === 0, nome + ': a compensatória do 2 vem antes da do 15 e a do 15 antes da do 20 em TODAS as ' + r.nPessoas + ' pessoas (' + fora.length + ' fora de ordem' + (fora.length ? ': ' + fora.slice(0, 3).map(x => x.nome + ' ' + x.sug.map(s => s.sug || '—').join('/')).join('; ') : '') + ')');
   ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
