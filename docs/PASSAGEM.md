@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V328**, Encarregados **V205**.
+- **Próximo número de versão:** Setores **V329**, Encarregados **V205**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,16 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-24 — SESMT no gráfico, folga só p/ quem trabalha o feriado e ordem das compensatórias — Setores V326–V328 — Claude
+- **Pedido do Gerente (sequência):** (1) o SESMT deve aparecer no gráfico “Pessoas por área” (Gerência fica só na lista/tempo de serviço); (2) quem folga o domingo-feriado não pode receber a folga compensatória do feriado; (3) quem trabalha vários feriados recebe as compensatórias na ordem do feriado (2→15→20), sempre em até 20 dias.
+- **Setores V326** (`ehSesmtQuadro`, `graficoAreas` com linha `data-area-lista`): o SESMT entra no gráfico “🏬 Pessoas por área” como “· sem domingo” e abre a lista de nomes ao tocar; a Gerência continua fora do gráfico.
+- **Setores V327** (`limparCompensatoriasSemFeriado`, chamada no início de `gerarSugestoesFolgasFeriado` e antes do render): a compensatória (ex.: F15) é apagada de quem não trabalha aquele feriado — inclusive o domingo-feriado que a pessoa passou a folgar. As compensatórias pré-programadas de outro mês (chave `P…`) não são mexidas.
+- **Setores V328** (`minDataCompAnterior`, filtro em `dataSugestaoFolgaFeriado`, `feriado:d` nas reservas de `gerarSugestoesFolgasFeriado`): por pessoa, a compensatória de um feriado mais tarde não cai antes da de um feriado anterior. Se nenhuma data respeitar a ordem dentro dos 20 dias, a janela de 20 dias prevalece. Caso do Milton (trabalhava o 15, folga do 20 vinha primeiro).
+- **Testes novos/ajustados:** `testarSesmtNoGrafico` (fixtura `erpGerSesmt`), `testarCompFeriadoSoQuemTrabalha`, `testarOrdemCompensatorias` (reforçado: 25 pessoas, 0 fora de ordem, 20 dias sempre). `testarSetorForaDaEscala` ganhou espera determinística do “apto ao domingo” do SESMT (fim de um flake de tempo).
+- **Comprovação (V328):** 25 pessoas nos feriados 2/15/20 — V327: 3 fora de ordem (MARIA, OTAVIO, VITOR); V328: 0.
+- **Bateria completa:** ✅ Tudo certo (1229 s, 781 asserções). PR #135 verde (Playwright + Vercel) e mergeado (merge commit `fe7f714`).
+- **Assinado:** Claude
 
 ### 2026-10-24 — Motor 5×2 oficial, 2ª folga fixa, tudo no histórico e quadro completo — Setores V320–V325 / Encarregados V201–V204 — Claude
 - **Pedido do Gerente (sequência):** (1) 2×1 dos domingos equilibrado; (2) no 5×2 a folga do feriado é descanso a mais, não DSR (Lei 605, art. 1º); (3) o 5×2 entra como opção de 01/11 a 15/12/2026 (escolha por setor e mês) e vira o único a partir de 16/12/2026, com o 6×1 desligado; qualquer área de teste/ensaio deixa de existir; (4) a 2ª folga fixa de cada pessoa; (5) tudo guardado no histórico + aprendizado por machine learning; (6) Gerência e SESMT/TST contam no total do quadro.
