@@ -7,10 +7,13 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V325</title>
+<title>Escala de Setores — V326</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V326 [Claude] — 🦺 SESMT NO “PESSOAS POR ÁREA” (pedido do Gerente): o SESMT (onde fica o TST) passa a aparecer no gráfico
+       “🏬 Pessoas por área” do Resumo da loja, marcado como “· sem domingo” (conta no quadro, mas sem escala de domingo); tocar abre a lista
+       de nomes, não um setor. A Gerência continua só na lista do cartão “Pessoas no quadro” e no tempo de serviço, fora desse gráfico.
 V325 [Claude] — 🏢 SETORES FORA DA ESCALA CONTAM NO QUADRO (pedido do Gerente): na planilha do RH, quem está em setor que não vira
        cartão de escala (ex.: GERENCIA, SESMT/TST) era descartado (“fora das áreas”) e não aparecia no total. Agora entra no quadro da loja
        (total de funcionários, afastados, tempo de serviço), mas sem cartão de setor e sem escala de domingo (não conta como apto). A prévia
@@ -2882,7 +2885,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V325 · Gerência e SESMT contam no quadro</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V326 · SESMT aparece no “Pessoas por área”</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -10783,10 +10786,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function graficoAreas(todas){
     const lista=GRUPOS_SETOR.map(g=>{ const p=todas.filter(f=>pertenceAoGrupo(f,g.id)), at=p.filter(ativa).filter(f=>comAprendiz||!ehAprend(f)); return {id:g.id,nome:g.nome,ic:g.ic,n:at.length,total:p.length}; }).filter(x=>x.total>0).sort((a,b)=>b.n-a.n);
+    { const ps=todas.filter(ehSesmtQuadro); if(ps.length){ const at=ps.filter(ativa).filter(f=>comAprendiz||!ehAprend(f)); lista.push({id:'SESMT',nome:'SESMT',ic:'🦺',n:at.length,total:ps.length,semEscala:true}); } }   // V326
     if(!lista.length) return '';
     const mx=Math.max(1,...lista.map(x=>x.n)), tot=lista.reduce((n,x)=>n+x.n,0);
     return `<h4>🏬 Pessoas por área</h4><p class="sub">Ativas em cada área (${tot} no total). Toque numa área para abrir o setor.</p>`
-      +`<div class="dist-lista">`+lista.map(x=>`<div class="dist-area" data-area="${esc(x.id)}"><span class="dist-rot" title="${esc(x.nome)}">${x.ic} ${esc(x.nome)}</span><div class="dist-trilho" style="background:var(--blue-100)"><i class="dist-barra" style="width:${Math.max(2,Math.round(x.n/mx*100))}%"></i></div><b style="text-align:right">${x.n}</b><small style="text-align:right;color:var(--muted)">${Math.round(x.n/Math.max(1,tot)*100)}%</small></div>`).join('')+`</div>`;
+      +`<div class="dist-lista">`+lista.map(x=>`<div class="dist-area${x.semEscala?' dist-area-sem':''}" ${x.semEscala?`data-area-lista="${esc(x.id)}" title="${esc(x.nome)} — conta no quadro, sem escala de domingo"`:`data-area="${esc(x.id)}"`}><span class="dist-rot" title="${esc(x.nome)}">${x.ic} ${esc(x.nome)}${x.semEscala?' <small style="color:var(--muted)">· sem domingo</small>':''}</span><div class="dist-trilho" style="background:var(--blue-100)"><i class="dist-barra" style="width:${Math.max(2,Math.round(x.n/mx*100))}%"></i></div><b style="text-align:right">${x.n}</b><small style="text-align:right;color:var(--muted)">${Math.round(x.n/Math.max(1,tot)*100)}%</small></div>`).join('')+`</div>`;
   }
 
   /* ---- afastados: por situação, função e horário ---- */
@@ -10828,6 +10832,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 
   /* ---- lista de nomes ao tocar numa linha do gráfico de afastados ---- */
   const areaDe=f=>{ try{ const g=GRUPOS_SETOR.find(x=>pertenceAoGrupo(f,x.id)); return g?g.nome:(f.setor||''); }catch(e){ return f.setor||''; } };
+  // V326: SESMT (onde fica o TST) aparece no gráfico “Pessoas por área”, marcado como sem escala de domingo. A Gerência fica só na lista e no tempo de serviço.
+  const ehSesmtQuadro=f=>{ try{ return !GRUPOS_SETOR.some(x=>pertenceAoGrupo(f,x.id)) && ['sesmt','tst'].includes(norm(f.setor||'')); }catch(e){ return false; } };
   function copiarTexto(txt){
     return (navigator.clipboard&&window.isSecureContext?navigator.clipboard.writeText(txt):Promise.reject()).catch(()=>{
       const ta=document.createElement('textarea'); ta.value=txt; ta.style.cssText='position:fixed;opacity:0;top:0;left:0'; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); if(!ok) throw new Error('copy'); });
@@ -11019,6 +11025,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     $$('homeDistHorarios').innerHTML=r.h; $$('homeDistFolgas').innerHTML=r.f; $$('homeDistMapa').innerHTML=r.m;
     ligar($$('homeDistHorarios'),true); ligar($$('homeDistMapa'),true);
     $$('homeDistAreas').querySelectorAll('[data-area]').forEach(l=>l.addEventListener('click',()=>{ try{ escolherSetorHome(l.dataset.area); }catch(e){ console.warn(e); } }));
+    $$('homeDistAreas').querySelectorAll('[data-area-lista]').forEach(l=>l.addEventListener('click',()=>{ try{ const a=l.dataset.areaLista, ps=(Array.isArray(todasEquipes)?todasEquipes:[]).filter(ehSesmtQuadro); abrirListaPessoas(a,`${ps.length} pessoa(s) — conta no quadro, sem escala de domingo`,ps,{ic:'🦺'}); }catch(e){ console.warn(e); } }));
     aberto.forEach(i=>{ const d=$$('homeDistHorarios').querySelector(`.dist-linha[data-lin="${i}"] .dist-det`); if(d) d.hidden=false; });
   }
   function refazer(){ assin=''; assinHome=''; render(true); renderHome(true); }
