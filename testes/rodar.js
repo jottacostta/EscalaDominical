@@ -2865,12 +2865,12 @@ async function testarPlanilhaGabriel(browser){
     ok(!/ainda não aplicada/.test(r[0]) && /erp_fpre815_ficticio\.xlsx/.test(r[0]) && /02\/10\/2026 09:41/.test(r[0]) && /Plan1/.test(r[0]) && /Legenda/.test(r[0]), 'depois de aplicar o Gabriel conta o que leu: arquivo, emissão e abas');
     ok(/2 aba\(s\)/.test(r[1]) && /28 linhas/.test(r[2]) && /11 de funcionário/.test(r[0]), 'responde quantas abas (2), quantas linhas (28) e quantos funcionários (11)');
     ok(/✅/.test(r[3]) && /6 total/.test(r[3]), 'a planilha confere: “✅ … 6 totais por setor e o total da empresa batem”');
-    ok(/SESMT/.test(r[4]) && /Legenda/.test(r[4]) && /horário/.test(r[4]) && /Não invento/.test(r[4]), 'diz o que não interpretou: setor SESMT, aba Legenda e horários com texto — sem inventar significado');
+    ok(/Legenda/.test(r[4]) && /horário/.test(r[4]) && /Não invento/.test(r[4]), 'diz o que não interpretou: aba Legenda e horários com texto — sem inventar significado (V325: o SESMT agora conta no quadro)');
     ok(/Plan1/.test(r[5]) || /planilha/i.test(r[5]), 'pergunta com abreviação/erro (“qm importou a planilha”, “vc leu do arquivo”) também é entendida');
     const g = await p.evaluate(k => { const o = JSON.parse(localStorage.getItem(k) || 'null'); if(!o) return null; const a = o.pessoas['90001']; return { n: Object.keys(o.pessoas).length, l: a && a.l, e: a && a.e, h: a && a.h, f: a && a.f, s: a && a.s, ab: a && a.a, ad: a && a.ad, chaves: Object.keys(localStorage).filter(x => /v271/.test(x)) }; }, LS);
     ok(g && g.n === 11 && g.l === 8 && g.e === '23' && g.h === '10:00-18:20 seg/sab' && g.f === 'FILIAL 05' && g.s === 'FRENTE DE LOJA' && g.ab === 'Plan1' && g.ad === '2019-03-04', 'o que o app não guardava agora fica registrado por pessoa: linha de origem, código da escala, texto do horário, filial, setor e admissão');
     ok(g && g.chaves.length === 1, 'só uma chave nova no aparelho (separada do aprendizado do Assistente e do histórico)');
-    ok(await p.evaluate(() => Array.isArray(todasEquipes) && todasEquipes.length === 10), 'o importador continua aplicando a equipe como antes (10 pessoas das áreas do app)');
+    ok(await p.evaluate(() => Array.isArray(todasEquipes) && todasEquipes.length === 11), 'o importador conta também os setores fora da escala (V325: 11 = 10 das áreas + 1 do SESMT)');
     ok(/planilha do RH/.test((await perg(p, ['o que você sabe fazer?']))[0]), 'a lista de capacidades cita a planilha do RH');
     { const x = (await perg(p, ['como baixar a planilha excel?']))[0]; ok(!/aba\(s\)|Plan1|ainda não aplicada/.test(x), 'mesmo com planilha lida, “como baixar a planilha Excel?” não vira resumo da planilha'); }
     await p.reload(); await p.waitForTimeout(1800);
