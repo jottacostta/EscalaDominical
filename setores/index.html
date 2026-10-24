@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V324</title>
+<title>Escala de Setores — V325</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V325 [Claude] — 🏢 SETORES FORA DA ESCALA CONTAM NO QUADRO (pedido do Gerente): na planilha do RH, quem está em setor que não vira
+       cartão de escala (ex.: GERENCIA, SESMT/TST) era descartado (“fora das áreas”) e não aparecia no total. Agora entra no quadro da loja
+       (total de funcionários, afastados, tempo de serviço), mas sem cartão de setor e sem escala de domingo (não conta como apto). A prévia
+       da importação mostra “Contam no quadro, sem escala de domingo: Gerência (n), SESMT (n)”.
 V324 [Claude] — 📦 TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga
        fixa de cada pessoa agora vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam sozinhas ao abrir o arquivo ou o
        salvamento automático. O app aprende a 2ª folga preferida de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado.
@@ -2878,7 +2882,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V324 · Tudo no histórico + aprendizado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V325 · Gerência e SESMT contam no quadro</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -10263,14 +10267,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):'';
       const statusErp=String(c[colSta]||'').trim();
       const situacao=(!statusErp||/trabalhando/i.test(statusErp))?'A':'AF';
-      let setorApp=SETORES_ERP[nt(setorAtual)]||null;
+      let setorApp=SETORES_ERP[nt(setorAtual)]||null, semEscala=false;
+      if(!setorApp && setorAtual){ semEscala=true; setorApp=({'gerencia':'Gerência','gerência':'Gerência','sesmt':'SESMT','tst':'SESMT'})[nt(setorAtual)]||limparSetorErp(setorAtual); }   // V325: setor fora da escala (ex.: Gerência, SESMT/TST) conta no quadro, mas sem cartão nem domingo
       if(setorApp==='Frente de Loja'&&/G\.?\s*CARD/i.test(cargo)) setorApp='Guanabara Card';
       const setorAntes=setorApp; setorApp=redirecionarSetorPorCargo(setorApp,cargo); const redirecionado=setorAntes!==setorApp;
       let folga=null, folgaOrigem='';
       const mf=bruto.match(/folga\s+(dom|seg|ter|qua|qui|sex|s[aá]b)/i);
       if(mf){ folga=DIAS.indexOf(nt(mf[1]).slice(0,3)); folgaOrigem='erp'; }
       else if(/seg(unda)?\s*(a|\/|-|à)\s*s[aá]b/i.test(bruto)||/2ª\s*a\s*s[aá]b/i.test(bruto)){ folga=0; folgaOrigem='inferida'; }
-      const p={mat,nome:String(c.B).replace(/\s+/g,' ').trim().toUpperCase(),cargo,horario,turno,statusErp,situacao,setorErp:setorAtual,setorApp,folga,folgaOrigem,redirecionado,setorAntes,bloqueioDomingo:bloqueioDomingoPorRegra({setor:setorApp,cargo}),admissao:admissaoISO(c[colAdm]),obs:bruto.replace(reHor,'').trim()};
+      const p={mat,nome:String(c.B).replace(/\s+/g,' ').trim().toUpperCase(),cargo,horario,turno,statusErp,situacao,setorErp:setorAtual,setorApp,folga,folgaOrigem,redirecionado,setorAntes,bloqueioDomingo:semEscala||bloqueioDomingoPorRegra({setor:setorApp,cargo}),semEscala,admissao:admissaoISO(c[colAdm]),obs:bruto.replace(reHor,'').trim()};
       setoresErp[setorAtual]=(setoresErp[setorAtual]||0)+1;
       (setorApp?pessoas:foraDasAreas).push(p);
     });
@@ -10327,6 +10332,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <h4>Por área da escala</h4>
       <div style="max-height:220px;overflow:auto"><table><thead><tr><th>Área / setor</th><th>Pessoas</th><th>Afastados</th></tr></thead><tbody>${tabela}</tbody></table></div>
       ${Object.keys(fora).length?`<p class="erp-sub" style="margin-top:8px">Fora das áreas (não importados): ${Object.entries(fora).map(([k,v])=>esc(k)+' ('+v+')').join(', ')}.</p>`:''}
+      ${(()=>{ const se={}; an.pessoas.forEach(p=>{ if(p.semEscala){ se[p.setorApp]=(se[p.setorApp]||0)+1; } }); const ks=Object.keys(se); return ks.length?`<p class="erp-sub" style="margin-top:8px">📋 Contam no quadro, sem escala de domingo: ${ks.map(k=>esc(k)+' ('+se[k]+')').join(', ')}.</p>`:''; })()}
       <h4>Opções</h4>
       <label class="erp-op"><input type="checkbox" id="erpOpSaidas" ${cmp.saidas.length?'checked':''}><span>Tirar do app quem <b>não aparece mais</b> na planilha (${cmp.saidas.length}).</span></label>
       <input type="checkbox" id="erpOpSegSab" hidden>
