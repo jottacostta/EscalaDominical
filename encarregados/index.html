@@ -7,10 +7,12 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V200</title>
+<title>Escala 2×1 — Encarregados V201</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V201 [Claude] — MOTOR 5×2: A FOLGA DO FERIADO NÃO É DSR (Lei 605, art. 1º): o feriado de folga entrava como 1 das 2 folgas da
+       semana. Agora é descanso a mais: semana com feriado de folga tem as 2 folgas da semana (ou 1 + o domingo de folga) e mais o feriado.
 V200 [Claude] — MOTOR 5×2: FOLGA A MAIS PARA NÃO PASSAR DE 5 DIAS SEGUIDOS: quando a folga fixa e o feriado ficam no fim da semana
        e ainda sobram 6 dias seguidos (ex.: folga fixa sexta 24/12/2027 + Natal no sábado), o motor 5×2 oficial acrescenta 1 folga
        (até 3 de segunda a sábado). Antes o plano de dezembro/2027 era recusado. Mesma correção da Setores V306.
@@ -2085,7 +2087,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V200 · Motor 5×2: folga a mais para não passar de 5 dias seguidos</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V201 · Motor 5×2: folga do feriado não é DSR</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -10875,6 +10877,12 @@ function perguntarOrientacaoImpressao(cb){
   }
   const alvoSemana=(i,sem,cct)=>cct?1:Math.max(0,parametros('5x2').descansos-(domingoDeFolga(i,sem)?1:0));
   // V199: a folga compensatória do feriado é folga a mais; não conta como descanso da semana.
+  // V321/V201: feriado (seg–sáb) em que a pessoa não trabalha — é descanso a mais, não conta nas 2 folgas da semana.
+  function feriadoDeFolga(i,dt){
+    if(typeof v292ContextoTeste!=='undefined'&&v292ContextoTeste){ const c=v292ContextoTeste; return dt.getFullYear()===c.ano&&dt.getMonth()===c.mes&&!!c.feriados[dt.getDate()]&&!(c.trabalhoFeriado[dt.getDate()]||[]).map(Number).includes(Number(i)); }
+    const m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
+    return !!(m&&dt.getMonth()===m.mes&&dt.getFullYear()===m.ano&&fer[dt.getDate()]&&!(tf[dt.getDate()]||[]).map(Number).includes(Number(i)));
+  }
   function ehCompensatoria(i,dt){
     const k=dataKey(dt);
     try{if(typeof originalComp==='function'&&originalComp(i,dt))return true;}catch(e){}
@@ -10970,7 +10978,7 @@ function perguntarOrientacaoImpressao(cb){
         // Preferimos duas folgas em dias diferentes; só juntamos quando não há outra combinação válida.
         if(selecionadas.size!==alvo&&!herdada){
           selecionadas=new Set();
-          const existentes=sem.filter(dt=>dt.getDay()>=1&&dt.getDay()<=6&&dataGerenciada(dt)&&descansoExistente(i,dt)&&!ehCompensatoria(i,dt)).sort((a,b)=>pontuar(i,b,carga,pessoaDesignadas)-pontuar(i,a,carga,pessoaDesignadas));
+          const existentes=sem.filter(dt=>dt.getDay()>=1&&dt.getDay()<=6&&dataGerenciada(dt)&&descansoExistente(i,dt)&&!ehCompensatoria(i,dt)&&!feriadoDeFolga(i,dt)).sort((a,b)=>pontuar(i,b,carga,pessoaDesignadas)-pontuar(i,a,carga,pessoaDesignadas));   // V321/V201: o feriado de folga é descanso a mais (Lei 605, art. 1º), não é 1 das 2 folgas da semana
           existentes.slice(0,alvo).forEach(dt=>selecionadas.add(dataKey(dt)));
           const escolha=escolherFolgas(i,sem,selecionadas,alvo,pessoaDesignadas,carga);
           if(!escolha)erros.push(`${f?.nome||'Pessoa '+(i+1)}: não encontrei ${cfg.cctMensal?'uma':'duas'} folga(s) possíveis na semana de ${inicio}.`);
