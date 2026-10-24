@@ -1344,6 +1344,7 @@ async function testarToastNaoCobreGabriel(browser, app, nome, abrir){   // V291/
 }
 
 async function testarTabelaEManual5x2(browser, app, nome, abrir, pref){   // V293/V197: tabela de folgas no ensaio + grade editável da escala à mão
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
   console.log('\n▶ ' + nome + ' — 🧪 tabela de folgas e escala à mão (ensaio 5×2)');
   const { p, erros } = await novaPagina(browser);
   await p.goto('file://' + app); await p.waitForTimeout(1200);
@@ -2884,7 +2885,9 @@ async function testarRegime274(browser, app, nome, abrir, versaoMin){
   // 5) Gabriel
   await p.reload(); await p.waitForTimeout(1500); await abrir(p); await p.waitForTimeout(1000);
   const g = await p.evaluate(() => { const t = h => String(h).replace(/<[^>]+>/g, ''), C = window.v265Chat; return { a: t(C.responder('qual regime está valendo?')), b: t(C.responder('a escala 5x2 já está ligada?')), c: t(C.responder('como funciona o 6x1')) }; });
-  ok(/6×1/.test(g.a) && /desligada/.test(g.a) && /desligada/.test(g.b), `Gabriel diz qual regime vale e que a 5×2 está desligada: “${g.a.slice(0, 80)}…”`);
+  if(semEnsaio(app))   // V322/V202: de 01/11 a 15/12/2026 o usuário escolhe 6×1 ou 5×2; a partir de 16/12/2026 só 5×2
+    ok([g.a, g.b].every(x => /6×1/.test(x) && /01\/11/.test(x) && /16\/12\/2026/.test(x) && /5×2/.test(x)), `Gabriel diz qual regime vale: 6×1 até 31/10, escolha de 01/11 a 15/12 e só 5×2 a partir de 16/12/2026: “${g.a.slice(0, 80)}…”`);
+  else ok(/6×1/.test(g.a) && /desligada/.test(g.a) && /desligada/.test(g.b), `Gabriel diz qual regime vale e que a 5×2 está desligada: “${g.a.slice(0, 80)}…”`);
   ok(/6 dias seguidos/.test(g.c) && !/desligada/.test(g.c), 'a pergunta de regra “como funciona o 6x1” continua com a resposta de sempre');
   // 6) o histórico anota o regime, mas abrir histórico NÃO liga nem desliga o regime
   await p.evaluate(() => window.v274Regime.configurar({ ativo: true, maxSeguidos: 5, regime: '5x2' }));
@@ -3238,7 +3241,8 @@ async function testarDialogosGabriel(browser, app, nome){
   ok([intentPairs.salary,intentPairs.holidayPay,intentPairs.vacationRights].every(a=>normCheck(a).includes('subgerente administrativo')),`${nome}: salário, pagamento por feriado e direitos de férias encaminham ao subgerente administrativo`);
   ok(!normCheck(intentPairs.holidayComp).includes('subgerente administrativo'),`${nome}: folga compensatória não é confundida com remuneração pelo feriado`);
   ok(normCheck(intentPairs.holidaySchedule).includes('folga')&&normCheck(intentPairs.holidaySchedule).includes('feriado')&&!normCheck(intentPairs.holidaySchedule).includes('subgerente administrativo'),`${nome}: regra de folga de feriado continua sendo respondida pelo app`);
-  ok(/regime em vigor/.test(normCheck(identity.regime))&&/6/.test(identity.regime)&&/5/.test(identity.regime)&&/desligad/.test(normCheck(identity.regime)),`${nome}: explica 6×1 vigente e 5×2 preparada/desligada`);
+  if(semEnsaio(app)) ok(/regime em vigor/.test(normCheck(identity.regime))&&/01\/11/.test(identity.regime)&&/16\/12\/2026/.test(identity.regime)&&/5×2/.test(identity.regime),`${nome}: explica 6×1 até 31/10, a escolha de 01/11 a 15/12 e só 5×2 a partir de 16/12/2026`);   // V322/V202
+  else ok(/regime em vigor/.test(normCheck(identity.regime))&&/6/.test(identity.regime)&&/5/.test(identity.regime)&&/desligad/.test(normCheck(identity.regime)),`${nome}: explica 6×1 vigente e 5×2 preparada/desligada`);
   const ferias=await p.evaluate(()=>{const f=equipe[0],sit=f.situacao,det=f.situacaoDetalhe;f.situacao='AF';f.situacaoDetalhe='FERIAS TESTE';window.v270Gabriel?.reset();const a=String(window.v265Chat.responder('Quem está de férias?')||'');f.situacao=sit;f.situacaoDetalhe=det;return {a,n:f.nome};});
   ok(normCheck(ferias.a).includes(normCheck(ferias.n.split(/\s+/)[0]))&&normCheck(ferias.a).includes('ferias teste')&&!normCheck(ferias.a).includes('subgerente administrativo'),`${nome}: quem está de férias continua sendo respondido a partir do status da equipe`);
   const initial=await p.evaluate(()=>JSON.stringify([equipe,trabalhoDomingo]));
