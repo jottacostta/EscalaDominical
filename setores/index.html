@@ -7,10 +7,21 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V325</title>
+<title>Escala de Setores — V328</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V328 [Claude] — 🗓️ ORDEM DAS FOLGAS COMPENSATÓRIAS POR PESSOA (correção, pedido do Gerente): quem trabalha vários feriados (ex.: 2, 15 e 20)
+       recebe as compensatórias na ORDEM do feriado — primeiro a do dia 2, depois a do 15 e por último a do 20. A folga de um feriado
+       mais tarde não pode cair ANTES da folga de um feriado anterior da mesma pessoa (ex.: o Milton trabalhava o 15 e a folga do 20 vinha
+       primeiro). A regra dos 20 dias continua prevalecendo: se nenhuma data respeitar a ordem dentro da janela, usa a melhor possível.
+V327 [Claude] — 🟡 FOLGA DO FERIADO SÓ PARA QUEM TRABALHA O FERIADO (correção, pedido do Gerente): no domingo-feriado (ex.: 15/11),
+       quem FOLGA o domingo não pode receber a folga compensatória do feriado (F15). O F15 ficava guardado de quando a pessoa trabalhava
+       o domingo e não era apagado ao ela passar a folgar. Agora, ao gerar a escala (e ao mexer nos feriados), a compensatória é retirada
+       de quem não trabalha aquele feriado — domingo-feriado ou feriado de dia útil. As pré-programadas do mês anterior não são mexidas.
+V326 [Claude] — 🦺 SESMT NO “PESSOAS POR ÁREA” (pedido do Gerente): o SESMT (onde fica o TST) passa a aparecer no gráfico
+       “🏬 Pessoas por área” do Resumo da loja, marcado como “· sem domingo” (conta no quadro, mas sem escala de domingo); tocar abre a lista
+       de nomes, não um setor. A Gerência continua só na lista do cartão “Pessoas no quadro” e no tempo de serviço, fora desse gráfico.
 V325 [Claude] — 🏢 SETORES FORA DA ESCALA CONTAM NO QUADRO (pedido do Gerente): na planilha do RH, quem está em setor que não vira
        cartão de escala (ex.: GERENCIA, SESMT/TST) era descartado (“fora das áreas”) e não aparecia no total. Agora entra no quadro da loja
        (total de funcionários, afastados, tempo de serviço), mas sem cartão de setor e sem escala de domingo (não conta como apto). A prévia
@@ -2882,7 +2893,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V325 · Gerência e SESMT contam no quadro</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V328 · Ordem das folgas compensatórias por pessoa (2→15→20)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -4988,9 +4999,28 @@ function pontuacaoCandidatoFolgaFeriado(i,cand,reservas){
   score += cand.ordem*0.01;
   return score;
 }
+/* V328 — ordem das compensatórias por pessoa: se alguém trabalha vários feriados
+   (ex.: 2, 15 e 20), a folga de um feriado MAIS TARDE não pode cair ANTES da folga
+   de um feriado anterior da mesma pessoa. Primeiro programa o dia 2, depois o 15 e
+   por último o 20. A regra dos 20 dias continua prevalecendo (se nenhuma data
+   atender à ordem, usa a melhor possível dentro da janela). */
+function minDataCompAnterior(i,d,reservas){
+  let min='';
+  (reservas||[]).forEach(r=>{ if(r.i===i && Number(r.feriado)<Number(d) && r.data && r.data>min) min=r.data; });
+  if(folgasCompensatorias) Object.keys(folgasCompensatorias).forEach(k=>{
+    const o=origemChaveComp(k); if(o.outroMes || o.i!==i || !(Number(o.d)<Number(d))) return;
+    const dt=folgasCompensatorias[k]; if(dt && dt>min) min=dt;
+  });
+  return min;
+}
 function dataSugestaoFolgaFeriado(i,d,reservas=[]){
-  const candidatos=candidatosFolgaFeriado(i,d);
+  let candidatos=candidatosFolgaFeriado(i,d);
   if(!candidatos.length)return null;
+  const minChave=minDataCompAnterior(i,d,reservas);   // V328: respeita a ordem dos feriados anteriores da pessoa
+  if(minChave){
+    const emOrdem=candidatos.filter(c=>c.chave>=minChave);
+    if(emOrdem.length)candidatos=emOrdem;   // se nenhuma data respeita a ordem, a janela de 20 dias prevalece
+  }
   candidatos.forEach(c=>c.score=pontuacaoCandidatoFolgaFeriado(i,c,reservas));
   candidatos.sort((a,b)=>a.score-b.score || a.ordem-b.ordem);
   return candidatos[0].chave;
@@ -5000,8 +5030,20 @@ function formatarDataSugestao(chave){
   const [aa,mm,dd]=chave.split('-');
   return `${dd}/${mm}/${aa}`;
 }
+function limparCompensatoriasSemFeriado(){   // V327: tira a folga compensatoria (ex.: F15) de quem NAO trabalha o feriado — inclusive o domingo-feriado que a pessoa passou a folgar
+  if(!folgasCompensatorias) return;
+  const ano=+$('ano').value, mes=+$('mes').value, fer=feriados(ano,mes);
+  Object.keys(folgasCompensatorias).forEach(k=>{
+    const o=origemChaveComp(k); if(o.outroMes) return;
+    if(!fer[o.d] || !equipe[o.i]){ delete folgasCompensatorias[k]; return; }
+    const dt=new Date(ano,mes,o.d);
+    const trabalha=dt.getDay()===0 ? (trabalhoDomingo[o.d]||[]).map(Number).includes(o.i) : (trabalhoFeriado[o.d]||[]).map(Number).includes(o.i);
+    if(!trabalha) delete folgasCompensatorias[k];
+  });
+}
 function gerarSugestoesFolgasFeriado(){
   if(!equipe.length)return;
+  limparCompensatoriasSemFeriado();
   sugestoesFolgasFeriado=sugestoesFolgasFeriado||{};
   const fer=feriados(+$('ano').value,+$('mes').value);
   Object.keys(sugestoesFolgasFeriado).forEach(k=>{
@@ -5022,16 +5064,17 @@ function gerarSugestoesFolgasFeriado(){
       if(pausadoFeriado(d))return;                                            // V146: folgas limpas pelo usuário
       if(sugestoesFolgasFeriado[chave]){   // V195: a sugestão feita ANTES de gerar a escala pode ter ficado inválida (o DSR caiu no mesmo dia, por exemplo)
         const sg=sugestoesFolgasFeriado[chave];
-        const valida=candidatosFolgaFeriado(i,d).some(c=>c.chave===sg) && !reservas.some(r=>r.i===i&&r.data===sg) && !setorJaTemFolgaNaData(i,new Date(`${sg}T12:00:00`),chave);
+        const minSg=minDataCompAnterior(i,d,reservas);   // V328: sugestão antiga fora de ordem é refeita
+        const valida=candidatosFolgaFeriado(i,d).some(c=>c.chave===sg) && !reservas.some(r=>r.i===i&&r.data===sg) && !setorJaTemFolgaNaData(i,new Date(`${sg}T12:00:00`),chave) && (!minSg || sg>=minSg || !candidatosFolgaFeriado(i,d).some(c=>c.chave>=minSg));
         if(!valida) delete sugestoesFolgasFeriado[chave];
       }
-      if(sugestoesFolgasFeriado[chave]){ const f0=equipe[i]; reservas.push({i,data:sugestoesFolgasFeriado[chave],turno:String(f0?.turno||'').toUpperCase(),funcao:normalizeStr(f0?.cargo||'')}); return; }
+      if(sugestoesFolgasFeriado[chave]){ const f0=equipe[i]; reservas.push({i,data:sugestoesFolgasFeriado[chave],feriado:d,turno:String(f0?.turno||'').toUpperCase(),funcao:normalizeStr(f0?.cargo||'')}); return; }
       let sugestao=dataSugestaoFolgaFeriado(i,d,reservas);
       if(!sugestao&&(sugestoesRecusadasFeriado[chave]||[]).length){ sugestoesRecusadasFeriado[chave]=[]; sugestao=dataSugestaoFolgaFeriado(i,d,reservas); } // V146: recomeça o ciclo
       if(sugestao){
         sugestoesFolgasFeriado[chave]=sugestao;
         const f=equipe[i];
-        reservas.push({i,data:sugestao,turno:String(f?.turno||'').toUpperCase(),funcao:normalizeStr(f?.cargo||'')});
+        reservas.push({i,data:sugestao,feriado:d,turno:String(f?.turno||'').toUpperCase(),funcao:normalizeStr(f?.cargo||'')});
       }
     });
   });
@@ -8648,7 +8691,7 @@ function gerarSetoresCore(){
       avisos.push('Não foi possível prever a equipe do 1º domingo do mês seguinte; a folga antecipada dele não foi lançada neste mês.');
     }
   }
-  renderDomingos(doms,bal);renderTabela(mes,ano,bal);gerarSugestoesFolgasFeriado();
+  limparCompensatoriasSemFeriado();renderDomingos(doms,bal);renderTabela(mes,ano,bal);gerarSugestoesFolgasFeriado();
   const erros=[];
   const todos=[...avisos,...erros];
   const resumo=modo==='grupos'
@@ -10783,10 +10826,11 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function graficoAreas(todas){
     const lista=GRUPOS_SETOR.map(g=>{ const p=todas.filter(f=>pertenceAoGrupo(f,g.id)), at=p.filter(ativa).filter(f=>comAprendiz||!ehAprend(f)); return {id:g.id,nome:g.nome,ic:g.ic,n:at.length,total:p.length}; }).filter(x=>x.total>0).sort((a,b)=>b.n-a.n);
+    { const ps=todas.filter(ehSesmtQuadro); if(ps.length){ const at=ps.filter(ativa).filter(f=>comAprendiz||!ehAprend(f)); lista.push({id:'SESMT',nome:'SESMT',ic:'🦺',n:at.length,total:ps.length,semEscala:true}); } }   // V326
     if(!lista.length) return '';
     const mx=Math.max(1,...lista.map(x=>x.n)), tot=lista.reduce((n,x)=>n+x.n,0);
     return `<h4>🏬 Pessoas por área</h4><p class="sub">Ativas em cada área (${tot} no total). Toque numa área para abrir o setor.</p>`
-      +`<div class="dist-lista">`+lista.map(x=>`<div class="dist-area" data-area="${esc(x.id)}"><span class="dist-rot" title="${esc(x.nome)}">${x.ic} ${esc(x.nome)}</span><div class="dist-trilho" style="background:var(--blue-100)"><i class="dist-barra" style="width:${Math.max(2,Math.round(x.n/mx*100))}%"></i></div><b style="text-align:right">${x.n}</b><small style="text-align:right;color:var(--muted)">${Math.round(x.n/Math.max(1,tot)*100)}%</small></div>`).join('')+`</div>`;
+      +`<div class="dist-lista">`+lista.map(x=>`<div class="dist-area${x.semEscala?' dist-area-sem':''}" ${x.semEscala?`data-area-lista="${esc(x.id)}" title="${esc(x.nome)} — conta no quadro, sem escala de domingo"`:`data-area="${esc(x.id)}"`}><span class="dist-rot" title="${esc(x.nome)}">${x.ic} ${esc(x.nome)}${x.semEscala?' <small style="color:var(--muted)">· sem domingo</small>':''}</span><div class="dist-trilho" style="background:var(--blue-100)"><i class="dist-barra" style="width:${Math.max(2,Math.round(x.n/mx*100))}%"></i></div><b style="text-align:right">${x.n}</b><small style="text-align:right;color:var(--muted)">${Math.round(x.n/Math.max(1,tot)*100)}%</small></div>`).join('')+`</div>`;
   }
 
   /* ---- afastados: por situação, função e horário ---- */
@@ -10828,6 +10872,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
 
   /* ---- lista de nomes ao tocar numa linha do gráfico de afastados ---- */
   const areaDe=f=>{ try{ const g=GRUPOS_SETOR.find(x=>pertenceAoGrupo(f,x.id)); return g?g.nome:(f.setor||''); }catch(e){ return f.setor||''; } };
+  // V326: SESMT (onde fica o TST) aparece no gráfico “Pessoas por área”, marcado como sem escala de domingo. A Gerência fica só na lista e no tempo de serviço.
+  const ehSesmtQuadro=f=>{ try{ return !GRUPOS_SETOR.some(x=>pertenceAoGrupo(f,x.id)) && ['sesmt','tst'].includes(norm(f.setor||'')); }catch(e){ return false; } };
   function copiarTexto(txt){
     return (navigator.clipboard&&window.isSecureContext?navigator.clipboard.writeText(txt):Promise.reject()).catch(()=>{
       const ta=document.createElement('textarea'); ta.value=txt; ta.style.cssText='position:fixed;opacity:0;top:0;left:0'; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); if(!ok) throw new Error('copy'); });
@@ -11019,6 +11065,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     $$('homeDistHorarios').innerHTML=r.h; $$('homeDistFolgas').innerHTML=r.f; $$('homeDistMapa').innerHTML=r.m;
     ligar($$('homeDistHorarios'),true); ligar($$('homeDistMapa'),true);
     $$('homeDistAreas').querySelectorAll('[data-area]').forEach(l=>l.addEventListener('click',()=>{ try{ escolherSetorHome(l.dataset.area); }catch(e){ console.warn(e); } }));
+    $$('homeDistAreas').querySelectorAll('[data-area-lista]').forEach(l=>l.addEventListener('click',()=>{ try{ const a=l.dataset.areaLista, ps=(Array.isArray(todasEquipes)?todasEquipes:[]).filter(ehSesmtQuadro); abrirListaPessoas(a,`${ps.length} pessoa(s) — conta no quadro, sem escala de domingo`,ps,{ic:'🦺'}); }catch(e){ console.warn(e); } }));
     aberto.forEach(i=>{ const d=$$('homeDistHorarios').querySelector(`.dist-linha[data-lin="${i}"] .dist-det`); if(d) d.hidden=false; });
   }
   function refazer(){ assin=''; assinHome=''; render(true); renderHome(true); }
