@@ -7,10 +7,32 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V319</title>
+<title>Escala de Setores — V325</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V325 [Claude] — 🏢 SETORES FORA DA ESCALA CONTAM NO QUADRO (pedido do Gerente): na planilha do RH, quem está em setor que não vira
+       cartão de escala (ex.: GERENCIA, SESMT/TST) era descartado (“fora das áreas”) e não aparecia no total. Agora entra no quadro da loja
+       (total de funcionários, afastados, tempo de serviço), mas sem cartão de setor e sem escala de domingo (não conta como apto). A prévia
+       da importação mostra “Contam no quadro, sem escala de domingo: Gerência (n), SESMT (n)”.
+V324 [Claude] — 📦 TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga
+       fixa de cada pessoa agora vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam sozinhas ao abrir o arquivo ou o
+       salvamento automático. O app aprende a 2ª folga preferida de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado.
+V323 [Claude] — 📅 2ª FOLGA FIXA (5×2), pedido do Gerente: no 5×2 cada pessoa tem 2 folgas fixas de seg–sáb. Semana com
+       domingo trabalhado: folga a 1ª e a 2ª; semana com domingo de folga: o domingo e a 1ª. Ao escolher 5×2 (e antes de gerar um mês
+       5×2) o app pede a 2ª folga de quem está sem, numa lista com “🪄 Sugerir”; o botão “📅 2ª folga fixa (5×2)” do Editar equipe muda.
+V322 [Claude] — 📅 MODELO DA ESCALA (pedido do Gerente): até 31/10/2026 só 6×1; de 01/11 a 15/12/2026 o usuário escolhe, por
+       setor e por mês, 6×1 (1 folga por semana) ou 5×2 (2 folgas por semana) no quadro “📅 Modelo da escala” do passo 5 — sem escolha, o
+       🚀 Gerar pergunta antes; a partir de 16/12/2026 só 5×2 (o 6×1 é desligado). Os dois motores (por data e 5×2) seguem a escolha.
+       Com o 5×2 oficial, o “🧪 Escala à mão 5×2 — ensaio” deixa de existir.
+V321 [Claude] — 5×2: A FOLGA DO FERIADO NÃO É DSR (Lei 605, art. 1º): no motor 5×2 oficial e no ensaio à mão, o feriado de folga
+       entrava como 1 das 2 folgas da semana. Agora é descanso a mais: semana com feriado de folga tem as 2 folgas da semana (ou 1 + o
+       domingo de folga) e mais o feriado. Na grade do ensaio o feriado de folga aparece como FH (folga do feriado), não como DSR.
+V320 [Claude] — 2×1 SEM 1º DOMINGO LOTADO E FOLGAS ALTERNADAS (bateria com a planilha real): (1) no 🤖 Automático, a sobra
+       de cada cargo/turno ia sempre para o 1º domingo (ex.: Padaria 12 de 12 no 1º e 6 no 3º); agora gira pelos domingos (8/8/8/8).
+       (2) Quem é o único do seu cargo folgava no mesmo domingo que os outros sozinhos (ex.: Manutenção 2/2/0/2/2); agora a vez de folga
+       alterna no setor todo e, no Por cargo, num cargo sem ninguém sobrando quem está na sua vez de folga folga (salvo para fechar a
+       dupla). O 2×1, o teto do Por cargo e o mês passado continuam valendo.
 V319 [Claude] — 🧹 LIMPAR E ✅ ACEITAR APARECEM JÁ NO 1º GERAR: na V318 os botões “🧹 Limpar escala” e “✅ Aceitar cenário” só
        apareciam a partir do 2º toque em 🚀 Gerar escala (a área era montada antes de a geração terminar). Agora aparecem assim que os
        domingos da escala aparecem na tela.
@@ -2860,7 +2882,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V319 · Limpar e Aceitar aparecem já no 1º Gerar</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V325 · Gerência e SESMT contam no quadro</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3158,6 +3180,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <h2 class="section-title"><span class="st-num">5</span> Gerar e conferir a escala</h2>
 <div class="guia"><span class="passo">Passo 5 de 5</span><b>O que fazer:</b> toque no botão verde <b>🚀 Gerar escala</b> (na barra de baixo). Depois confira o resultado e toque em <b>📊 Baixar planilha Excel</b><span class="so-celular"> ou <b>📱 Copiar para WhatsApp</b></span>. Se aparecer um aviso amarelo ou vermelho, toque nele: o app leva você até o problema. Por fim, toque em <b>📦 Guardar histórico do mês</b>: no mês seguinte ele vira o “mês passado”.</div>
   <div id="validacao" class="alert" aria-live="polite">Tudo preenchido? Toque em <b>🚀 Gerar escala</b> na barra verde lá embaixo.</div>
+  <div id="v322Modelo" class="v322-modelo" aria-live="polite"></div>
   <div id="v318Acoes" class="v318-acoes" aria-live="polite"></div>
   <button type="button" class="btn success" id="btnGerar" style="display:none" aria-hidden="true" tabindex="-1">🚀 Gerar escala</button>
   <div class="card" id="laticinioCard" style="display:none;margin-top:10px">
@@ -7640,6 +7663,10 @@ function distribuirQuantidadeEquilibrada(total, slots, preferirPrimeiro=false){
 function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306: rodizio2x1 = automático (2 de cada 3 domingos por pessoa)
   const mapa={};
   const porFuncao=new Map();
+  let giro=0;   // V320: no 2×1, a sobra de cada cargo/turno vai para o domingo seguinte ao da sobra anterior
+  const repartir=(total,slots)=>{ if(!rodizio2x1) return distribuirQuantidadeEquilibrada(total,slots);
+    const out=Array(slots).fill(0); if(!slots||total<=0) return out; const b=Math.floor(total/slots), r=total%slots;
+    for(let j=0;j<slots;j++) out[j]=b; for(let k=0;k<r;k++) out[(giro+k)%slots]++; giro=(giro+r)%slots; return out; };
   indices.forEach(i=>{
     const f=equipe[i], chave=chaveFuncaoDistribuicao(i);
     if(!chave) return;
@@ -7654,9 +7681,9 @@ function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306:
     // Cada funcionário operacional deve participar de 2 domingos no ciclo.
     // A distribuição é feita separadamente por função e por turno.
     const part=n=>rodizio2x1?Math.round(n*2*doms.length/3):n*2;   // V306: 2×1 = 2 de cada 3 domingos (antes: 2 domingos no mês)
-    const qa=ab.length ? distribuirQuantidadeEquilibrada(part(ab.length),doms.length) : Array(doms.length).fill(0);
-    const qf=fe.length ? distribuirQuantidadeEquilibrada(part(fe.length),doms.length) : Array(doms.length).fill(0);
-    const qo=semTurno.length ? distribuirQuantidadeEquilibrada(part(semTurno.length),doms.length) : Array(doms.length).fill(0);
+    const qa=ab.length ? repartir(part(ab.length),doms.length) : Array(doms.length).fill(0);
+    const qf=fe.length ? repartir(part(fe.length),doms.length) : Array(doms.length).fill(0);
+    const qo=semTurno.length ? repartir(part(semTurno.length),doms.length) : Array(doms.length).fill(0);
     meta.porDomingo=doms.map((d,idx)=>({total:qa[idx]+qf[idx]+qo[idx],abertura:qa[idx],fechamento:qf[idx],outros:qo[idx]}));
     if(/promotor/.test(chave)){   // V258: promotor = 1 por domingo (alterna abertura/fechamento quando há dos dois)
       const tur=doms.map((d,idx)=>ab.length&&fe.length?(idx%2?'fe':'ab'):ab.length?'ab':fe.length?'fe':'ou');
@@ -8164,17 +8191,18 @@ function gerarSetoresCore(){
   // Sem histórico (folgou os 2), a vez é espalhada para equilibrar cada função e turno.
   const faseFolga=new Map();
   if(rodizio2x1){
-    const livres=new Map(),cont=new Map();
+    const livres=new Map(),cont=new Map(),geral=[0,0,0];   // V320: geral = quantos folgam em cada vez no setor todo
     const grupoDe=i=>(chaveFuncaoDistribuicao(i)||'')+'|'+norm(equipe[i].turno||'');
     ativosOperacionais.forEach(i=>{
       const h=historicoManual(i)||{},g=grupoDe(i);
       if(!cont.has(g))cont.set(g,[0,0,0]);
       const fase=h.penultimo&&h.ultimo?0:h.ultimo?1:h.penultimo?2:null;
       if(fase===null){ if(!livres.has(g))livres.set(g,[]); livres.get(g).push(i); }
-      else{ faseFolga.set(i,fase); cont.get(g)[fase]++; }
+      else{ faseFolga.set(i,fase); cont.get(g)[fase]++; geral[fase]++; }
     });
     const cenarioNovo=modo==='funcao'&&window.__v318Semente&&typeof window.v318Ordem==='function';   // V318: cada 🚀 Gerar (Automático + Por cargo) sorteia um cenário novo
-    livres.forEach((ids,g)=>(cenarioNovo?window.v318Ordem(ids):ids).forEach(i=>{ const c=cont.get(g),fase=c.indexOf(Math.min(...c)); faseFolga.set(i,fase); c[fase]++; }));
+    livres.forEach((ids,g)=>(cenarioNovo?window.v318Ordem(ids):ids).forEach(i=>{ const c=cont.get(g); let fase=0; for(let f=1;f<3;f++) if(c[f]<c[fase]||(c[f]===c[fase]&&geral[f]<geral[fase])) fase=f;   // V320: empate no cargo → a vez com menos gente no setor
+      faseFolga.set(i,fase); c[fase]++; geral[fase]++; }));
   }
   // V314: quem trabalhou o domingo anterior e não o de antes fecha a dupla neste domingo. Sem o mês passado marcado,
   // quem tem a vez de folga no 2º domingo conta como se tivesse trabalhado o último domingo do mês passado (trabalha o 1º e folga o 2º).
@@ -8397,7 +8425,12 @@ function gerarSetoresCore(){
         return (fixosPorIdx[j]||[]).includes(i);
       };
       const violaFixosFuturos=i=>{ for(let a=idx-2;a<=idx;a++){ if(trabalhaEm(i,a)&&trabalhaEm(i,a+1)&&trabalhaEm(i,a+2)) return true; } return false; };
-      const cands=candidatos.filter(i=>base0.includes(i)||!violaFixosFuturos(i));
+      let cands=candidatos.filter(i=>base0.includes(i)||!violaFixosFuturos(i));
+      // V320: no 2×1, num cargo sem ninguém sobrando (ex.: único do cargo), quem está na sua vez de folga folga neste domingo
+      // (salvo se precisa fechar a dupla). Assim os cargos pequenos não folgam todos no mesmo domingo.
+      if(rodizio2x1){ const nCargo={}; cands.forEach(i=>{ const k=chaveFuncaoDistribuicao(i); nCargo[k]=(nCargo[k]||0)+1; });
+        cands=cands.filter(i=>{ if(base0.includes(i)||!faseFolga.has(i)||idx%3!==faseFolga.get(i)||fechaDupla(i,idx)) return true;
+          const k=chaveFuncaoDistribuicao(i); return nCargo[k]>Number(metasFuncoesGlobal[k]?.porDomingo?.[idx]?.total??Infinity); }); }
       const pref=new Set((sugestaoAnteriorFuncao[isoDomingo(ano,mes,doms[idx])]||[]).map(idxPorMatricula).filter(i=>i>=0));
       const r=selecionarPorFuncaoUsuario(cands,idx,metasFuncoesGlobal,base0,pontua,pontuaTransicao,pref);
       coberturaSubstDomingo[doms[idx]]=r.cobertas||[];
@@ -10234,14 +10267,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const turno=mh?(+mh[1]<12?'ABERTURA':'FECHAMENTO'):'';
       const statusErp=String(c[colSta]||'').trim();
       const situacao=(!statusErp||/trabalhando/i.test(statusErp))?'A':'AF';
-      let setorApp=SETORES_ERP[nt(setorAtual)]||null;
+      let setorApp=SETORES_ERP[nt(setorAtual)]||null, semEscala=false;
+      if(!setorApp && setorAtual){ semEscala=true; setorApp=({'gerencia':'Gerência','gerência':'Gerência','sesmt':'SESMT','tst':'SESMT'})[nt(setorAtual)]||limparSetorErp(setorAtual); }   // V325: setor fora da escala (ex.: Gerência, SESMT/TST) conta no quadro, mas sem cartão nem domingo
       if(setorApp==='Frente de Loja'&&/G\.?\s*CARD/i.test(cargo)) setorApp='Guanabara Card';
       const setorAntes=setorApp; setorApp=redirecionarSetorPorCargo(setorApp,cargo); const redirecionado=setorAntes!==setorApp;
       let folga=null, folgaOrigem='';
       const mf=bruto.match(/folga\s+(dom|seg|ter|qua|qui|sex|s[aá]b)/i);
       if(mf){ folga=DIAS.indexOf(nt(mf[1]).slice(0,3)); folgaOrigem='erp'; }
       else if(/seg(unda)?\s*(a|\/|-|à)\s*s[aá]b/i.test(bruto)||/2ª\s*a\s*s[aá]b/i.test(bruto)){ folga=0; folgaOrigem='inferida'; }
-      const p={mat,nome:String(c.B).replace(/\s+/g,' ').trim().toUpperCase(),cargo,horario,turno,statusErp,situacao,setorErp:setorAtual,setorApp,folga,folgaOrigem,redirecionado,setorAntes,bloqueioDomingo:bloqueioDomingoPorRegra({setor:setorApp,cargo}),admissao:admissaoISO(c[colAdm]),obs:bruto.replace(reHor,'').trim()};
+      const p={mat,nome:String(c.B).replace(/\s+/g,' ').trim().toUpperCase(),cargo,horario,turno,statusErp,situacao,setorErp:setorAtual,setorApp,folga,folgaOrigem,redirecionado,setorAntes,bloqueioDomingo:semEscala||bloqueioDomingoPorRegra({setor:setorApp,cargo}),semEscala,admissao:admissaoISO(c[colAdm]),obs:bruto.replace(reHor,'').trim()};
       setoresErp[setorAtual]=(setoresErp[setorAtual]||0)+1;
       (setorApp?pessoas:foraDasAreas).push(p);
     });
@@ -10298,6 +10332,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       <h4>Por área da escala</h4>
       <div style="max-height:220px;overflow:auto"><table><thead><tr><th>Área / setor</th><th>Pessoas</th><th>Afastados</th></tr></thead><tbody>${tabela}</tbody></table></div>
       ${Object.keys(fora).length?`<p class="erp-sub" style="margin-top:8px">Fora das áreas (não importados): ${Object.entries(fora).map(([k,v])=>esc(k)+' ('+v+')').join(', ')}.</p>`:''}
+      ${(()=>{ const se={}; an.pessoas.forEach(p=>{ if(p.semEscala){ se[p.setorApp]=(se[p.setorApp]||0)+1; } }); const ks=Object.keys(se); return ks.length?`<p class="erp-sub" style="margin-top:8px">📋 Contam no quadro, sem escala de domingo: ${ks.map(k=>esc(k)+' ('+se[k]+')').join(', ')}.</p>`:''; })()}
       <h4>Opções</h4>
       <label class="erp-op"><input type="checkbox" id="erpOpSaidas" ${cmp.saidas.length?'checked':''}><span>Tirar do app quem <b>não aparece mais</b> na planilha (${cmp.saidas.length}).</span></label>
       <input type="checkbox" id="erpOpSegSab" hidden>
@@ -16663,7 +16698,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const iso=normalizarData(data);
     if(!iso) return '6x1';
     if(APP==='enc'&&domingo(iso)) return '2x1';
-    return iso<CORTE?'6x1':'5x2';
+    return (window.v322ModeloEscala?window.v322ModeloEscala.eh5x2(iso):iso>=CORTE)?'5x2':'6x1';   // V322/V202: de 01/11 a 15/12/2026 vale o modelo escolhido
   }
   function planoPeriodo(inicio,fim){
     const a=normalizarData(inicio),b=normalizarData(fim),ia=paraData(a),ib=paraData(b);
@@ -16694,8 +16729,9 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function resumoAtual(){
     const atual=motorParaData(hoje());
-    if(atual==='5x2') return 'Regime em vigor: <b>5×2</b> desde <b>16/12/2026</b>. Os domingos dos Encarregados continuam no <b>2×1</b>.';
-    return 'Regime em vigor: <b>6×1</b> até <b>15/12/2026</b>. A <b>5×2</b> fica programada, mas desligada até <b>15/12/2026</b>, e começa em <b>16/12/2026</b>.';
+    if(hoje()>=CORTE) return 'Regime em vigor: <b>5×2</b> desde <b>16/12/2026</b> (o 6×1 foi desligado). Os domingos dos Encarregados continuam no <b>2×1</b>.';
+    if(hoje()>='2026-11-01') return 'De <b>01/11</b> a <b>15/12/2026</b> você escolhe o modelo de cada mês: <b>6×1</b> (1 folga por semana) ou <b>5×2</b> (2 folgas por semana). A partir de <b>16/12/2026</b> fica só o <b>5×2</b>.';
+    return 'Regime em vigor: <b>6×1</b> até <b>31/10/2026</b>. De <b>01/11</b> a <b>15/12/2026</b> você escolhe 6×1 ou 5×2; a partir de <b>16/12/2026</b> fica só o <b>5×2</b>.';
   }
   function historico(){
     return {schema:1,corte5x2:CORTE,motores:{antes:'6x1',depois:'5x2'},domingosEncarregados:DOMINGOS_ENC,segmentos:periodoAtual()};
@@ -16715,7 +16751,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const s=el.querySelector('.v286-motor-status');
       if(s)s.textContent=ativo?(usados.size>1?'Usado neste período':'Selecionado'):'Fora deste período';
     });
-    box.innerHTML=resumoPeriodo()+`<br><small>O corte é automático: 6×1 até 15/12/2026 e 5×2 a partir de 16/12/2026.</small>`;
+    box.innerHTML=resumoPeriodo()+`<br><small>6×1 até 31/10/2026 · de 01/11 a 15/12/2026 você escolhe 6×1 ou 5×2 (passo 5, “📅 Modelo da escala”) · só 5×2 a partir de 16/12/2026.</small>`;   // V322/V202
   }
   const api={estado,motorParaData,planoPeriodo,periodoAtual,historico,resumo:resumoPeriodo,render, corte5x2:CORTE};
   window.escalaMotor=api;
@@ -16777,7 +16813,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     return Number.isInteger(mes)&&Number.isInteger(ano)&&mes>=0&&mes<12&&ano>=1900&&ano<=2200?{mes,ano}:null;
   };
   let v292ContextoTeste=null; // V292: só ativo na construção síncrona em memória; restaurado em finally.
-  const baseRegime=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))&&(v292ContextoTeste||String(s)>=CORTE)?'5x2':'6x1';
+  const baseRegime=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))&&(v292ContextoTeste||(window.v322ModeloEscala?window.v322ModeloEscala.eh5x2(String(s)):String(s)>=CORTE))?'5x2':'6x1';   // V322: de 01/11 a 15/12/2026 vale o modelo escolhido
   const equipeAtual=()=>{if(v292ContextoTeste)return v292ContextoTeste.equipe;try{return Array.isArray(equipe)?equipe:[];}catch(e){return Array.isArray(window.equipe)?window.equipe:[];}};
   const domingosAtuais=()=>{if(v292ContextoTeste)return v292ContextoTeste.domingos;try{return trabalhoDomingo||{};}catch(e){return{};}};
   const feriadosAtuais=()=>{if(v292ContextoTeste)return v292ContextoTeste.feriados;const m=dataHojeMes();try{return m?feriados(m.ano,m.mes)||{}:{};}catch(e){return{};}};
@@ -16913,6 +16949,21 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   const alvoSemana=(i,sem,cct)=>cct?1:Math.max(0,parametros('5x2').descansos-(domingoDeFolga(i,sem)?1:0));
   // V303: a folga compensatória do feriado é folga a mais; não conta como descanso da semana.
+  // V321/V201: feriado (seg–sáb) em que a pessoa não trabalha — é descanso a mais, não conta nas 2 folgas da semana.
+  function feriadoDeFolga(i,dt){
+    if(typeof v292ContextoTeste!=='undefined'&&v292ContextoTeste){ const c=v292ContextoTeste; return dt.getFullYear()===c.ano&&dt.getMonth()===c.mes&&!!c.feriados[dt.getDate()]&&!(c.trabalhoFeriado[dt.getDate()]||[]).map(Number).includes(Number(i)); }
+    const m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
+    return !!(m&&dt.getMonth()===m.mes&&dt.getFullYear()===m.ano&&fer[dt.getDate()]&&!(tf[dt.getDate()]||[]).map(Number).includes(Number(i)));
+  }
+  // V323: dia da 2ª folga fixa (5×2) nesta semana, se puder ser folga (não é descanso já marcado nem feriado trabalhado).
+  function folga2Data(i,sem){
+    if(typeof v292ContextoTeste!=='undefined'&&v292ContextoTeste) return null;
+    const api=window.v323Folga2, f=equipeAtual()[i]; if(!api||!f) return null; const dia=Number(api.dia(f)); if(!(dia>=1&&dia<=6)) return null;
+    const dt=sem.find(d=>d.getDay()===dia); if(!dt||!dataGerenciada(dt)||descansoExistente(i,dt)) return null;
+    const m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
+    if(m&&dt.getMonth()===m.mes&&dt.getFullYear()===m.ano&&fer[dt.getDate()]&&(tf[dt.getDate()]||[]).map(Number).includes(Number(i))) return null;
+    return dt;
+  }
   function ehCompensatoria(i,dt){
     const k=dataKey(dt);
     if(v292ContextoTeste)return Object.entries(v292ContextoTeste.compensatorias||{}).some(([id,x])=>Number(id.split('_')[1])===Number(i)&&x===k);
@@ -17010,7 +17061,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         // Preferimos duas folgas em dias diferentes; só juntamos quando não há outra combinação válida.
         if(selecionadas.size!==alvo&&!herdada){
           selecionadas=new Set();
-          const existentes=sem.filter(dt=>dt.getDay()>=1&&dt.getDay()<=6&&dataGerenciada(dt)&&descansoExistente(i,dt)&&!ehCompensatoria(i,dt)).sort((a,b)=>pontuar(i,b,carga,pessoaDesignadas)-pontuar(i,a,carga,pessoaDesignadas));
+          const existentes=sem.filter(dt=>dt.getDay()>=1&&dt.getDay()<=6&&dataGerenciada(dt)&&descansoExistente(i,dt)&&!ehCompensatoria(i,dt)&&!feriadoDeFolga(i,dt)).sort((a,b)=>pontuar(i,b,carga,pessoaDesignadas)-pontuar(i,a,carga,pessoaDesignadas));   // V321/V201: o feriado de folga é descanso a mais (Lei 605, art. 1º), não é 1 das 2 folgas da semana
+          { const d2=alvo>=2?folga2Data(i,sem):null; if(d2&&!existentes.some(x=>dataKey(x)===dataKey(d2))) existentes.splice(Math.min(1,existentes.length),0,d2); }   // V323: domingo trabalhado → 1ª + 2ª folga fixa
           existentes.slice(0,alvo).forEach(dt=>selecionadas.add(dataKey(dt)));
           const escolha=escolherFolgas(i,sem,selecionadas,alvo,pessoaDesignadas,carga);
           if(!escolha)erros.push(`${f?.nome||'Pessoa '+(i+1)}: não encontrei ${cctMensal?'uma':'duas'} folga(s) possíveis na semana de ${inicio}.`);
@@ -17247,14 +17299,14 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const folgas=new Set(p.semanas.flatMap(w=>w.folgas||[])),compMap=p.compMap||{},rot=p.rotulos||{};   // V302: compMap = folga compensatória → dia do feriado; rot = folga da semana → DSR1/DSR2
       const cels=dias.map(iso=>{
         if(isoData(iso).getDay()===0)return domTrabalha(r,p,iso)?`<td class="v292-dom-trab${ehFeriado(r,iso)?' v292-cel-fer':''}" title="Trabalha no domingo${ehFeriado(r,iso)?' (feriado)':''}">T</td>`:`<td class="v292-dom-folga" title="Folga no domingo${ehFeriado(r,iso)?' (feriado)':''}">F</td>`;
-        if(ferSet.has(iso))return ferTrabalha(r,p,iso)?'<td class="v292-fer-trab" title="Trabalha no feriado">t</td>':'<td class="v292-fer-folga" title="Folga no feriado (DSR)">F</td>';
+        if(ferSet.has(iso))return ferTrabalha(r,p,iso)?'<td class="v292-fer-trab" title="Trabalha no feriado">t</td>':'<td class="v292-fer-folga" title="Folga do feriado — descanso a mais, não é DSR">FH</td>';
         if(compMap[iso]!=null)return `<td class="v292-comp" title="Folga compensatória do feriado dia ${pad(compMap[iso])} (dentro de 20 dias)">F${pad(compMap[iso])}</td>`;
         if(rot[iso])return `<td class="v292-folga" title="Folga da semana (descanso semanal ${esc(rot[iso])})">${esc(rot[iso])}</td>`;
         return folgas.has(iso)?'<td class="v292-folga" title="Folga da semana">F</td>':'<td class="v292-trab" title="Trabalha">·</td>';
       }).join('');
       return `<tr><th scope="row">${esc(p.nome)}</th>${cels}</tr>`;
     }).join('');
-    return `<div class="v292-tab-rolagem"><table class="v292-tab v292-tab-mes"><caption>T = trabalha domingo · t = trabalha feriado · F = folga no domingo ou no feriado · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias) · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>`;
+    return `<div class="v292-tab-rolagem"><table class="v292-tab v292-tab-mes"><caption>T = trabalha domingo · t = trabalha feriado · F = folga no domingo · FH = folga do feriado (a mais, não é DSR) · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias) · · = trabalha</caption><thead><tr><th scope="col">Pessoa</th>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>`;
   }
   // V297: imprime só a grade mensal numa janela nova (isolada), sem validade real.
   function imprimirMensal(boxEl,setor,periodo){
@@ -17274,7 +17326,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const w=window.open('','_blank');
     if(!w){window.showToast?.('Permita pop-ups para imprimir a tabela.','danger',true);return;}
     w.document.write('<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><title>'+esc(titulo)+'</title>'+css+'</head><body><h3>'+esc(titulo)+'</h3>'+t.outerHTML
-      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. T = trabalha domingo · t = trabalha feriado · F = folga no domingo ou no feriado · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado (em até 20 dias) · · = trabalha.</p></body></html>');
+      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. T = trabalha domingo · t = trabalha feriado · F = folga no domingo · FH = folga do feriado (a mais, não é DSR) · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado (em até 20 dias) · · = trabalha.</p></body></html>');
     w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},300);
   }
   // ── Ensaio de escala à mão (grade editável): mesma isolação, reusa as tabelas. Sem validade real. ──
@@ -17451,14 +17503,15 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function manFeriadosDaSemana(s){return (manDados.feriados||[]).filter(iso=>s.dias.includes(iso));}
   // V297: dias úteis onde a folga pode ser marcada (tira os feriados, que já são trabalho ou descanso pelo rodízio).
   function manDiasFolgaveis(s){return s.dias.filter(d=>!manDados.feriadosSet.has(d));}
-  // V297/V301: plano da semana. 5×2 = 2 descansos/semana de seg–sáb. Domingo de folga e feriado de folga (DSR) já contam como descanso.
+  // V297/V301: plano da semana. 5×2 = 2 descansos/semana de seg–sáb. O domingo de folga já conta como descanso.
+  // V321: o feriado de folga NÃO conta — é um descanso a mais (Lei 605, art. 1º), além das 2 folgas da semana.
   // A folga compensatória por feriado trabalhado NÃO entra aqui: ela cai em até 20 dias corridos (seg–sáb) e é casada à parte (pode ser noutra semana). V301.
   // V308: semana logo depois de um domingo-feriado trabalhado — tem 2 folgas de seg–sáb mesmo que o domingo seguinte seja de folga.
   function manPosteriorFeriadoDom(p,s){const dt=isoData(s.inicio);dt.setDate(dt.getDate()-1);const iso=`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;return (manDados.feriadosDom||[]).includes(iso)&&manTrabalhaDomingoFeriado(p,iso);}
   function manPlanoSemana(p,s){
     const fers=manFeriadosDaSemana(s);let total=2,jaDesc=0,trabFer=false,folgaFer=false;
     if(!manTrabalhaDomingo(p,s)&&!manPosteriorFeriadoDom(p,s))jaDesc++;   // folga no domingo = 1 descanso (V308: não vale na semana depois do domingo-feriado trabalhado)
-    fers.forEach(iso=>{if(manTrabalhaFeriado(p,iso))trabFer=true;else{jaDesc++;folgaFer=true;}});   // folga no feriado = descanso (DSR); trabalha feriado = compensatória (casada em até 20 dias)
+    fers.forEach(iso=>{if(manTrabalhaFeriado(p,iso))trabFer=true;else folgaFer=true;});   // V321: folga no feriado = descanso a mais (não é DSR); trabalha feriado = compensatória (casada em até 20 dias)
     return {alvoF:Math.max(0,total-jaDesc),fers,trabFer,folgaFer};
   }
   // V301: dias úteis (seg–sáb, fora feriado) do mês inteiro, em ordem — onde a folga compensatória pode cair.
@@ -17496,7 +17549,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     manDados.semanas.forEach(s=>{
       const base=baseSem.get(s.inicio)||0;if(base<1)return;
       let off=manTrabalhaDomingo(p,s)||manPosteriorFeriadoDom(p,s)?0:1;   // domingo de folga ocupa a 1ª posição (V308: depois do domingo-feriado trabalhado, as 2 folgas são DSR1/DSR2)
-      manFeriadosDaSemana(s).forEach(iso=>{if(!manTrabalhaFeriado(p,iso))off++;});   // cada feriado de folga (DSR) também ocupa uma posição
+      // V321: o feriado de folga não ocupa posição de DSR (é descanso a mais)
       const fs=manDiasFolgaveis(s).filter(d=>p.folgas.has(d)&&!compDias.has(d)).slice().sort();   // folgas-base (fora a compensatória)
       fs.slice(0,base).forEach((iso,i)=>{rotulos[iso]='DSR'+(off+i+1);});
     });
@@ -17531,7 +17584,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       const corpo=manDados.pessoas.map((p,pi)=>{
         const casar=casarAll[pi];
         const cels=s.dias.map(d=>{
-          if(manDados.feriadosSet.has(d)){const trab=manTrabalhaFeriado(p,d);return `<td class="${trab?'v292-fer-trab':'v292-fer-folga'}" title="Feriado ${esc(manDados.nomesFer[d]||'')} — ${trab?'trabalha (folga compensatória em até 20 dias)':'folga (DSR)'}">${trab?'t':'F'}</td>`;}
+          if(manDados.feriadosSet.has(d)){const trab=manTrabalhaFeriado(p,d);return `<td class="${trab?'v292-fer-trab':'v292-fer-folga'}" title="Feriado ${esc(manDados.nomesFer[d]||'')} — ${trab?'trabalha (folga compensatória em até 20 dias)':'folga do feriado — descanso a mais, não é DSR'}">${trab?'t':'FH'}</td>`;}
           const on=p.folgas.has(d),comp=casar.compDias.has(d),par=comp?casar.pares.find(x=>x.dia===d):null,ferDia=par?pad(Number(par.fer.slice(8,10))):'',dsr=!comp?casar.rotulos[d]:'';
           const rot=comp?`Folga compensatória do feriado dia ${ferDia} (dentro de 20 dias)`:dsr?`Folga da semana (descanso semanal ${dsr}): ${esc(p.nome)}, ${esc(rotuloDia(d))}`:`${esc(p.nome)}, ${esc(rotuloDia(d))}`;
           return `<td><button type="button" class="v292-cel${comp?' v292-comp':''}" data-p="${pi}" data-d="${d}" aria-pressed="${on}" title="${rot}" aria-label="${rot}">${on?(comp?'F'+ferDia:(dsr||'F')):'·'}</button></td>`;
@@ -17540,7 +17593,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
         const n=manDiasFolgaveis(s).filter(d=>p.folgas.has(d)).length;
         return `<tr><th scope="row">${esc(p.nome)}${manTrabalhaDomingo(p,s)?'':' <small style="color:var(--muted)">(folga dom.)</small>'}</th>${cels}<td class="v292-manual-cont ${n===alvo?'ok':'ruim'}" data-cont="${pi}-${si}">${n}/${alvo}</td></tr>`;
       }).join('');
-      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga. t = trabalha no feriado · F = folga no feriado · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
+      return `<div class="v292-tab-rolagem"><table><caption>Semana de ${esc(fmt(s.inicio))} — toque para marcar folga. t = trabalha no feriado · FH = folga do feriado (a mais, não é DSR) · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado do dia (em até 20 dias)</caption><thead><tr><th scope="col">Pessoa</th>${cab}<th scope="col">Folgas</th></tr></thead><tbody>${corpo}</tbody></table></div>`;
     }).join('');
   }
   function manToggle(botao){
@@ -17831,6 +17884,214 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   ['mes','ano','modoCobertura','modoGeracao','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(()=>{ try{ render(); if(id==='modoGeracao'&&porCargo()) renderConfigFuncao(); }catch(e){} },0)));
   window.v318={naoCabe,concordou,aceito,limparEscala,aceitarCenario,render};
   setTimeout(()=>{ try{ render(); }catch(e){} },800);
+})();
+</script>
+
+<style>
+.v322-modelo{margin-top:10px}
+.v322-modelo:empty{display:none}
+.v322-caixa{padding:12px;border-radius:12px;border:2px solid var(--info,#0B6BA8);background:var(--surface-2,#f8fafc)}
+.v322-caixa h3{margin:0 0 6px;font-size:16px}
+.v322-caixa p{margin:0 0 8px;font-size:13.5px}
+.v322-botoes{display:flex;flex-wrap:wrap;gap:8px}
+.v322-botoes button{flex:1 1 160px;min-height:48px;text-align:left;padding:8px 12px;border-radius:10px;border:2px solid var(--border,#cbd5e1);background:var(--surface,#fff);color:var(--ink,#111);font-size:14px;cursor:pointer}
+.v322-botoes button small{display:block;font-weight:400;font-size:12px;color:var(--ink-2,#475569)}
+.v322-botoes button[aria-pressed="true"]{border-color:var(--ok,#15803d);background:var(--ok-lt,#DFF3E7);color:var(--ok-ink,#146C43);font-weight:800}
+.v322-janela{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.v322-janela .v322-caixa{background:var(--surface,#fff);color:var(--ink,#111);max-width:460px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+</style>
+<script>
+/* V322 (Setores) / V202 (Encarregados) — 📅 MODELO DA ESCALA: 6×1 até 31/10/2026; de 01/11 a 15/12/2026 o usuário escolhe 6×1 ou 5×2
+   (por setor e por mês; no app de Encarregados, por mês); a partir de 16/12/2026 só 5×2 (o 6×1 é desligado). Sem escolha, o 🚀 Gerar pergunta antes. */
+(function(){
+  const INICIO='2026-11-01', CORTE='2026-12-16';
+  const $i=id=>document.getElementById(id);
+  const pad=n=>String(n).padStart(2,'0');
+  const SETORES=!!$i('setorSelecionado');
+  const K=(SETORES?'escalaSetores':'enc')+'.v322Modelo';
+  const ler=()=>{ try{ return JSON.parse(localStorage.getItem(K)||'{}')||{}; }catch(e){ return {}; } };
+  const gravar=o=>{ try{ localStorage.setItem(K,JSON.stringify(o)); }catch(e){} };
+  const setor=()=>{ if(!SETORES) return 'enc'; const v=String($i('setorSelecionado')?.value||''); try{ return norm(v); }catch(e){ return v.toLowerCase(); } };
+  const chave=(ano,mes)=>setor()+'|'+ano+'-'+pad(mes+1);
+  const NOMES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  // o mês tem algum dia de 01/11 a 15/12/2026?
+  function precisa(ano,mes){ const ini=`${ano}-${pad(mes+1)}-01`, fim=`${ano}-${pad(mes+1)}-${pad(new Date(ano,mes+1,0).getDate())}`; return fim>=INICIO&&ini<CORTE; }
+  function escolha(ano,mes){ const v=ler()[chave(ano,mes)]; return v==='5x2'||v==='6x1'?v:null; }
+  function definir(ano,mes,v){ const o=ler(); if(v) o[chave(ano,mes)]=v; else delete o[chave(ano,mes)]; gravar(o); }
+  // A semana (segunda a domingo) inteira segue o modelo do mês em que ela começa — assim nenhuma semana fica pela metade.
+  function eh5x2(iso){ iso=String(iso||''); if(iso>=CORTE) return true;
+    const [a,m,d]=iso.split('-').map(Number); if(!a||!m||!d) return false; const dt=new Date(a,m-1,d,12); dt.setDate(dt.getDate()-((dt.getDay()+6)%7));
+    const seg=`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`; if(seg<INICIO) return false; return escolha(dt.getFullYear(),dt.getMonth())==='5x2'; }
+  const mesAtual=()=>({ano:+$i('ano')?.value, mes:+$i('mes')?.value});
+  function textoMes(ano,mes){ return `${NOMES[mes]}/${ano}`; }
+  function htmlBotoes(ano,mes,idPref){ const e=escolha(ano,mes), dez=mes===11&&ano===2026;
+    return `<div class="v322-botoes"><button type="button" id="${idPref}6x1" data-v322="6x1" aria-pressed="${e==='6x1'}"><b>6×1</b><small>1 folga por semana${dez?' (de 01 a 15/12; a partir de 16/12 é 5×2)':''}</small></button>
+      <button type="button" id="${idPref}5x2" data-v322="5x2" aria-pressed="${e==='5x2'}"><b>5×2</b><small>2 folgas por semana${dez?' (o mês inteiro)':''}</small></button></div>`; }
+  function render(){
+    const box=$i('v322Modelo'); if(!box) return; const {ano,mes}=mesAtual();
+    if(!Number.isInteger(ano)||!Number.isInteger(mes)||!precisa(ano,mes)){ box.innerHTML=''; return; }
+    const e=escolha(ano,mes);
+    box.innerHTML=`<div class="v322-caixa"><h3>📅 Modelo da escala de ${textoMes(ano,mes)}</h3>
+      <p>De <b>01/11</b> a <b>15/12/2026</b> você escolhe. A partir de <b>16/12/2026</b> fica só o <b>5×2</b>. A semana que começa num mês segue o modelo dele até o domingo.${e?` Escolhido: <b>${e==='5x2'?'5×2':'6×1'}</b>.`:' <b>Escolha antes de gerar.</b>'}</p>${htmlBotoes(ano,mes,'v322Modelo')}</div>`;
+    box.querySelectorAll('[data-v322]').forEach(b=>b.onclick=()=>{ const ant=escolha(ano,mes); definir(ano,mes,b.dataset.v322); render(); try{ window.escalaMotor?.render?.(); }catch(err){}
+      if(ant&&ant!==b.dataset.v322) window.showToast?.(`Modelo de ${textoMes(ano,mes)}: ${b.dataset.v322==='5x2'?'5×2':'6×1'}. Toque em 🚀 Gerar escala para refazer a escala.`,'info'); });
+  }
+  function fechar(){ $i('v322Janela')?.remove(); }
+  function abrirJanela(ano,mes){
+    fechar(); const j=document.createElement('div'); j.id='v322Janela'; j.className='v322-janela';
+    j.innerHTML=`<div class="v322-caixa" role="dialog" aria-modal="true" aria-labelledby="v322JanelaTit"><h3 id="v322JanelaTit">📅 Qual modelo para ${textoMes(ano,mes)}?</h3>
+      <p>De <b>01/11</b> a <b>15/12/2026</b> você escolhe. A partir de <b>16/12/2026</b> fica só o <b>5×2</b>.</p>${htmlBotoes(ano,mes,'v322Janela')}
+      <p style="margin:10px 0 0"><button type="button" class="btn secondary sm" id="v322JanelaVoltar">↩️ Voltar</button></p></div>`;
+    document.body.appendChild(j);
+    j.querySelectorAll('[data-v322]').forEach(b=>b.onclick=()=>{ definir(ano,mes,b.dataset.v322); fechar(); render(); try{ window.escalaMotor?.render?.(); }catch(err){} $i('btnGerar')?.click(); });
+    $i('v322JanelaVoltar').onclick=fechar; setTimeout(()=>$i('v322Janela6x1')?.focus(),0);
+  }
+  document.addEventListener('click',e=>{
+    if(!e.target.closest?.('#btnGerar')) return; const {ano,mes}=mesAtual();
+    if(Number.isInteger(ano)&&Number.isInteger(mes)&&precisa(ano,mes)&&!escolha(ano,mes)){ e.preventDefault(); e.stopImmediatePropagation(); abrirJanela(ano,mes); }
+  },true);
+  ['mes','ano','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(render,0)));
+  window.v322ModeloEscala={inicio:INICIO,corte:CORTE,precisa,escolha,definir,eh5x2,render};
+  setTimeout(render,600);
+})();
+</script>
+
+<script>
+/* V322 — COM O 5×2 OFICIAL, AS ÁREAS DE TESTE E DE ENSAIO DEIXAM DE EXISTIR (pedido do Gerente).
+   O 5×2 de verdade é escolhido no passo 5 (“📅 Modelo da escala”) de 01/11 a 15/12/2026 e é o único a partir de 16/12/2026. */
+(function(){
+  const tirar=()=>{ ['v292Manual5x2Area'].forEach(id=>document.getElementById(id)?.remove()); ['v292Manual5x2'].forEach(k=>{ try{ delete window[k]; }catch(e){ window[k]=undefined; } }); };
+  tirar(); document.addEventListener('DOMContentLoaded',tirar); window.addEventListener('load',tirar);
+})();
+</script>
+
+<style>
+.v323-janela{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.v323-caixa{background:var(--surface,#fff);color:var(--ink,#111);border-radius:14px;max-width:620px;width:100%;max-height:92vh;display:flex;flex-direction:column;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.v323-caixa h3{margin:0 0 6px;font-size:17px}
+.v323-caixa p{margin:0 0 8px;font-size:13.5px}
+.v323-lista{overflow:auto;flex:1 1 auto;border:1px solid var(--border,#cbd5e1);border-radius:10px}
+.v323-lin{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border,#e2e8f0)}
+.v323-lin:last-child{border-bottom:0}
+.v323-lin .v323-nome{flex:1 1 auto;min-width:0}
+.v323-lin .v323-nome b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v323-lin .v323-nome small{color:var(--ink-2,#475569);font-size:12px}
+.v323-lin select{flex:0 0 132px;min-height:40px;font-size:14px}
+.v323-lin.falta{background:var(--warn-lt,#FFF1C7)}
+.v323-acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.v323-acoes button{flex:1 1 150px;min-height:46px}
+.v323-falta{font-weight:800;color:var(--warn-ink,#7A5700)}
+</style>
+<script>
+/* V323 — 2ª FOLGA FIXA (5×2), pedido do Gerente: no 5×2 cada pessoa tem 2 folgas fixas de seg–sáb. Semana com domingo trabalhado:
+   folga a 1ª e a 2ª; semana com domingo de folga: folga o domingo e a 1ª. Ao escolher 5×2 (e antes de gerar um mês 5×2) o app pede
+   a 2ª folga de quem está sem, numa lista com “🪄 Sugerir”. Fica guardada no aparelho; dá para mudar pelo Editar equipe. */
+(function(){
+  const $i=id=>document.getElementById(id);
+  const SETORES=!!$i('setorSelecionado');
+  const K=(SETORES?'escalaSetores':'enc')+'.v323Folga2';
+  const DIAS=['','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ler=()=>{ try{ return JSON.parse(localStorage.getItem(K)||'{}')||{}; }catch(e){ return {}; } };
+  const gravar=o=>{ try{ localStorage.setItem(K,JSON.stringify(o)); }catch(e){} };
+  const setor=()=>{ if(!SETORES) return 'enc'; const v=String($i('setorSelecionado')?.value||''); try{ return norm(v); }catch(e){ return v.toLowerCase(); } };
+  const chave=f=>setor()+'|'+String(f?.matricula||f?.nome||'');
+  function dia(f){ const v=Number(ler()[chave(f)]); return v>=1&&v<=6?v:(Number(f?.folgaFixa2)>=1&&Number(f?.folgaFixa2)<=6?Number(f.folgaFixa2):0); }
+  function definir(f,d){ const o=ler(); d=Number(d); if(d>=1&&d<=6){ o[chave(f)]=d; if(f) f.folgaFixa2=d; } else { delete o[chave(f)]; if(f) delete f.folgaFixa2; } gravar(o); }
+  const lista=()=>{ try{ return Array.isArray(equipe)?equipe:[]; }catch(e){ return []; } };
+  const ativo=f=>String(f?.situacao||'A').toUpperCase()==='A';
+  const fixa1=f=>{ const n=Number(f?.folgaFixa); return !f?.folgaPendente&&n>=1&&n<=6?n:0; };
+  const precisaPessoa=f=>ativo(f);
+  function faltam(){ return lista().filter(f=>precisaPessoa(f)&&!dia(f)); }
+  function mesUsa5x2(){ const ano=+$i('ano')?.value, mes=+$i('mes')?.value; if(!Number.isInteger(ano)||!Number.isInteger(mes)) return false;
+    const M=window.v322ModeloEscala, ult=new Date(ano,mes+1,0).getDate(), p=n=>String(n).padStart(2,'0');
+    for(let d=1;d<=ult;d++){ const iso=`${ano}-${p(mes+1)}-${p(d)}`; if(M?M.eh5x2(iso):iso>='2026-12-16') return true; } return false; }
+  // Sugere a 2ª folga: diferente da 1ª, de preferência sem encostar nela, e espalhada entre os dias (primeiro no mesmo cargo).
+  function sugerir(pessoas){
+    const todos=lista().filter(precisaPessoa), cont={}, contCargo={};
+    const conta=(f,d)=>{ cont[d]=(cont[d]||0)+1; const c=String(f.cargo||''); contCargo[c]=contCargo[c]||{}; contCargo[c][d]=(contCargo[c][d]||0)+1; };
+    todos.forEach(f=>{ const a=fixa1(f), b=dia(f); if(a) conta(f,a); if(b) conta(f,b); });
+    pessoas.forEach(f=>{ if(dia(f)) return; const a=fixa1(f), c=String(f.cargo||'');
+      let melhor=0,pm=Infinity; for(let d=1;d<=6;d++){ if(d===a) continue; const pen=(a&&Math.abs(d-a)===1?1000:0)+((contCargo[c]||{})[d]||0)*10+(cont[d]||0); if(pen<pm){ pm=pen; melhor=d; } }
+      definir(f,melhor); conta(f,melhor); });
+  }
+  function fechar(){ $i('v323Janela')?.remove(); }
+  function abrir(depois){
+    fechar(); const j=document.createElement('div'); j.id='v323Janela'; j.className='v323-janela';
+    const pessoas=lista().filter(precisaPessoa).map(f=>f).sort((a,b)=>(dia(a)?1:0)-(dia(b)?1:0)||String(a.cargo||'').localeCompare(String(b.cargo||''),'pt-BR')||String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR'));
+    const linhas=()=>pessoas.map((f,k)=>{ const a=fixa1(f), d=dia(f);
+      return `<div class="v323-lin${d?'':' falta'}"><div class="v323-nome"><b>${esc(f.nome)}</b><small>${esc(f.cargo||'')} · 1ª folga: ${a?DIAS[a]:'a definir'}</small></div>
+        <select data-v323="${k}" aria-label="2ª folga fixa de ${esc(f.nome)}"><option value="">2ª folga…</option>${DIAS.map((n,x)=>x&&x!==a?`<option value="${x}" ${d===x?'selected':''}>${n}</option>`:'').join('')}</select></div>`; }).join('');
+    const desenhar=()=>{ const n=pessoas.filter(f=>!dia(f)).length;
+      j.innerHTML=`<div class="v323-caixa" role="dialog" aria-modal="true" aria-labelledby="v323Tit"><h3 id="v323Tit">📅 2ª folga fixa (5×2)</h3>
+        <p>No <b>5×2</b> cada pessoa tem <b>2 folgas fixas</b> de segunda a sábado. Na semana em que <b>trabalha o domingo</b>, folga as duas; na semana em que <b>folga o domingo</b>, folga o domingo e a 1ª.</p>
+        <p>${n?`<span class="v323-falta">Faltam ${n} pessoa(s).</span> Escolha o dia ou toque em <b>🪄 Sugerir</b>.`:'✅ Todos têm a 2ª folga fixa.'}</p>
+        <div class="v323-lista">${linhas()}</div>
+        <div class="v323-acoes"><button type="button" class="btn secondary" id="v323Sugerir">🪄 Sugerir para quem está sem</button>
+          <button type="button" class="btn success" id="v323Salvar" ${n?'disabled':''}>✅ ${depois?'Salvar e gerar':'Salvar'}</button>
+          <button type="button" class="btn secondary" id="v323Voltar">↩️ Voltar</button></div></div>`;
+      j.querySelectorAll('[data-v323]').forEach(sel=>sel.onchange=()=>{ definir(pessoas[+sel.dataset.v323],sel.value); desenhar(); });
+      $i('v323Sugerir').onclick=()=>{ sugerir(pessoas); desenhar(); };
+      $i('v323Salvar').onclick=()=>{ if(faltam().length) return; fechar(); window.showToast?.('2ª folga fixa guardada.','ok'); if(depois) $i('btnGerar')?.click(); };
+      $i('v323Voltar').onclick=fechar; };
+    document.body.appendChild(j); desenhar();
+  }
+  // Antes de gerar um mês com 5×2: todos precisam da 2ª folga fixa.
+  document.addEventListener('click',e=>{ if(!e.target.closest?.('#btnGerar')) return; if(!mesUsa5x2()||!faltam().length) return; e.preventDefault(); e.stopImmediatePropagation(); abrir(true); },true);
+  // Ao escolher 5×2 no quadro do modelo, já pede a 2ª folga.
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('#v322Modelo [data-v322="5x2"]'); if(!b) return; setTimeout(()=>{ if(faltam().length) abrir(false); },0); });
+  // Editar equipe: botão para ver e mudar a 2ª folga fixa.
+  function botaoEditor(){ const add=$i('btnAdicionarFuncionario'); if(!add||$i('v323BtnEditor')) return; const b=document.createElement('button'); b.type='button'; b.className='btn secondary'; b.id='v323BtnEditor'; b.textContent='📅 2ª folga fixa (5×2)'; b.style.marginLeft='6px'; b.onclick=()=>abrir(false); add.after(b); }
+  botaoEditor(); setTimeout(botaoEditor,800);
+  window.v323Folga2={dia,definir,faltam,sugerir,abrir,mesUsa5x2};
+})();
+</script>
+
+<script>
+/* V324 — TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga fixa de
+   cada pessoa vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam sozinhas ao abrir o arquivo ou o salvamento
+   automático. O app aprende a 2ª folga preferida de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado. */
+(function(){
+  const $i=id=>document.getElementById(id);
+  const SETORES=!!$i('setorSelecionado');
+  const NS=SETORES?'escalaSetores':'enc';
+  const KM=NS+'.v322Modelo', KF=NS+'.v323Folga2', KA=NS+'.v324Aprend';
+  const ler=k=>{ try{ return JSON.parse(localStorage.getItem(k)||'{}')||{}; }catch(e){ return {}; } };
+  const gravar=(k,o)=>{ try{ localStorage.setItem(k,JSON.stringify(o)); }catch(e){} };
+  const setor=()=>{ if(!SETORES) return 'enc'; const v=String($i('setorSelecionado')?.value||''); try{ return norm(v); }catch(e){ return v.toLowerCase(); } };
+  const chaveA=f=>setor()+'|'+String(f?.matricula||f?.nome||'');
+  // aprendizado: histograma do dia da 2ª folga por pessoa
+  function aprender(f,d){ d=Number(d); if(!(d>=1&&d<=6)||!f) return; const A=ler(KA), k=chaveA(f); A[k]=A[k]||{h:{},nome:String(f.nome||'')}; A[k].h[d]=(Number(A[k].h[d]||0))+1; A[k].nome=String(f.nome||A[k].nome||''); gravar(KA,A); }
+  function diaAprendido(f){ const A=ler(KA)[chaveA(f)]; if(!A||!A.h) return 0; let md=0,mx=0; for(let d=1;d<=6;d++){ const v=Number(A.h[d]||0); if(v>mx){ mx=v; md=d; } } return md; }
+  // liga no v323: cada escolha é aprendida; o Sugerir repete o dia preferido antes de espalhar o resto
+  const F=window.v323Folga2;
+  if(F){
+    const defOrig=F.definir;
+    F.definir=function(f,d){ const r=defOrig.apply(this,arguments); try{ if(Number(d)>=1&&Number(d)<=6) aprender(f,d); }catch(e){} return r; };
+    const sugOrig=F.sugerir;
+    F.sugerir=function(pessoas){ try{ (pessoas||[]).forEach(f=>{ if(F.dia(f)) return; const d=diaAprendido(f), a=Number(f&&f.folgaFixa); if(d>=1&&d<=6&&d!==a) F.definir(f,d); }); }catch(e){} return sugOrig.call(this,pessoas); };
+    F.aprendizado=()=>ler(KA); F.diaAprendido=diaAprendido;
+    F.exportar=()=>ler(KF); F.importar=o=>{ if(o&&typeof o==='object') gravar(KF,Object.assign(ler(KF),o)); };
+  }
+  const M=window.v322ModeloEscala;
+  if(M){ M.exportar=()=>ler(KM); M.importar=o=>{ if(o&&typeof o==='object'){ gravar(KM,Object.assign(ler(KM),o)); try{ M.render(); }catch(e){} } }; }
+  // tudo no histórico: carimba estadoFinalMes.v324 (o clone do histórico leva junto) e restaura ao abrir
+  function pacote(){ return { modelo:ler(KM), folga2:ler(KF), aprend:ler(KA) }; }
+  function stamp(){ try{ if(typeof estadoFinalMes==='undefined') return; if(!estadoFinalMes) window.estadoFinalMes=estadoFinalMes={}; estadoFinalMes.v324=pacote(); }catch(e){} }
+  function restore(){ try{ const v=(typeof estadoFinalMes!=='undefined'&&estadoFinalMes&&estadoFinalMes.v324)||null; if(!v) return;
+    if(v.modelo) gravar(KM,Object.assign(ler(KM),v.modelo));
+    if(v.folga2) gravar(KF,Object.assign(ler(KF),v.folga2));
+    if(v.aprend){ const A=ler(KA); Object.entries(v.aprend).forEach(([k,x])=>{ if(!x||!x.h) return; A[k]=A[k]||{h:{},nome:x.nome||''}; for(let d=1;d<=6;d++) A[k].h[d]=Math.max(Number(A[k].h[d]||0),Number(x.h[d]||0)); A[k].nome=x.nome||A[k].nome; }); gravar(KA,A); }
+    try{ M&&M.render(); }catch(e){}
+  }catch(e){} }
+  function embrulharAntes(nome){ const o=window[nome]; if(typeof o==='function'&&!o.__v324){ const w=function(){ try{ stamp(); }catch(e){} return o.apply(this,arguments); }; w.__v324=true; window[nome]=w; } }
+  function embrulharDepois(nome){ const o=window[nome]; if(typeof o==='function'&&!o.__v324){ const w=function(){ const r=o.apply(this,arguments); try{ restore(); }catch(e){} return r; }; w.__v324=true; window[nome]=w; } }
+  function instalar(){ ['exportarProjetoSet','exportarProjetoEnc','v147MontarProjeto'].forEach(embrulharAntes);
+    ['v147RestaurarProjeto','v194RestaurarProjeto'].forEach(embrulharDepois); stamp(); }
+  setTimeout(instalar,400); setTimeout(instalar,1500);
+  document.addEventListener('click',e=>{ if(e.target.closest?.('#v322Modelo [data-v322],#v322Janela [data-v322],#v323Janela [data-v323],#v323Sugerir')) setTimeout(stamp,0); },true);
+  ['mes','ano','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(stamp,0)));
+  window.v324Historico={pacote,stamp,restore,aprendizado:()=>ler(KA),diaAprendido};
 })();
 </script>
 </body>

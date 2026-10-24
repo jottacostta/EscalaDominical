@@ -17,10 +17,10 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V319.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V200.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V325.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V204.html` | `encarregados/index.html` (cópia idêntica) |
 
-- **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria Gabriel 500 em todo PR, push no `main` e execução manual. Há um único job por PR, com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
+- **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
 - **PRs e branches:** consulte o GitHub para saber o estado atual; não mantenha uma contagem manual de PRs abertas. Já incorporadas ao `main`: #54, #56, #59, #62, #63, #64, #69, #71, #72, #75, #76, #77, #80 (Setores V277 / Encarregados V185), #81 (Setores V275 / Encarregados V183), #82 (seis pilares), #83 (auditoria documental), #84 (página inicial), #85 (portal em `docs/` para GitHub Pages) e #86 (hierarquia e assinaturas), #87 (correção pós-merge da #86). A #55 foi fechada sem merge; as ideias viraram a seção 2.1 do `AGENTS.md`.
 - **PR #86 (Manus):** hierarquia e assinaturas documentadas; mesclada em 17/10/2026 no merge commit `923da8e`. O branch `chatgpt/hierarquia-manus` foi mantido.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V320**, Encarregados **V201**.
+- **Próximo número de versão:** Setores **V326**, Encarregados **V205**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,27 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-24 — Motor 5×2 oficial, 2ª folga fixa, tudo no histórico e quadro completo — Setores V320–V325 / Encarregados V201–V204 — Claude
+- **Pedido do Gerente (sequência):** (1) 2×1 dos domingos equilibrado; (2) no 5×2 a folga do feriado é descanso a mais, não DSR (Lei 605, art. 1º); (3) o 5×2 entra como opção de 01/11 a 15/12/2026 (escolha por setor e mês) e vira o único a partir de 16/12/2026, com o 6×1 desligado; qualquer área de teste/ensaio deixa de existir; (4) a 2ª folga fixa de cada pessoa; (5) tudo guardado no histórico + aprendizado por machine learning; (6) Gerência e SESMT/TST contam no total do quadro.
+- **Setores V320** (`calcularMetasDistribuicaoFuncoes`, `faseFolga`): no 2×1, a sobra de cada cargo/turno gira pelos domingos (`repartir`/`giro`); a vez de folga desempata pelo setor todo (`geral`) e, no Por cargo sem sobra, quem está na vez folga (salvo para fechar a dupla).
+- **Setores V321 / Encarregados V201** (`construir` → `feriadoDeFolga`; ensaio `manPlanoSemana`/rótulos): o feriado de folga não entra nas 2 folgas da semana; no ensaio aparece como **FH**.
+- **Setores V322 / Encarregados V202** (`window.v322ModeloEscala`, camada dos motores por data e `baseRegime`): até 31/10 só 6×1; de 01/11 a 15/12/2026 vale o modelo escolhido por setor/mês (`eh5x2` olha a semana inteira); a partir de 16/12 só 5×2. Bloco que remove o ensaio/área de teste.
+- **Setores V323 / Encarregados V203** (`window.v323Folga2`, `folga2Data` no motor 5×2): 2ª folga fixa; lista com 🪄 Sugerir; botão no Editar equipe.
+- **Setores V324 / Encarregados V204** (`window.v324Historico`): carimba `estadoFinalMes.v324` (modelo + 2ª folga + aprendizado) antes de exportar/salvar e restaura ao abrir; histograma da 2ª folga por matrícula em `…​.v324Aprend`; o 🪄 Sugerir usa o dia aprendido.
+- **Setores V325** (importação ERP, `semEscala`): setor fora da escala (GERENCIA, SESMT/TST) entra no quadro (sem cartão, sem domingo); a prévia avisa.
+- **Testes novos:** `testarDomingosEquilibrados2x1`, `testarFeriadoNaoEDsr`, `testarModeloEscala`, `testarSemEnsaio`, `testarSegundaFolga`, `testarHistoricoTudo`, `testarSetorForaDaEscala` (planilha fictícia no formato do ERP, com SESMT). Ajustados: `testarEnc5x2FolgaAMais`, `testarRegime274`, `testarDialogosGabriel`, `testarPlanilhaGabriel` e o caso V235 de `testarSetores` (roda em out/2026, 6×1, porque 2027 é 5×2 puro).
+- **Dado real (só no ambiente de teste, não foi para o repositório):** com a FPRE815, o total do quadro passou de 412 para 416 (Gerência 3 + SESMT 1).
+- **Bateria completa:** ✅ Tudo certo (1248 s). PR #134 verde (Playwright + Vercel).
+- **Armadilha nova:** `testarSetores` roda em ANO=2027, hoje 5×2 puro — geração à mão só com domingos vira 6 dias seguidos (rejeitado); casos de 6×1 precisam de um mês ≤ out/2026.
+- **Assinado:** Claude
+
+### 2026-10-23 — Corrigir documentação da bateria ativa do Gabriel — Setores V324 / Encarregados V204 — ChatGPT
+- **Correção:** a documentação dizia incorretamente que a bateria ativa tinha 500 perguntas; agora registra a bateria vigente de 100 perguntas (50 por aplicativo), o comando `npm run test:gabriel-100` e o relatório `testes/relatorio-gabriel-100.json`.
+- **Histórico preservado:** `testes/relatorio-gabriel-500.json` continua identificado como artefato histórico, sem apagar nem reclassificar resultados antigos.
+- **Escopo:** somente documentação; não alterei o motor de escala, o código do Gabriel nem os dados de teste.
+- **Validação:** a PR #134 está executando a suíte rápida, a completa e a bateria de 100 perguntas nas versões V324/V204; o parecer de aprovação só deve ser registrado depois dos resultados finais.
+- **Assinado:** ChatGPT
 
 ### 2026-10-23 — Limpar e Aceitar aparecem já no 1º Gerar — Setores V319 — Claude
 - **Pergunta do Gerente:** “Colocou o botão para reiniciar a escala no card gerar?”. Ao tirar a foto do passo 5 apareceu o defeito: no 1º 🚀 Gerar só a dica aparecia, sem 🧹 Limpar escala e ✅ Aceitar cenário.
