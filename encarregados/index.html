@@ -7,10 +7,13 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V203</title>
+<title>Escala 2×1 — Encarregados V204</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V204 [Claude] — 📦 TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga
+       fixa de cada pessoa vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam ao abrir. O app aprende a 2ª folga preferida
+       de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado.
 V203 [Claude] — 📅 2ª FOLGA FIXA (5×2), pedido do Gerente: semana com domingo trabalhado folga a 1ª e a 2ª folga fixa; semana com
        domingo de folga, o domingo e a 1ª. Ao escolher 5×2 (e antes de gerar um mês 5×2) o app pede a 2ª folga de quem está sem
        (lista com “🪄 Sugerir”); o botão “📅 2ª folga fixa (5×2)” do Editar equipe muda.
@@ -2093,7 +2096,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V203 · 5×2: 2ª folga fixa de cada pessoa</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V204 · Tudo no histórico + aprendizado</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -11523,6 +11526,54 @@ function perguntarOrientacaoImpressao(cb){
   function botaoEditor(){ const add=$i('btnAdicionarFuncionario'); if(!add||$i('v323BtnEditor')) return; const b=document.createElement('button'); b.type='button'; b.className='btn secondary'; b.id='v323BtnEditor'; b.textContent='📅 2ª folga fixa (5×2)'; b.style.marginLeft='6px'; b.onclick=()=>abrir(false); add.after(b); }
   botaoEditor(); setTimeout(botaoEditor,800);
   window.v323Folga2={dia,definir,faltam,sugerir,abrir,mesUsa5x2};
+})();
+</script>
+
+<script>
+/* V204 — TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga fixa de
+   cada pessoa vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam sozinhas ao abrir o arquivo ou o salvamento
+   automático. O app aprende a 2ª folga preferida de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado. */
+(function(){
+  const $i=id=>document.getElementById(id);
+  const SETORES=!!$i('setorSelecionado');
+  const NS=SETORES?'escalaSetores':'enc';
+  const KM=NS+'.v322Modelo', KF=NS+'.v323Folga2', KA=NS+'.v324Aprend';
+  const ler=k=>{ try{ return JSON.parse(localStorage.getItem(k)||'{}')||{}; }catch(e){ return {}; } };
+  const gravar=(k,o)=>{ try{ localStorage.setItem(k,JSON.stringify(o)); }catch(e){} };
+  const setor=()=>{ if(!SETORES) return 'enc'; const v=String($i('setorSelecionado')?.value||''); try{ return norm(v); }catch(e){ return v.toLowerCase(); } };
+  const chaveA=f=>setor()+'|'+String(f?.matricula||f?.nome||'');
+  // aprendizado: histograma do dia da 2ª folga por pessoa
+  function aprender(f,d){ d=Number(d); if(!(d>=1&&d<=6)||!f) return; const A=ler(KA), k=chaveA(f); A[k]=A[k]||{h:{},nome:String(f.nome||'')}; A[k].h[d]=(Number(A[k].h[d]||0))+1; A[k].nome=String(f.nome||A[k].nome||''); gravar(KA,A); }
+  function diaAprendido(f){ const A=ler(KA)[chaveA(f)]; if(!A||!A.h) return 0; let md=0,mx=0; for(let d=1;d<=6;d++){ const v=Number(A.h[d]||0); if(v>mx){ mx=v; md=d; } } return md; }
+  // liga no v323: cada escolha é aprendida; o Sugerir repete o dia preferido antes de espalhar o resto
+  const F=window.v323Folga2;
+  if(F){
+    const defOrig=F.definir;
+    F.definir=function(f,d){ const r=defOrig.apply(this,arguments); try{ if(Number(d)>=1&&Number(d)<=6) aprender(f,d); }catch(e){} return r; };
+    const sugOrig=F.sugerir;
+    F.sugerir=function(pessoas){ try{ (pessoas||[]).forEach(f=>{ if(F.dia(f)) return; const d=diaAprendido(f), a=Number(f&&f.folgaFixa); if(d>=1&&d<=6&&d!==a) F.definir(f,d); }); }catch(e){} return sugOrig.call(this,pessoas); };
+    F.aprendizado=()=>ler(KA); F.diaAprendido=diaAprendido;
+    F.exportar=()=>ler(KF); F.importar=o=>{ if(o&&typeof o==='object') gravar(KF,Object.assign(ler(KF),o)); };
+  }
+  const M=window.v322ModeloEscala;
+  if(M){ M.exportar=()=>ler(KM); M.importar=o=>{ if(o&&typeof o==='object'){ gravar(KM,Object.assign(ler(KM),o)); try{ M.render(); }catch(e){} } }; }
+  // tudo no histórico: carimba estadoFinalMes.v324 (o clone do histórico leva junto) e restaura ao abrir
+  function pacote(){ return { modelo:ler(KM), folga2:ler(KF), aprend:ler(KA) }; }
+  function stamp(){ try{ if(typeof estadoFinalMes==='undefined') return; if(!estadoFinalMes) window.estadoFinalMes=estadoFinalMes={}; estadoFinalMes.v324=pacote(); }catch(e){} }
+  function restore(){ try{ const v=(typeof estadoFinalMes!=='undefined'&&estadoFinalMes&&estadoFinalMes.v324)||null; if(!v) return;
+    if(v.modelo) gravar(KM,Object.assign(ler(KM),v.modelo));
+    if(v.folga2) gravar(KF,Object.assign(ler(KF),v.folga2));
+    if(v.aprend){ const A=ler(KA); Object.entries(v.aprend).forEach(([k,x])=>{ if(!x||!x.h) return; A[k]=A[k]||{h:{},nome:x.nome||''}; for(let d=1;d<=6;d++) A[k].h[d]=Math.max(Number(A[k].h[d]||0),Number(x.h[d]||0)); A[k].nome=x.nome||A[k].nome; }); gravar(KA,A); }
+    try{ M&&M.render(); }catch(e){}
+  }catch(e){} }
+  function embrulharAntes(nome){ const o=window[nome]; if(typeof o==='function'&&!o.__v324){ const w=function(){ try{ stamp(); }catch(e){} return o.apply(this,arguments); }; w.__v324=true; window[nome]=w; } }
+  function embrulharDepois(nome){ const o=window[nome]; if(typeof o==='function'&&!o.__v324){ const w=function(){ const r=o.apply(this,arguments); try{ restore(); }catch(e){} return r; }; w.__v324=true; window[nome]=w; } }
+  function instalar(){ ['exportarProjetoSet','exportarProjetoEnc','v147MontarProjeto'].forEach(embrulharAntes);
+    ['v147RestaurarProjeto','v194RestaurarProjeto'].forEach(embrulharDepois); stamp(); }
+  setTimeout(instalar,400); setTimeout(instalar,1500);
+  document.addEventListener('click',e=>{ if(e.target.closest?.('#v322Modelo [data-v322],#v322Janela [data-v322],#v323Janela [data-v323],#v323Sugerir')) setTimeout(stamp,0); },true);
+  ['mes','ano','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(stamp,0)));
+  window.v324Historico={pacote,stamp,restore,aprendizado:()=>ler(KA),diaAprendido};
 })();
 </script>
 </body>
