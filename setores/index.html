@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V328</title>
+<title>Escala de Setores — V329</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V329 [Claude] — ⚖️ MANUAL: QUANTIDADE POR DOMINGO NÃO BLOQUEIA (correção, pedido do Gerente): no modo Manual quem decide quantas pessoas
+       trabalham em cada domingo é a gerência. Marcar MENOS que o sugerido (ex.: só liderança, ou poucos operacionais, como num setor
+       pequeno onde 2 operacionais + liderança não cabem) ou MAIS não bloqueia mais a geração. Depois de gerar, um aviso amarelo lista os
+       domingos com quantidade diferente do sugerido, igual ao aviso da liderança opcional. As regras estruturais continuam valendo: 3
+       domingos seguidos não, folga antecipada/posterior, proteção 6×1 e horário de domingo de quem está escalado. No Automático o limite
+       de quantidade por domingo continua valendo normalmente.
 V328 [Claude] — 🗓️ ORDEM DAS FOLGAS COMPENSATÓRIAS POR PESSOA (correção, pedido do Gerente): quem trabalha vários feriados (ex.: 2, 15 e 20)
        recebe as compensatórias na ORDEM do feriado — primeiro a do dia 2, depois a do 15 e por último a do 20. A folga de um feriado
        mais tarde não pode cair ANTES da folga de um feriado anterior da mesma pessoa (ex.: o Milton trabalhava o 15 e a folga do 20 vinha
@@ -2893,7 +2899,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V328 · Ordem das folgas compensatórias por pessoa (2→15→20)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V329 · Manual: quantidade por domingo não bloqueia (vira aviso)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5968,7 +5974,7 @@ function validarEscalaSetores(dom,alvo){
       const setorAcougue=['açougue','acougue'].includes(norm($('setorSelecionado')?.value||''));
       const liderancaEsperada=lideresSelecionadosDomingo(Number(k)).length;   // V187: liderança opcional (inclusive no Açougue)
       const alvoTotal=alvo+liderancaEsperada; // V127: liderança nunca consome vaga operacional
-      if(a.length>alvoTotal)erros.push(`${k}: ${a.length} escalados; alvo total ${alvoTotal} (${alvo} operacionais + ${liderancaEsperada} liderança).`);
+      if(a.length>alvoTotal && (($('modoGeracao')?.value||'motor')!=='manual'))erros.push(`${k}: ${a.length} escalados; alvo total ${alvoTotal} (${alvo} operacionais + ${liderancaEsperada} liderança).`);   // V329: no Manual a gerência decide a quantidade; marcar a mais não bloqueia (vira aviso)
       if(liderancaUnica() && lideresSelecionadosDomingo(Number(k)).length>1)
         erros.push(`${k}: só uma liderança por domingo (Encarregado, Subencarregado ou Líder); encontradas ${lideresSelecionadosDomingo(Number(k)).length}.`);
     }
@@ -7561,11 +7567,10 @@ function auditarSelecaoAntesDaGeracao(modoAtual){
     doms.forEach(d=>{
       const arr=sel[d]||[];
       if(d===bal) return;   // V195: o balanço é montado automaticamente (todos os aptos)
-      const vizinhoBal=bal && Math.abs(doms.indexOf(d)-doms.indexOf(bal))===1;   // V195: perto do balanço pode faltar gente (3 domingos seguidos)
-      const folga258=window.v258Folga?.()||0;   // V258: com promotor e metade não exata, aceita 1 a menos
-      if(vizinhoBal ? (arr.length<1 || arr.length>(alvo+lideresSelecionadosDomingo(d).length)) : (arr.length>(alvo+lideresSelecionadosDomingo(d).length)||arr.length<(alvo-folga258+lideresSelecionadosDomingo(d).length))){
-        erros.push(`${formatarDataDomingo(d)}: selecione ${alvo} funcionário(s) operacionais + ${lideresSelecionadosDomingo(d).length} liderança; selecionados ${arr.length}.`);
-      }
+      // V329: no modo Manual, a QUANTIDADE de pessoas por domingo não bloqueia mais a geração — quem decide é a gerência.
+      //       Marcar a menos (ex.: só liderança, ou poucos operacionais) ou a mais que o sugerido vira apenas um aviso
+      //       amarelo depois de gerar (ver domingosQuantidadeForaDoSugerido / window.v329Quantidade). O que ainda bloqueia
+      //       aqui é só o que é estrutural: alguém escalado sem horário de domingo.
       arr.forEach(i=>{
         if(!horarioManualValido(d,i)) erros.push(`${formatarDataDomingo(d)}: ${equipe[i].nome} está sem horário de domingo.`);
       });
@@ -9477,6 +9482,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           window.v280Lideranca?.sincronizar?.();
           persist();
           if(!opcoes?.v280IgnorarAviso) window.v280Lideranca?.posGeracao?.();
+          window.v329Quantidade?.posGeracao?.();   // V329: aviso amarelo de quantidade por domingo (modo Manual), nunca bloqueio
         } catch(err){
           safeLog('[V45] Erro ao gerar:', err);
           showToast('Erro ao gerar escala: ' + (err?.message||err), 'danger', true);
@@ -14461,8 +14467,12 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const ano=+$i('ano').value, mes=+$i('mes').value, ym=ymK(ano,mes), doms=domingosDoMes(ano,mes), manual=['manual','mista'].includes(modoG());
     const sel=manual?(selecaoManualDomingo||{}):(trabalhoDomingo||{});
     /* 1. o que falta antes de gerar */
-    if(manual&&completo){ try{ const er=(auditarSelecaoAntesDaGeracao(modoG())||[]); if(er.length){ const m0=String(er[0]).match(/^(\d{2})\/(\d{2})(\/\d{4})?:\s*/), d0=m0?+m0[1]:0;   /* V268: diz o setor, o mês e o domingo */
-      out.push({tipo:'bad',txt:`🛠️ <b>${es(ondeV268())}</b>: faltam <b>${er.length}</b> coisa(s) para a escala ficar pronta. A primeira${d0?` (domingo ${m0[1]}/${m0[2]})`:''}: ${es(String(er[0]).replace(/^\d{2}\/\d{2}(\/\d{4})?:\s*/,''))}`,acoes:[['Ir até lá',()=>irDomingos(d0)]]}); } }catch(e){} }
+    if(manual&&completo){ try{ const erBloq=(auditarSelecaoAntesDaGeracao(modoG())||[]);
+      /* V329: a quantidade por domingo não bloqueia mais a geração, mas continua aparecendo aqui como ORIENTAÇÃO (escolher quem trabalha em cada domingo); o "Ir até lá" leva ao passo 3 do primeiro domingo pendente. */
+      const qtd=(typeof domingosQuantidadeForaDoSugerido==='function'?domingosQuantidadeForaDoSugerido():[])
+        .map(x=>`${formatarDataDomingo(x.d)}: ${x.aMais?`você marcou mais que o sugerido (${x.sugerido}) — pode gerar assim mesmo`:`escolha quem trabalha neste domingo (sugestão ${x.sugerido}) — pode gerar assim mesmo`}`);
+      const er=[...erBloq,...qtd]; if(er.length){ const m0=String(er[0]).match(/^(\d{2})\/(\d{2})(\/\d{4})?:\s*/), d0=m0?+m0[1]:0;   /* V268: diz o setor, o mês e o domingo */
+      out.push({tipo:erBloq.length?'bad':'warn',txt:`🛠️ <b>${es(ondeV268())}</b>: faltam <b>${er.length}</b> coisa(s) para a escala ficar pronta. A primeira${d0?` (domingo ${m0[1]}/${m0[2]})`:''}: ${es(String(er[0]).replace(/^\d{2}\/\d{2}(\/\d{4})?:\s*/,''))}`,acoes:[['Ir até lá',()=>irDomingos(d0)]]}); } }catch(e){} }
     /* 2. domingos acima do costume */
     const cont=new Map(); doms.forEach(d=>(sel[d]||sel[String(d)]||[]).map(Number).forEach(i=>cont.set(i,(cont.get(i)||0)+1)));
     cont.forEach((n,i)=>{ const f=equipe[i]; if(!f) return; const p=s.pessoas[chaveP(f)]; if(!p) return;
@@ -14556,7 +14566,12 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       try{ if(ehLiderancaDomingo(f)) return {ok:null,t:'é liderança: quem decide é o quadro ③ Quem lidera, no passo 3 Domingos'}; }catch(e){}
       if(this.modo()==='auto') return {ok:null,t:'no modo Automático quem escolhe é o app, ao gerar. Para escolher você mesmo, use À mão ou Mista no passo 3'};
       try{ const r=window.v234Sugestoes.auditoriaCandidato(i,d); return r.ok?{ok:true,t:'pode trabalhar nesse domingo'}:{ok:false,t:String(r.motivo||'').replace(/\.$/,'')}; }catch(e){ return {ok:null,t:'não consegui conferir agora'}; } },
-    falta(){ const m=$i('modoGeracao')?.value||'motor'; if(!['manual','mista'].includes(m)) return null; try{ return (auditarSelecaoAntesDaGeracao(m)||[]).map(String); }catch(e){ return []; } },
+    falta(){ const m=$i('modoGeracao')?.value||'motor'; if(!['manual','mista'].includes(m)) return null; try{
+      const bloq=(auditarSelecaoAntesDaGeracao(m)||[]).map(String);
+      const qtd=(typeof domingosQuantidadeForaDoSugerido==='function'?domingosQuantidadeForaDoSugerido():[])   // V329: quantidade por domingo é orientação (não bloqueia), mas Gabriel continua citando
+        .map(x=>`${formatarDataDomingo(x.d)}: ${x.aMais?`você marcou mais que o sugerido (${x.sugerido}) — pode gerar assim mesmo`:`escolha quem trabalha neste domingo (sugestão ${x.sugerido}) — pode gerar assim mesmo`}`);
+      return [...bloq,...qtd];
+    }catch(e){ return []; } },
     sk:()=>{ try{ return norm($i('setorSelecionado')?.value||'')||'setor'; }catch(e){ return 'setor'; } },
   }:{
     passos:'1 Equipe → 2 Mês passado → 3 Domingos → 4 Feriados → 5 Gerar',
@@ -16608,6 +16623,51 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }catch(e){ console.warn('[V280 liderança]',e); }
   }
   window.v280Lideranca={semLideranca,interceptar,posGeracao,sincronizar,confirmado,estado:()=>aceitos};
+})();
+</script>
+<script>
+/* ═════ V329 — ⚖️ QUANTIDADE POR DOMINGO NO MANUAL É AVISO, NUNCA BLOQUEIO ═════
+   Pedido do Gerente: no modo Manual quem decide quantas pessoas trabalham em cada
+   domingo é a gerência. Marcar MENOS que o sugerido (ex.: só liderança, ou poucos
+   operacionais) ou MAIS não bloqueia mais a geração. Depois de gerar, um aviso
+   amarelo lista os domingos fora do sugerido, para o encarregado conferir — igual
+   ao aviso da liderança opcional (V280). A regra dos 3 domingos seguidos, a folga
+   antecipada/posterior, a proteção 6×1 e o horário de domingo continuam valendo.
+*/
+function domingosQuantidadeForaDoSugerido(){
+  try{
+    if(($('modoGeracao')?.value||'motor')!=='manual') return [];
+    const ano=+$('ano').value, mes=+$('mes').value, doms=domingosDoMes(ano,mes), bal=balancoDoMes(ano,mes);
+    const ativos=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i]));
+    const alvo=alvoCoberturaAtual();
+    const sel=normalizarSelecoesDomingais(doms,ativos);
+    const folga258=window.v258Folga?.()||0;
+    const out=[];
+    doms.forEach(d=>{
+      if(d===bal) return;
+      const arr=sel[d]||[], lid=lideresSelecionadosDomingo(d).length;
+      const vizinhoBal=bal && Math.abs(doms.indexOf(d)-doms.indexOf(bal))===1;   // perto do balanço pode faltar gente (3 domingos seguidos)
+      const fora = vizinhoBal ? (arr.length<1 || arr.length>(alvo+lid)) : (arr.length>(alvo+lid) || arr.length<(alvo-folga258+lid));
+      if(fora) out.push({d, op:arr.length-lid, sugerido:alvo, aMais:(arr.length-lid)>alvo});
+    });
+    return out;
+  }catch(e){ return []; }
+}
+(function(){
+  'use strict';
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function posGeracao(){
+    document.getElementById('v329QtdAviso')?.remove();
+    const v=$('validacao'); if(!v) return false;
+    const fora=domingosQuantidadeForaDoSugerido();
+    if(!fora.length) return false;
+    const lista=fora.map(x=>`<b>${esc(formatarDataDomingo(x.d))}</b> (${x.op} operacional${x.op===1?'':'is'}, sugerido ${x.sugerido}${x.aMais?' — a mais':(x.op<x.sugerido?' — a menos':'')})`).join(', ');
+    const box=document.createElement('div'); box.id='v329QtdAviso'; box.className='ok';
+    box.innerHTML=`<p>⚖️ <b>Domingo(s) com quantidade diferente do sugerido, com sua concordância:</b> ${lista}. No modo Manual quem decide a quantidade é a gerência; a escala foi gerada assim mesmo.</p>`;
+    (document.getElementById('v280LiderAlt')||v).insertAdjacentElement('afterend',box);
+    return true;
+  }
+  window.v329Quantidade={posGeracao, domingosForaDoSugerido:domingosQuantidadeForaDoSugerido};
 })();
 </script>
 <script>
