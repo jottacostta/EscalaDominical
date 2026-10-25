@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V329</title>
+<title>Escala de Setores — V330</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V330 [Claude] — 👆 TABELA DE PRÉVIA CLICÁVEL NOS DOMINGOS (pedido do Gerente): na tabela de previsão do passo 4 (Feriados — Folgas do mês),
+       no modo À mão, tocar numa célula de DOMINGO tira ou coloca a pessoa naquele domingo, direto na tabela (antes só dava pelos cards do
+       passo 3). Resolve o caso de alguém aparecer escalado num domingo que você não queria (ex.: liderança emparelhada caindo em 3 domingos
+       seguidos). Liderança (Encarregado/Subencarregado): o toque TIRA do domingo; para COLOCAR a liderança e escolher a folga (DSR), continua
+       no passo 3 (Domingos). Só nos domingos (feriados ficam no passo 4). O domingo de balanço é obrigatório, não é clicável. A regra 2×1
+       (ninguém em 3 domingos seguidos) e a 6×1 continuam valendo — a auditoria confere ao tocar em 🚀 Gerar escala.
 V329 [Claude] — ⚖️ MANUAL: QUANTIDADE POR DOMINGO NÃO BLOQUEIA (correção, pedido do Gerente): no modo Manual quem decide quantas pessoas
        trabalham em cada domingo é a gerência. Marcar MENOS que o sugerido (ex.: só liderança, ou poucos operacionais, como num setor
        pequeno onde 2 operacionais + liderança não cabem) ou MAIS não bloqueia mais a geração. Depois de gerar, um aviso amarelo lista os
@@ -1298,6 +1304,10 @@ details.regras-details summary{list-style:revert;margin-bottom:6px}
 .pv-leg{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.pv-leg .lp{padding:4px 9px;border-radius:999px;font-size:10.5px;font-weight:800;background:var(--surface);border:1px solid var(--border);color:var(--muted)}
 .sugf{background:#FEF9C3;color:#854D0E;font-weight:800;outline:2px dashed #EAB308;outline-offset:-3px}
 .pv-wrap{max-height:62vh}
+.pv-dica-clic{margin:8px 0;padding:9px 11px;border-radius:10px;background:var(--brand-lt,#eef2ff);border:1px solid var(--blue-200,#bfdbfe);color:var(--brand-ink,#1e3a8a);font-size:12.5px;line-height:1.4;font-weight:600}
+#previaTabelaFolgas td.pv-click{cursor:pointer;position:relative}
+#previaTabelaFolgas td.pv-click::after{content:"✎";position:absolute;top:0;right:1px;font-size:8px;line-height:1;opacity:.4}
+#previaTabelaFolgas td.pv-click:hover,#previaTabelaFolgas td.pv-click:active{outline:2px solid var(--brand,#2563eb);outline-offset:-2px}
 #previaTabelaFolgas th:nth-child(2),#previaTabelaFolgas td:nth-child(2),#previaTabelaFolgas th:nth-child(3),#previaTabelaFolgas td:nth-child(3){display:none}
 #previaTabelaFolgas{min-width:0!important}
 
@@ -2899,7 +2909,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V329 · Manual: quantidade por domingo não bloqueia (vira aviso)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V330 · Tabela de prévia clicável nos domingos (À mão)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5385,9 +5395,10 @@ function renderPreviaFolgasFeriado(force){
     h+=`<tr><td><b>${htmlEsc(String(x.nome||''))}</b><br><small style="font-weight:500;color:var(--muted)">${htmlEsc(String(x.cargo||''))}</small></td><td>${htmlEsc(String(x.cargo||''))}</td><td>${htmlEsc(String(x.setor||''))}</td>`;
     datas.forEach(dt=>{
       const d=dt.getDate(), ds=dt.getDay(), ck=chaveData(dt), fer=ferDe(dt);
-      let status='', cl='t';
+      let status='', cl='t', dataAttr='';
       if(noMes(dt)){
-        if(ds===0){ const w=domPv(d).includes(i); status=w?(horarioDomingoSelecionado(d,i)||(d===bal?'BALANÇO':'DOM')):(abertoPv(i)?'—':'FOLGA DOM'); cl=w?(d===bal?'bal':'dom'):(abertoPv(i)?'t':'f'); }   // V263: domPv/abertoPv
+        if(ds===0){ const w=domPv(d).includes(i); status=w?(horarioDomingoSelecionado(d,i)||(d===bal?'BALANÇO':'DOM')):(abertoPv(i)?'—':'FOLGA DOM'); cl=w?(d===bal?'bal':'dom'):(abertoPv(i)?'t':'f');
+          if(modoPv==='manual' && d!==bal && !foraDom(equipe[i])){ dataAttr=` data-pv-dom="${d}" data-pv-func="${i}"`; cl+=' pv-click'; } }   // V263: domPv/abertoPv · V330: domingo clicável (tira/coloca) no modo À mão
         else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer'; }
       }
       if(!status){
@@ -5399,7 +5410,7 @@ function renderPreviaFolgasFeriado(force){
           else if(ehDescansoAssociado(i,dt)){ status='FOLGA'; cl='f'; }
         }
       }
-      h+=`<td class="${cl}">${status}</td>`;
+      h+=`<td class="${cl}"${dataAttr}>${status}</td>`;
     });
     h+='</tr>';
   });
@@ -5410,6 +5421,7 @@ function renderPreviaFolgasFeriado(force){
   const velho=box.querySelector('.table-wrap'), sl=velho?velho.scrollLeft:0, st=velho?velho.scrollTop:0;
   box.innerHTML=`<div class="pv-resumo"><span>💡 ${nSug} sugerida(s)</span><span>✅ ${nAce} aceita(s)</span><span>💤 DSR ${temDsr?'incluído':'aparece depois de gerar a escala'}</span><span>🔴 Domingos: ${geradoPv?'escala gerada':'o que você escolheu no passo Domingos'}</span></div>`   // V263
     +`<div class="pv-leg"><span class="lp">🔴 DOM</span><span class="lp">🟡 FER</span><span class="lp">💡 Fxx = sugerida</span><span class="lp">Folga Fxx = aceita</span><span class="lp">💤 FOLGA = DSR</span>${!geradoPv&&modoPv!=='manual'?'<span class="lp">— = o app escolhe ao gerar</span>':''}</div>`   // V263
+    +`${modoPv==='manual'?'<div class="pv-dica-clic">👆 <b>Toque num domingo</b> para <b>tirar</b> ou <b>colocar</b> a pessoa naquele dia. Depois toque em 🚀 Gerar escala. (Liderança: o toque tira; para colocar e escolher a folga, use o passo 3.)</div>':''}`   // V330
     +`<div class="table-wrap pv-wrap"><table id="previaTabelaFolgas">${h}</table></div>`;
   const novo=box.querySelector('.table-wrap'); if(novo){ novo.scrollLeft=sl; novo.scrollTop=st; }
 }
@@ -16668,6 +16680,53 @@ function domingosQuantidadeForaDoSugerido(){
     return true;
   }
   window.v329Quantidade={posGeracao, domingosForaDoSugerido:domingosQuantidadeForaDoSugerido};
+})();
+</script>
+<script>
+/* ═════ V330 — 👆 TABELA DE PRÉVIA (passo 4) CLICÁVEL NOS DOMINGOS (modo À mão) ═════
+   Pedido do Gerente: na tabela de previsão, tocar numa célula de DOMINGO tira ou coloca a pessoa
+   naquele domingo, direto. Liderança (Encarregado/Subencarregado): 1 toque tira; para COLOCAR a
+   liderança e escolher a folga (DSR), continua no passo 3 (Domingos). Só nos domingos (feriados ficam
+   no passo 4). A regra 2×1 (3 domingos seguidos) e 6×1 continuam valendo — a auditoria confere no Gerar.
+   O domingo de balanço é obrigatório para todos, então não é clicável. */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const pad=n=>String(n).padStart(2,'0');
+  const manual=()=>($i('modoGeracao')?.value||'motor')==='manual';
+  function removerLider(d,i){ const x=liderancaManualDomingo?.[String(d)]; if(!x) return;
+    ['enc','sub','lid'].forEach(k=>{ if(x[k]!=null && Number(x[k])===i) delete x[k]; });
+    if(Array.isArray(x.mais)) x.mais=x.mais.filter(v=>Number(v)!==i);
+    if(x.dsr) delete x.dsr[String(i)]; }
+  function toggle(d,i){
+    if(!manual()) return;
+    const f=equipe[i]; if(!f || foraDom(f)) return;
+    const ano=+$i('ano').value, mes=+$i('mes').value, bal=balancoDoMes(ano,mes);
+    if(Number(d)===Number(bal)){ window.showToast?.('O domingo de balanço é obrigatório para todos — não dá para tirar aqui.','info',true); return; }
+    const dkey=String(d), nome=String(f.nome||'').split(' ')[0];
+    if(ehLiderancaDomingo(f)){
+      if(lideresSelecionadosDomingo(d).includes(i)){ removerLider(d,i); window.showToast?.(`${nome} saiu da liderança do domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
+      else { window.showToast?.('Para COLOCAR uma liderança e escolher a folga (DSR), use o passo 3 (Domingos).','info',true); return; }
+    } else {
+      selecaoManualDomingo[dkey]=selecaoManualDomingo[dkey]||[];
+      const arr=new Set(selecaoManualDomingo[dkey].map(Number));
+      const trab=arr.has(i)||(trabalhoDomingo[d]||[]).map(Number).includes(i);
+      if(trab){ arr.delete(i); if(horariosManuaisDomingo?.[dkey]) delete horariosManuaisDomingo[dkey][String(i)]; window.showToast?.(`${nome} saiu do domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
+      else { arr.add(i); try{ const hv=(listaHorariosDomingoParaData(d)[0]||[])[0]||''; if(hv){ horariosManuaisDomingo[dkey]=horariosManuaisDomingo[dkey]||{}; horariosManuaisDomingo[dkey][String(i)]=hv; } }catch(e){} window.showToast?.(`${nome} entrou no domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
+      selecaoManualDomingo[dkey]=[...arr];
+    }
+    // reflete na prévia (quando já gerou, a tabela lê trabalhoDomingo) e marca que precisa gerar de novo
+    try{ const ops=(selecaoManualDomingo[dkey]||[]).map(Number); trabalhoDomingo[d]=[...new Set([...ops,...lideresSelecionadosDomingo(d)])]; }catch(e){}
+    try{ ultimaEscala=null; }catch(e){}
+    try{ if($i('statusBadge')) $i('statusBadge').textContent='Revisar escala'; }catch(e){}
+    try{ renderSelecaoDomingosGeracao?.(); }catch(e){}
+    try{ renderLiderancaDomingo?.(); }catch(e){}
+    try{ renderPreviaFolgasFeriado?.(true); }catch(e){}
+    try{ window.v45Persist?.(); }catch(e){}
+  }
+  document.addEventListener('click',e=>{ const td=e.target.closest?.('#previaTabelaFolgas td[data-pv-dom]'); if(!td) return;
+    e.preventDefault(); toggle(+td.dataset.pvDom, +td.dataset.pvFunc); });
+  window.v330DomingoClicavel={toggle};
 })();
 </script>
 <script>
