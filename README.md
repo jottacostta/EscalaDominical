@@ -29,7 +29,7 @@ As versões V292/V196 também têm uma área 🧪 para simular o 5×2 em memóri
 | [`docs/PLANO_5x2.md`](docs/PLANO_5x2.md) | plano de ação da EC 141/2026 e transição para o regime 5×2 |
 | [`docs/INVESTIGACAO_SIMULACAO_5x2.md`](docs/INVESTIGACAO_SIMULACAO_5x2.md) | investigação técnica e simulação das folgas em 42h e 40h |
 | [`docs/RELATORIO_TESTE_5x2_INTERCALADO_V292_V196.md`](docs/RELATORIO_TESTE_5x2_INTERCALADO_V292_V196.md) | resultados da simulação de folgas intercaladas na área experimental, sem validade real |
-| [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
+| [`testes/`](testes/) | testes automáticos com dados fictícios (`cd testes && npm install && npm test`), incluindo a bateria exploratória do Gabriel com 100 perguntas (50 por app); rodam sozinhos no GitHub em todo Pull Request (aba **Actions** / “Checks” do PR) |
 | Manuais de uso (Claude Docs) | [Manual do Encarregado](https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726) · [Manual da Escala de Setores](https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197) · [Roteiro do Beta](https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9) — com prints de dados fictícios |
 | [`AGENTS.md`](AGENTS.md) | regras do projeto para assistentes de IA (Manus, Claude e ChatGPT/Codex) |
 | [`docs/PASSAGEM.md`](docs/PASSAGEM.md) | **passagem de bastão** entre Manus, Claude e ChatGPT/Codex: estado atual, mapa do código, armadilhas, diário e pendências |
