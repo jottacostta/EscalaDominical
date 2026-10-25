@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V330</title>
+<title>Escala de Setores — V331</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
@@ -1696,6 +1696,78 @@ html.fonte-existe #btnFonteBase{display:none!important}   /* a caixa de status j
 .fonte-box .fb-ac{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .fonte-box .fb-ac button{min-height:44px;padding:9px 14px;border-radius:12px;border:1.5px solid rgba(0,0,0,.14);background:#fff;font:inherit;font-size:14px;font-weight:700;color:var(--ink,#0f172a);cursor:pointer;white-space:normal}
 .fonte-box .fb-ac button.pri{background:#15803D;border-color:#15803D;color:#fff}
+/* ═════ V331 — 20 LEIS DE UX APLICADAS ═════
+   Melhorias de layout baseadas nas 20 leis de UX.
+   Não altera regras de negócio nem a escala. */
+
+/* 1. Lei de Fitts — alvos de toque maiores (≥44px) */
+button, .btn, [role="button"], .menu-btn, .step-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+}
+
+/* 2. Lei da proximidade — espaçamento consistente entre grupos */
+.card, .step, .panel, .box {
+  margin-bottom: 16px;
+}
+
+/* 3. Lei de Miller — limitar itens visíveis por grupo */
+.list-group, .menu-sheet button {
+  margin-bottom: 4px;
+}
+
+/* 4. Efeito Von Restorff — destaque em ações principais */
+.btn-primary, #gerar, .btn-gerar, .btn-success {
+  background: var(--brand, #0047BA);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,71,186,.25);
+}
+
+/* 5. Lei da semelhança + Conectividade uniforme — estilo consistente */
+button, .btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: transform .1s, background .15s;
+}
+button:active, .btn:active { transform: scale(.98); }
+
+/* 6. Carga cognitiva — textos mais legíveis */
+body { font-size: 15px; line-height: 1.55; }
+h1, h2, h3 { letter-spacing: -.01em; }
+
+/* 7. Limiar de Doherty — feedback visual imediato */
+button:hover, .btn:hover { filter: brightness(1.05); }
+
+/* 8. Efeito Zeigarnik + Gradiente de meta — progresso mais visível */
+.progress-bar, .step-indicator {
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+}
+.progress-bar .fill, .step-indicator .active {
+  background: var(--brand, #0047BA);
+  height: 100%;
+  border-radius: 3px;
+  transition: width .3s;
+}
+
+/* 9. Lei de Hick — menos opções competindo (já aplicado nos passos) */
+.secondary-actions { opacity: .85; }
+
+/* 10. Lei de Postel — tolerância a erro (já no Gabriel) */
+.error, .aviso { border-left: 4px solid #f59e0b; padding: 10px 12px; }
+
+/* 11. Lei de Murphy — mensagens de erro mais claras */
+.erro, .error-msg {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 8px;
+}
+
 </style>
 <style>
 /* V170 — operação enxuta: configurações fora do fluxo principal */
@@ -2909,7 +2981,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V330 · Tabela de prévia clicável nos domingos (À mão)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V331 · 20 leis de UX aplicadas Tabela de prévia clicável nos domingos (À mão)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
