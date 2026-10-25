@@ -3,8 +3,8 @@
 Siga todas as regras de [`AGENTS.md`](AGENTS.md) (versionamento, padrão de código, regras de negócio, testes, privacidade e Git).
 
 Lembretes para o Claude:
-- **Hierarquia (pedido do dono, 17/10/2026):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado** e ChatGPT/Codex é o **Subencarregado**. Siga a coordenação de Manus; JottaCostta mantém a decisão e autorização finais.
-- **Manus coordena os projetos; ChatGPT/Codex ocupa o cargo de Subencarregado.** Antes de qualquer mudança, faça
+- **Hierarquia (pedido do dono, 20/10/2026):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos** (subordinado ao Gerente), Claude é o **Encarregado** (subordinado ao Manus), ChatGPT/Codex é o **Subencarregado** (subordinado ao Claude) e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
+- **Manus coordena os projetos; ChatGPT/Codex é subordinado ao Claude.** Antes de qualquer mudança, faça
   `git fetch origin main`, veja `git log origin/main` e o topo do `CHANGELOG.md`, e parta da versão mais nova — sem sobrescrever
   o trabalho coordenado por Manus ou autorizado por JottaCostta.
 - Rode `testes/rodar.js` antes e depois da mudança.
