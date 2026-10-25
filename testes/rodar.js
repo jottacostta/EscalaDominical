@@ -41,8 +41,12 @@ async function novaPagina(browser){
   const erros = [];
   p.on('pageerror', e => erros.push(e.message.slice(0, 160)));
   p.on('dialog', d => d.accept());
+  await p.addInitScript(() => { new MutationObserver(() => { if(window.__v318Manual) return; const b = document.getElementById('v318Concordo'); if(b) b.click(); }).observe(document, { childList: true, subtree: true }); });   // V318: nos testes antigos, “✅ Concordo” é aceito sozinho (como os diálogos)
+  await p.addInitScript(() => { new MutationObserver(() => { if(window.__v322Manual) return; const b = document.getElementById('v322Janela6x1'); if(b) b.click(); }).observe(document, { childList: true, subtree: true }); });   // V322/V202: nos testes antigos, a janela do modelo escolhe 6×1 (o comportamento de antes)
+  await p.addInitScript(() => { new MutationObserver(() => { if(window.__v323Manual) return; const j = document.getElementById('v323Janela'); if(!j || j.dataset.auto) return; j.dataset.auto = '1'; setTimeout(() => { document.getElementById('v323Sugerir')?.click(); setTimeout(() => document.getElementById('v323Salvar')?.click(), 0); }, 0); }).observe(document, { childList: true, subtree: true }); });   // V323/V203: nos testes antigos, a 2ª folga fixa é sugerida e salva sozinha
   return { p, erros, ctx };
 }
+const semEnsaio = app => { const n = path.basename(app), v = +((n.match(/V(\d+)\.html$/) || [])[1] || 0); return /Setores/i.test(n) ? v >= 322 : v >= 202; };   // V322/V202
 const mudarMes = (p, m, a) => p.evaluate(([m, a]) => {
   const A = $('ano'), M = $('mes');
   if(A.value !== String(a)){ A.value = String(a); A.dispatchEvent(new Event('change', { bubbles: true })); }
@@ -51,6 +55,7 @@ const mudarMes = (p, m, a) => p.evaluate(([m, a]) => {
 
 /* V292/V196 — área de teste 5×2: simula em memória e não pode tocar na escala oficial */
 async function testarAreaTeste5x2(browser, app, rotulo, fixture, apiName, ids, preparar){
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
   console.log(`\n▶ ${rotulo} — área experimental 5×2`);
   const { p, erros, ctx } = await novaPagina(browser);
   await p.goto('file://' + app); await p.waitForTimeout(1000); await preparar(p);
@@ -202,6 +207,7 @@ async function testarSetores(browser){
       ok(cob.vagas > 0 && cob.n === cob.vagas, `V234: com cobertura por função incompleta (aviso “falta completar”), as sugestões enchem as vagas (${cob.n} de ${cob.vagas})`);
     }
     if(await p.evaluate(() => !!window.v234Sugestoes)){   // V235: mês inteiro só com sugestões → o “Gerar” da escala à mão aceita (horário preenchido, quantidade do cartão)
+      await mudarMes(p, 9, 2026); await p.waitForTimeout(700);   // V322: num mês 5×2 (2027) a geração à mão só com domingos vira 6 dias seguidos; este caso é do 6×1, então usa outubro/2026
       await p.evaluate(() => { selecaoManualDomingo = {}; horariosManuaisDomingo = {}; renderSelecaoDomingosGeracao(); }); await p.waitForTimeout(500);
       const dsTodos = await p.evaluate(() => { const bal = balancoDoMes(+$('ano').value, +$('mes').value); return domingosDoMes(+$('ano').value, +$('mes').value).filter(d => d !== bal); });
       for(const d of dsTodos){ const c = `#selecaoDomingosManual .dom-card[data-geracao-dom="${d}"]`;
@@ -211,10 +217,13 @@ async function testarSetores(browser){
       const ger = await p.evaluate(() => (document.getElementById('validacao')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160));
       ok(/validada e gerada/i.test(ger), `V235: mês inteiro preenchido só com sugestões e o “Gerar” da escala à mão aceita — “${ger.slice(0, 90)}”`);
       await p.evaluate(() => window.v45GotoStep?.([...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'coberturaCard'), false)); await p.waitForTimeout(300);
+      await mudarMes(p, MESES[1], ANO); await p.waitForTimeout(700);   // volta para o mês da bateria
     }
     await p.evaluate(() => { const m=$('modoGeracao'); if(m){m.value='manual';m.dispatchEvent(new Event('change',{bubbles:true}));} selecaoManualDomingo = {}; renderSelecaoDomingosGeracao(); });
     await p.waitForTimeout(400);
-    const i = await p.evaluate(() => equipe.findIndex((f, i) => !foraDom(f) && !ehLiderancaDomingo(f) && !historicoManual(i).ultimo && !historicoManual(i).penultimo));
+    const i = await p.evaluate(() => { let k = equipe.findIndex((f, i) => !foraDom(f) && !ehLiderancaDomingo(f) && !historicoManual(i).ultimo && !historicoManual(i).penultimo);
+      if(k < 0){ k = equipe.findIndex(f => !foraDom(f) && !ehLiderancaDomingo(f)); ['hist_pen_', 'hist_ult_'].forEach(id => { const c = $(id + k); if(c){ c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); } }); renderSelecaoDomingosGeracao(); }   // V306: no rodízio 2×1 todo mundo trabalha 1 dos 2 últimos domingos
+      return k; });
     const doms = await p.evaluate(() => domingosDoMes(+$('ano').value, +$('mes').value).filter(d => d !== balancoDoMes(+$('ano').value, +$('mes').value)));
     for(const d of doms.slice(0, 3)){ await p.evaluate(([d, i]) => document.querySelector(`#selecaoDomingosManual input[data-dom="${d}"][data-func="${i}"]`).click(), [d, i]); await p.waitForTimeout(200); }
     const tag = await p.evaluate(([d, i]) => document.querySelector(`#selecaoDomingosManual input[data-dom="${d}"][data-func="${i}"]`).closest('.dom-func').querySelector('.v217-tag')?.textContent || '', [doms[2], i]);
@@ -455,7 +464,8 @@ async function testarSetores(browser){
       const bk = { modo: $('modoGeracao').value, lm: JSON.stringify(liderancaManualDomingo || {}), hm: JSON.stringify(horariosManuaisDomingo || {}) };
       try{
         $('modoGeracao').value = 'manual'; renderSelecaoDomingosGeracao(); await w(200);
-        const c = document.querySelector('#selecaoDomingosManual .dom-card');
+        let c = document.querySelector('#selecaoDomingosManual .dom-card');
+        for(let t = 0; !c && t < 2000; t += 50){ await w(50); c = document.querySelector('#selecaoDomingosManual .dom-card'); }   // espera o cartão renderizar (evita flake do w(200) fixo)
         out.temSeta = !!c.querySelector('.dom-head .v252-seta') && !!document.getElementById('selecaoDomingosManual').previousElementSibling?.classList.contains('v252-barra');
         c.querySelector('.v252-seta').click(); await w(30);
         out.fecha = c.classList.contains('v252-rec') && getComputedStyle(c.querySelector('.dom-funcs')).display === 'none';
@@ -1337,17 +1347,21 @@ async function testarToastNaoCobreGabriel(browser, app, nome, abrir){   // V291/
 }
 
 async function testarTabelaEManual5x2(browser, app, nome, abrir, pref){   // V293/V197: tabela de folgas no ensaio + grade editável da escala à mão
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
   console.log('\n▶ ' + nome + ' — 🧪 tabela de folgas e escala à mão (ensaio 5×2)');
   const { p, erros } = await novaPagina(browser);
   await p.goto('file://' + app); await p.waitForTimeout(1200);
   await abrir(p); await p.waitForTimeout(400);
-  const r = await p.evaluate(pref => {
+  const temAut = +path.basename(app).match(/V(\d+)\.html$/)[1] < 300;   // V300: a área automática saiu do Setores; o ensaio 5×2 continua só na escala à mão
+  const r = await p.evaluate(([pref, temAut]) => {
     const out={}, ensaio=window[pref+'Teste5x2'], manual=window[pref+'Manual5x2'];
-    if(!ensaio||!manual){out.faltaApi=true;return out;}
-    ensaio.habilitar(true); ensaio.simular();
-    const saida=document.getElementById(pref+'Teste5x2Resultado');
-    out.ensaioTabela=/class="v\d+-tab"/.test(saida?saida.innerHTML:'');
-    manual.habilitar(true); manual.montar();
+    if(!manual||(temAut&&!ensaio)){out.faltaApi=true;return out;}
+    if(ensaio){
+      ensaio.habilitar(true); ensaio.simular();
+      const saida=document.getElementById(pref+'Teste5x2Resultado');
+      out.ensaioTabela=/class="v\d+-tab"/.test(saida?saida.innerHTML:'');
+    }
+    manual.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); manual.montar();
     const grade=document.getElementById(pref+'Manual5x2Grade');
     out.grade=grade?grade.querySelectorAll('.'+pref+'-cel').length:0;
     const tr0=grade?grade.querySelector('tbody tr'):null, cels=tr0?[...tr0.querySelectorAll('.'+pref+'-cel')]:[];
@@ -1358,14 +1372,1042 @@ async function testarTabelaEManual5x2(browser, app, nome, abrir, pref){   // V29
     out.erroFaltam=/precisa de 2/.test(html);
     out.marcou=!!(cels[0]&&cels[0].getAttribute('aria-pressed')==='true');
     return out;
-  }, pref);
+  }, [pref, temAut]);
   ok(!r.faltaApi, nome + ': as APIs do ensaio 5×2 estão presentes');
-  ok(r.ensaioTabela, nome + ': o ensaio 5×2 mostra as folgas em tabela');
+  if(temAut) ok(r.ensaioTabela, nome + ': o ensaio 5×2 mostra as folgas em tabela');
   ok(r.grade > 0, nome + ': a escala à mão monta a grade editável (' + r.grade + ' células)');
   ok(r.marcou, nome + ': dá para marcar uma folga tocando na célula');
   ok(r.conf && r.confTabela, nome + ': “Conferir” mostra a conferência com a tabela de folgas');
   ok(r.erroFaltam, nome + ': a conferência à mão acusa quem ainda não tem 2 folgas');
   ok(!erros.length, nome + ': sem erro de JavaScript no ensaio de folgas' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarSugestao5x2(browser, app, nome, abrir){   // V294: o botão “Sugerir folgas distribuídas” espalha e não deixa ninguém passar de 5 dias seguidos
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 sugerir folgas distribuídas (escala à mão 5×2)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const api = window.v292Manual5x2; if(!api || typeof api.sugerir !== 'function') return { faltaApi: true };
+    api.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); api.montar(); api.sugerir();
+    const grade = document.getElementById('v292Manual5x2Grade'); if(!grade) return { semGrade: true };
+    const tabelas = [...grade.querySelectorAll('table')];
+    let maxPorDia = 0, pessoasTotal = 0, pessoasOk = 0, totalPessoas = 0;
+    tabelas.forEach(t => {
+      const linhas = [...t.querySelectorAll('tbody tr')];
+      const nCols = [...t.querySelectorAll('thead th')].length - 2;
+      const porDia = new Array(Math.max(0, nCols)).fill(0);
+      linhas.forEach(tr => { const cels = [...tr.querySelectorAll('.v292-cel')]; cels.forEach((c, i) => { if(c.getAttribute('aria-pressed') === 'true') porDia[i]++; });
+        const cont = tr.querySelector('.v292-manual-cont'); pessoasTotal++; if(cont && cont.classList.contains('ok')) pessoasOk++; });   // V295: alvo por pessoa (2 se trabalha domingo, 1 se folga) → célula "ok"
+      porDia.forEach(v => { if(v > maxPorDia) maxPorDia = v; });
+    });
+    totalPessoas = tabelas.length ? [...tabelas[0].querySelectorAll('tbody tr')].length : 0;
+    api.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado').innerText;
+    const m = box.match(/(\d+) erro\(s\)/);
+    return { maxPorDia, pessoasTotal, pessoasOk, totalPessoas, erros: m ? +m[1] : -1 };
+  });
+  ok(!r.faltaApi && !r.semGrade, nome + ': a escala à mão tem o botão “Sugerir folgas distribuídas”');
+  ok(r.pessoasTotal > 0 && r.pessoasOk === r.pessoasTotal, nome + ': a sugestão dá a cada pessoa o número certo de folgas (2 se trabalha no domingo, 1 se folga) — ' + r.pessoasOk + '/' + r.pessoasTotal);
+  ok(r.totalPessoas === 0 || r.maxPorDia <= Math.max(1, Math.floor(r.totalPessoas / 2)), nome + ': a sugestão não deixa mais que metade da equipe de folga no mesmo dia (máx ' + r.maxPorDia + ' de ' + r.totalPessoas + ')');
+  ok(r.erros === 0, nome + ': a conferência da sugestão não acusa erro (folgas conforme o domingo e no máximo 5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript na sugestão' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarCobertura5x2(browser, app, nome, abrir){   // V198: o ensaio 5×2 não pode deixar nenhum dia sem ninguém trabalhando
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 cobertura do ensaio 5×2 (ninguém deixa o dia descoberto)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const api = window.v196Teste5x2 || window.v292Teste5x2; if(!api) return { faltaApi: true };
+    api.habilitar(true); const st = api.simular(), res = st && st.resultado;
+    if(!res || !Array.isArray(res.semanas) || !Array.isArray(res.pessoas)) return { semResultado: true };
+    const dataDe = s => { const a = String(s).split('-').map(Number); return new Date(a[0], a[1]-1, a[2]); };
+    let descobertos = 0;
+    res.semanas.forEach((dias, k) => dias.forEach(s => {
+      const podem = res.pessoas.filter(pp => pp.permitidos && pp.permitidos.includes(dataDe(s).getDay()));
+      if(!podem.length) return;
+      const folgam = podem.filter(pp => pp.semanas[k] && pp.semanas[k].folgas.includes(s)).length;
+      if(folgam >= podem.length) descobertos++;
+    }));
+    const erros = (res.auditoria && res.auditoria.erros) || [];
+    return { descobertos, erroNinguem: erros.filter(e => /Ninguém trabalharia/.test(e)).length, pessoas: res.auditoria && res.auditoria.resumo ? res.auditoria.resumo.pessoas : res.pessoas.length };
+  });
+  ok(!r.faltaApi && !r.semResultado, nome + ': o ensaio 5×2 produz resultado para conferir a cobertura');
+  ok(!r.descobertos, nome + ': nenhum dia fica sem ninguém trabalhando no ensaio 5×2' + (r.descobertos ? ' — ' + r.descobertos + ' dia(s) descoberto(s)' : ''));
+  ok(!r.erroNinguem, nome + ': a conferência não acusa dia descoberto');
+  ok(!erros.length, nome + ': sem erro de JavaScript na cobertura' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarTabelaMensal5x2(browser, app, nome, abrir){   // V295: a tabela do ensaio é mensal (pessoa × dias), mostra domingos (D) e folgas (F)
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 grade mensal (pessoa × dias, domingos e folgas)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const out = {};
+    // escala à mão: sugerir + conferir → a tabela do mês entra no resultado
+    const man = window.v292Manual5x2;
+    if(man && typeof man.conferir === 'function'){
+      man.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); man.montar(); man.sugerir(); man.conferir();
+      const box = document.getElementById('v292Manual5x2Resultado');
+      const t = box ? box.querySelector('table.v292-tab-mes') : null;
+      out.manTem = !!t;
+      if(t){
+        out.manCols = [...t.querySelectorAll('thead th')].length - 1;   // tira a coluna "Pessoa"
+        out.manDomCols = [...t.querySelectorAll('thead th.v292-col-dom')].length;
+        out.manTemF = !!t.querySelector('tbody td.v292-folga');
+        out.manDomTrab = [...t.querySelectorAll('tbody td.v292-dom-trab')].length;   // V295: domingos distribuídos no ensaio
+        out.manDomFolga = [...t.querySelectorAll('tbody td.v292-dom-folga')].length;
+      }
+    }
+    // simulação automática: a mesma grade mensal aparece (lê a escala oficial de domingos, quando houver)
+    const aut = window.v292Teste5x2;
+    if(aut && typeof aut.simular === 'function'){
+      aut.habilitar(true); aut.simular();
+      out.autTem = !!document.getElementById('v292Teste5x2Resultado').querySelector('table.v292-tab-mes');
+    }
+    const mes = +(document.getElementById('mes')?.value), ano = +(document.getElementById('ano')?.value);   // mês carregado (0-based), como em entrada()
+    out.diasNoMes = (Number.isFinite(mes) && Number.isFinite(ano)) ? new Date(ano, mes + 1, 0).getDate() : 0;
+    return out;
+  });
+  ok(r.manTem, nome + ': a conferência da escala à mão mostra a grade mensal (pessoa × dias)');
+  ok(r.manCols === r.diasNoMes, nome + ': a grade mensal tem uma coluna por dia do mês (' + r.manCols + ' de ' + r.diasNoMes + ')');
+  ok(r.manDomCols >= 4 && r.manDomCols <= 5, nome + ': os domingos do mês viram colunas destacadas (' + r.manDomCols + ')');
+  ok(r.manTemF && r.manDomTrab > 0 && r.manDomFolga > 0, nome + ': a escala à mão distribui os domingos e marca folgas (F), domingos trabalhados (D) e descanso de domingo (–) — D=' + r.manDomTrab + ', –=' + r.manDomFolga);
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 300) ok(r.autTem, nome + ': a simulação automática também mostra a grade mensal');   // V300: a área automática saiu do Setores; só a escala à mão tem a grade mensal
+  ok(!erros.length, nome + ': sem erro de JavaScript na grade mensal' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarDomingos2x1(browser, app, nome, abrir){   // V296: o ensaio à mão distribui os domingos em 2×1 (2 trabalhados, 1 de folga, nunca 3 seguidos)
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 rodízio 2×1 dos domingos (ensaio à mão)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; if(!m || typeof m.sugerir !== 'function') return { faltaApi: true };
+    m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar(); m.sugerir(); m.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado');
+    const t = box && box.querySelector('table.v292-tab-mes'); if(!t) return { semTabela: true };
+    const heads = [...t.querySelectorAll('thead th')].map(th => th.textContent);
+    const domCols = []; heads.forEach((h, i) => { if(/Dom/.test(h)) domCols.push(i); });
+    const linhas = [...t.querySelectorAll('tbody tr')];
+    let maxSeg = 0, semRodizio = 0;
+    const porDomingoFolga = domCols.map(() => 0);
+    const v310 = +((document.title.match(/V(\d+)/) || [])[1]) >= 310, lid = new Set(equipe.filter(f => ehLiderancaDomingo(f)).map(f => f.nome));   // V310: a liderança vem do passo ③, fora do rodízio
+    linhas.forEach(tr => {
+      const tds = [...tr.children];
+      if(v310 && lid.has(tds[0].textContent.trim())) return;
+      const seq = domCols.map(ci => tds[ci].classList.contains('v292-dom-trab') ? 1 : 0);   // 1 = trabalha no domingo (classe, não a letra — o rótulo virou "T" na V301)
+      seq.forEach((v, j) => { if(!v) porDomingoFolga[j]++; });
+      let run = 0, mx = 0; seq.forEach(v => { if(v){ run++; if(run > mx) mx = run; } else run = 0; });
+      if(mx > maxSeg) maxSeg = mx;
+      if(seq.every(v => v) || seq.every(v => !v)) semRodizio++;   // trabalha todos ou folga todos = sem rodízio
+    });
+    const erros = (box.innerText.match(/(\d+) erro\(s\)/) || [])[1];
+    const todoDomingoTemFolga = porDomingoFolga.every(n => n > 0);           // 1/3 folga
+    const todoDomingoTemTrabalho = porDomingoFolga.every(n => n < linhas.length);  // 2/3 trabalham
+    return { nDom: domCols.length, nPessoas: linhas.length, maxSeg, semRodizio, erros: erros ? +erros : -1, todoDomingoTemFolga, todoDomingoTemTrabalho };
+  });
+  ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece com os domingos');
+  ok(r.maxSeg <= 2, nome + ': ninguém trabalha 3 domingos seguidos (máx ' + r.maxSeg + ' seguidos)');
+  ok(r.semRodizio === 0, nome + ': todos entram no rodízio 2×1 (ninguém trabalha ou folga todos os domingos; a liderança segue o passo ③)');
+  ok(r.todoDomingoTemFolga && r.todoDomingoTemTrabalho, nome + ': em cada domingo parte da equipe folga e parte trabalha (cobertura 2×1)');
+  ok(r.erros === 0, nome + ': a conferência não acusa erro com o rodízio 2×1' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript no rodízio 2×1' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarFeriados(browser, app, nome, abrir){   // V297: o ensaio à mão contempla feriados (rodízio H/f, compensatória, DSR), sem furar ≤5 seguidos
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 feriados no ensaio à mão (rodízio, compensatória, DSR)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; if(!m || typeof m.conferir !== 'function') return { faltaApi: true };
+    m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar(); m.sugerir();
+    const g = document.getElementById('v292Manual5x2Grade');
+    const gradeC = g ? g.querySelectorAll('button.v292-cel.v292-comp').length : 0;   // V301: folga compensatória na grade editável
+    const gradeRuim = g ? g.querySelectorAll('.v292-manual-cont.ruim').length : -1;
+    const dsrLabels = g ? [...new Set([...g.querySelectorAll('button.v292-cel[aria-pressed="true"]:not(.v292-comp)')].map(b => b.textContent.trim()))] : [];   // V302: folgas da semana numeradas (DSR1/DSR2)
+    m.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
+    if(!t) return { semTabela: true };
+    const colFer = [...t.querySelectorAll('thead th.v292-col-fer')].length;
+    const H = [...t.querySelectorAll('tbody td.v292-fer-trab')].length;
+    const f = [...t.querySelectorAll('tbody td.v292-fer-folga')].length;
+    const texto = box.innerText;
+    const erros = (texto.match(/(\d+) erro\(s\)/) || [])[1];
+    const avisoComp = /folga compensat[oó]ria do feriado .* dentro de 20/i.test(texto);   // V301: cita o prazo de 20 dias
+    const naoCoube = /não coube em 20 dias/i.test(texto);
+    return { colFer, H, f, erros: erros ? +erros : -1, gradeC, gradeRuim, avisoComp, naoCoube, dsrLabels };
+  });
+  const v = +path.basename(app).match(/V(\d+)\.html$/)[1];
+  ok(!r.faltaApi && !r.semTabela, nome + ': a grade mensal do ensaio à mão aparece');
+  ok(r.colFer > 0, nome + ': os feriados do mês viram colunas destacadas na grade (' + r.colFer + ')');
+  ok(r.H > 0 && r.f > 0, nome + ': nos feriados de dia útil há rodízio — parte trabalha (H=' + r.H + ') e parte folga (f=' + r.f + ')');
+  ok(r.erros === 0, nome + ': a conferência com feriados não acusa erro (compensatória, DSR e ≤5 dias seguidos)' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  if(v >= 301){   // V301: a folga compensatória de feriado trabalhado cai em até 20 dias (seg–sáb), podendo ser noutra semana
+    ok(r.gradeC > 0 && !r.naoCoube, nome + ': quem trabalha feriado ganha folga compensatória (C) marcada dentro de 20 dias (C=' + r.gradeC + ', sem “não coube”)');
+    ok(r.avisoComp, nome + ': a conferência mostra a data da folga compensatória dentro do prazo de 20 dias');
+    ok(r.gradeRuim === 0, nome + ': com a compensatória contada na semana certa, nenhum contador fica errado');
+  }
+  if(v >= 302){   // V302: as folgas da semana aparecem como DSR numerado (DSR1/DSR2), não mais como "DSR"/"F" solto
+    ok(r.dsrLabels.includes('DSR1') && r.dsrLabels.includes('DSR2'), nome + ': as folgas da semana aparecem numeradas (DSR1 e DSR2) — ' + JSON.stringify(r.dsrLabels));
+    ok(!r.dsrLabels.includes('DSR') && !r.dsrLabels.includes('F'), nome + ': folga da semana não aparece como “DSR” solto nem “F” (F fica só no domingo/feriado)');
+  }
+  ok(!erros.length, nome + ': sem erro de JavaScript com feriados' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarFeriadoDomingo5x2(browser, app, nome, abrir){   // V304: feriado no domingo — quem trabalha ganha DSR1/DSR2 + 1 folga do feriado (F15) em até 20 dias
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 304) return;
+  console.log('\n▶ ' + nome + ' — 🧪 feriado no domingo (15/11/2026) no ensaio à mão');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar(); m.sugerir(); m.conferir();
+    const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
+    if(!t) return { semTabela: true };
+    const cab = [...t.querySelectorAll('thead th')].slice(1).map(th => th.textContent);
+    const col = cab.findIndex(x => /15/.test(x) && /🟡/.test(x));
+    let trab = 0, trabComF15 = 0, folga = 0, folgaComF15 = 0, dsrSemana = 0, f15ForaPrazo = 0, dsrDepois = 0, trabFolga22 = 0;
+    const avisos = box.textContent;   // a folga do feriado pode cair no começo do mês seguinte (fora da grade); a conferência lista a data
+    [...t.querySelectorAll('tbody tr')].forEach(tr => {
+      const tds = [...tr.querySelectorAll('td')], dom = tds[col] && tds[col].textContent.trim(), nomeP = tr.querySelector('th').textContent.trim();
+      const comp15 = avisos.includes(nomeP + ': folga compensatória do feriado 15/11/2026 em');
+      const f15 = tds.map((td, k) => td.textContent.trim() === 'F15' ? k : -1).filter(k => k >= 0);
+      f15.forEach(k => { if(k <= col || k > col + 20) f15ForaPrazo++; });
+      const semana = tds.slice(col - 6, col).map(td => td.textContent.trim());   // seg–sáb da semana do dia 15
+      const depois = tds.slice(col + 1, col + 7).map(td => td.textContent.trim());   // V308: seg–sáb da semana depois do dia 15
+      if(dom === 'T'){ trab++; if(comp15 && f15.length <= 1) trabComF15++; if(semana.includes('DSR1') && semana.includes('DSR2')) dsrSemana++; if(depois.filter(x => /^DSR[12]$/.test(x) || x === 'F').length >= 2) dsrDepois++; /* F num dia útil = feriado de folga (vale como descanso) */ if(tds[col + 7] && tds[col + 7].textContent.trim() === 'F') trabFolga22++; }
+      else if(dom === 'F'){ folga++; if(f15.length || comp15) folgaComF15++; }
+    });
+    const texto = box.innerText, nErros = (texto.match(/(\d+) erro\(s\)/) || [])[1];
+    return { dsrDepois, trabFolga22, col, trab, trabComF15, folga, folgaComF15, dsrSemana, f15ForaPrazo, erros: nErros ? +nErros : -1 };
+  });
+  ok(!r.semTabela && r.col >= 0, nome + ': o domingo 15/11 aparece como feriado (🟡) na grade mensal');
+  ok(r.trab > 0 && r.trabComF15 === r.trab, nome + ': quem trabalha o domingo-feriado ganha 1 folga do feriado (F15) — ' + r.trabComF15 + ' de ' + r.trab + ', conferido na lista de avisos');
+  ok(r.dsrSemana === r.trab, nome + ': e continua com DSR1 e DSR2 na semana (' + r.dsrSemana + ' de ' + r.trab + ')');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 308) ok(r.dsrDepois === r.trab && r.trabFolga22 > 0, nome + ': e tem 2 descansos na semana depois (DSR1/DSR2, ou o feriado de folga), mesmo quem folga o domingo seguinte (' + r.dsrDepois + ' de ' + r.trab + '; ' + r.trabFolga22 + ' folgam o 22)');
+  ok(r.folga > 0 && r.folgaComF15 === 0, nome + ': quem folga o domingo-feriado não ganha folga a mais (' + r.folgaComF15 + ' de ' + r.folga + ')');
+  ok(r.f15ForaPrazo === 0, nome + ': a folga F15 cai depois do feriado, dentro de 20 dias');
+  ok(r.erros === 0, nome + ': a conferência não acusa erro' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarDomingoPorFuncao5x2(browser, app, nome, abrir){   // V305: no ensaio à mão, o gerente escolhe quantos trabalham no domingo por função
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  const vf = +path.basename(app).match(/V(\d+)\.html$/)[1]; if(vf < 305 || vf >= 310) return;   // V310: substituído — os domingos do ensaio vêm do “Por cargo” da 6×1 (testarEnsaioUsaEscolhas6x1)
+  console.log('\n▶ ' + nome + ' — 🧪 quantos trabalham no domingo, por função (ensaio à mão)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar();
+    const box = document.getElementById('v292Manual5x2Funcoes'), inputs = [...box.querySelectorAll('input[data-v305fn]')];
+    const fns = m.domingoPorFuncao.funcoes(), nomes = Object.keys(fns);
+    const padrao = nomes.every(fn => fns[fn].porDomingo === Math.floor(fns[fn].pessoas * 2 / 3));
+    // pede um número diferente do padrão em cada função, pela tela (evento change)
+    const quer = {};
+    inputs.forEach(inp => { const fn = inp.dataset.v305fn, n = fns[fn].pessoas; quer[fn] = Math.max(0, Math.floor(n / 2)); inp.value = String(quer[fn]); inp.dispatchEvent(new Event('change', { bubbles: true })); });
+    const textoUsa = /usa estes números/.test(box.innerText) && !document.getElementById('v305FnVoltar').hidden;
+    m.sugerir(); m.conferir();
+    const dom = m.domingoPorFuncao.domingos(), grupos = {}, eq = equipe;
+    const fnDe = i => window.v199Graf.funcaoDoCargo(eq[i].cargo);
+    const dias = Object.keys(dom).map(Number).sort((a, b) => a - b);
+    let contaCerta = true, tres = 0;
+    dias.forEach(d => { const c = {}; dom[d].forEach(i => { const fn = fnDe(i); c[fn] = (c[fn] || 0) + 1; }); nomes.forEach(fn => { if((c[fn] || 0) !== quer[fn]) contaCerta = false; }); });
+    eq.forEach((_, i) => { for(let k = 2; k < dias.length; k++) if([0, 1, 2].every(j => dom[dias[k - j]].map(Number).includes(i))) { tres++; break; } });
+    const res = document.getElementById('v292Manual5x2Resultado').innerText, nErros = (res.match(/(\d+) erro\(s\)/) || [])[1];
+    // pedir mais que o 2×1 aguenta: o app avisa em vez de furar a regra
+    const grande = nomes.find(fn => fns[fn].pessoas >= 3);
+    m.domingoPorFuncao.definir(grande, fns[grande].pessoas); m.sugerir(); m.conferir();
+    const falta = m.domingoPorFuncao.falta(), avisoFalta = /ficou com \d+ de \d+\. O resto já faria 3 domingos seguidos/.test(document.getElementById('v292Manual5x2Resultado').textContent);
+    const alertaTela = /alguém pode fazer 3 domingos seguidos/.test(box.innerText);
+    m.domingoPorFuncao.voltar(); const voltou = !/usa estes números/.test(box.innerText);
+    return { nFn: nomes.length, nInputs: inputs.length, padrao, textoUsa, contaCerta, tres, erros: nErros ? +nErros : -1, falta: falta.length, avisoFalta, alertaTela, voltou };
+  });
+  ok(r.nFn > 0 && r.nInputs === r.nFn, nome + ': depois de “Montar grade” aparece 1 campo por função (' + r.nInputs + ' funções)');
+  ok(r.padrao, nome + ': cada campo começa com o máximo seguro do 2×1 (2 de cada 3 pessoas)');
+  ok(r.textoUsa, nome + ': ao mudar um número, a tela diz que o sorteio usa os números e mostra “↩️ Voltar ao rodízio automático”');
+  ok(r.contaCerta, nome + ': cada domingo tem exatamente o número pedido de cada função');
+  ok(r.tres === 0, nome + ': ninguém trabalha 3 domingos seguidos (' + r.tres + ')');
+  ok(r.erros === 0, nome + ': a conferência não acusa erro' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(r.falta > 0 && r.avisoFalta && r.alertaTela, nome + ': pedir a função inteira todo domingo não fura o 2×1 — a tela alerta e a conferência avisa quem faltou (' + r.falta + ' domingo(s))');
+  ok(r.voltou, nome + ': “↩️ Voltar ao rodízio automático” desfaz os números');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+/* V306 — 🤖 automático segue o rodízio 2×1 nos domingos (trabalha 2, folga 1), com o mês passado */
+async function testarRodizio2x1Automatico(browser, app, nome, abrir){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 306) return;
+  console.log('\n▶ ' + nome + ' — 🤖 automático no rodízio 2×1 dos domingos');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  // mês passado: 1/3 trabalhou os 2 últimos domingos, 1/3 só o último, 1/3 nenhum
+  const grupos = await p.evaluate(() => {
+    const ops = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !ehLiderancaDomingo(equipe[i])), g = { dois: [], ult: [], nada: [] };
+    ops.forEach((i, k) => { const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); const t = k % 3 === 0 ? 'dois' : k % 3 === 1 ? 'ult' : 'nada'; if(cp) cp.checked = t === 'dois'; if(cu) cu.checked = t !== 'nada'; g[t].push(i); });
+    $('modoCobertura').value = '50'; $('modoCobertura').dispatchEvent(new Event('change', { bubbles: true }));
+    $('modoGeracao').value = 'motor'; $('modoGeracao').dispatchEvent(new Event('change', { bubbles: true }));
+    return { ...g, n: ops.length, resumo: $('coberturaResumo').textContent };
+  });
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(1200);
+  const r = await p.evaluate(g => {
+    const doms = domingosDoMes(2026, 10), ops = [...g.dois, ...g.ult, ...g.nada], t = d => (trabalhoDomingo[d] || []).map(Number);
+    const porDom = doms.map(d => t(d).filter(i => ops.includes(i)).length);
+    let tres = 0, quebras = 0, trans = 0;
+    ops.forEach(i => { const h = historicoManual(i), s = [h.penultimo ? 1 : 0, h.ultimo ? 1 : 0, ...doms.map(d => t(d).includes(i) ? 1 : 0)];
+      for(let k = 2; k < s.length; k++){ trans++; if(s[k - 2] && s[k - 1] && s[k]) tres++; else if(!s[k - 2] && s[k - 1] && !s[k]) quebras++; else if(!s[k - 1] && !s[k]) quebras++; } });
+    const d1 = t(doms[0]);
+    return { porDom, tres, quebras, trans, doisNo1: g.dois.filter(i => d1.includes(i)).length, ultNo1: g.ult.filter(i => d1.includes(i)).length, nadaNo1: g.nada.filter(i => d1.includes(i)).length,
+      val: $('validacao').innerText, alvoMao: alvoCoberturaAtual() };
+  }, grupos);
+  const esperado = Math.round(grupos.n * 2 / 3);
+  ok(/rodízio 2×1/.test(grupos.resumo), nome + ': o cartão “Como dividir o setor” explica o rodízio 2×1 do automático');
+  ok(r.porDom.every(q => Math.abs(q - esperado) <= 1), nome + ': no “Metade da equipe”, o automático escala 2 de cada 3 em cada domingo (' + r.porDom.join(', ') + '; esperado ~' + esperado + ')');
+  ok(r.tres === 0, nome + ': ninguém trabalha 3 domingos seguidos (' + r.tres + ')');
+  ok(r.doisNo1 === 0, nome + ': quem trabalhou os 2 últimos domingos do mês passado folga o 1º domingo (' + r.doisNo1 + ' de ' + grupos.dois.length + ' entraram)');
+  ok(r.ultNo1 >= grupos.ult.length - 1 && r.nadaNo1 >= grupos.nada.length - 1, nome + ': quem trabalhou só o último (' + r.ultNo1 + '/' + grupos.ult.length + ') e quem folgou (' + r.nadaNo1 + '/' + grupos.nada.length + ') trabalham o 1º domingo');
+  ok(r.quebras <= Math.ceil(r.trans * 0.05), nome + ': o padrão trabalha 2, folga 1 se mantém no mês (' + r.quebras + ' quebra(s) em ' + r.trans + ' passagens)');
+  ok(/rodízio 2×1/.test(r.val), nome + ': o resultado diz que a escala segue o rodízio 2×1');
+  ok(r.alvoMao === Math.max(1, Math.round(grupos.n / 2)), nome + ': a escala à mão continua com a metade da equipe (' + r.alvoMao + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEnsaio2x1MesPassado(browser, app, nome, abrir){   // V307: o ensaio à mão segue o 2×1 dos domingos contando o mês passado
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 307) return;
+  console.log('\n▶ ' + nome + ' — 🧪 ensaio à mão: domingos no 2×1 com o mês passado');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const g = { dois: [], ult: [], nada: [] };
+    const v309 = /V(\d+)/.test(document.title) && +document.title.match(/V(\d+)/)[1] >= 309;   // V309: a liderança tem regra própria (duplas de domingos)
+    equipe.forEach((f, i) => { if(foraDom(f) || (v309 && ehLiderancaDomingo(f))) return; const t = i % 3 === 0 ? 'dois' : i % 3 === 1 ? 'ult' : 'nada'; const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); if(cp) cp.checked = t === 'dois'; if(cu) cu.checked = t !== 'nada'; g[t].push(i); });
+    const m = window.v292Manual5x2; m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar();
+    const medir = () => { const dom = m.domingoPorFuncao.domingos(), dias = Object.keys(dom).map(Number).sort((a, b) => a - b), t = d => (dom[d] || []).map(Number);
+      let tres = 0, quebras = 0, trans = 0;
+      [...g.dois, ...g.ult, ...g.nada].forEach(i => { const h = historicoManual(i), s = [h.penultimo ? 1 : 0, h.ultimo ? 1 : 0, ...dias.map(d => t(d).includes(i) ? 1 : 0)];
+        for(let k = 2; k < s.length; k++){ trans++; if(s[k - 2] && s[k - 1] && s[k]) tres++; else if((!s[k - 2] && s[k - 1] && !s[k]) || (!s[k - 1] && !s[k])) quebras++; } });
+      const d1 = t(dias[0]);
+      return { tres, quebras, trans, doisNo1: g.dois.filter(i => d1.includes(i)).length, ultNo1: g.ult.filter(i => d1.includes(i)).length }; };
+    m.sugerir(); const a = medir(); m.sugerir(); const b = medir();   // dois cenários sorteados
+    return { a, b, nDois: g.dois.length, nUlt: g.ult.length };
+  });
+  [r.a, r.b].forEach((x, k) => {
+    ok(x.tres === 0, nome + ' (cenário ' + (k + 1) + '): ninguém faz 3 domingos seguidos contando o mês passado (' + x.tres + ')');
+    ok(x.doisNo1 === 0 && x.ultNo1 === r.nUlt, nome + ' (cenário ' + (k + 1) + '): quem fez os 2 últimos domingos folga o 1º (' + x.doisNo1 + '/' + r.nDois + ' entraram) e quem fez só o último trabalha o 1º (' + x.ultNo1 + '/' + r.nUlt + ')');
+    ok(x.quebras <= Math.ceil(x.trans * 0.05), nome + ' (cenário ' + (k + 1) + '): trabalha 2, folga 1 se mantém (' + x.quebras + ' quebra(s) em ' + x.trans + ')');
+  });
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarLiderancaDuplas5x2(browser, app, nome, abrir){   // V309: a liderança do ensaio segue a regra oficial (passo ③)
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  const vl = +path.basename(app).match(/V(\d+)\.html$/)[1]; if(vl !== 309) return;   // V310: substituído — a liderança do ensaio é a da 6×1 gerada (testarEnsaioUsaEscolhas6x1)
+  console.log('\n▶ ' + nome + ' — 🧪 ensaio à mão: liderança pela regra oficial');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2, doms = domingosDoMes(2026, 10), out = {};
+    const lidDoEnsaio = () => { const dom = m.domingoPorFuncao.domingos(); return doms.map(d => (dom[d] || []).map(Number).filter(i => ehLiderancaDomingo(equipe[i])).sort((a, b) => a - b).join(',')); };
+    const rodar = () => { m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar(); m.sugerir(); m.conferir(); const res = document.getElementById('v292Manual5x2Resultado').innerText; return { lid: lidDoEnsaio(), erros: +((res.match(/(\d+) erro\(s\)/) || [])[1] ?? -1) }; };
+    equipe.forEach((f, i) => { const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); if(cp) cp.checked = false; if(cu) cu.checked = false; });
+    // 1) sem escolha no passo ③: igual à sugestão oficial
+    liderancaManualDomingo = {};
+    const sug = calcularSugestaoLideranca(), esperado = doms.map(d => lideresDoRegistro(sug[String(d)]).sort((a, b) => a - b).join(','));
+    out.sugerida = { ...rodar(), esperado };
+    // 2) com escolha no passo ③: usa a escolha
+    sugerirLiderancaDomingo(); const k = Object.keys(liderancaManualDomingo).find(x => x !== '__ref'); const outro = equipe.findIndex((f, i) => ehLiderancaDomingo(f) && !lideresSelecionadosDomingo(+k).includes(i));
+    if(k && outro >= 0) liderancaManualDomingo[k] = { mais: [outro] };
+    out.escolhida = { ...rodar(), esperado: doms.map(d => lideresSelecionadosDomingo(d).slice().sort((a, b) => a - b).join(',')) };
+    // 3) setor com uma liderança só (1 Encarregado + 1 Sub): Enc, Enc, Sub, Sub…, nunca os dois juntos
+    liderancaManualDomingo = {}; definirLiderTurno(false); definirLiderVarias(false);
+    const enc = equipe.findIndex(f => tipoLiderancaDomingo(f) === 'enc'), sub = equipe.findIndex(f => tipoLiderancaDomingo(f) === 'sub');
+    equipe.forEach((f, i) => { if(ehLiderancaDomingo(f) && i !== enc && i !== sub) f.__bk = f.situacao, f.situacao = 'AF'; });
+    const u = rodar(), tipos = u.lid.map(x => x.split(',').filter(Boolean).map(i => tipoLiderancaDomingo(equipe[+i]) === 'enc' ? 'E' : 'S').join(''));
+    equipe.forEach(f => { if('__bk' in f){ f.situacao = f.__bk; delete f.__bk; } });
+    out.unica = { tipos: tipos.join(' '), erros: u.erros };
+    return out;
+  });
+  ok(r.sugerida.lid.join('|') === r.sugerida.esperado.join('|') && r.sugerida.erros === 0, nome + ': sem escolha no passo ③, o ensaio usa a sugestão oficial de liderança (' + r.sugerida.lid.join(' | ') + ')');
+  ok(r.escolhida.lid.join('|') === r.escolhida.esperado.join('|') && r.escolhida.erros === 0, nome + ': com a liderança escolhida no passo ③, o ensaio usa a escolha');
+  ok(/^(E E S S E|S S E E S|E S S E E|S E E S S)$/.test(r.unica.tipos) && r.unica.erros === 0, nome + ': setor com uma liderança só — 1 por domingo, em blocos de 2 (' + r.unica.tipos + '), nunca Encarregado e Sub juntos');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEnsaioUsaEscolhas6x1(browser, app, nome, abrir){   // V310: tudo o que foi escolhido na 6×1 vira o ensaio 5×2
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 310) return;
+  console.log('\n▶ ' + nome + ' — 🧪 ensaio 5×2 usa as escolhas da escala 6×1');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const antes = await p.evaluate(() => { trabalhoDomingo = {}; const m = window.v292Manual5x2; m.habilitar(true); m.montar(); return { msg: document.getElementById('v292Manual5x2Resultado').innerText, montado: m.estado().montado }; });
+  ok(!antes.montado && /Primeiro gere a escala 6×1/.test(antes.msg), nome + ': sem gerar a 6×1, o ensaio pede para tocar em “Gerar escala” primeiro');
+  const r = await p.evaluate(() => {
+    try{ sugerirLiderancaDomingo(); }catch(e){}
+    gerarSetoresCore();
+    const m = window.v292Manual5x2; m.montar(); m.sugerir(); m.conferir();
+    const dom = m.domingoPorFuncao.domingos(), doms = domingosDoMes(2026, 10), s = a => (a || []).map(Number).sort((x, y) => x - y).join(',');
+    const iguaisDom = doms.every(d => s(dom[d]) === s(trabalhoDomingo[d]));
+    const lid = doms.every(d => s((dom[d] || []).filter(i => ehLiderancaDomingo(equipe[+i]))) === s(lideresSelecionadosDomingo(d)));
+    const fer = Object.keys(feriados(2026, 10)).map(Number).filter(d => new Date(2026, 10, d).getDay() !== 0);
+    const tabela = document.querySelector('#v292Manual5x2Resultado table.v292-tab-mes'), quadro = document.getElementById('v292Manual5x2Funcoes').innerText;
+    const res = document.getElementById('v292Manual5x2Resultado').innerText;
+    return { iguaisDom, lid, temLid: doms.some(d => lideresSelecionadosDomingo(d).length), fer: fer.length, tabela: !!tabela, quadro: /vêm da escala 6×1/.test(quadro), erros: +((res.match(/(\d+) erro\(s\)/) || [])[1] ?? -1) };
+  });
+  ok(r.iguaisDom, nome + ': cada domingo do ensaio é igual ao da escala 6×1 gerada (como dividir o setor, rodízio 2×1, Por cargo)');
+  ok(r.lid && r.temLid, nome + ': a liderança do ensaio é a escolhida no passo ③');
+  ok(r.tabela && r.quadro, nome + ': a tela explica que domingos, liderança e feriados vêm da 6×1');
+  ok(r.erros === 0, nome + ': a conferência das folgas do 5×2 não acusa erro' + (r.erros > 0 ? ' — ' + r.erros + ' erro(s)' : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+/* V311 — Açougue sem número fixo: a quantidade do domingo vem de “Como dividir o setor” ou do Por cargo (loja grande não trava) */
+async function testarAcougueSemFixo(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 311) return;
+  console.log('\n▶ ' + nome + ' — 🥩 Açougue sem número fixo (11 + 1): vale o Por cargo');
+  const abrirAco = async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_24.txt')); await p.waitForTimeout(2500); };
+  const gerar = async (p, modo, prep) => {
+    await p.evaluate(([modo, prep]) => { const c = $('modoCobertura'); c.value = modo; c.dispatchEvent(new Event('change', { bubbles: true })); try{ sugerirLiderancaDomingo(); }catch(e){}
+      if(prep){ coberturaFuncao.base = coberturaFuncao.base || {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = Math.floor(fn.ids.length * 2 / 3); }); salvarCfgFuncao(); } }, [modo, prep]);
+    await p.waitForTimeout(400);
+    await p.evaluate(() => { trabalhoDomingo = {}; document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+    for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+    await p.waitForTimeout(800);
+    return p.evaluate(() => { const doms = domingosDoMes(+$('ano').value, +$('mes').value), ops = i => !ehLiderancaDomingo(equipe[i]);
+      const q = d => (trabalhoDomingo[d] || []).map(Number).filter(ops).length, pedido = funcoesDoSetor().reduce((n, fn) => n + qtdFuncaoBase(fn.chave), 0);
+      return { ops: doms.map(q), pedido, alvo: alvoCoberturaAtual(), metadeOps: Math.max(1, Math.round(equipe.filter(f => !foraDom(f) && !ehLiderancaDomingo(f)).length / 2)), bloqueado: /bloqueada/i.test($('validacao').innerText), texto: $('validacao').innerText.replace(/\s+/g, ' ').slice(0, 200) }; });
+  };
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrirAco(p); await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const cargo = await gerar(p, 'funcao', true);
+  ok(cargo.pedido > 11 && !cargo.bloqueado && cargo.ops.every(n => n === cargo.pedido), nome + ': no Por cargo, cada domingo do Açougue tem o número pedido (' + cargo.ops.join(', ') + ' operacionais; pedido ' + cargo.pedido + ', acima dos antigos 11) — ' + cargo.texto.slice(0, 80));
+  const metade = await gerar(p, '50', false);
+  ok(!metade.bloqueado && metade.ops.some(n => n > 11) && metade.alvo === metade.metadeOps, nome + ': no “Metade”, o Açougue segue a conta geral, sem 11 fixo (' + metade.ops.join(', ') + ' operacionais no automático; escala à mão: metade = ' + metade.alvo + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+/* V312 — Por cargo: domingo confirmado (📌) com mais gente de um cargo do que o pedido não bloqueia; fica o número pedido */
+async function testarConfirmadosPorCargo(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 312) return;
+  console.log('\n▶ ' + nome + ' — 📌 Por cargo: confirmados acima do número pedido');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_cargos_25.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    coberturaFuncao.base = {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = /acougueiro/.test(fn.chave) ? 5 : /camara/.test(fn.chave) ? 5 : 1; });
+    const ac = equipe.map((f, i) => i).filter(i => /^ACOUGUEIRO/.test(equipe[i].cargo)).slice(0, 6);   // confirmado antes, quando eram 6
+    aceitosFuncao = {}; aceitosFuncao[isoDomingo(2026, 10, 1)] = ac.map(i => equipe[i].matricula);   // 1º domingo: ninguém bloqueado por 2 seguidos salvarCfgFuncao(); try{ sugerirLiderancaDomingo(); }catch(e){}
+    document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(800);
+  const r = await p.evaluate(() => { const ac = (trabalhoDomingo[1] || []).map(Number).filter(i => /^ACOUGUEIRO/.test(equipe[i].cargo)).length;
+    const t = $('validacao').innerText; return { ac, ops: (trabalhoDomingo[1] || []).map(Number).filter(i => !ehLiderancaDomingo(equipe[i])).length, bloqueada: /bloqueada/i.test(t), aviso: /pede 5 de ACOUGUEIRO, e 6 estavam confirmados\. .+ saiu deste domingo/.test(t), guardados: (aceitosFuncao[isoDomingo(2026, 10, 1)] || []).length }; });
+  ok(!r.bloqueada && r.ac === 5 && r.ops === 11, nome + ': com 6 açougueiros confirmados e o Por cargo pedindo 5, o domingo fica com 5 (' + r.ac + ' açougueiros, ' + r.ops + ' operacionais) e a geração não bloqueia');
+  ok(r.aviso && r.guardados === 5, nome + ': o app avisa quem saiu da confirmação e guarda só os 5 confirmados');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+/* V313 — o card “Mês passado” guarda a escolha na hora e ela volta ao recarregar, trocar de mês e gerar */
+async function testarMesPassadoGuardado(browser, app, nome, abrir){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 313) return;
+  console.log('\n▶ ' + nome + ' — ⏮️ “Mês passado” guardado na hora');
+  const { p, erros, ctx } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  const ler = () => p.evaluate(() => equipe.slice(0, 8).map((f, i) => ($('hist_pen_' + i)?.checked ? 'P' : '-') + ($('hist_ult_' + i)?.checked ? 'U' : '-')).join(' '));
+  await p.evaluate(() => { window.v45GotoStep?.(2, false); const est = ['ambos', 'ult', 'pen', 'nenhum', 'ambos', 'ult', 'pen', 'ambos'];
+    document.querySelectorAll('#historicoLista .history-row').forEach((row, k) => { if(k < 8) row.querySelector(`[data-hist-state="${est[k]}"]`)?.click(); }); });
+  await p.waitForTimeout(300);
+  const esperado = 'PU -U P- -- PU -U P- PU', escolhido = await ler();
+  await p.waitForTimeout(2500); await p.reload(); await p.waitForTimeout(4000); const recarregar = await ler();
+  await mudarMes(p, 11, 2026); await p.waitForTimeout(600); await mudarMes(p, 10, 2026); await p.waitForTimeout(800); const voltar = await ler();
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(4000); const gerar = await ler();
+  ok(escolhido === esperado, nome + ': o card registra a escolha (' + escolhido + ')');
+  ok(recarregar === esperado, nome + ': a escolha continua depois de recarregar a página (' + recarregar + ')');
+  ok(voltar === esperado && gerar === esperado, nome + ': continua ao trocar de mês e voltar (' + voltar + ') e depois de gerar (' + gerar + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
+/* V314 — 2×1 no Por cargo: quem começa a dupla trabalha o domingo seguinte (nenhum domingo isolado), sem passar do número pedido */
+async function testarDuplaPorCargo(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 314) return;
+  console.log('\n▶ ' + nome + ' — 🔁 2×1 no Por cargo: quem começa a dupla trabalha o domingo seguinte');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_cargos_25.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    coberturaFuncao.base = {}; aceitosFuncao = {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = /acougueiro/.test(fn.chave) ? 5 : /camara/.test(fn.chave) ? 5 : 1; }); salvarCfgFuncao();
+    equipe.forEach((f, i) => { const cp = $('hist_pen_' + i), cu = $('hist_ult_' + i); if(cp) cp.checked = i % 4 === 0; if(cu) cu.checked = i % 4 === 0 || i % 4 === 1; });
+    try{ sugerirLiderancaDomingo(); }catch(e){}
+    document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(800);
+  const r = await p.evaluate(() => { const doms = domingosDoMes(2026, 10), ops = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !ehLiderancaDomingo(equipe[i]));
+    let isolado = 0, tres = 0, ultSo = 0, ultSoNo1 = 0, maxFolga = 0, trabMin = 99;
+    ops.forEach(i => { const h = historicoManual(i), s = [h.penultimo ? 1 : 0, h.ultimo ? 1 : 0, ...doms.map(d => (trabalhoDomingo[d] || []).includes(i) ? 1 : 0)];
+      if(!s[0] && s[1]){ ultSo++; if(s[2]) ultSoNo1++; }
+      let run = 0; s.forEach(v => { run = v ? 0 : run + 1; if(run > maxFolga) maxFolga = run; }); trabMin = Math.min(trabMin, s.slice(2).reduce((a, b) => a + b, 0));
+      for(let k = 2; k < s.length; k++){ if(s[k - 2] && s[k - 1] && s[k]) tres++; if(!s[k - 2] && s[k - 1] && !s[k] && !(k === 3 && !s[0] && !s[1])) isolado++; } });   // sem mês passado: trabalhar o 1º e folgar o 2º é permitido
+    const balc = equipe.map((f, i) => i).filter(i => /BALCONISTA/.test(equipe[i].cargo)).map(i => doms.filter(d => (trabalhoDomingo[d] || []).includes(i)).length);
+    return { balc, maxFolga, trabMin, porDom: doms.map(d => (trabalhoDomingo[d] || []).filter(i => ops.includes(i)).length), isolado, tres, ultSo, ultSoNo1, bloq: /bloqueada/i.test($('validacao').innerText) }; });
+  ok(r.isolado === 0 && r.tres === 0, nome + ': quem começa a dupla trabalha o domingo seguinte — nenhum domingo isolado (' + r.isolado + ') e ninguém com 3 seguidos (' + r.tres + ')');
+  ok(r.porDom.every(n => n === 11) && !r.bloq, nome + ': o número do Por cargo continua valendo (' + r.porDom.join(', ') + ' operacionais)');
+  ok(r.ultSoNo1 === r.ultSo, nome + ': quem trabalhou só o último domingo do mês passado trabalha o 1º (' + r.ultSoNo1 + ' de ' + r.ultSo + ')');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 315) ok(r.trabMin >= 1 && r.maxFolga <= 4, nome + ': com o Por cargo como teto, ninguém disponível fica esperando demais — todos trabalham ao menos 1 domingo (mín. ' + r.trabMin + ') e a maior espera é ' + r.maxFolga + ' domingos (V315: entra primeiro quem está há mais tempo sem domingo)');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+/* V200 — Encarregados: motor 5×2 acrescenta 1 folga quando a folga fixa + feriado no fim da semana deixariam 6 dias seguidos */
+async function testarEnc5x2FolgaAMais(browser, app, nome, abrir){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 200) return;
+  console.log('\n▶ ' + nome + ' — ⚙️ 5×2: folga a mais para não passar de 5 dias seguidos (dez/2027)');
+  const { p, erros, ctx } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await mudarMes(p, 11, 2027); await p.waitForTimeout(700);
+  const r = await p.evaluate(() => {
+    const save = { equipe, trabalhoDomingo, trabalhoFeriado, folgasCompensatorias, store: localStorage.getItem('enc.motor5x2.planos') };
+    localStorage.removeItem('enc.motor5x2.planos');
+    equipe = [{ nome: 'Pessoa teste', matricula: 'v200', situacao: 'A', folgaFixa: 5 }];   // folga fixa na sexta (24/12/2027)
+    trabalhoDomingo = { 5: [], 12: [0], 19: [0], 26: [0] }; trabalhoFeriado = {}; folgasCompensatorias = {};   // Natal (sábado 25/12) de folga
+    const plano = window.motor5x2.construir(), w = Object.values(plano.pessoas)[0].semanas.find(x => x.inicio === '2027-12-20');
+    equipe = save.equipe; trabalhoDomingo = save.trabalhoDomingo; trabalhoFeriado = save.trabalhoFeriado; folgasCompensatorias = save.folgasCompensatorias;
+    if(save.store === null) localStorage.removeItem('enc.motor5x2.planos'); else localStorage.setItem('enc.motor5x2.planos', save.store);
+    return { erros: plano.auditoria.erros, folgas: w ? w.folgas : [] };
+  });
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 201)   // V201: o Natal de folga é descanso a mais (Lei 605, art. 1º) — a semana tem as 2 folgas fora do feriado + o Natal
+    ok(!r.erros.length && r.folgas.length === 2 && !r.folgas.includes('2027-12-25'), nome + ': com folga fixa na sexta e Natal no sábado, a semana tem 2 folgas fora do Natal (' + r.folgas.join(', ') + ') + o Natal, e ninguém passa de 5 dias seguidos' + (r.erros.length ? ' — ' + r.erros[0] : ''));
+  else ok(!r.erros.length && r.folgas.length === 3, nome + ': com folga fixa na sexta e Natal no sábado, entra 1 folga a mais (' + r.folgas.join(', ') + ') e ninguém passa de 5 dias seguidos' + (r.erros.length ? ' — ' + r.erros[0] : ''));
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : '')); await ctx.close();
+}
+
+/* V316 — Por cargo: com 1 vaga, a vaga não fica presa ao turno com mais gente (2 balconistas na abertura + 1 no fechamento) */
+async function testarVagaUnicaSemTurno(browser, app, nome){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 316) return;
+  console.log('\n▶ ' + nome + ' — 🕐 Por cargo: 1 vaga não fica presa a um turno');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_balcao_26.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    coberturaFuncao.base = {}; aceitosFuncao = {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = /acougueiro/.test(fn.chave) ? 5 : /camara/.test(fn.chave) ? 5 : 1; }); salvarCfgFuncao();
+    try{ sugerirLiderancaDomingo(); }catch(e){}
+    document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 80; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length))) break; }
+  await p.waitForTimeout(800);
+  const r = await p.evaluate(() => { const doms = domingosDoMes(2026, 10);
+    return equipe.map((f, i) => i).filter(i => /BALCONISTA/.test(equipe[i].cargo)).map(i => ({ turno: turnoPeso(equipe[i].turno) || equipe[i].turno, n: doms.filter(d => (trabalhoDomingo[d] || []).includes(i)).length })); });
+  const fech = r.filter(x => /FECH/.test(x.turno));
+  ok(r.length === 3 && fech.length === 1 && r.every(x => x.n >= 1), nome + ': 3 balconistas (2 abertura, 1 fechamento) e 1 vaga — todos trabalham no mês, inclusive o do fechamento (' + r.map(x => x.turno.slice(0, 4) + ':' + x.n).join(', ') + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarAvisoTetoPorCargo(browser, app, nome){   // V317: o Por cargo avisa quando o número é menor que o 2×1 de todos precisa
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 317) return;
+  console.log('\n▶ ' + nome + ' — 🟡 Por cargo avisa quando o 2×1 de todos não cabe');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_cargos_25.txt')); await p.waitForTimeout(2500);
+  const r = await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    const fn = funcoesDoSetor().find(x => /acougueiro/.test(x.chave)); const aviso = () => [...document.querySelectorAll('#configFuncao .fn-aviso-2x1')].map(x => x.textContent);
+    coberturaFuncao.base[fn.chave] = 5; renderConfigFuncao(); const com5 = aviso();
+    coberturaFuncao.base[fn.chave] = 8; renderConfigFuncao(); const com8 = aviso().filter(t => /A[CÇ]OUGUEIRO/i.test(t));
+    return { n: fn.ids.length, com5, com8 }; });
+  ok(r.com5.some(t => /Para o 2×1 de todos, A[CÇ]OUGUEIRO precisa de 8 por domingo/i.test(t) && /Com 5, alguns esperam a vez/.test(t)), nome + ': com 5 de ' + r.n + ' açougueiros aparece “precisa de 8 por domingo… Com 5, alguns esperam a vez”');
+  ok(!r.com8.length, nome + ': com 8 açougueiros o aviso some');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarConcordoCenarioLimpar(browser, app, nome){   // V318: concordo antes de gerar, cenário novo a cada Gerar, aceitar e limpar
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 318) return;
+  console.log('\n▶ ' + nome + ' — ✅ Concordo, 🎲 cenário novo, ✅ Aceitar cenário e 🧹 Limpar escala');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.evaluate(() => { window.__v318Manual = true; });
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Açougue"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_acougue_cargos_25.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  await p.evaluate(() => { const c = $('modoCobertura'); c.value = 'funcao'; c.dispatchEvent(new Event('change', { bubbles: true }));
+    coberturaFuncao.base = {}; aceitosFuncao = {}; funcoesDoSetor().forEach(fn => { coberturaFuncao.base[fn.chave] = /acougueiro/.test(fn.chave) ? 5 : /camara/.test(fn.chave) ? 5 : 1; }); salvarCfgFuncao();
+    document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); window.v45GotoStep?.(5, false); });
+  const tem = () => p.evaluate(() => Object.values(trabalhoDomingo || {}).some(x => x && x.length));
+  const esperar = async () => { for(let w = 0; w < 80; w++){ await p.waitForTimeout(200); if(await tem()) break; } await p.waitForTimeout(700); };
+  const foto = () => p.evaluate(() => { const doms = domingosDoMes(2026, 10); let tres = 0, acima = 0;
+    equipe.forEach((f, i) => { for(let k = 0; k + 2 < doms.length; k++) if([0, 1, 2].every(j => (trabalhoDomingo[doms[k + j]] || []).includes(i))) tres++; });
+    doms.forEach(d => { const c = {}; (trabalhoDomingo[d] || []).filter(i => !ehLiderancaDomingo(equipe[i])).forEach(i => { const k = chaveFuncaoDistribuicao(i); c[k] = (c[k] || 0) + 1; }); Object.entries(c).forEach(([k, n]) => { if(n > qtdFuncaoBase(k)) acima++; }); });
+    return { tres, acima, sig: doms.map(d => (trabalhoDomingo[d] || []).slice().sort((a, b) => a - b).join(',')).join('|') }; });
+  const j1 = await p.evaluate(() => { $('btnGerar').click(); const j = document.getElementById('v318Janela'); return { abriu: !!j, txt: j ? j.innerText : '' }; });
+  ok(j1.abriu && /precisa de 8 por domingo; você escolheu 5/.test(j1.txt) && /alguns esperam a vez/i.test(j1.txt), nome + ': com 5 de 12 açougueiros o 🚀 Gerar abre a janela “O 2×1 não cabe para todos” (precisa de 8; você escolheu 5)');
+  ok(!(await tem()), nome + ': antes do “Concordo” a escala não é gerada');
+  await p.evaluate(() => document.getElementById('v318Voltar').click()); await p.waitForTimeout(500);
+  ok(!(await p.evaluate(() => !!document.getElementById('v318Janela'))) && !(await tem()), nome + ': “↩️ Voltar e mudar os números” fecha a janela sem gerar');
+  await p.evaluate(() => { $('btnGerar').click(); document.getElementById('v318Concordo').click(); }); await esperar();
+  const f1 = await foto();
+  ok(await tem(), nome + ': “✅ Concordo, gerar assim” gera a escala (não bloqueia)');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 319) ok(await p.evaluate(() => !!document.getElementById('v318Limpar') && !!document.getElementById('v318Aceitar')), nome + ': já no 1º 🚀 Gerar aparecem os botões “🧹 Limpar escala” e “✅ Aceitar cenário” (V319)');
+  const fs = [f1];
+  for(let k = 0; k < 2; k++){ const janela = await p.evaluate(() => { $('btnGerar').click(); return !!document.getElementById('v318Janela'); }); if(janela) fs.push(null); await p.waitForTimeout(1500); fs.push(await foto()); }
+  ok(!fs.includes(null), nome + ': depois de concordar, não pergunta de novo enquanto os números não mudam');
+  const validos = fs.filter(Boolean);
+  ok(new Set(validos.map(x => x.sig)).size >= 2, nome + ': cada 🚀 Gerar traz um cenário novo (' + new Set(validos.map(x => x.sig)).size + ' cenários diferentes em 3)');
+  ok(validos.every(x => x.tres === 0 && x.acima === 0), nome + ': todos os cenários seguem o 2×1 (0 com 3 domingos seguidos) e o teto do Por cargo (' + validos.map(x => x.tres + '/' + x.acima).join(', ') + ')');
+  const a = await p.evaluate(() => { const ant = document.getElementById('v318Aceitar'); if(!ant) return { botao: false }; ant.click();
+    const doms = domingosDoMes(2026, 10).filter(d => d !== balancoDoMes(2026, 10)); return { botao: true, todos: doms.every(d => (aceitosFuncao[isoDomingo(2026, 10, d)] || []).length), msg: document.getElementById('v318Acoes').innerText }; });
+  ok(a.botao && a.todos && /Cenário aceito e guardado/.test(a.msg), nome + ': “✅ Aceitar cenário” confirma todos os domingos e mostra “Cenário aceito e guardado”');
+  const antes = (await foto()).sig; await p.evaluate(() => $('btnGerar').click()); await p.waitForTimeout(1500);
+  ok((await foto()).sig === antes, nome + ': com o cenário aceito, o 🚀 Gerar mantém a mesma escala');
+  await p.evaluate(() => document.getElementById('v318Limpar').click()); await p.waitForTimeout(200);
+  ok(await p.evaluate(() => /Tem certeza/.test(document.getElementById('v318Acoes').innerText)), nome + ': “🧹 Limpar escala” pergunta “Tem certeza?” antes');
+  await p.evaluate(() => document.getElementById('v318LimparSim').click()); await p.waitForTimeout(500);
+  const l = await p.evaluate(() => ({ dom: Object.values(trabalhoDomingo || {}).filter(x => x && x.length).length, aceitos: domingosDoMes(2026, 10).filter(d => (aceitosFuncao[isoDomingo(2026, 10, d)] || []).length).length, aceito: window.v318.aceito() }));
+  ok(l.dom === 0 && l.aceitos === 0 && !l.aceito, nome + ': “Sim, limpar tudo” apaga a escala e os domingos confirmados (' + JSON.stringify(l) + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarDomingosEquilibrados2x1(browser, app, nome){   // V320: no 2×1 o 1º domingo não lota e quem é único do cargo não folga todo mundo junto
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 320) return;
+  console.log('\n▶ ' + nome + ' — ⚖️ 2×1: domingos equilibrados e folgas alternadas entre cargos de 1 pessoa');
+  const medir = async (modo, mes) => {
+    const { p, erros } = await novaPagina(browser);
+    await p.goto('file://' + app); await p.waitForTimeout(1200);
+    await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Padaria"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+    await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_padaria_singletons_27.txt')); await p.waitForTimeout(2500);
+    await mudarMes(p, mes, 2026); await p.waitForTimeout(600);
+    const r = await p.evaluate(([modo, mes]) => { const g = $('modoGeracao'); g.value = 'motor'; g.dispatchEvent(new Event('change', { bubbles: true }));
+      const c = $('modoCobertura'); c.value = modo; c.dispatchEvent(new Event('change', { bubbles: true })); try{ sugerirLiderancaDomingo(); }catch(e){}
+      gerarSetoresCore(); const doms = domingosDoMes(2026, mes), lid = i => ehLiderancaDomingo(equipe[i]);
+      const ops = equipe.map((f, i) => i).filter(i => !foraDom(equipe[i]) && !lid(i));
+      const conta = {}; ops.forEach(i => { const k = chaveFuncaoDistribuicao(i); conta[k] = (conta[k] || 0) + 1; });
+      const sozinhos = ops.filter(i => conta[chaveFuncaoDistribuicao(i)] === 1);
+      return { ops: ops.length, porDom: doms.map(d => (trabalhoDomingo[d] || []).filter(i => !lid(i)).length), sozinhosPorDom: doms.map(d => sozinhos.filter(i => (trabalhoDomingo[d] || []).includes(i)).length), nSozinhos: sozinhos.length }; }, [modo, mes]);
+    await p.close(); return { ...r, erros };
+  };
+  const a = await medir('50', 11);
+  ok(Math.max(...a.porDom) - Math.min(...a.porDom) <= 1, nome + ': no “Metade” (2×1) de dez/2026 os domingos ficam equilibrados, sem 1º domingo lotado (' + a.porDom.join('/') + ' de ' + a.ops + ')');
+  const b = await medir('funcao', 10);
+  ok(b.sozinhosPorDom.every(n => n > 0) && Math.max(...b.sozinhosPorDom) - Math.min(...b.sozinhosPorDom) <= 2, nome + ': no Por cargo, quem é o único do cargo não folga todo mundo no mesmo domingo (' + b.sozinhosPorDom.join('/') + ' de ' + b.nSozinhos + ' por domingo)');
+  ok(!a.erros.length && !b.erros.length, nome + ': sem erro de JavaScript' + ((a.erros[0] || b.erros[0]) ? ': ' + (a.erros[0] || b.erros[0]) : ''));
+}
+
+async function testarFeriadoNaoEDsr(browser, app, nome, abrir, versaoMin, ensaio){   // V321/V201: no 5×2 o feriado de folga é descanso a mais, não 1 das 2 folgas da semana (Lei 605, art. 1º)
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log('\n▶ ' + nome + ' — ⚖️ 5×2: folga do feriado (21/04/2027) não é DSR');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(600);
+  await mudarMes(p, 3, 2027); await p.waitForTimeout(700);
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); });
+  for(let w = 0; w < 160; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => !!window.motor5x2?.plano?.())) break; }
+  await p.waitForTimeout(400);
+  const o = await p.evaluate(() => { const plano = window.motor5x2.plano(), tf = (trabalhoFeriado || {})[21] || [];
+    let folgamFer = 0, comFer = 0, curtas = 0;
+    equipe.forEach((f, i) => { const w = (plano?.pessoas?.[String(i)]?.semanas || []).find(x => x.inicio === '2027-04-19'); if(!w) return;
+      if(tf.map(Number).includes(i)) return; folgamFer++;
+      if(w.folgas.includes('2027-04-21')) comFer++;
+      if(w.folgas.filter(d => d !== '2027-04-21').length < w.alvo) curtas++; });
+    return { folgamFer, comFer, curtas, aud: plano ? window.motor5x2.auditar(plano).erros.length : -1 }; });
+  ok(o.folgamFer > 0 && o.comFer === 0 && o.curtas === 0, nome + ': motor 5×2 oficial — quem folga o feriado tem as folgas da semana fora do feriado (' + o.folgamFer + ' pessoa(s); ' + o.comFer + ' com o feriado contado como folga da semana; ' + o.curtas + ' com folga a menos)');
+  ok(o.aud === 0, nome + ': o plano 5×2 de abril/2027 passa na auditoria (' + o.aud + ' erro(s))');
+  if(ensaio && !semEnsaio(app)){
+    const r = await p.evaluate(() => { const m = window.v292Manual5x2; m.habilitar(true); m.montar(); m.sugerir(); m.conferir();
+      const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes'); if(!t) return { semTabela: true };
+      const ths = [...t.querySelectorAll('thead th')].slice(1).map(th => +th.textContent.replace(/\D/g, '').slice(0, 2));
+      const col = d => ths.findIndex(x => x === d);
+      let fh = 0, ruins = 0;
+      [...t.querySelectorAll('tbody tr')].forEach(tr => { const tds = [...tr.querySelectorAll('td')]; const c21 = tds[col(21)]; if(!c21 || c21.textContent.trim() !== 'FH') return; fh++;
+        const dsr = [19, 20, 22, 23, 24].filter(d => /^DSR\d/.test((tds[col(d)]?.textContent || '').trim())).length;
+        const domFolga = (tds[col(25)]?.textContent || '').trim() === 'F';
+        if(dsr !== (domFolga ? 1 : 2)) ruins++; });
+      return { fh, ruins, erros: +((box.innerText.match(/(\d+) erro\(s\)/) || [])[1] ?? -1) }; });
+    ok(!r.semTabela && r.fh > 0 && r.ruins === 0, nome + ': ensaio — quem tem FH (folga do feriado) no dia 21 mantém DSR1/DSR2 na semana (' + r.fh + ' pessoa(s) com FH; ' + r.ruins + ' com DSR a menos)');
+    ok(r.erros === 0, nome + ': ensaio — a conferência de abril/2027 não acusa erro (' + r.erros + ')');
+  }
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarModeloEscala(browser, app, nome, abrir, versaoMin){   // V322/V202: de 01/11 a 15/12/2026 o usuário escolhe 6×1 ou 5×2; a partir de 16/12 só 5×2
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log('\n▶ ' + nome + ' — 📅 modelo da escala: 6×1 ou 5×2 de 01/11 a 15/12/2026');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await p.evaluate(() => { window.__v322Manual = true; }); await abrir(p); await p.waitForTimeout(800);
+  const clicarGerar = () => p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); return !!document.getElementById('v322Janela'); });
+  const esperarPlano = async () => { for(let w = 0; w < 160; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => !!window.motor5x2?.plano?.())) break; } await p.waitForTimeout(400); };
+  const medir = () => p.evaluate(() => { const plano = window.motor5x2?.plano?.(); if(!plano) return { plano: false };
+    const sem = Object.values(plano.pessoas || {}).flatMap(x => x.semanas || []).filter(w => w.inicio >= '2026-11-02' && w.fim <= '2026-11-29');
+    return { plano: true, semanas: sem.length, duas: sem.filter(w => !w.domingoFolga && w.folgas.length >= 2).length, trabDom: sem.filter(w => !w.domingoFolga).length, aud: window.motor5x2.auditar(plano).erros.length, motor: window.escalaMotor?.motorParaData?.('2026-11-10') }; });
+  await mudarMes(p, 9, 2026); await p.waitForTimeout(600);
+  ok(!(await clicarGerar()) && !(await p.evaluate(() => document.getElementById('v322Modelo')?.innerText || '')), nome + ': outubro/2026 não pergunta o modelo (só 6×1)');
+  await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(800);
+  ok(/Modelo da escala de novembro\/2026/.test(await p.evaluate(() => document.getElementById('v322Modelo')?.innerText || '')), nome + ': em novembro/2026 o passo 5 mostra o quadro “📅 Modelo da escala”');
+  const j = await clicarGerar();
+  ok(j && /Qual modelo para novembro\/2026/.test(await p.evaluate(() => document.getElementById('v322Janela')?.innerText || '')), nome + ': sem escolha, o 🚀 Gerar pergunta “Qual modelo para novembro/2026?” antes de gerar');
+  await p.evaluate(() => document.getElementById('v322Janela5x2').click()); await esperarPlano();
+  const a = await medir();
+  ok(a.plano && a.motor === '5x2' && a.semanas > 0 && a.duas === a.trabDom && a.aud === 0, nome + ': escolhendo 5×2, novembro/2026 sai no 5×2 — quem trabalha o domingo tem 2 folgas na semana (' + a.duas + '/' + a.trabDom + ' semanas; auditoria ' + a.aud + ' erro(s))');
+  await p.evaluate(() => document.getElementById('v322Modelo6x1').click()); await p.waitForTimeout(300);
+  ok(!(await clicarGerar()), nome + ': com o modelo já escolhido, o 🚀 Gerar não pergunta de novo');
+  await p.waitForTimeout(3500);
+  const b = await p.evaluate(() => ({ motor: window.escalaMotor?.motorParaData?.('2026-11-10'), m16: window.escalaMotor?.motorParaData?.('2026-12-16'), m15: window.escalaMotor?.motorParaData?.('2026-12-15') }));
+  ok(b.motor === '6x1' && b.m15 === '6x1' && b.m16 === '5x2', nome + ': trocando para 6×1, novembro volta ao 6×1; 16/12/2026 continua 5×2 (' + JSON.stringify(b) + ')');
+  await mudarMes(p, 0, 2027); await p.waitForTimeout(600);
+  ok(!(await clicarGerar()) && (await p.evaluate(() => window.escalaMotor?.motorParaData?.('2027-01-12'))) === '5x2', nome + ': janeiro/2027 não pergunta — só 5×2 (o 6×1 foi desligado)');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarSemEnsaio(browser, app, nome, abrir){   // V322/V202: com o 5×2 oficial, as áreas de teste e de ensaio deixam de existir
+  if(!semEnsaio(app)) return;
+  console.log('\n▶ ' + nome + ' — 🚫 sem área de teste e sem ensaio 5×2');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1500); await abrir(p); await p.waitForTimeout(600);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(500);
+  await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); });
+  const r = await p.evaluate(() => ({ areas: ['v292Manual5x2Area', 'v196Teste5x2Card', 'v196Manual5x2Card'].filter(id => document.getElementById(id)), apis: ['v292Manual5x2', 'v196Teste5x2', 'v196Manual5x2'].filter(k => window[k]), texto: /ensaio sem validade|escala à mão 5×2 — ensaio|área de teste 5×2/i.test(document.body.innerText) }));
+  ok(!r.areas.length && !r.apis.length && !r.texto, nome + ': as áreas de teste e de ensaio 5×2 não existem mais (' + JSON.stringify(r) + ')');
+  await p.evaluate(() => { document.getElementById('btnGerar').click(); }); await p.waitForTimeout(4000);
+  ok(!erros.length, nome + ': sem erro de JavaScript sem as áreas de ensaio' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarSegundaFolga(browser, app, nome, abrir, versaoMin){   // V323/V203: no 5×2 o app pede a 2ª folga fixa e o motor usa as duas
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log('\n▶ ' + nome + ' — 📅 5×2: 2ª folga fixa de cada pessoa');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await p.evaluate(() => { window.__v323Manual = true; }); await abrir(p); await p.waitForTimeout(800);
+  await mudarMes(p, 0, 2027); await p.waitForTimeout(700);
+  const j = await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click();
+    const jan = document.getElementById('v323Janela'); return { abriu: !!jan, falta: +(((jan?.innerText || '').match(/Faltam (\d+)/) || [])[1] || 0), salvarOff: !!document.getElementById('v323Salvar')?.disabled, gerou: !!window.motor5x2?.plano?.() }; });
+  ok(j.abriu && j.falta > 0 && j.salvarOff, nome + ': antes de gerar janeiro/2027 (5×2) o app pede a 2ª folga fixa de quem está sem (faltam ' + j.falta + '; “Salvar” só libera com todos)');
+  const sug = await p.evaluate(() => { document.getElementById('v323Sugerir').click(); const F = window.v323Folga2;
+    const pes = equipe.filter(f => String(f.situacao || 'A').toUpperCase() === 'A'); return { faltam: F.faltam().length, iguais: pes.filter(f => F.dia(f) && Number(f.folgaFixa) === F.dia(f) && !f.folgaPendente).length, salvarOn: !document.getElementById('v323Salvar').disabled }; });
+  ok(sug.faltam === 0 && sug.iguais === 0 && sug.salvarOn, nome + ': “🪄 Sugerir” dá a 2ª folga a todos, nunca no mesmo dia da 1ª (' + JSON.stringify(sug) + ')');
+  await p.evaluate(() => document.getElementById('v323Salvar').click());
+  for(let w = 0; w < 160; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => !!window.motor5x2?.plano?.())) break; } await p.waitForTimeout(400);
+  const r = await p.evaluate(() => { const plano = window.motor5x2.plano(), F = window.v323Folga2; const k = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    let trab = 0, trabOk = 0, folg = 0, folgSem2 = 0;
+    equipe.forEach((f, i) => { const d2 = F.dia(f); (plano?.pessoas?.[String(i)]?.semanas || []).forEach(w => { if(w.inicio < '2027-01-04' || w.fim > '2027-01-31') return;
+      const ini = new Date(w.inicio + 'T12:00:00'), dia2 = new Date(ini); dia2.setDate(ini.getDate() + d2 - 1); const k2 = k(dia2);
+      if(!w.domingoFolga){ trab++; if(w.folgas.includes(k2)) trabOk++; } else { folg++; if(!w.folgas.includes(k2)) folgSem2++; } }); });
+    return { trab, trabOk, folg, folgSem2, aud: plano ? window.motor5x2.auditar(plano).erros.length : -1 }; });
+  ok(r.aud === 0 && r.trab > 0 && r.trabOk >= Math.ceil(r.trab * 0.9), nome + ': semana com domingo trabalhado → folga a 1ª e a 2ª folga fixa (' + r.trabOk + '/' + r.trab + ' semanas com a 2ª; auditoria ' + r.aud + ' erro(s))');
+  ok(r.folg > 0 && r.folgSem2 >= Math.ceil(r.folg * 0.8), nome + ': semana com domingo de folga → o domingo e a 1ª folga; a 2ª vira dia de trabalho (' + r.folgSem2 + '/' + r.folg + ' semanas)');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarHistoricoTudo(browser, app, nome, abrir, versaoMin){   // V324/V204: modelo do mês + 2ª folga fixa vão no histórico e o app aprende a 2ª folga
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log('\n▶ ' + nome + ' — 📦 tudo no histórico (modelo + 2ª folga) e aprendizado');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await p.evaluate(() => { window.__v322Manual = true; window.__v323Manual = true; }); await abrir(p); await p.waitForTimeout(700);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);
+  // 1) escolhe o modelo e define a 2ª folga de todos; carimba e lê o pacote do histórico
+  const g = await p.evaluate(() => {
+    v322ModeloEscala.definir(2026, 10, '5x2');
+    const pes = equipe.filter(f => String(f.situacao || 'A').toUpperCase() === 'A');
+    pes.forEach(f => { const a = Number(f.folgaFixa); v323Folga2.definir(f, a === 3 ? 5 : 3); });
+    v324Historico.stamp();
+    const pac = v324Historico.pacote();
+    return { modelo: estadoFinalMes && estadoFinalMes.v324 && estadoFinalMes.v324.modelo, folga2n: Object.keys(pac.folga2 || {}).length, aprendN: Object.keys(pac.aprend || {}).length, noEstado: !!(estadoFinalMes && estadoFinalMes.v324) };
+  });
+  ok(g.noEstado && g.modelo && Object.values(g.modelo).includes('5x2') && g.folga2n > 0 && g.aprendN > 0, nome + ': modelo + 2ª folga + aprendizado ficam dentro de estadoFinalMes.v324 (modelo 5×2, ' + g.folga2n + ' folgas, ' + g.aprendN + ' aprendidas)');
+  // 2) apaga o localStorage, mantém o estadoFinalMes.v324, restaura
+  const r = await p.evaluate(() => {
+    const NS = document.getElementById('setorSelecionado') ? 'escalaSetores' : 'enc';
+    localStorage.removeItem(NS + '.v322Modelo'); localStorage.removeItem(NS + '.v323Folga2'); localStorage.removeItem(NS + '.v324Aprend');
+    equipe.forEach(f => { delete f.folgaFixa2; });   // a 2ª folga também fica gravada no objeto; limpa para medir o “antes”
+    const antesM = v322ModeloEscala.escolha(2026, 10), antesF = v323Folga2.faltam().length;
+    v324Historico.restore();
+    return { antesM, antesF, depoisM: v322ModeloEscala.escolha(2026, 10), depoisF: v323Folga2.faltam().length };
+  });
+  ok(!r.antesM && r.depoisM === '5x2' && r.depoisF === 0 && r.antesF > 0, nome + ': abrir o histórico traz de volta o modelo (' + r.depoisM + ') e a 2ª folga de todos (faltavam ' + r.antesF + ' → ' + r.depoisF + ')');
+  // 3) aprendizado: um dia repetido vira o preferido e o Sugerir o usa
+  const a = await p.evaluate(() => {
+    const NS = document.getElementById('setorSelecionado') ? 'escalaSetores' : 'enc';
+    ['v322Modelo', 'v323Folga2', 'v324Aprend'].forEach(k => localStorage.removeItem(NS + '.' + k));
+    const f = equipe.find(x => String(x.situacao || 'A').toUpperCase() === 'A' && Number(x.folgaFixa) !== 2);
+    for(let i = 0; i < 3; i++){ v323Folga2.definir(f, 2); v323Folga2.definir(f, 0); }   // escolheu terça 3 vezes
+    const aprendido = v324Historico.diaAprendido(f);
+    v323Folga2.definir(f, 0);
+    v323Folga2.sugerir([f]);
+    return { aprendido, sugerido: v323Folga2.dia(f) };
+  });
+  ok(a.aprendido === 2 && a.sugerido === 2, nome + ': o app aprende a 2ª folga mais usada (terça) e o “🪄 Sugerir” repete (aprendido ' + a.aprendido + ', sugerido ' + a.sugerido + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarSetorForaDaEscala(browser, app, nome){   // V325: setor fora da escala (Gerência, SESMT/TST) conta no quadro, sem cartão nem domingo
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 325) return;
+  console.log('\n▶ ' + nome + ' — 🏢 Gerência e SESMT/TST contam no quadro, sem escala de domingo');
+  const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'erp_setor_'));
+  const ARQ = escreverXlsx(path.join(dir, 'erp_setores.xlsx'), erpFicticio());
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await p.click('#comeceFechar').catch(() => {});
+  const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.evaluate(() => document.getElementById('btnImportarERPHome').click())]);
+  await fc.setFiles(ARQ); await p.waitForSelector('#erpModal', { timeout: 20000 });
+  const previa = await p.evaluate(() => document.querySelector('#erpModal')?.innerText || '');
+  await p.click('#erpAplicar'); await p.waitForTimeout(800);
+  // espera o "apto ao domingo" do SESMT assentar (evita flake de tempo): a aplicação do ERP é assíncrona
+  await p.waitForFunction(() => { const te = Array.isArray(todasEquipes) ? todasEquipes : []; const s = te.filter(f => /sesmt/i.test(String(f.setor || ''))); return s.length >= 1 && s.every(f => foraDom(f)); }, { timeout: 15000 }).catch(() => {});
+  const r = await p.evaluate(() => {
+    const te = Array.isArray(todasEquipes) ? todasEquipes : [];
+    const sesmt = te.filter(f => /sesmt/i.test(String(f.setor || '')));
+    const semGrupo = te.filter(f => !grupoDoSetor(f.setor));
+    const cards = [...document.querySelectorAll('[data-home-setor]')].map(b => b.dataset.homeSetor);
+    const kpiQuadro = (() => { try { renderHomeSetores(); } catch(e) {} const k = [...document.querySelectorAll('#homeKpis .home-kpi')].find(x => /Pessoas no quadro/i.test(x.textContent)); return k ? +(k.querySelector('b')?.textContent || 0) : -1; })();
+    return { total: te.length, sesmtN: sesmt.length, sesmtApto: sesmt.filter(f => !foraDom(f)).length, semGrupoN: semGrupo.length, temCardSesmt: cards.some(c => /sesmt|ger[eê]ncia/i.test(c)), kpiQuadro };
+  });
+  ok(r.sesmtN >= 1, nome + ': a pessoa do SESMT (TST) entra no quadro (' + r.sesmtN + ')');
+  ok(r.kpiQuadro === r.total && r.total >= 11, nome + ': “Pessoas no quadro” conta todos, inclusive SESMT/Gerência (' + r.kpiQuadro + ' = ' + r.total + ')');
+  ok(r.sesmtApto === 0, nome + ': quem é do SESMT não trabalha domingo (apto ' + r.sesmtApto + ')');
+  ok(!r.temCardSesmt, nome + ': SESMT/Gerência não viram cartão de setor para gerar escala');
+  ok(/sem escala de domingo/i.test(previa) && /SESMT/i.test(previa), nome + ': a prévia avisa que SESMT conta no quadro sem escala de domingo');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close(); try { fs.rmSync(dir, { recursive: true, force: true }); } catch(e) {}
+}
+
+async function testarSesmtNoGrafico(browser, app, nome){   // V326: SESMT aparece no gráfico “Pessoas por área”; Gerência fica só na lista e no tempo de serviço
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 326) return;
+  console.log('\n▶ ' + nome + ' — 🦺 SESMT no “Pessoas por área”; Gerência só na lista');
+  const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'erp_gs_'));
+  const ARQ = escreverXlsx(path.join(dir, 'erp.xlsx'), erpGerSesmt());
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await p.click('#comeceFechar').catch(() => {});
+  const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.evaluate(() => document.getElementById('btnImportarERPHome').click())]);
+  await fc.setFiles(ARQ); await p.waitForSelector('#erpModal', { timeout: 20000 }); await p.click('#erpAplicar'); await p.waitForTimeout(1500);
+  const r = await p.evaluate(() => { try { renderHome(true); } catch(e) {}
+    const total = (Array.isArray(todasEquipes) ? todasEquipes : []).length;
+    const kpi = [...document.querySelectorAll('#homeKpis .home-kpi')].find(k => /Pessoas no quadro/.test(k.textContent));
+    const kpiQuadro = kpi ? +(kpi.querySelector('b')?.textContent || 0) : -1;
+    const rows = [...document.querySelectorAll('#homeDistAreas .dist-area')].map(d => ({ txt: d.querySelector('.dist-rot')?.textContent.trim() || '', abreSetor: d.hasAttribute('data-area'), abreLista: d.hasAttribute('data-area-lista') }));
+    const sesmt = rows.find(x => /SESMT/i.test(x.txt));
+    const ger = rows.find(x => /ger[eê]ncia/i.test(x.txt));
+    const temTempoGer = /GERSON|GILDA/i.test(document.getElementById('homeDistTempo')?.innerText || '');
+    return { total, kpiQuadro, sesmt, ger, temTempoGer, nRows: rows.length };
+  });
+  ok(r.kpiQuadro === r.total && r.total === 5, nome + ': total do quadro conta os 5 (2 FL + 2 Gerência + 1 SESMT) (' + r.kpiQuadro + ')');
+  ok(r.sesmt && r.sesmt.abreLista && !r.sesmt.abreSetor && /sem domingo/i.test(r.sesmt.txt), nome + ': SESMT aparece no gráfico “Pessoas por área”, marcado “· sem domingo”, e tocar abre a lista (não um setor)');
+  ok(!r.ger, nome + ': a Gerência NÃO aparece no gráfico “Pessoas por área”');
+  // tocar no SESMT abre a lista de nomes
+  const lst = await p.evaluate(() => { document.querySelector('#homeDistAreas [data-area-lista]')?.click(); const m = document.getElementById('afModal'); return { abriu: !!m, temNome: /SANDRA/i.test(m?.innerText || ''), virouSetor: (document.getElementById('setorSelecionado')?.value || '') }; });
+  ok(lst.abriu && lst.temNome, nome + ': tocar no SESMT abre a lista com o nome da pessoa (SANDRA)');
+  // Gerência aparece na lista do cartão “Pessoas no quadro” e no tempo de serviço
+  const naLista = await p.evaluate(() => { document.getElementById('afModal')?.remove(); const k = [...document.querySelectorAll('#homeKpis .home-kpi')].find(x => /Pessoas no quadro/.test(x.textContent)); k?.click(); const m = document.getElementById('afModal'); return { grupoGer: /Ger[eê]ncia \(2\)/i.test(m?.innerText || ''), nomeGer: /GERSON|GILDA/i.test(m?.innerText || '') }; });
+  ok(naLista.grupoGer && naLista.nomeGer, nome + ': a Gerência aparece na lista do cartão “Pessoas no quadro” (grupo Gerência com os nomes)');
+  ok(r.temTempoGer, nome + ': a Gerência entra no tempo de serviço');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close(); try { fs.rmSync(dir, { recursive: true, force: true }); } catch(e) {}
+}
+
+async function testarCompFeriadoSoQuemTrabalha(browser, app, nome){   // V327: folga compensatória do domingo-feriado (F15) só para quem trabalha o domingo 15
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 327) return;
+  console.log('\n▶ ' + nome + ' — 🟡 F15 só para quem trabalha o domingo-feriado 15/11');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(600);   // novembro/2026 — 15 cai no domingo (Proclamação da República)
+  const r = await p.evaluate(() => {
+    const feh = feriados(2026, 10)[15];                        // 15/11 é feriado e é domingo
+    // pessoa 0 TRABALHA o domingo 15; pessoa 1 NÃO (folga)
+    trabalhoDomingo = { 15: [0] };
+    folgasCompensatorias = { '15_0': '2026-11-20', '15_1': '2026-11-21' };
+    limparCompensatoriasSemFeriado();
+    const dt0 = new Date(2026, 10, 20), dt1 = new Date(2026, 10, 21);
+    return { feh: !!feh, domingo15: new Date(2026, 10, 15).getDay() === 0,
+      manteve0: folgasCompensatorias['15_0'] === '2026-11-20', tirou1: !folgasCompensatorias['15_1'],
+      tem0: temFolgaCompensatoria(0, dt0), tem1: temFolgaCompensatoria(1, dt1) };
+  });
+  ok(r.feh && r.domingo15, nome + ': 15/11/2026 é domingo e feriado (Proclamação da República)');
+  ok(r.manteve0 && r.tem0, nome + ': quem TRABALHA o domingo-feriado 15 mantém a folga compensatória (F15)');
+  ok(r.tirou1 && !r.tem1, nome + ': quem FOLGA o domingo-feriado 15 NÃO recebe F15 (a compensatória é retirada)');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarOrdemCompensatorias(browser, app, nome){   // Regra do Gerente: feriados 2, 15, 20 — compensatória programada na ordem do feriado (2→15→20) e sempre em até 20 dias
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 328) return;
+  console.log('\n▶ ' + nome + ' — 🗓️ compensatória: ordem 2→15→20 e sempre em até 20 dias (muitas pessoas)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(500);
+  const r = await p.evaluate(() => {
+    const fe = document.getElementById('feriadosExtras'); if(fe){ fe.value = '02/11 - Teste A\n20/11 - Teste B'; fe.dispatchEvent(new Event('change', { bubbles: true })); }
+    const fer = feriados(2026, 10);
+    // muitas pessoas trabalhando os três feriados (2 e 20 de dia útil; 15 no domingo) — cenário do Milton
+    const todos = equipe.map((f, i) => i).slice(0, 25);
+    trabalhoDomingo = { 15: todos }; trabalhoFeriado = { 2: todos, 20: todos };
+    sugestoesFolgasFeriado = {}; folgasCompensatorias = {}; sugestoesRecusadasFeriado = {}; feriadosPausadosSugestao = {};
+    gerarSugestoesFolgasFeriado();
+    const info = i => [2, 15, 20].map(d => { const sug = sugestoesFolgasFeriado[d + '_' + i]; if(!sug) return { d, falta: true }; const dias = Math.round((new Date(sug + 'T12:00:00') - new Date(2026, 10, d, 12)) / 864e5); return { d, sug, dias }; });
+    const pessoas = todos.map(i => ({ nome: equipe[i].nome.split(' ')[0], sug: info(i) }));
+    return { temFer: !!(fer[2] && fer[15] && fer[20]), nPessoas: todos.length, pessoas };
+  });
+  ok(r.temFer, nome + ': 02/11, 15/11 e 20/11 são feriados em novembro/2026');
+  const todas = r.pessoas.flatMap(x => x.sug);
+  ok(todas.every(x => !x.falta), nome + ': todo feriado trabalhado recebe uma folga compensatória (' + todas.filter(x => x.falta).length + ' sem data)');
+  ok(todas.every(x => x.falta || (x.dias >= 1 && x.dias <= 20)), nome + ': cada folga compensatória cai em até 20 dias do feriado (janela de 20 dias sempre respeitada)');
+  // dentro de cada pessoa, a compensatória do 2 não pode ser depois da do 15, nem a do 15 depois da do 20 (ordem do feriado)
+  const emOrdem = ps => { const ds = [2, 15, 20].map(d => ps.find(x => x.d === d)?.sug).filter(Boolean); return ds.every((v, k) => k === 0 || ds[k - 1] <= v); };
+  const fora = r.pessoas.filter(x => !emOrdem(x.sug));
+  ok(fora.length === 0, nome + ': a compensatória do 2 vem antes da do 15 e a do 15 antes da do 20 em TODAS as ' + r.nPessoas + ' pessoas (' + fora.length + ' fora de ordem' + (fora.length ? ': ' + fora.slice(0, 3).map(x => x.nome + ' ' + x.sug.map(s => s.sug || '—').join('/')).join('; ') : '') + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarQuantidadeManualNaoBloqueia(browser, app, nome){   // V329: no Manual a quantidade por domingo não bloqueia (vira aviso); no Automático o limite continua
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 329) return;
+  console.log('\n▶ ' + nome + ' — ⚖️ Manual: quantidade por domingo não bloqueia (vira aviso)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="CPD"]').catch(() => {}); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_cpd_6.txt')); await p.waitForTimeout(2000);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const mg = $('modoGeracao'); if(mg){ mg.value = 'manual'; mg.dispatchEvent(new Event('change', { bubbles: true })); }
+    const mc = $('modoCobertura'); if(mc){ mc.value = '50'; mc.dispatchEvent(new Event('change', { bubbles: true })); }
+    const alvo = alvoCoberturaAtual();   // CPD: 4 operacionais → 2 por domingo
+    // dia 8: 1 operacional (Fabiana=2) + 1 liderança (Encarregado=0); dia 15: 0 operacionais + 2 lideranças — os dois casos da tela do Gerente
+    selecaoManualDomingo = { '8': [2], '15': [2] };
+    liderancaManualDomingo = { '8': { enc: 0 }, '15': { enc: 0, sub: 1 } };
+    if(typeof renderSelecaoDomingosGeracao === 'function') renderSelecaoDomingosGeracao();
+    const errosAudit = auditarSelecaoAntesDaGeracao('manual');
+    const qtdErros = errosAudit.filter(e => /operacionais \+ .*liderança; selecionados|escalados; alvo total/.test(e));
+    const temFn = typeof domingosQuantidadeForaDoSugerido === 'function';
+    const fora = temFn ? domingosQuantidadeForaDoSugerido().map(x => x.d) : [];
+    // marcar a MAIS que o sugerido: direto na auditoria final (validarEscalaSetores)
+    const domOver = { '8': [0, 2, 3, 4, 5] };   // 1 líder + 4 operacionais = 5 > alvo+liderança
+    const errOverManual = validarEscalaSetores(domOver, alvo).filter(e => /escalados; alvo total/.test(e));
+    if(mg){ mg.value = 'motor'; mg.dispatchEvent(new Event('change', { bubbles: true })); }
+    const errOverMotor = validarEscalaSetores(domOver, alvo).filter(e => /escalados; alvo total/.test(e));
+    return { alvo, qtdErros, fora, temFn, errOverManual, errOverMotor };
+  });
+  ok(r.temFn, nome + ': existe a função de aviso de quantidade (domingosQuantidadeForaDoSugerido)');
+  ok(r.qtdErros.length === 0, nome + ': Manual NÃO bloqueia por quantidade (a menos ou a mais que o sugerido) — ' + JSON.stringify(r.qtdErros));
+  ok(r.fora.includes(8) && r.fora.includes(15), nome + ': o aviso amarelo lista os domingos fora do sugerido (8 e 15) — fora: ' + r.fora.join(','));
+  ok(r.errOverManual.length === 0, nome + ': Manual NÃO bloqueia marcar a mais que o sugerido');
+  ok(r.errOverMotor.length > 0, nome + ': no Automático o limite de quantidade por domingo continua valendo');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarCpdManualPiloto(browser, app, nome){   // V329 (piloto do Gerente, CPD): no Manual a decisão é do usuário; só 6×1 semanal e 2×1 nos domingos limitam
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 329) return;
+  console.log('\n▶ ' + nome + ' — ⚖️ CPD piloto: Manual livre (Enc+Sub ou só preparadores), 2×1 ainda limita');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="CPD"]').catch(() => {}); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_cpd_6.txt')); await p.waitForTimeout(2000);
+  await mudarMes(p, 10, 2026); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const mg = $('modoGeracao'); if(mg){ mg.value = 'manual'; mg.dispatchEvent(new Event('change', { bubbles: true })); }
+    const mc = $('modoCobertura'); if(mc){ mc.value = '50'; mc.dispatchEvent(new Event('change', { bubbles: true })); }
+    const ck = dt => chaveData(dt), hv = d => { try { return (listaHorariosDomingoParaData(d)[0] || [])[0] || ''; } catch(e){ return ''; } };
+    const dsrDe = d => { const a = opcoesDsrLider(d, 'ant').filter(x => x.getDay() !== 0), s = opcoesDsrLider(d, 'pos').filter(x => x.getDay() !== 0); return { ant: ck(a[a.length - 1]), pos: ck(s[0]) }; };
+    const horarios = () => { horariosManuaisDomingo = {}; Object.keys(selecaoManualDomingo).forEach(d => { new Set([...(selecaoManualDomingo[d] || []), ...lideresSelecionadosDomingo(+d)]).forEach(i => { horariosManuaisDomingo[d] = horariosManuaisDomingo[d] || {}; horariosManuaisDomingo[d][String(i)] = hv(+d); }); }); };
+    // CPD: 0=Encarregado, 1=Subencarregado, 2..5=Preparador de Dados
+    // Caso A: dia 8 = Encarregado + Subencarregado e NENHUM preparador; dia 22 = DOIS preparadores e NENHUMA liderança
+    selecaoManualDomingo = { '8': [], '22': [2, 3] };
+    liderancaManualDomingo = { '8': { enc: 0, sub: 1, dsr: { '0': dsrDe(8), '1': dsrDe(8) } }, '22': {} };
+    antecipacoesFolgaManual = {}; horarios(); if(typeof renderSelecaoDomingosGeracao === 'function') renderSelecaoDomingosGeracao();
+    const op8 = (selecaoManualDomingo['8'] || []).length, lid8 = lideresSelecionadosDomingo(8).length;
+    const op22 = (selecaoManualDomingo['22'] || []).length, lid22 = lideresSelecionadosDomingo(22).length;
+    const errosA = auditarSelecaoAntesDaGeracao('manual');
+    let gerou = false, txtA = '';
+    try { gerarSetoresCore(); const v = $('validacao'); txtA = (v?.textContent || '').slice(0, 120); gerou = /validada e gerada/.test(txtA) && !/bloquead/i.test(txtA) && (trabalhoDomingo[8] || []).length === 2 && (trabalhoDomingo[22] || []).length === 2; } catch(e){ txtA = 'EXC ' + e; }
+    // Limite 2×1: a mesma pessoa em 3 domingos seguidos ainda bloqueia
+    selecaoManualDomingo = { '1': [2], '8': [2], '15': [2] }; liderancaManualDomingo = {}; antecipacoesFolgaManual = {}; horarios(); renderSelecaoDomingosGeracao();
+    const bloqueia3 = auditarSelecaoAntesDaGeracao('manual').some(e => /3 domingos consecutivos/.test(e));
+    return { op8, lid8, op22, lid22, errosA, gerou, txtA, bloqueia3 };
+  });
+  ok(r.op8 === 0 && r.lid8 === 2 && r.errosA.length === 0, nome + ': CPD Manual aceita domingo com Encarregado + Subencarregado e nenhum preparador (audit: ' + JSON.stringify(r.errosA) + ')');
+  ok(r.op22 === 2 && r.lid22 === 0, nome + ': CPD Manual aceita domingo com 2 preparadores e nenhuma liderança');
+  ok(r.gerou, nome + ': a escala do CPD é gerada assim (validada e gerada) — ' + r.txtA);
+  ok(r.bloqueia3, nome + ': o limite 2×1 continua valendo (mesma pessoa em 3 domingos seguidos bloqueia)');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarImprimirMensal(browser, app, nome, abrir){   // V297: o botão imprime só a grade mensal numa janela isolada
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 imprimir a tabela mensal do ensaio');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar(); m.sugerir(); m.conferir();
+    const btn = document.getElementById('v292Manual5x2Imprimir'); if(!btn) return { semBotao: true };
+    let written = '';
+    const fake = { document: { write: s => { written += s; }, close: () => {} }, focus: () => {}, print: () => {} };
+    const orig = window.open; window.open = () => fake;
+    try { btn.click(); } finally { window.open = orig; }
+    return { temBotao: true, temTabela: /table[^>]*v292-tab-mes/.test(written), temTitulo: /Escala do mês/.test(written), temCor: /print-color-adjust\s*:\s*exact/.test(written) };
+  });
+  ok(!r.semBotao && r.temBotao, nome + ': existe o botão “Imprimir tabela mensal”');
+  ok(r.temTabela && r.temTitulo, nome + ': imprimir abre uma janela só com a grade mensal');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 299) ok(r.temCor, nome + ': a impressão sai colorida (print-color-adjust: exact)');
+  ok(!erros.length, nome + ': sem erro de JavaScript ao imprimir' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarCenariosVariados(browser, app, nome, abrir){   // V298: cada clique em “Sugerir folgas” gera um cenário diferente e coerente
+  if(semEnsaio(app)) return;   // V322/V202: com o 5×2 oficial, o ensaio e a área de teste deixam de existir
+  console.log('\n▶ ' + nome + ' — 🧪 cenários variados a cada “Sugerir folgas”');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const m = window.v292Manual5x2; if(!m || typeof m.sugerir !== 'function') return { faltaApi: true };
+    m.habilitar(true); (+((document.title.match(/V(\d+)/) || [])[1]) >= 310 && gerarSetoresCore()); m.montar();
+    const sigs = [], errs = [];
+    for(let i = 0; i < 3; i++){
+      m.sugerir(); m.conferir();
+      const box = document.getElementById('v292Manual5x2Resultado'), t = box && box.querySelector('table.v292-tab-mes');
+      if(!t) return { semTabela: true };
+      sigs.push([...t.querySelectorAll('tbody td')].map(td => td.textContent.trim()).join(''));
+      errs.push(+((box.innerText.match(/(\d+) erro\(s\)/) || [])[1]));
+    }
+    const diferentes = new Set(sigs).size;
+    return { diferentes, errs };
+  });
+  ok(!r.faltaApi && !r.semTabela, nome + ': a escala à mão sugere e mostra a grade mensal');
+  ok(r.diferentes === 3, nome + ': 3 cliques geram 3 cenários diferentes (' + r.diferentes + ' distintos)');
+  ok(r.errs && r.errs.every(e => e === 0), nome + ': cada cenário sorteado continua coerente (0 erro na conferência) — ' + JSON.stringify(r.errs));
+  ok(!erros.length, nome + ': sem erro de JavaScript nos cenários variados' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
 
@@ -1648,12 +2690,19 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ if(process.argv.includes('--area-5x2')){ await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); }); await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); }); } else if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarMotoresPorData(browser, APP_SETORES, 'Setores', 286); await testarMotoresPorData(browser, APP_ENC, 'Encarregados', 190); await testarMotor5x2Nucleo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarMotor5x2Nucleo(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarDomingos5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarDomingos5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 291) await testarToastNaoCobreGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarApk(browser, APP_ENC); if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 195) await testarToastNaoCobreGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ if(process.argv.includes('--area-5x2')){ if(+APP_SETORES.match(/V(\d+)\.html$/)[1] < 300) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); }); await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); }); } else if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarMotoresPorData(browser, APP_SETORES, 'Setores', 286); await testarMotoresPorData(browser, APP_ENC, 'Encarregados', 190); await testarMotor5x2Nucleo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarMotor5x2Nucleo(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarDomingos5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarDomingos5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarRegimeParametrizado(browser, APP_SETORES, 'Setores', abrirSetoresFL, 303); await testarFeriadoNaoEDsr(browser, APP_SETORES, 'Setores', abrirSetoresFL, 321, true); await testarModeloEscala(browser, APP_SETORES, 'Setores', abrirSetoresFL, 322); await testarSemEnsaio(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarSegundaFolga(browser, APP_SETORES, 'Setores', abrirSetoresFL, 323); await testarHistoricoTudo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 324); await testarSetorForaDaEscala(browser, APP_SETORES, 'Setores'); await testarSesmtNoGrafico(browser, APP_SETORES, 'Setores'); await testarCompFeriadoSoQuemTrabalha(browser, APP_SETORES, 'Setores'); await testarOrdemCompensatorias(browser, APP_SETORES, 'Setores'); await testarQuantidadeManualNaoBloqueia(browser, APP_SETORES, 'Setores'); await testarCpdManualPiloto(browser, APP_SETORES, 'Setores'); await testarRegimeParametrizado(browser, APP_ENC, 'Encarregados', abrirEnc15, 199); await testarFeriadoNaoEDsr(browser, APP_ENC, 'Encarregados', abrirEnc15, 201, false); await testarModeloEscala(browser, APP_ENC, 'Encarregados', abrirEnc15, 202); await testarSemEnsaio(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarSegundaFolga(browser, APP_ENC, 'Encarregados', abrirEnc15, 203); await testarHistoricoTudo(browser, APP_ENC, 'Encarregados', abrirEnc15, 204); await testarEnc5x2FolgaAMais(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 291) await testarToastNaoCobreGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarApk(browser, APP_ENC); if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 195) await testarToastNaoCobreGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
 
-       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 292) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); });
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 292 && +APP_SETORES.match(/V(\d+)\.html$/)[1] < 300) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); });   // V300: a área automática foi retirada do Setores; o ensaio 5×2 continua só na escala à mão (testado em testarSugestao5x2/testarTabelaMensal5x2/…)
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 196) await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); });
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 293) await testarTabelaEManual5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 'v292');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 294) await testarSugestao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 295) await testarTabelaMensal5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 296) await testarDomingos2x1(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarFeriados(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarFeriadoDomingo5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDomingoPorFuncao5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarRodizio2x1Automatico(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaio2x1MesPassado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarLiderancaDuplas5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarEnsaioUsaEscolhas6x1(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAcougueSemFixo(browser, APP_SETORES, 'Setores'); await testarConfirmadosPorCargo(browser, APP_SETORES, 'Setores'); await testarMesPassadoGuardado(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarDuplaPorCargo(browser, APP_SETORES, 'Setores'); await testarVagaUnicaSemTurno(browser, APP_SETORES, 'Setores'); await testarAvisoTetoPorCargo(browser, APP_SETORES, 'Setores'); await testarConcordoCenarioLimpar(browser, APP_SETORES, 'Setores'); await testarDomingosEquilibrados2x1(browser, APP_SETORES, 'Setores');
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 297) await testarImprimirMensal(browser, APP_SETORES, 'Setores', abrirSetoresFL);
+       if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 298) await testarCenariosVariados(browser, APP_SETORES, 'Setores', abrirSetoresFL);
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 197) await testarTabelaEManual5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 'v196');
+       if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 198) await testarCobertura5x2(browser, APP_ENC, 'Encarregados', abrirEnc15);
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 246) await testarBalancos(browser, APP_SETORES, 'Setores', 'v246', 'escalaSetores.v246Balancos');
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 175) await testarBalancos(browser, APP_ENC, 'Encarregados', 'v175', 'enc.v175Balancos'); } }
   catch(e){ console.error('\n❌ O teste parou: ' + e.message); falhas++; }
@@ -1939,6 +2988,25 @@ function erpFicticio({ totalErrado = false, repetir = false, abaExtra = true } =
   const abas = [{ nome: 'Plan1', linhas: L }]; if(abaExtra) abas.push({ nome: 'Legenda', linhas: [['Código', 'Descrição'], ['A', 'Ativo'], ['AF', 'Afastado'], ['EP', 'Emprestado']] });
   return abas;
 }
+function erpGerSesmt(){   // V326: planilha fictícia com GERENCIA, SESMT e um setor normal (formato do ERP)
+  const ger = ', FICTICIA, FL 05 - GERENCIA, FL 05 - GERENCIA';
+  const L = [
+    [1, '-', 'CASAS TESTE FICTICIA', null, null, null, null, null, null, null, 'Pág.:', 1],
+    ['Cadastro', 'Nome', null, null, 'Filial', 'Escala', 'Situação', 'Função', null, null, 'Admissão', null],
+    ['01.01.03.005.01 , FICTICIA, FL 05 - GERENCIA'], ['FPRE815.COL  -  02/10/2026  -  09:41:51'],
+    ['01.01.03.005.01.01' + ger] ];
+  const blocos = [
+    ['01.01.03.005.01.01.01', 'FL 05 - FRENTE DE LOJA', [[80001, 'ALICE TESTE', 23, '10:00-18:20 seg/sab', 'Trabalhando', 'OPERADOR(A)DE CAIXA', new Date(2019,2,4)], [80002, 'BRUNO TESTE', 76, '15:40-00:00', 'Trabalhando', 'FISCAL DE CAIXA', new Date(2018,5,1)]]],
+    ['01.01.03.005.01.01.02', 'FL 05 - GERENCIA', [[80003, 'GERSON TESTE', 1, '08:00-18:00 Seg-Sex', 'Trabalhando', 'GERENTE', new Date(2010,1,1)], [80004, 'GILDA TESTE', 1, '08:00-18:00 Seg-Sex', 'Trabalhando', 'SUB GERENTE', new Date(2012,3,2)]]],
+    ['01.01.03.005.01.01.03', 'FL 05 - SESMT', [[80005, 'SANDRA TESTE', 56, '08:00-17:00 Seg-Sex', 'Trabalhando', 'TECNICO DE SEGURANCA', new Date(2011,9,18)]]] ];
+  let lidos = 0;
+  blocos.forEach(([cod, nome, ps]) => { L.push([cod + ger + ', ' + nome]);
+    ps.forEach(([mat, n, esc, hor, sit, cargo, adm]) => { L.push([mat, n, null, null, 'FILIAL 05', esc, '-', hor, sit, cargo, adm, null]); lidos++; });
+    L.push(['Total', cod + ger + ', ' + nome, null, null, null, null, null, String(ps.length)]); });
+  L.push(['Total', '01.01.03.005.01.01' + ger, null, null, null, null, null, String(lidos)], ['Total', 'Empresa', null, null, null, null, null, String(lidos)]);
+  return [{ nome: 'Plan1', linhas: L }];
+}
+
 function erpGrande(n = 4000){
   const L = [[1, '-', 'CASAS TESTE FICTICIA', null, null, null, null, null, null, null, 'Pág.:', 1], ['Cadastro', 'Nome', null, null, 'Filial', 'Escala', 'Situação', 'Função', null, null, 'Admissão', null], ['FPRE815.COL  -  02/10/2026  -  09:41:51'],
     ['01.01.03.005.01.01.01 , FICTICIA, FL 05 - GERENCIA, FL 05 - FRENTE DE LOJA']];
@@ -1985,12 +3053,12 @@ async function testarPlanilhaGabriel(browser){
     ok(!/ainda não aplicada/.test(r[0]) && /erp_fpre815_ficticio\.xlsx/.test(r[0]) && /02\/10\/2026 09:41/.test(r[0]) && /Plan1/.test(r[0]) && /Legenda/.test(r[0]), 'depois de aplicar o Gabriel conta o que leu: arquivo, emissão e abas');
     ok(/2 aba\(s\)/.test(r[1]) && /28 linhas/.test(r[2]) && /11 de funcionário/.test(r[0]), 'responde quantas abas (2), quantas linhas (28) e quantos funcionários (11)');
     ok(/✅/.test(r[3]) && /6 total/.test(r[3]), 'a planilha confere: “✅ … 6 totais por setor e o total da empresa batem”');
-    ok(/SESMT/.test(r[4]) && /Legenda/.test(r[4]) && /horário/.test(r[4]) && /Não invento/.test(r[4]), 'diz o que não interpretou: setor SESMT, aba Legenda e horários com texto — sem inventar significado');
+    ok(/Legenda/.test(r[4]) && /horário/.test(r[4]) && /Não invento/.test(r[4]), 'diz o que não interpretou: aba Legenda e horários com texto — sem inventar significado (V325: o SESMT agora conta no quadro)');
     ok(/Plan1/.test(r[5]) || /planilha/i.test(r[5]), 'pergunta com abreviação/erro (“qm importou a planilha”, “vc leu do arquivo”) também é entendida');
     const g = await p.evaluate(k => { const o = JSON.parse(localStorage.getItem(k) || 'null'); if(!o) return null; const a = o.pessoas['90001']; return { n: Object.keys(o.pessoas).length, l: a && a.l, e: a && a.e, h: a && a.h, f: a && a.f, s: a && a.s, ab: a && a.a, ad: a && a.ad, chaves: Object.keys(localStorage).filter(x => /v271/.test(x)) }; }, LS);
     ok(g && g.n === 11 && g.l === 8 && g.e === '23' && g.h === '10:00-18:20 seg/sab' && g.f === 'FILIAL 05' && g.s === 'FRENTE DE LOJA' && g.ab === 'Plan1' && g.ad === '2019-03-04', 'o que o app não guardava agora fica registrado por pessoa: linha de origem, código da escala, texto do horário, filial, setor e admissão');
     ok(g && g.chaves.length === 1, 'só uma chave nova no aparelho (separada do aprendizado do Assistente e do histórico)');
-    ok(await p.evaluate(() => Array.isArray(todasEquipes) && todasEquipes.length === 10), 'o importador continua aplicando a equipe como antes (10 pessoas das áreas do app)');
+    ok(await p.evaluate(() => Array.isArray(todasEquipes) && todasEquipes.length === 11), 'o importador conta também os setores fora da escala (V325: 11 = 10 das áreas + 1 do SESMT)');
     ok(/planilha do RH/.test((await perg(p, ['o que você sabe fazer?']))[0]), 'a lista de capacidades cita a planilha do RH');
     { const x = (await perg(p, ['como baixar a planilha excel?']))[0]; ok(!/aba\(s\)|Plan1|ainda não aplicada/.test(x), 'mesmo com planilha lida, “como baixar a planilha Excel?” não vira resumo da planilha'); }
     await p.reload(); await p.waitForTimeout(1800);
@@ -2075,7 +3143,9 @@ async function testarRegime274(browser, app, nome, abrir, versaoMin){
   // 5) Gabriel
   await p.reload(); await p.waitForTimeout(1500); await abrir(p); await p.waitForTimeout(1000);
   const g = await p.evaluate(() => { const t = h => String(h).replace(/<[^>]+>/g, ''), C = window.v265Chat; return { a: t(C.responder('qual regime está valendo?')), b: t(C.responder('a escala 5x2 já está ligada?')), c: t(C.responder('como funciona o 6x1')) }; });
-  ok(/6×1/.test(g.a) && /desligada/.test(g.a) && /desligada/.test(g.b), `Gabriel diz qual regime vale e que a 5×2 está desligada: “${g.a.slice(0, 80)}…”`);
+  if(semEnsaio(app))   // V322/V202: de 01/11 a 15/12/2026 o usuário escolhe 6×1 ou 5×2; a partir de 16/12/2026 só 5×2
+    ok([g.a, g.b].every(x => /6×1/.test(x) && /01\/11/.test(x) && /16\/12\/2026/.test(x) && /5×2/.test(x)), `Gabriel diz qual regime vale: 6×1 até 31/10, escolha de 01/11 a 15/12 e só 5×2 a partir de 16/12/2026: “${g.a.slice(0, 80)}…”`);
+  else ok(/6×1/.test(g.a) && /desligada/.test(g.a) && /desligada/.test(g.b), `Gabriel diz qual regime vale e que a 5×2 está desligada: “${g.a.slice(0, 80)}…”`);
   ok(/6 dias seguidos/.test(g.c) && !/desligada/.test(g.c), 'a pergunta de regra “como funciona o 6x1” continua com a resposta de sempre');
   // 6) o histórico anota o regime, mas abrir histórico NÃO liga nem desliga o regime
   await p.evaluate(() => window.v274Regime.configurar({ ativo: true, maxSeguidos: 5, regime: '5x2' }));
@@ -2145,27 +3215,28 @@ async function testarMotor5x2Nucleo(browser, app, nome, abrir, versaoMin){
   const {p,erros,ctx}=await novaPagina(browser);
   await p.goto('file://'+app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1000);
   await mudarMes(p,11,2026); await p.waitForTimeout(700);
-  const dec=await p.evaluate(()=>{
+  const v303=+path.basename(app).match(/V(\d+)\.html$/)[1]>=(nome==='Setores'?303:199); // V303/V199: domingo de folga conta como 1 dos 2 descansos
+  const dec=await p.evaluate((v303)=>{
     const ns=window.v265Chat?.interno?.APP==='setores'?'escalaSetores':'enc';
     localStorage.removeItem(ns+'.motor5x2.planos');
     const api=window.motor5x2; api.configurar({cctMensal:false});
     const plano=api.construir(), aud=api.auditar(plano);
     const semanas=Object.values(plano.pessoas||{}).flatMap(p=>(p.semanas||[])).filter(w=>w.regime==='5x2');
-    const distribuicao=semanas.length>0&&semanas.every(w=>{const fs=w.folgas||[],a=fs[0]&&new Date(fs[0]+'T12:00:00'),b=fs[1]&&new Date(fs[1]+'T12:00:00'),consecutivas=a&&b&&Math.abs((a-b)/86400000)===1;return fs.length===2&&fs.every(s=>s>='2026-12-16'&&new Date(s+'T12:00:00').getDay()!==0)&&(!consecutivas||w.modoFolga==='ultimo-recurso');});
+    const distribuicao=semanas.length>0&&semanas.every(w=>{const fs=w.folgas||[],a=fs[0]&&new Date(fs[0]+'T12:00:00'),b=fs[1]&&new Date(fs[1]+'T12:00:00'),consecutivas=a&&b&&Math.abs((a-b)/86400000)===1;return fs.length===(v303?w.alvo:2)&&fs.every(s=>s>='2026-12-16'&&new Date(s+'T12:00:00').getDay()!==0)&&(!consecutivas||w.modoFolga==='ultimo-recurso');});
     const ultimoRecurso=semanas.filter(w=>w.modoFolga==='ultimo-recurso').length;
     const serial=JSON.parse(JSON.stringify(plano));
     return {plano,aud,semanas:semanas.length,distribuicao,ultimoRecurso,serializavel:!!serial.pessoas&&!!serial.pessoas[Object.keys(serial.pessoas)[0]]?.semanas,limite:api.limiteDias(),motorAntes:window.escalaMotor?.motorParaData('2026-12-15'),motorDepois:window.escalaMotor?.motorParaData('2026-12-16')};
-  });
-  const fallback=await p.evaluate(()=>{
+  },v303);
+  const fallback=await p.evaluate((v303)=>{
     const ns=window.v265Chat?.interno?.APP==='setores'?'escalaSetores':'enc';
     const save={equipe,trabalhoDomingo,trabalhoFeriado,feriados,folgasCompensatorias,store:localStorage.getItem(ns+'.motor5x2.planos')};
     localStorage.removeItem(ns+'.motor5x2.planos');
-    equipe=[{nome:'Pessoa teste',matricula:'fallback-5x2',situacao:'A',folgaFixa:0}]; trabalhoDomingo={}; trabalhoFeriado={16:[0],19:[0]}; folgasCompensatorias={};
+    equipe=[{nome:'Pessoa teste',matricula:'fallback-5x2',situacao:'A',folgaFixa:0}]; trabalhoDomingo=v303?{20:[0]}:{}; trabalhoFeriado={16:[0],19:[0]}; folgasCompensatorias={};
     const feriadosOriginal=feriados; feriados=function(ano,mes){const f=feriadosOriginal(ano,mes)||{};if(ano===2026&&mes===11){f[16]='Feriado de teste';f[19]='Feriado de teste';}return f;};
     const plano=window.motor5x2.construir(),wk=Object.values(plano.pessoas||{})[0]?.semanas?.find(x=>x.inicio==='2026-12-14'),aud=window.motor5x2.auditar(plano),folgas=wk?.folgas||[];
     equipe=save.equipe; trabalhoDomingo=save.trabalhoDomingo; trabalhoFeriado=save.trabalhoFeriado; feriados=save.feriados; folgasCompensatorias=save.folgasCompensatorias; if(save.store===null)localStorage.removeItem(ns+'.motor5x2.planos');else localStorage.setItem(ns+'.motor5x2.planos',save.store);
     return {folgas,modo:wk?.modoFolga,consecutivas:!!wk?.consecutivas,aud};
-  });
+  },v303);
   ok(fallback.folgas.length===2&&fallback.consecutivas&&fallback.modo==='ultimo-recurso'&&fallback.aud.ok&&fallback.aud.avisos?.some(x=>/último recurso/i.test(x)),`${nome}: tenta separar as folgas e só aceita dias consecutivos como último recurso`);
   ok(dec.motorAntes==='6x1'&&dec.motorDepois==='5x2',`${nome}: o corte automático preserva 6×1 até 15/12 e liga 5×2 em 16/12`);
   ok(dec.limite===6,`${nome}: dezembro misto mantém o limite antigo antes da fronteira (limite observado: ${dec.limite})`);
@@ -2221,6 +3292,60 @@ async function testarDomingos5x2(browser, app, nome, abrir, versaoMin){
   ok(!erros.length,'sem erro de JavaScript' + (erros.length ? ': '+erros[0] : '')); await ctx.close();
 }
 
+
+/* V303/V199 — 📏 motor parametrizado 6×1/5×2: domingo de folga conta como descanso, ≤5 dias seguidos, compensatória à parte */
+async function testarRegimeParametrizado(browser, app, nome, abrir, versaoMin){
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
+  console.log(`\n▶ ${nome} — 📏 motor 5×2 oficial: 2 descansos contando o domingo e no máximo 5 dias seguidos`);
+  const {p,erros,ctx}=await novaPagina(browser);
+  await p.goto('file://'+app); await p.waitForTimeout(1200); await abrir(p); await p.waitForTimeout(1000);
+  await mudarMes(p,0,2027); await p.waitForTimeout(700);
+  const gerar=async()=>{
+    await p.evaluate(()=>{ document.querySelectorAll('.settings-backdrop').forEach(x=>x.hidden=true); (window.v45GotoStep||window.v80GotoStep)?.(5,false); document.getElementById('btnGerar').click(); });
+    for(let w=0;w<120;w++){ await p.waitForTimeout(250); if(await p.evaluate(()=>!!window.motor5x2?.plano?.())) break; }
+    await p.waitForTimeout(300);
+  };
+  // Confere pelo que a tela mostra (status do dia), não pela conta interna do motor.
+  const medir=()=>p.evaluate(()=>{
+    const st=typeof statusDiaSet==='function'?statusDiaSet:statusDiaEnc, plano=window.motor5x2.plano(), aud=plano?window.motor5x2.auditar(plano):{erros:['sem plano']};
+    const trabalha=x=>['trab','dom','bal','ftrab'].includes(x), dias=new Date(2027,1,0).getDate();
+    let maior=0, quem='', domTrabErrado=0, domFolgaTres=0, domFolgaUm=0, domFolgaErrado=0, alvoDivergente=0;
+    equipe.forEach((f,i)=>{
+      let seq=0;
+      for(let d=1;d<=dias;d++){ const dt=new Date(2027,0,d,12); if(trabalha(st(i,dt,0,2027,0))){ seq++; if(seq>maior){ maior=seq; quem=f.nome+' '+d+'/01'; } } else seq=0; }
+      (plano?.pessoas?.[String(i)]?.semanas||[]).forEach(w=>{
+        const dom=new Date(w.fim+'T12:00:00'); if(dom.getMonth()!==0) return;
+        const folga=!(trabalhoDomingo[dom.getDate()]||[]).map(Number).includes(i);
+        if(w.domingoFolga!==folga) alvoDivergente++;
+        if(!folga&&w.folgas.length!==2) domTrabErrado++;
+        if(folga){ if(w.folgas.length===1) domFolgaUm++; else if(w.folgas.length===2) domFolgaTres++; else domFolgaErrado++; }
+      });
+    });
+    return {ok:!!plano&&aud.erros.length===0, erros:aud.erros.slice(0,3), maior, quem, domTrabErrado, domFolgaTres, domFolgaUm, domFolgaErrado, alvoDivergente};
+  });
+  await gerar();
+  const r1=await medir();
+  ok(r1.ok,`${nome}: Gerar janeiro/2027 monta e aceita o plano 5×2 (${r1.erros.join(' | ')||'sem erros'})`);
+  ok(r1.alvoDivergente===0,`${nome}: o plano usa os domingos da escala gerada (${r1.alvoDivergente} semana(s) com domingo diferente)`);
+  ok(r1.domTrabErrado===0,`${nome}: quem trabalha o domingo tem 2 folgas de segunda a sábado (${r1.domTrabErrado} semana(s) fora)`);
+  ok(r1.domFolgaUm>0&&r1.domFolgaUm>=3*r1.domFolgaTres&&r1.domFolgaErrado===0,`${nome}: quem folga o domingo tira só 1 folga na semana (${r1.domFolgaUm} semana(s) com 1; ${r1.domFolgaTres} com 1 a mais só para não passar de 5 dias)`);
+  ok(r1.maior>0&&r1.maior<=5,`${nome}: ninguém trabalha mais de 5 dias seguidos na tela (maior sequência: ${r1.maior}${r1.quem?' — '+r1.quem:''})`);
+  await gerar();
+  const r2=await medir();
+  ok(r2.ok&&r2.maior<=5&&r2.alvoDivergente===0,`${nome}: gerar de novo refaz o plano do mês sem folga “fantasma” do plano anterior (maior sequência: ${r2.maior})`);
+  const extra=await p.evaluate(()=>{
+    const api=window.motor5x2, par={a:api.parametros('6x1'),b:api.parametros('5x2')};
+    const save=JSON.stringify(folgasCompensatorias||{}), plano=api.plano(), sems=plano.pessoas['0'].semanas, w=sems.find(x=>x.inicio==='2027-01-11');
+    const livre=['2027-01-12','2027-01-13','2027-01-14','2027-01-15'].find(s=>!w.folgas.includes(s));
+    folgasCompensatorias=Object.assign({},folgasCompensatorias,{['99_0']:livre});
+    const novo=api.construir(), w2=novo.pessoas['0'].semanas.find(x=>x.inicio==='2027-01-11');
+    folgasCompensatorias=JSON.parse(save);
+    return {par, livre, folgas:w2.folgas, alvo:w2.alvo, ok:novo.auditoria.erros.length===0};
+  });
+  ok(extra.par.a.descansos===1&&extra.par.a.maxSeguidos===6&&extra.par.b.descansos===2&&extra.par.b.maxSeguidos===5,`${nome}: parâmetros do regime — 6×1 = 1 descanso e até 6 dias; 5×2 = 2 descansos e até 5 dias`);
+  ok(!extra.folgas.includes(extra.livre)&&extra.folgas.length===extra.alvo,`${nome}: folga compensatória do feriado (${extra.livre}) não ocupa o lugar do descanso da semana (${extra.folgas.join(', ')})`);
+  ok(!erros.length,'sem erro de JavaScript' + (erros.length ? ': '+erros[0] : '')); await ctx.close();
+}
 
 async function testarConversa275(browser, app, nome, abrir, versaoMin){
   if(+path.basename(app).match(/V(\d+)\.html$/)[1] < versaoMin) return;
@@ -2374,7 +3499,8 @@ async function testarDialogosGabriel(browser, app, nome){
   ok([intentPairs.salary,intentPairs.holidayPay,intentPairs.vacationRights].every(a=>normCheck(a).includes('subgerente administrativo')),`${nome}: salário, pagamento por feriado e direitos de férias encaminham ao subgerente administrativo`);
   ok(!normCheck(intentPairs.holidayComp).includes('subgerente administrativo'),`${nome}: folga compensatória não é confundida com remuneração pelo feriado`);
   ok(normCheck(intentPairs.holidaySchedule).includes('folga')&&normCheck(intentPairs.holidaySchedule).includes('feriado')&&!normCheck(intentPairs.holidaySchedule).includes('subgerente administrativo'),`${nome}: regra de folga de feriado continua sendo respondida pelo app`);
-  ok(/regime em vigor/.test(normCheck(identity.regime))&&/6/.test(identity.regime)&&/5/.test(identity.regime)&&/desligad/.test(normCheck(identity.regime)),`${nome}: explica 6×1 vigente e 5×2 preparada/desligada`);
+  if(semEnsaio(app)) ok(/regime em vigor/.test(normCheck(identity.regime))&&/01\/11/.test(identity.regime)&&/16\/12\/2026/.test(identity.regime)&&/5×2/.test(identity.regime),`${nome}: explica 6×1 até 31/10, a escolha de 01/11 a 15/12 e só 5×2 a partir de 16/12/2026`);   // V322/V202
+  else ok(/regime em vigor/.test(normCheck(identity.regime))&&/6/.test(identity.regime)&&/5/.test(identity.regime)&&/desligad/.test(normCheck(identity.regime)),`${nome}: explica 6×1 vigente e 5×2 preparada/desligada`);
   const ferias=await p.evaluate(()=>{const f=equipe[0],sit=f.situacao,det=f.situacaoDetalhe;f.situacao='AF';f.situacaoDetalhe='FERIAS TESTE';window.v270Gabriel?.reset();const a=String(window.v265Chat.responder('Quem está de férias?')||'');f.situacao=sit;f.situacaoDetalhe=det;return {a,n:f.nome};});
   ok(normCheck(ferias.a).includes(normCheck(ferias.n.split(/\s+/)[0]))&&normCheck(ferias.a).includes('ferias teste')&&!normCheck(ferias.a).includes('subgerente administrativo'),`${nome}: quem está de férias continua sendo respondido a partir do status da equipe`);
   const initial=await p.evaluate(()=>JSON.stringify([equipe,trabalhoDomingo]));

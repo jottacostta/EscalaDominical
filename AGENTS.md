@@ -127,7 +127,7 @@ Quando estiver em dúvida, leia a tela em voz alta: se uma criança de 10 anos n
 - Folga compensatória de feriado em até 20 dias corridos, de segunda a sábado, sem formar 3 ou mais dias seguidos de folga.
 - No máximo 6 dias seguidos de trabalho (OJ 410 do TST).
 - Liderança do domingo: uma só, 1 Encarregado + 1 Sub, **por turno** (🌅 abertura + 🌙 fechamento, de qualquer cargo de liderança — Frente de Loja, Mercearia e CPD começam assim) ou várias. No CPD, se faltar liderança num turno, entra um Preparador de dados (sempre 1 na abertura e 1 no fechamento; vale no modo de cobertura “Por cargo”).
-- **Açougue:** 11 operacionais no domingo (3 açougueiros + 3 operadores/balconistas na abertura, 2 + 3 no fechamento) + a liderança — no automático e na escala à mão.
+- **Quantidade do domingo (todos os setores, inclusive o Açougue):** nenhum número fixo no código. Vem de “Como dividir o setor”: no 🤖 Automático, rodízio 2×1 (2 de cada 3); grupos; ou **Por cargo**, com o número escolhido para cada cargo. (Decisão do dono em 23/10/2026: o antigo “Açougue = 11 operacionais + 1 liderança” foi retirado na Setores V311, porque lojas maiores ficavam travadas.)
 - A escala à mão/mista tem **auditoria ao vivo** (mesmas regras do “Gerar”, função `auditarSelecaoAntesDaGeracao`) e **bloqueia** a marcação que quebra regra. Regra nova tem que entrar nessa auditoria.
 - Sugestões da escala manual (V233) devem reutilizar essa auditoria no momento do aceite, não substituir nem apagar escolhas existentes e nunca incluir candidatos que falhem nas regras. `testes/rodar.js` deve cobrir a presença do painel, geração/rejeição e preservar o estado da escala.
 
