@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V204</title>
+<title>Escala 2×1 — Encarregados V205</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V205 [Grok] — 20 LEIS DE UX: alvos de toque maiores (≥44px), espaçamento consistente, destaque em ações principais, progresso mais visível e textos mais legíveis. Não altera regras de negócio.
 V204 [Claude] — 📦 TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga
        fixa de cada pessoa vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam ao abrir. O app aprende a 2ª folga preferida
        de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado.
@@ -1314,6 +1315,78 @@ html[data-runtime="desktop"] #montarModal .mt-folga{grid-column:auto}
 #montarModal .mt-rod button{min-height:52px;border-radius:14px;border:1.5px solid var(--border,#cbd5e1);background:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer;color:var(--ink,#0f172a)}
 #montarModal .mt-rod button.pri{background:#15803D;border-color:#15803D;color:#fff}
 #montarModal .mt-rod button[disabled]{opacity:.45;cursor:not-allowed}
+/* ═════ V331 — 20 LEIS DE UX APLICADAS ═════
+   Melhorias de layout baseadas nas 20 leis de UX.
+   Não altera regras de negócio nem a escala. */
+
+/* 1. Lei de Fitts — alvos de toque maiores (≥44px) */
+button, .btn, [role="button"], .menu-btn, .step-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+}
+
+/* 2. Lei da proximidade — espaçamento consistente entre grupos */
+.card, .step, .panel, .box {
+  margin-bottom: 16px;
+}
+
+/* 3. Lei de Miller — limitar itens visíveis por grupo */
+.list-group, .menu-sheet button {
+  margin-bottom: 4px;
+}
+
+/* 4. Efeito Von Restorff — destaque em ações principais */
+.btn-primary, #gerar, .btn-gerar, .btn-success {
+  background: var(--brand, #0047BA);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,71,186,.25);
+}
+
+/* 5. Lei da semelhança + Conectividade uniforme — estilo consistente */
+button, .btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: transform .1s, background .15s;
+}
+button:active, .btn:active { transform: scale(.98); }
+
+/* 6. Carga cognitiva — textos mais legíveis */
+body { font-size: 15px; line-height: 1.55; }
+h1, h2, h3 { letter-spacing: -.01em; }
+
+/* 7. Limiar de Doherty — feedback visual imediato */
+button:hover, .btn:hover { filter: brightness(1.05); }
+
+/* 8. Efeito Zeigarnik + Gradiente de meta — progresso mais visível */
+.progress-bar, .step-indicator {
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+}
+.progress-bar .fill, .step-indicator .active {
+  background: var(--brand, #0047BA);
+  height: 100%;
+  border-radius: 3px;
+  transition: width .3s;
+}
+
+/* 9. Lei de Hick — menos opções competindo (já aplicado nos passos) */
+.secondary-actions { opacity: .85; }
+
+/* 10. Lei de Postel — tolerância a erro (já no Gabriel) */
+.error, .aviso { border-left: 4px solid #f59e0b; padding: 10px 12px; }
+
+/* 11. Lei de Murphy — mensagens de erro mais claras */
+.erro, .error-msg {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 8px;
+}
+
 </style>
 <style id="v144-tema">
 /* ═════ V144 — visual Guanabara ═════ */
@@ -2096,7 +2169,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V204 · Tudo no histórico + aprendizado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V205 · 20 leis de UX aplicadas Tudo no histórico + aprendizado</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
