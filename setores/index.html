@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V331</title>
+<title>Escala de Setores — V332</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V332 [Claude] — 🚀 BOTÃO GERAR NOS PASSOS DOMINGOS E FERIADOS; PASSO 5 VIRA RESUMO (pedido do Gerente): o botão "🚀 Gerar escala" passa a
+       ficar dentro dos passos Domingos e Feriados (quem monta é o usuário, gera ali mesmo; ao gerar, o resultado abre no passo Resumo). O
+       passo 5 "Gerar" vira "Resumo" (ver e baixar): fica tudo que tinha, menos o botão Gerar; a barra de baixo do Resumo passa a ser
+       "📊 Baixar planilha". Vale em todos os modos (Automático, Misto e À mão). window.v332IrGerar gera e abre o Resumo.
 V331 [Claude] — ✍️ À MÃO: AUDITOR AVISA E PEDE CONCORDÂNCIA, NÃO BLOQUEIA (pedido do Gerente): na escala à mão quem monta é o usuário.
        (1) A opção "Como dividir o setor nos domingos" some no à mão (a cobertura fica no modo simples; a liderança fica como área à parte).
        (2) O auditor NÃO bloqueia mais as quebras de ESTRUTURA — 3 domingos seguidos (2×1), proteção 6×1, folga antecipada/posterior e mais
@@ -2203,6 +2207,9 @@ table th{letter-spacing:.02em}
 .v206-modos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 4px}
 @media(max-width:700px){.v206-modos{grid-template-columns:1fr}}
 #coberturaCard.v331-amao .v331-dividir{display:none!important}   /* V331: no À mão, "Como dividir o setor nos domingos" some; quem monta é o usuário */
+.v332-gerar-wrap{display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:16px 0 4px}   /* V332: botão Gerar dentro dos passos Domingos e Feriados */
+.v332-gerar-wrap .v332-gerar{font-size:17px;font-weight:800;padding:14px 18px;border-radius:12px}
+.v332-gerar-wrap .hint{text-align:center;margin:0}
 .v206-modo{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 14px 13px;border:2px solid var(--border);border-radius:16px;background:#fff;color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s}
 .v206-modo:hover{border-color:var(--brand,#0047BA)}
 .v206-modo .t{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
@@ -2917,7 +2924,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V331 · À mão: auditor avisa e pede concordância, não bloqueia</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V332 · Gerar nos passos Domingos/Feriados; passo 5 vira Resumo</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -2927,7 +2934,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
     <button type="button" class="step" data-step="2" data-panel="historicoCard" role="tab" aria-selected="false"><span class="step-num"><span>2</span></span><b>Mês passado</b><span>Últimos domingos</span></button>
     <button type="button" class="step" data-step="3" data-panel="coberturaCard" role="tab" aria-selected="false"><span class="step-num"><span>3</span></span><b>Domingos</b><span>Quem trabalha e quem monta</span></button>
     <button type="button" class="step" data-step="4" data-panel="geracaoCard" role="tab" aria-selected="false"><span class="step-num"><span>4</span></span><b>Feriados</b><span>Folgas do mês</span></button>
-    <button type="button" class="step" data-step="5" data-panel="resultadoCard" role="tab" aria-selected="false"><span class="step-num"><span>5</span></span><b>Gerar</b><span>Ver e baixar</span></button>
+    <button type="button" class="step" data-step="5" data-panel="resultadoCard" role="tab" aria-selected="false"><span class="step-num"><span>5</span></span><b>Resumo</b><span>Ver e baixar</span></button>
   </div>
 </div>
 
@@ -3180,6 +3187,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
     <div id="selecaoDomingosMista"></div>
   </div>
   <div id="gruposStatus" class="alert" aria-live="polite"></div>
+  <div class="v332-gerar-wrap"><button type="button" class="btn success v332-gerar" onclick="window.v332IrGerar&&window.v332IrGerar()">🚀 Gerar escala</button><small class="hint">Monte os domingos e toque aqui. O resultado abre no passo <b>Resumo</b>.</small></div>
 </section>
 
 <section class="card step-panel" id="geracaoCard" data-panel-id="geracao">
@@ -3209,14 +3217,15 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
     </details>
     <div id="feriadosArea"></div>
   </div>
+  <div class="v332-gerar-wrap"><button type="button" class="btn success v332-gerar" onclick="window.v332IrGerar&&window.v332IrGerar()">🚀 Gerar escala</button><small class="hint">Quando terminar os feriados, toque aqui. O resultado abre no passo <b>Resumo</b>.</small></div>
 </section>
 
 
 
 <section class="card step-panel" id="resultadoCard" data-panel-id="resultado">
-  <h2 class="section-title"><span class="st-num">5</span> Gerar e conferir a escala</h2>
-<div class="guia"><span class="passo">Passo 5 de 5</span><b>O que fazer:</b> toque no botão verde <b>🚀 Gerar escala</b> (na barra de baixo). Depois confira o resultado e toque em <b>📊 Baixar planilha Excel</b><span class="so-celular"> ou <b>📱 Copiar para WhatsApp</b></span>. Se aparecer um aviso amarelo ou vermelho, toque nele: o app leva você até o problema. Por fim, toque em <b>📦 Guardar histórico do mês</b>: no mês seguinte ele vira o “mês passado”.</div>
-  <div id="validacao" class="alert" aria-live="polite">Tudo preenchido? Toque em <b>🚀 Gerar escala</b> na barra verde lá embaixo.</div>
+  <h2 class="section-title"><span class="st-num">5</span> Resumo da escala</h2>
+<div class="guia"><span class="passo">Passo 5 de 5</span><b>O que fazer:</b> aqui é o <b>Resumo</b>. O botão <b>🚀 Gerar escala</b> agora fica nos passos <b>Domingos</b> e <b>Feriados</b> — toque lá e o resultado abre aqui. Confira e toque em <b>📊 Baixar planilha Excel</b><span class="so-celular"> ou <b>📱 Copiar para WhatsApp</b></span>. Se aparecer um aviso amarelo ou vermelho, toque nele: o app leva você até o problema. Por fim, toque em <b>📦 Guardar histórico do mês</b>: no mês seguinte ele vira o “mês passado”.</div>
+  <div id="validacao" class="alert" aria-live="polite">Toque em <b>🚀 Gerar escala</b> no passo <b>Domingos</b> (ou Feriados). O resultado aparece aqui.</div>
   <div id="v322Modelo" class="v322-modelo" aria-live="polite"></div>
   <div id="v318Acoes" class="v318-acoes" aria-live="polite"></div>
   <button type="button" class="btn success" id="btnGerar" style="display:none" aria-hidden="true" tabindex="-1">🚀 Gerar escala</button>
@@ -9282,7 +9291,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
       btn.textContent = '🚀 Gerar escala';
       btn.classList.remove('secondary'); btn.classList.add('success');
     } else {
-      const labels = ['Próximo: Mês passado ▸','Próximo: Mês passado ▸','Próximo: Domingos ▸','Próximo: Feriados ▸','Próximo: Gerar ▸'];   // V238: Equipe → Mês passado → Domingos → Feriados → Gerar   // V184: o passo 2 (Mês) virou o modal ⚙️ Configurações; depois de Equipe vem Domingos
+      const labels = ['Próximo: Mês passado ▸','Próximo: Mês passado ▸','Próximo: Domingos ▸','Próximo: Feriados ▸','Próximo: Resumo ▸'];   // V238: Equipe → Mês passado → Domingos → Feriados → Gerar   // V184: o passo 2 (Mês) virou o modal ⚙️ Configurações; depois de Equipe vem Domingos
       btn.textContent = labels[V45.step] || 'Avançar ▸';
       btn.classList.remove('success'); btn.classList.add('primary');
     }
@@ -11251,7 +11260,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(prev) prev.disabled=atual===0;
     if(!primary) return;
     if(atual===5){primary.textContent='🚀 Gerar escala';primary.classList.remove('secondary','primary');primary.classList.add('success');return;}
-    const labels={0:'Próximo: Mês passado ▸',2:'Próximo: Domingos ▸',3:'Próximo: Feriados ▸',4:'Próximo: Gerar ▸'};   // V238
+    const labels={0:'Próximo: Mês passado ▸',2:'Próximo: Domingos ▸',3:'Próximo: Feriados ▸',4:'Próximo: Resumo ▸'};   // V238
     primary.textContent=labels[atual]||'Avançar ▸';
     primary.classList.remove('success','secondary');primary.classList.add('primary');
   }
@@ -16802,6 +16811,42 @@ function domingosQuantidadeForaDoSugerido(){
     if(aceitos[assinatura(qs)]) nota(qs); else janela(qs);
   }
   window.v331Concordancia={posGeracao,quebras,estado:()=>aceitos};
+})();
+</script>
+<script>
+/* ═════ V332 — 🚀 BOTÃO GERAR NOS PASSOS DOMINGOS E FERIADOS; PASSO 5 VIRA RESUMO ═════
+   Pedido do Gerente: o botão "Gerar escala" passa a ficar nos passos Domingos e Feriados (quem monta é o
+   usuário, gera ali mesmo). O passo 5 "Gerar" vira "Resumo" (ver e baixar), sem o botão Gerar; a barra de
+   baixo do Resumo passa a ser "📊 Baixar planilha". Vale em todos os modos. */
+(function(){
+  const $i=id=>document.getElementById(id);
+  // Gera a escala e abre o passo Resumo (passo 5) com o resultado.
+  window.v332IrGerar=function(){
+    try{ window.v45GotoStep?.(5,true); }catch(e){}
+    setTimeout(()=>{ try{ $i('btnGerar')?.click(); }catch(e){} }, 220);
+  };
+  // Barra de baixo do passo Resumo: troca "Gerar" por "Baixar planilha". Roda depois que as barras são montadas/atualizadas.
+  function ajustarBarraResumo(){
+    const bar=$i('v45BottomBar'); if(!bar) return;
+    const primary=bar.querySelector('[data-bar="primary"]'); if(!primary) return;
+    const passo=(typeof V45!=='undefined'?V45.step:0);
+    if(passo===5 && /gerar escala/i.test(primary.textContent||'')){
+      primary.textContent='📊 Baixar planilha';
+      primary.classList.remove('primary','secondary'); primary.classList.add('success');
+    }
+  }
+  // Clique na barra do passo Resumo (5) baixa a planilha em vez de gerar (captura antes dos handlers que geram).
+  document.addEventListener('click',e=>{
+    const b=e.target?.closest?.('#v45BottomBar [data-bar="primary"]'); if(!b) return;
+    if((typeof V45!=='undefined'?V45.step:0)!==5) return;   // no Resumo a barra de baixo é sempre "Baixar planilha"
+    e.preventDefault(); e.stopImmediatePropagation();
+    $i('btnExcel')?.click();
+  },true);
+  // Mantém o rótulo da barra do Resumo correto (as outras camadas reescrevem "Gerar escala" ao navegar).
+  const alvo=$i('v45BottomBar'); if(alvo) new MutationObserver(ajustarBarraResumo).observe(alvo,{childList:true,subtree:true,characterData:true});
+  document.addEventListener('click',()=>setTimeout(ajustarBarraResumo,0),true);
+  setInterval(ajustarBarraResumo,500);
+  window.v332={irGerar:window.v332IrGerar,ajustarBarraResumo};
 })();
 </script>
 <script>

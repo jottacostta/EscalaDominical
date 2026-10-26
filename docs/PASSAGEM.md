@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V331.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V332.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V204.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V330**, Encarregados **V205**.
+- **Próximo número de versão:** Setores **V333**, Encarregados **V205**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -188,6 +188,16 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-26 — À mão repaginado: tabela clicável, concordância em vez de bloqueio, Gerar nos passos e passo 5 vira Resumo — Setores V330–V332 — Claude
+- **Pedido do Gerente (sequência):** (1) a tabela de previsão deve ser clicável para tirar/colocar no domingo; (2) no à mão o auditor avisa e pede concordância, mas não bloqueia; "Como dividir" some e a liderança vira área à parte; duas lideranças no mesmo dia só avisam; (3) o botão Gerar passa para os passos Domingos/Feriados e o passo 5 vira Resumo (barra = Baixar planilha).
+- **Setores V330** (`renderPreviaFolgasFeriado`: células de domingo com `data-pv-dom`/`data-pv-func` + classe `pv-click`; `window.v330DomingoClicavel`): no à mão, tocar numa célula de domingo tira/coloca a pessoa; liderança tira com 1 toque (colocar é no passo 3); balanço não é clicável. Delegação de clique em `#previaTabelaFolgas`.
+- **Setores V331** (`v331BloqueioDuro`/`v331SepararErros` nos dois pontos de auditoria; `window.v331Concordancia` espelhando o V280): no à mão, as quebras de estrutura (3 seguidos/2×1, 6×1, folga antecipada/posterior, mais de uma liderança) não bloqueiam — geram e abrem a janela de concordância (guardada em `escalaSetores.v331Concordo`). Só os duros seguram (horário, AF/EP, folga fixa domingo, balanço). `atualizarModoGeracao`: classe `v331-amao` esconde o bloco "Como dividir" (`.v331-dividir`) e força `modoCobertura=50` no à mão.
+- **Setores V332** (`window.v332IrGerar`, botões `.v332-gerar` nos passos Domingos/Feriados, interceptor da barra do passo 5): o botão Gerar fica nos passos Domingos e Feriados (gera e abre o Resumo); o passo 5 vira "Resumo" (aba/título/guia), com a barra de baixo = "📊 Baixar planilha" (interceptada no capture, chama `#btnExcel`). "Próximo: Gerar" virou "Próximo: Resumo".
+- **Armadilha:** em novembro, `btnGerar.click()` abre primeiro a janela do modelo 6×1/5×2 (V322) — é o esperado; os testes de geração do à mão usam **outubro** para evitar essa janela.
+- **Testes novos:** `testarTabelaDomingoClicavel` (V330), `testarAMaoNaoBloqueia` (V331), `testarResumoEGerarNosPassos` (V332). Ajustados `testarCpdManualPiloto` e o texto de sucesso do à mão ("gerada").
+- **Bateria completa:** ✅ Tudo certo. PRs #139 (V330), #142 (V331) mergeados; V332 neste PR.
+- **Assinado:** Claude
 
 ### 2026-10-24 — Manual: quantidade por domingo não bloqueia (só 6×1 e 2×1 limitam) — Setores V329 — Claude
 - **Pedido do Gerente:** na escala manual a decisão da quantidade e da composição por domingo é do usuário/encarregado; o único limite é 6×1 semanal e 2×1 nos domingos. Num setor pequeno (CPD, 3 operacionais) o app exigia 2 operacionais + a liderança por cima e travava a geração ("selecione X operacionais + Y liderança; selecionados Z").
