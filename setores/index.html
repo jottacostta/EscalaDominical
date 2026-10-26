@@ -7,10 +7,17 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V330</title>
+<title>Escala de Setores — V331</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V331 [Claude] — ✍️ À MÃO: AUDITOR AVISA E PEDE CONCORDÂNCIA, NÃO BLOQUEIA (pedido do Gerente): na escala à mão quem monta é o usuário.
+       (1) A opção "Como dividir o setor nos domingos" some no à mão (a cobertura fica no modo simples; a liderança fica como área à parte).
+       (2) O auditor NÃO bloqueia mais as quebras de ESTRUTURA — 3 domingos seguidos (2×1), proteção 6×1, folga antecipada/posterior e mais
+       de uma liderança no mesmo dia: a escala é gerada e, se houver quebra, abre uma janela pedindo a concordância (✅ Concordo, usar assim /
+       ↩️ Voltar e ajustar); a decisão fica guardada por seleção/mês/setor. (3) Só continuam SEGURANDO os impedimentos duros, que impedem a
+       escala de existir: sem horário no domingo, situação AF/EP, folga fixa no domingo e o domingo de balanço sem todos os aptos. No Automático
+       e no Misto tudo continua como antes (o motor precisa produzir escala válida).
 V330 [Claude] — 👆 TABELA DE PRÉVIA CLICÁVEL NOS DOMINGOS (pedido do Gerente): na tabela de previsão do passo 4 (Feriados — Folgas do mês),
        no modo À mão, tocar numa célula de DOMINGO tira ou coloca a pessoa naquele domingo, direto na tabela (antes só dava pelos cards do
        passo 3). Resolve o caso de alguém aparecer escalado num domingo que você não queria (ex.: liderança emparelhada caindo em 3 domingos
@@ -2195,6 +2202,7 @@ table th{letter-spacing:.02em}
 #coberturaCard #geracaoConfigWrap label[for="modoGeracao"],#coberturaCard #modoGeracao{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important}
 .v206-modos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 4px}
 @media(max-width:700px){.v206-modos{grid-template-columns:1fr}}
+#coberturaCard.v331-amao .v331-dividir{display:none!important}   /* V331: no À mão, "Como dividir o setor nos domingos" some; quem monta é o usuário */
 .v206-modo{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 14px 13px;border:2px solid var(--border);border-radius:16px;background:#fff;color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s}
 .v206-modo:hover{border-color:var(--brand,#0047BA)}
 .v206-modo .t{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
@@ -2909,7 +2917,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V330 · Tabela de prévia clicável nos domingos (À mão)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V331 · À mão: auditor avisa e pede concordância, não bloqueia</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3125,10 +3133,11 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
       </div>
     </div>
   </div>
-  <h3 class="v206-sub">② Quantas pessoas trabalham em cada domingo?</h3>
-  <p class="hint">Escolha como dividir a equipe nos domingos.</p>
+  <h3 class="v206-sub v331-dividir">② Quantas pessoas trabalham em cada domingo?</h3>
+  <p class="hint v331-dividir">Escolha como dividir a equipe nos domingos.</p>
   <div class="grid">
     <div class="field" style="grid-column:1/-1">
+      <div class="v331-dividir">
       <label for="modoCobertura">Como dividir o setor nos domingos</label>
       <select id="modoCobertura">
         <option value="50">Metade da equipe em cada domingo (no 🤖 Automático: rodízio 2×1, 2 de cada 3)</option>
@@ -3136,12 +3145,13 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
         <option value="funcao">Por cargo — eu escolho quantas lideranças e quantos de cada cargo</option>
       </select>
       <div id="coberturaResumo" class="alert info" style="margin-top:8px">50% do quadro elegível será escalado a cada domingo.</div>
+      </div>
       <div id="liderancaDomingoArea" class="card" style="margin-top:10px;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
         <h3 style="margin:0 0 4px;font-size:16px">③ Quem lidera no domingo? (opcional)</h3>
         <p class="hint" style="margin:0 0 8px">A liderança é <b>opcional</b>. Primeiro escolha <b>quantas lideranças</b> trabalham por domingo (uma só, um Encarregado + um Sub, <b>por turno</b> — abertura e fechamento — ou <b>várias</b>). Depois escolha os nomes em cada domingo, ou toque em <b>🤖 Sugerir liderança</b>. Cada liderança precisa da <b>folga (DSR)</b> escolhida por você.</p>
         <div id="liderancaDomingoLista"></div>
       </div>
-      <small class="hint" id="v240ExGrupos">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
+      <small class="hint v331-dividir" id="v240ExGrupos">Ex.: CPD com 6 pessoas e 2 por domingo → 3 grupos de 2. Cada grupo trabalha 2 domingos seguidos.</small>
     </div>
   </div>
   <div id="configFuncao" style="display:none"></div>
@@ -8171,6 +8181,13 @@ function trocarPessoaDomingoFuncao(d,sai,entra){
   },80);
 }
 
+/* V331 — No modo À MÃO, quem monta é o usuário. As quebras de ESTRUTURA (3 domingos seguidos, proteção 6×1,
+   folga antecipada/posterior, mais de uma liderança no mesmo dia) NÃO bloqueiam mais a geração: viram
+   concordância (janela ✅ Concordo / ↩️ Voltar, ver window.v331Concordancia). Só continuam bloqueando os
+   impedimentos DUROS, que impedem a escala de existir: sem horário no domingo, situação AF/EP, folga fixa no
+   domingo e o domingo de balanço sem todos os aptos. No Automático e no Misto tudo continua como antes. */
+function v331BloqueioDuro(m){ return /sem horário|fora do revezamento|não pode trabalhar em feriado|folga fixa no domingo|folga fixa obrigatória|possui folga fixa|Domingo de balanço|balanço sem escalação/i.test(String(m||'')); }
+function v331SepararErros(erros){ const duros=[], estrutura=[]; (erros||[]).forEach(m=>{ (v331BloqueioDuro(m)?duros:estrutura).push(m); }); return {duros,estrutura}; }
 function gerarSetoresCore(){
   atualizarTituloEscala();
   if(!equipe.length){ window.showToast('Carregue a equipe (planilha do RH ou histórico guardado) e escolha o setor.','warn',true); return; }
@@ -8188,11 +8205,12 @@ function gerarSetoresCore(){
   const fatorDom=rodizio2x1?2/3:1/2;
   if(modoGeracaoAtual==='manual' || modoGeracaoAtual==='mista'){
     const errosPre=auditarSelecaoAntesDaGeracao(modoGeracaoAtual);
-    if(errosPre.length){
+    const bloqueiam = modoGeracaoAtual==='manual' ? v331SepararErros(errosPre).duros : errosPre;   // V331: no À mão, só os impedimentos duros bloqueiam; a quebra de estrutura vira concordância
+    if(bloqueiam.length){
       const box=$('validacao');
-      if(box){ box.className='alert bad'; box.innerHTML='⛔ <b>Geração bloqueada.</b><br>'+errosPre.map(x=>'• '+htmlEsc(x)).join('<br>'); }
+      if(box){ box.className='alert bad'; box.innerHTML='⛔ <b>Geração bloqueada.</b><br>'+bloqueiam.map(x=>'• '+htmlEsc(x)).join('<br>'); }
       $('statusBadge').textContent='Revisar escala';
-      window.showToast('A escala não pode ser gerada enquanto houver regras estruturais inválidas.','danger',true);
+      window.showToast(modoGeracaoAtual==='manual'?'Falta completar o horário de quem trabalha no domingo.':'A escala não pode ser gerada enquanto houver regras estruturais inválidas.','danger',true);
       return;
     }
   }
@@ -8644,8 +8662,10 @@ function gerarSetoresCore(){
   doms.forEach(d=>{ if(d===bal) return; lideresSelecionadosDomingo(d).forEach(i=>{ if(dsrLiderPendente(d,i)) avisos.push(`${formatarDataDomingo(d)}: escolha a folga (DSR) de ${equipe[i].nome} — liderança (passo 3: Domingos).`); }); });
   montarEscalaFeriados();
   const errosFinais=auditarResultadoFinal(trabalhoDomingo,alvo);
-  if(errosFinais.length){
-    // Nenhum modo pode apresentar como válida uma escala que falhou na auditoria final.
+  const sepFinal = modoGeracaoAtual==='manual' ? v331SepararErros(errosFinais) : {duros:errosFinais, estrutura:[]};   // V331: no À mão, só os duros abortam; a quebra de estrutura vira concordância
+  window.v331QuebrasEstrutura = modoGeracaoAtual==='manual' ? sepFinal.estrutura.slice() : [];
+  if(sepFinal.duros.length){
+    // Impedimento duro (sem horário, AF/EP, folga fixa no domingo, balanço): a escala não pode existir.
     estadoFinalMes={};
     ultimaEscala=null;
     $('domingosCard').style.display='none';
@@ -8653,12 +8673,12 @@ function gerarSetoresCore(){
     const box=$('validacao');
     if(box){
       box.className='alert bad';
-      box.innerHTML='⛔ <b>Geração bloqueada pela auditoria final.</b><br>'+errosFinais.map(x=>'• '+htmlEsc(x)).join('<br>');
+      box.innerHTML='⛔ <b>Geração bloqueada'+(modoGeracaoAtual==='manual'?'.':' pela auditoria final.')+'</b><br>'+sepFinal.duros.map(x=>'• '+htmlEsc(x)).join('<br>');
     }
     $('statusBadge').textContent='Revisar escala';
-    const detalheErro = errosFinais.length === 1
-        ? `❌ Geração bloqueada. Erro: ${errosFinais[0]}`
-        : `❌ Geração bloqueada. Erro principal: ${errosFinais[0]} (+${errosFinais.length-1} outro(s); veja os detalhes acima).`;
+    const detalheErro = sepFinal.duros.length === 1
+        ? `❌ Geração bloqueada. Erro: ${sepFinal.duros[0]}`
+        : `❌ Geração bloqueada. Erro principal: ${sepFinal.duros[0]} (+${sepFinal.duros.length-1} outro(s); veja os detalhes acima).`;
       window.showToast(detalheErro,'danger',true);
     return;
   }
@@ -8716,11 +8736,13 @@ function gerarSetoresCore(){
     :modo==='funcao'?`por função (${Object.values(metasFuncoesGlobal).filter(m=>m.porDomingo?.[0]?.total).map(m=>`${m.porDomingo[0].total} ${m.cargo}`).join(', ')||'—'})`
     :`${(()=>{ const at=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])&&!ehLiderancaDomingo(equipe[i])), np=at.filter(ehPromotorIdx).length; return !np?(rodizio2x1?'rodízio 2×1 — cada pessoa trabalha 2 domingos e folga 1 (cerca de '+alvo+' por domingo)':'aproximadamente 50% ('+alvo+' por domingo)'):'1 promotor por domingo'+(at.length>np?(rodizio2x1?' + 2 de cada 3 do resto da equipe (rodízio 2×1)':' + metade do resto da equipe'):''); })()} • horário dominical ajustável pela necessidade`;   // V258
   if(modoGeracaoAtual==='manual'){
-    $('validacao').className=todos.length?'alert bad':'alert ok';
-    $('validacao').textContent=(todos.length ?'⛔ Escala manual bloqueada na auditoria final: '+todos.join(' | ') :`✋ Escala manual de ${$('setorSelecionado').value} validada e gerada.`)
+    // V331: no À mão a escala sempre gera; avisos e quebras de estrutura não bloqueiam (viram info; a concordância aparece em window.v331Concordancia)
+    $('validacao').className='alert ok';
+    $('validacao').textContent=`✋ Escala manual de ${$('setorSelecionado').value} gerada.`
+      +(todos.length?`\n\nℹ️ ${todos.join(' | ')}`:'')
       +(observacoes.length?`\n\nℹ️ ${observacoes.join(' | ')}`:'');   // V195
     $('validacao').style.whiteSpace='pre-line';
-    $('statusBadge').textContent=todos.length?'Revisar escala':'Escala manual';
+    $('statusBadge').textContent='Escala manual';
   }else{
     $('validacao').className=todos.length?'alert bad':'alert ok';
     $('validacao').textContent=(todos.length?'⚠️ '+todos.join(' | '):`✅ Escala de ${$('setorSelecionado').value} pronta e dentro das regras: ${resumo}. Ninguém trabalha 3 domingos seguidos e o mês passado foi considerado. Agora é só conferir e baixar.`)
@@ -9046,6 +9068,9 @@ function atualizarModoGeracao(){
   const existeBalanco=!!balancoDoMes(+$('ano').value,+$('mes').value);
   if(ma)ma.style.display=(modoGeracao==='manual' || existeBalanco)?'block':'none';
   if(mi)mi.style.display=modoGeracao==='mista'?'block':'none';
+  // V331: no À mão, "Como dividir o setor nos domingos" some (quem monta é o usuário) e a cobertura fica no modo simples (metade).
+  const cc=$('coberturaCard'); if(cc) cc.classList.toggle('v331-amao', modoGeracao==='manual');
+  if(modoGeracao==='manual' && $('modoCobertura') && $('modoCobertura').value!=='50'){ $('modoCobertura').value='50'; try{ atualizarModoCobertura(); }catch(e){} }
   if(modoGeracao!=='motor' || existeBalanco){renderSelecaoDomingosGeracao(); if(equipe.length)montarEscalaFeriados();}
 }
 $('modoGeracao')?.addEventListener('change',()=>{selecaoManualDomingo={};horariosManuaisDomingo={};horariosManuaisFeriado={};antecipacoesFolgaManual={};atualizarModoGeracao();try{if(($('modoCobertura')?.value||'50')==='50')atualizarModoCobertura();}catch(e){}});   // V306: no “Metade”, o resumo muda entre automático (2×1) e à mão (só o texto; os outros modos não são recarregados)
@@ -9495,6 +9520,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
           persist();
           if(!opcoes?.v280IgnorarAviso) window.v280Lideranca?.posGeracao?.();
           window.v329Quantidade?.posGeracao?.();   // V329: aviso amarelo de quantidade por domingo (modo Manual), nunca bloqueio
+          window.v331Concordancia?.posGeracao?.();   // V331: no À mão, quebra de estrutura pede concordância (nunca bloqueia)
         } catch(err){
           safeLog('[V45] Erro ao gerar:', err);
           showToast('Erro ao gerar escala: ' + (err?.message||err), 'danger', true);
@@ -16727,6 +16753,55 @@ function domingosQuantidadeForaDoSugerido(){
   document.addEventListener('click',e=>{ const td=e.target.closest?.('#previaTabelaFolgas td[data-pv-dom]'); if(!td) return;
     e.preventDefault(); toggle(+td.dataset.pvDom, +td.dataset.pvFunc); });
   window.v330DomingoClicavel={toggle};
+})();
+</script>
+<script>
+/* ═════ V331 — ✍️ À MÃO: QUEBRA DE ESTRUTURA NÃO BLOQUEIA, PEDE CONCORDÂNCIA ═════
+   Pedido do Gerente: no modo À mão quem monta a escala é o usuário. O auditor confere as regras e avisa,
+   mas NÃO bloqueia a geração: depois de gerar, se a escala quebra alguma regra de estrutura (3 domingos
+   seguidos, proteção 6×1, folga antecipada/posterior, mais de uma liderança no mesmo dia), aparece uma
+   janela pedindo a concordância (✅ Concordo, usar assim / ↩️ Voltar e ajustar). Só "sem horário no domingo"
+   (e os impedimentos duros) continuam segurando. A concordância fica guardada por seleção/mês/setor. */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const LS='escalaSetores.v331Concordo';
+  const manual=()=>($i('modoGeracao')?.value||'motor')==='manual';
+  const refMes=()=>{ try{ return `${norm($i('setorSelecionado')?.value||'')}|${+$i('ano').value}-${+$i('mes').value}`; }catch(e){ return ''; } };
+  function quebras(){
+    if(!manual() || !equipe.length) return [];
+    let out=[];
+    try{ out=out.concat(v331SepararErros(auditarSelecaoAntesDaGeracao('manual')||[]).estrutura); }catch(e){}
+    try{ const alvo=(typeof estadoFinalMes==='object'&&estadoFinalMes&&estadoFinalMes.quantidadePorDomingo)||alvoCoberturaAtual(); out=out.concat(v331SepararErros(auditarResultadoFinal(trabalhoDomingo,alvo)||[]).estrutura); }catch(e){}
+    return [...new Set(out)];
+  }
+  const assinatura=qs=>{ try{ return `${refMes()}|${JSON.stringify(selecaoManualDomingo||{})}|${JSON.stringify(liderancaManualDomingo||{})}|${qs.join('§')}`; }catch(e){ return qs.join('§'); } };
+  let aceitos={}; try{ const v=JSON.parse(localStorage.getItem(LS)||'{}'); if(v&&typeof v==='object'&&!Array.isArray(v)) aceitos=v; }catch(e){}
+  const gravar=()=>{ try{ const ks=Object.keys(aceitos); while(ks.length>24) delete aceitos[ks.shift()]; localStorage.setItem(LS,JSON.stringify(aceitos)); }catch(e){} };
+  const fechar=()=>$i('v331Janela')?.remove();
+  const tirarNota=()=>$i('v331Nota')?.remove();
+  function nota(qs){ const v=$i('validacao'); if(!v) return; fechar();
+    let box=$i('v331Nota'); if(!box){ box=document.createElement('div'); box.id='v331Nota'; box.className='ok'; v.insertAdjacentElement('afterend',box); }
+    box.innerHTML=`<p>✍️ <b>Escala à mão gerada com a sua concordância</b>, mesmo com ${qs.length} quebra(s) de estrutura:</p><ul>${qs.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>`;
+  }
+  function janela(qs){ fechar(); tirarNota(); const v=$i('validacao'); if(!v) return;
+    const box=document.createElement('div'); box.id='v331Janela'; box.className='alert warn'; box.style.margin='8px 0';
+    box.innerHTML=`<p>⚠️ <b>A escala foi gerada, mas quebra ${qs.length} regra(s) de estrutura</b> (no À mão quem decide é você):</p>
+      <ul>${qs.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>
+      <p>O 2×1 (nunca 3 domingos seguidos) e o 6×1 são proteções. Você concorda em usar a escala assim mesmo?</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button type="button" class="btn success" id="v331Sim">✅ Concordo, usar assim</button><button type="button" class="btn secondary" id="v331Nao">↩️ Voltar e ajustar</button></div>`;
+    v.insertAdjacentElement('afterend',box);
+    $i('v331Sim').onclick=()=>{ aceitos[assinatura(qs)]=true; gravar(); fechar(); nota(qs); window.showToast?.('✅ Concordância registrada. A escala está pronta para conferir e baixar.','ok',true); };
+    $i('v331Nao').onclick=()=>{ fechar(); try{ window.v45GotoStep?.(3,false); }catch(e){} window.showToast?.('Ajuste os domingos (toque na tabela ou nos cards) e gere de novo.','info',true); };
+  }
+  function posGeracao(){
+    if(!manual()){ fechar(); tirarNota(); return; }
+    const qs=quebras();
+    if(!qs.length){ fechar(); tirarNota(); return; }
+    if(aceitos[assinatura(qs)]) nota(qs); else janela(qs);
+  }
+  window.v331Concordancia={posGeracao,quebras,estado:()=>aceitos};
 })();
 </script>
 <script>
