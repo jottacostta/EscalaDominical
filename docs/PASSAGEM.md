@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V332.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V333.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V204.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V333**, Encarregados **V205**.
+- **Próximo número de versão:** Setores **V334**, Encarregados **V205**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -149,6 +149,9 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ## 4. Armadilhas conhecidas (já aconteceram — não repita)
 
 - **Prévia antes de gerar (V263/V177):** `trabalhoDomingo` fica vazio até tocar em Gerar. Para a prévia, use a escolha do passo Domingos.
+- **Semear horário ao converter para à mão (V333):** o horário GERADO fica como faixa `"06:00-14:40"` em `horariosGeradosDomingo`, mas o manual valida pelo INÍCIO (`"06:00"`) contra `listaHorariosDomingoParaData`. Ao copiar para `horariosManuaisDomingo`, grave sempre o começo (`x[0]` da lista), senão a geração bloqueia com "sem horário de domingo".
+- **Trocar `modoGeracao` por código (V333):** setar `$('modoGeracao').value='manual'` e chamar `atualizarModoGeracao()` **direto**. NÃO dispare o evento `change`: o listener dele apaga `selecaoManualDomingo`/`horariosManuaisDomingo`.
+- **1º domingo do mês:** outubro/2026 começa numa quinta → o 1º domingo é **dia 4**, não dia 1. Probes/testes que miram "o domingo 1" devem usar o 1º domingo real (`domingosDoMes(ano,mes)[0]`).
 - **Junção do Assistente RH (ARH-01/02/05):** usa o maior valor, não a soma. É decisão do gerente; não alterar sem autorização.
 - **Confirmação V266:** testes que guardam histórico ou baixam planilha no Setores precisam chamar `window.v266Horarios?.confirmar?.()` antes.
 - **Horário gerado no histórico (V267):** fica em `resultado.estadoFinalMes.horariosGeradosDomingo`; antes da V267 não voltava ao abrir o histórico.
@@ -188,6 +191,16 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-26 — Prévia clicável em todos os modos (ao tocar, vira à mão) — Setores V333 — Claude
+- **Pedido do Gerente:** o Gerente clicava na célula azul de um domingo na "📅 Prévia das folgas" e não desescalava a pessoa. Diagnóstico: a V330 só deixava clicar no modo **À mão**; a escala estava em **Mista/Automático** (sem a dica "👆 Toque num domingo"). O Gerente escolheu: o clique deve **funcionar em todos os modos** e, no Automático/Misto, **ao tocar a escala vira "à mão"** (copiando o que está na tela), para o ajuste colar.
+- **Como ficou** (`setores/index.html`):
+  - `renderPreviaFolgasFeriado`: a célula de domingo recebe `data-pv-dom`/`pv-click` e a dica aparece quando `modoPv==='manual' **||** geradoPv` (antes só `manual`). Antes de gerar em Automático/Misto continua **não** clicável (evita semear seleção vazia por engano).
+  - Módulo da V330 (`window.v330DomingoClicavel`): o `toggle` perdeu o `if(!manual()) return`. Se não é à mão, chama primeiro **`congelarComoManual()`**: para cada domingo (menos o balanço) copia `trabalhoDomingo` → `selecaoManualDomingo` (operacionais), `horariosManuaisDomingo` (o **início** do horário — o gerado vem como faixa "06:00-14:40" e o manual valida pelo começo via `listaHorariosDomingoParaData`), e `liderancaManualDomingo` (enc/sub/lid + **DSR reconstruído** de `descansosDomingo` por `origem===d`, data antes=ant/depois=pos). Depois seta `$('modoGeracao').value='manual'` **direto** (dispatch de `change` apagaria a seleção — ver `atualizarModoGeracao`) e chama `atualizarModoGeracao()`. Toast avisa a troca. Em seguida aplica o toque normal.
+- **Armadilha nova:** ao converter, **semear o horário como faixa "06:00-14:40" bloqueia** ("sem horário de domingo") — o manual valida pelo início ("06:00"). Grave sempre o `x[0]` da lista (o começo). E `outubro/2026` começa numa quinta: o 1º domingo é **dia 4**, não dia 1 (probes/testes que miram "domingo 1" devem usar o 1º domingo real).
+- **Teste novo:** `testarPreviaClicavelTodosModos` (V333, CPD em Mista, outubro): a prévia fica clicável + com dica fora do à mão; tocar vira manual, tira só a pessoa tocada, preserva a liderança **com a folga/DSR**, e regera sem bloquear.
+- **Bateria completa:** ✅ Tudo certo. V333 neste PR.
+- **Assinado:** Claude
 
 ### 2026-10-26 — À mão repaginado: tabela clicável, concordância em vez de bloqueio, Gerar nos passos e passo 5 vira Resumo — Setores V330–V332 — Claude
 - **Pedido do Gerente (sequência):** (1) a tabela de previsão deve ser clicável para tirar/colocar no domingo; (2) no à mão o auditor avisa e pede concordância, mas não bloqueia; "Como dividir" some e a liderança vira área à parte; duas lideranças no mesmo dia só avisam; (3) o botão Gerar passa para os passos Domingos/Feriados e o passo 5 vira Resumo (barra = Baixar planilha).
