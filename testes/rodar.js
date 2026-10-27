@@ -2522,18 +2522,20 @@ async function testarFeriadoFolgaFixaSeTrabalhaDomingo(browser, app, nome){   //
     equipe = [{ nome: 'GYAN FLV', cargo: 'BALC DE FLV', setor: 'FLV', turno: 'ABERTURA', folgaFixa: 5, situacao: 'A' }];   // folga fixa SEXTA(5)
     const fer20 = new Date(2026, 10, 20), sexNormal = new Date(2026, 10, 13);
     const out = {};
-    // A) FOLGA o domingo 15 da semana do feriado → trabalha na sexta → pode trabalhar o feriado
-    trabalhoDomingo = {}; out.folgaDom_obrig = feriadoFixaObrigatoria(0, fer20);
-    // B) TRABALHA o domingo 15 → a folga da semana cai na sexta 20 → folga fixa obrigatória no feriado
-    trabalhoDomingo = { '15': [0] }; out.trabDom_obrig = feriadoFixaObrigatoria(0, fer20);
-    // C) dia NORMAL (sexta 13, não feriado): a folga fixa continua sendo descanso (a base do motor não muda)
-    trabalhoDomingo = {}; out.sexNormal_folgaFixaAtiva = folgaFixaAtivaNaData(0, sexNormal);
+    // A) FOLGA o domingo 15 da semana do feriado → trabalha na sexta → pode trabalhar o feriado (tela)
+    trabalhoDomingo = {}; out.folgaDom_bloqueia = feriadoFixaBloqueiaOFeriado(0, fer20);
+    // B) TRABALHA o domingo 15 → a folga da semana cai na sexta 20 → a tela bloqueia o feriado
+    trabalhoDomingo = { '15': [0] }; out.trabDom_bloqueia = feriadoFixaBloqueiaOFeriado(0, fer20);
+    // C) o MOTOR não muda: folgaFixaAtivaNaData continua TRUE na sexta (feriado ou não), folgue ou trabalhe o domingo
+    trabalhoDomingo = {}; out.feriado_motorAtivo = folgaFixaAtivaNaData(0, fer20);
+    out.sexNormal_folgaFixaAtiva = folgaFixaAtivaNaData(0, sexNormal);
     out.feriado20 = !!feriados(2026, 10)[20];
     return out;
   });
   ok(r.feriado20, nome + ': 20/11/2026 (sexta) é feriado');
-  ok(r.folgaDom_obrig === false, nome + ': quem FOLGA o domingo da semana pode trabalhar o feriado de sexta (não é folga fixa obrigatória)');
-  ok(r.trabDom_obrig === true, nome + ': quem TRABALHA o domingo da semana tem a folga na sexta → o feriado de sexta é folga fixa obrigatória');
+  ok(r.folgaDom_bloqueia === false, nome + ': quem FOLGA o domingo da semana pode trabalhar o feriado de sexta (a tela não bloqueia)');
+  ok(r.trabDom_bloqueia === true, nome + ': quem TRABALHA o domingo da semana tem a folga na sexta → a tela bloqueia o feriado');
+  ok(r.feriado_motorAtivo === true, nome + ': o motor não muda — a folga fixa continua ativa na sexta-feriado (geração/auditoria iguais ao V339)');
   ok(r.sexNormal_folgaFixaAtiva === true, nome + ': num dia normal (não feriado) a folga fixa continua sendo descanso (o motor não muda)');
   ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();

@@ -16,7 +16,9 @@ V340 [Claude] — 🗓️ FOLGA FIXA SÓ BLOQUEIA O FERIADO SE TRABALHA O DOMING
        domingo daquela semana — e não podia trabalhar o feriado. Mas a folga da semana só cai no dia da folga fixa quando a pessoa
        TRABALHA o domingo; se ela folga o domingo, ela trabalha no dia da folga fixa e PODE trabalhar o feriado. O app já tratava
        isso só para o feriado na SEGUNDA (logo após o domingo); agora vale para QUALQUER dia da semana (mesmo cálculo: olha o
-       domingo da semana do feriado). Só muda o feriado que cai no dia da folga fixa; o dia normal (não feriado) continua igual.
+       domingo da semana do feriado), numa função SÓ da tela dos feriados (feriadoFixaBloqueiaOFeriado): o badge 🔒, os rádios
+       Trabalha/Folga, os botões "Todos trabalham/Todos de folga", o ↻ Copiar e a conferência. A geração e a auditoria NÃO mudam
+       (folgaFixaAtivaNaData continua igual ao V339), então as folgas da semana e o dia normal (não feriado) ficam idênticos.
 V339 [Claude] — 🛌 FOLGA DA SEMANA CAI NO DIA DA FOLGA FIXA (conserto, pedido do Gerente): na escala à mão, quem tinha folga fixa
        na quinta e é do FLV aparecia com a folga da semana na SEXTA (ex.: antecipada sex 30/10 e posterior sex 06/11 em vez de
        qui 29/10 e qui 05/11). Causa: `descansosDoCandidato` empurrava a folga para o dia de DSR permitido mais perto, e o FLV tem
@@ -4871,19 +4873,29 @@ function domingoForaDoMesTrabalhado(i,dt){
 function feriadoFixaObrigatoria(i,dt){
   const f=equipe[i];
   if(!f || Number(f.folgaFixa)!==dt.getDay()) return false;
-  // V340: num FERIADO que cai no dia da folga fixa, a folga só é obrigatória se a pessoa TRABALHA o
-  // domingo daquela semana — é aí que a folga da semana cai no dia da folga fixa. Se ela FOLGA o
-  // domingo, ela trabalha no dia da folga fixa e PODE trabalhar o feriado. Antes essa exceção só
-  // valia para o feriado na SEGUNDA (logo após o domingo); agora vale para qualquer dia da semana,
-  // com o mesmo cálculo (o domingo da semana do feriado). Só mexe no feriado; o dia normal não muda.
-  if(Object.prototype.hasOwnProperty.call(feriados(dt.getFullYear(),dt.getMonth()),dt.getDate())){
-    const domSemana=new Date(dt); domSemana.setDate(dt.getDate()-dt.getDay());   // o domingo da semana do feriado (segunda: dia anterior; sexta: 5 dias antes)
-    const trabalhaDomingoSemana=domSemana.getMonth()===+$('mes').value && domSemana.getFullYear()===+$('ano').value
-      ? (trabalhoDomingo[domSemana.getDate()]||[]).includes(i)
-      : domingoForaDoMesTrabalhado(i,domSemana);   // V229: domingo do mês passado/seguinte
-    if(!trabalhaDomingoSemana) return false;
+  // Regra especial: quando o feriado cai na segunda-feira imediatamente após um domingo,
+  // a folga fixa da segunda só é obrigatória se o funcionário trabalhou naquele domingo.
+  // Se NÃO trabalhou no domingo que antecede o feriado, ele pode trabalhar no feriado.
+  if(dt.getDay()===1){
+    const dAnterior=new Date(dt); dAnterior.setDate(dt.getDate()-1);
+    if(Object.prototype.hasOwnProperty.call(feriados(dt.getFullYear(),dt.getMonth()),dt.getDate()) &&
+       !(dAnterior.getMonth()===dt.getMonth() ? (trabalhoDomingo[dAnterior.getDate()]||[]).includes(i) : domingoForaDoMesTrabalhado(i,dAnterior))) return false;   // V229: domingo do mês passado
   }
   return true;
+}
+// V340: SÓ na TELA dos feriados (badge 🔒, rádio e conferência) — não no motor. A folga fixa só BLOQUEIA
+// o funcionário de trabalhar o feriado se ele TRABALHA o domingo daquela semana (é aí que a folga da
+// semana cai no dia da folga fixa). Se ele FOLGA o domingo, ele trabalha no dia da folga fixa e PODE
+// pegar o feriado (ex.: Gyan, FLV, folga fixa na sexta, que não trabalha nenhum domingo). Generaliza para
+// qualquer dia a regra que já valia só para o feriado na segunda. NÃO mexe em folgaFixaAtivaNaData nem na
+// geração/auditoria: o dia normal (não feriado) e o cálculo das folgas da semana continuam iguais ao V339.
+function feriadoFixaBloqueiaOFeriado(i,dt){
+  const f=equipe[i];
+  if(!f || Number(f.folgaFixa)!==dt.getDay()) return false;   // não é o dia da folga fixa dele
+  const domSemana=new Date(dt); domSemana.setDate(dt.getDate()-dt.getDay());   // o domingo da semana do feriado (segunda: dia anterior; sexta: 5 dias antes)
+  return domSemana.getMonth()===+$('mes').value && domSemana.getFullYear()===+$('ano').value
+    ? (trabalhoDomingo[domSemana.getDate()]||[]).includes(i)
+    : domingoForaDoMesTrabalhado(i,domSemana);   // V229: domingo do mês passado/seguinte
 }
 
 function folgaFixaAtivaNaData(i,dt){
@@ -5623,13 +5635,13 @@ function montarEscalaFeriados(){
           </div>
         </div>`;
       }
-      const folgaFixaObrigatoria=feriadoFixaObrigatoria(i,dt);
+      const folgaFixaObrigatoria=feriadoFixaBloqueiaOFeriado(i,dt);   // V340: só bloqueia se trabalha o domingo da semana
       const naoApto=naoAptoDomingoFeriado(x);
       const folgaFixaNoDia=Number(x.folgaFixa)===dt.getDay();
-      const segundaFeriadoSemDomingoAnterior=folgaFixaNoDia && dt.getDay()===1 && !((trabalhoDomingo[d-1]||[]).includes(i));
+      const folgaFixaNaoBloqueia=folgaFixaNoDia && !folgaFixaObrigatoria;   // V340: tem folga fixa nesse dia, mas folga o domingo da semana → pode pegar o feriado
       return `<div class="feriado-pessoa ${folgaFixaObrigatoria?'folga-fixa':''}">
         <b>${htmlEsc(x.nome)}</b> — ${htmlEsc(x.cargo)}
-        ${naoApto?`<div class="feriado-fixa-badge" style="background:#FEE2E2;color:#991B1B">🚫 FORA DO REVEZAMENTO — ${htmlEsc(motivoForaRevezamento(x))} — NÃO PARTICIPA DE DOMINGOS NEM FERIADOS</div>`:folgaFixaObrigatoria?'<div class="feriado-fixa-badge">🔒 FOLGA FIXA OBRIGATÓRIA</div>':segundaFeriadoSemDomingoAnterior?'<div class="feriado-fixa-badge" style="background:#DCFCE7;color:#166534">ℹ️ FOLGA FIXA NÃO BLOQUEIA ESTE FERIADO</div>':''}
+        ${naoApto?`<div class="feriado-fixa-badge" style="background:#FEE2E2;color:#991B1B">🚫 FORA DO REVEZAMENTO — ${htmlEsc(motivoForaRevezamento(x))} — NÃO PARTICIPA DE DOMINGOS NEM FERIADOS</div>`:folgaFixaObrigatoria?'<div class="feriado-fixa-badge">🔒 FOLGA FIXA OBRIGATÓRIA</div>':folgaFixaNaoBloqueia?'<div class="feriado-fixa-badge" style="background:#DCFCE7;color:#166534">ℹ️ FOLGA FIXA NÃO BLOQUEIA ESTE FERIADO</div>':''}
         <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
           <label><input type="radio" name="feriado_${d}_${i}" class="feriado-radio" data-dia="${d}" data-func="${i}" value="trabalha" ${trabalha?'checked':''} ${folgaFixaObrigatoria||naoApto?'disabled':''}> Trabalha</label>
           <label><input type="radio" name="feriado_${d}_${i}" class="feriado-radio" data-dia="${d}" data-func="${i}" value="folga" ${(!trabalha||folgaFixaObrigatoria||naoApto)?'checked':''}> Folga</label>
@@ -5669,7 +5681,7 @@ function montarEscalaFeriados(){
         window.showToast(`${equipe[i].nome}: está em situação AF/EP e não pode trabalhar em feriado.`,'warn',true);
         return;
       }
-      if(r.value==='trabalha' && feriadoFixaObrigatoria(i,dt)){
+      if(r.value==='trabalha' && feriadoFixaBloqueiaOFeriado(i,dt)){   // V340
         trabalhoFeriado[d]=(trabalhoFeriado[d]||[]).filter(x=>x!==i);
         montarEscalaFeriados();
         window.showToast(`${equipe[i].nome}: ${dt.toLocaleDateString('pt-BR',{weekday:'long'})} é folga fixa obrigatória nesta situação.`,'warn');
@@ -5734,7 +5746,7 @@ function aplicarFolgasFixasNosFeriados(){
     const dt=new Date(ano,mes,d);
     if(dt.getDay()===0)return;
     trabalhoFeriado[d]=[...new Set(trabalhoFeriado[d]||[])].filter(i=>{
-      return !naoAptoDomingoFeriado(equipe[i]) && !feriadoFixaObrigatoria(i,dt);
+      return !naoAptoDomingoFeriado(equipe[i]) && !feriadoFixaBloqueiaOFeriado(i,dt);   // V340
     });
   });
 }
@@ -5747,7 +5759,7 @@ function marcarTodosFeriado(d,trabalham){
     gerarSugestoesFolgasFeriado();
     return;
   }
-  trabalhoFeriado[d]=trabalham ? equipe.map((_,i)=>i).filter(i=>!naoAptoDomingoFeriado(equipe[i]) && !feriadoFixaObrigatoria(i,dt)) : [];
+  trabalhoFeriado[d]=trabalham ? equipe.map((_,i)=>i).filter(i=>!naoAptoDomingoFeriado(equipe[i]) && !feriadoFixaBloqueiaOFeriado(i,dt)) : [];   // V340
   aplicarFolgasFixasNosFeriados();
   montarEscalaFeriados();
   renderTabela(+$('mes').value,+$('ano').value,balancoDoMes(+$('ano').value,+$('mes').value));
@@ -6059,7 +6071,7 @@ function validarEscalaSetores(dom,alvo){
     if(dt.getDay()===0)return;
     (trabalhoFeriado[d]||[]).forEach(i=>{
       if(naoAptoDomingoFeriado(equipe[i])) erros.push(`${d}: ${equipe[i].nome} está fora do revezamento de feriados por situação AF/EP (${motivoForaRevezamento(equipe[i])}) e não pode trabalhar em feriado.`);
-      if(feriadoFixaObrigatoria(i,dt)) erros.push(`${d}: ${equipe[i].nome} possui folga fixa obrigatória neste feriado e não pode trabalhar.`);
+      if(feriadoFixaBloqueiaOFeriado(i,dt)) erros.push(`${d}: ${equipe[i].nome} possui folga fixa obrigatória neste feriado e não pode trabalhar.`);   // V340
     });
   });
   const ds=domingosDoMes(+$('ano').value,+$('mes').value),bal=balancoDoMes(+$('ano').value,+$('mes').value);
@@ -12835,7 +12847,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(!base.length){ window.showToast?.(`O feriado ${dd(o)} ainda não tem ninguém marcado para trabalhar.`,'warn'); return; }
     const atuais=((trabalhoFeriado||{})[d]||[]).map(Number);
     if(atuais.length && !confirm(`O feriado ${dd(d)} já tem ${atuais.length} pessoa(s) marcada(s) para trabalhar. Trocar pelas pessoas do feriado ${dd(o)}?`)) return;
-    const pode=i=>{ try{ return !naoAptoDomingoFeriado(eq()[i]) && !feriadoFixaObrigatoria(i,dt); }catch(e){ return true; } };
+    const pode=i=>{ try{ return !naoAptoDomingoFeriado(eq()[i]) && !feriadoFixaBloqueiaOFeriado(i,dt); }catch(e){ return true; } };   // V340
     const ok=base.filter(pode), fora=base.filter(i=>!pode(i));
     folgasCompensatorias=folgasCompensatorias||{};
     atuais.filter(i=>!ok.includes(i)).forEach(i=>{ delete folgasCompensatorias[`${d}_${i}`]; });   // quem sai do feriado perde a folga dele
