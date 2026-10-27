@@ -15,9 +15,9 @@ As versões V292/V196 também têm uma área 🧪 para simular o 5×2 em memóri
 
 | Arquivo | O que é |
 |---|---|
-| `Escala_de_Setores_V340.html` | **Versão atual** da Escala de Setores |
+| `Escala_de_Setores_V341.html` | **Versão atual** da Escala de Setores |
 | `Escala_2x1_encarregados_V208.html` | **Versão atual** da Escala de Encarregados |
-| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V339 e V150–V207), guardadas para comparação |
+| [`versoes_anteriores/`](versoes_anteriores/) | versões anteriores (V204–V340 e V150–V207), guardadas para comparação |
 | [`CHANGELOG.md`](CHANGELOG.md) | o que mudou em cada versão |
 | [`docs/INICIO_NOVA_CONVERSA.txt`](docs/INICIO_NOVA_CONVERSA.txt) | regras de continuidade para começar uma conversa nova com Manus, Claude ou ChatGPT/Codex |
 | [`docs/PRD.md`](docs/PRD.md) | produto, usuários, requisitos e aceitação |
