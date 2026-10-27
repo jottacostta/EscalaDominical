@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V339.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V340.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V208.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V340**, Encarregados **V209**.
+- **Próximo número de versão:** Setores **V341**, Encarregados **V209**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -201,6 +201,15 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-27 — Folga fixa só bloqueia o feriado se trabalha o domingo da semana — Setores V340 — Claude
+- **Pedido do Gerente (prints da escala à mão):** o Gyan (BALC DE FLV, folga fixa sexta) folga o domingo e aparecia com **🔒 FOLGA FIXA OBRIGATÓRIA** no feriado de sexta (20/11), sem poder trabalhar o feriado. Regra do Gerente: "a folga só é fixa se trabalhar domingo; ele não está trabalhando, então não tem essa folga na semana" → pode trabalhar o feriado. Confirmado por ele na pergunta.
+- **Investigação (REA, ✅):** `feriadoFixaObrigatoria(i,dt)` devolvia `true` para quem tem folga fixa no dia do feriado, com exceção **só para a segunda** (logo após um domingo não trabalhado). A exceção é **limitada ao feriado** (não muda o dia normal): nos dias normais a folga fixa segue sendo descanso, e no feriado a base usa `trabalhoFeriado`. Reproduzido: folgando o domingo 15 dava `true` (bloqueava) na V339; trabalhando o domingo 15 também `true`.
+- **Conserto:** a exceção da segunda foi **generalizada para qualquer dia** — no feriado que cai no dia da folga fixa, só é obrigatória se a pessoa **trabalha o domingo da semana do feriado** (`domSemana = dt - dt.getDay()`; para a segunda o cálculo é idêntico ao de antes, `dt-1`). Continua dentro do `if(feriado)`, então o dia normal e o padrão do motor **não mudam**. Mês passado/seguinte via `domingoForaDoMesTrabalhado`.
+- **Teste novo:** `testarFeriadoFolgaFixaSeTrabalhaDomingo` (V340): FLV folga fixa sexta, feriado sexta 20/11 → folga o domingo 15 = pode trabalhar (não obrigatória); trabalha o domingo 15 = obrigatória; dia normal (não feriado) a folga fixa continua descanso. **Falha na V339** e passa na V340.
+- **Bateria:** completa (ano inteiro), porque mexe em lógica de feriado usada pelo motor — resultado no PR.
+- **Nota sobre o modelo:** nos dias normais a folga fixa continua sendo sempre descanso (não mexi na base do motor); se o Gerente quiser que quem folga o domingo também TRABALHE o dia da folga fixa na semana (6×1 puro), é uma mudança maior e separada, a combinar.
+- **Assinado:** Claude
 
 ### 2026-10-27 — Folga da semana cai no dia da folga fixa (FLV/Padaria) — Setores V339 — Claude
 - **Pedido do Gerente (print da escala à mão):** Roberto (BALC DE FLV, folga fixa quinta) aparecia com a folga antecipada na **sex 30/10** e a posterior na **sex 06/11**; deveria ser **qui 29/10** e **qui 05/11** (o dia da folga fixa).
