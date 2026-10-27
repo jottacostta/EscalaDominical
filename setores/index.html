@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V337</title>
+<title>Escala de Setores — V338</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V338 [Claude] — 📝 TEXTOS DO RESUMO (pedido do Gerente, "faça todas as correções"): desde a V332 o botão 🚀 Gerar escala fica
+       nos passos 3 (Domingos) e 4 (Feriados) e o passo 5 virou "Resumo", mas alguns textos ainda mandavam "tocar em Gerar no
+       passo 5". Corrigidos: a frase curta da caixa azul do passo 5, o slide do passo 5 no "Como usar" e 5 respostas do Gabriel
+       (escala ainda não gerada, como guardar o histórico, Excel/WhatsApp e avisos). E o Gabriel mandava marcar o balanço num
+       "passo Balanço" que não existe mais: agora indica ⋮ → Configurações da escala → 📦 Domingos de balanço. Só texto.
 V337 [Claude] — ⏰ AO COLOCAR PELA TABELA, ESCOLHE O HORÁRIO (pedido do Gerente): na tabela de prévia (passo 4), tocar num
        domingo para COLOCAR uma pessoa de volta abre a janela "⏰ Que horário … vai trabalhar?" com os horários daquele domingo em
        botões grandes (o mais perto do horário de sempre vem marcado com ⭐). A pessoa entra com o horário escolhido; "↩️ Cancelar"
@@ -2983,7 +2988,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V337 · Ao colocar alguém pela tabela, escolhe o horário</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V338 · Textos do Resumo: o Gerar fica nos passos 3 e 4</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -11816,7 +11821,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     {ic:'📅',t:'Passo 2 — Mês passado',x:'Confirme <b>quem trabalhou nos 2 últimos domingos do mês passado</b>. Isso evita que alguém trabalhe 3 domingos seguidos na virada do mês.',d:'Se o app já souber, a tela vem preenchida: só confira.'},
     {ic:'☀️',t:'Passo 3 — Domingos',x:'Primeiro escolha <b>quem monta a escala</b>: <b>🤖 Automático</b> (o app escolhe os nomes) ou <b>✋ Manual</b> (você marca, com busca por matrícula ou nome). Depois, <b>quantas pessoas</b> trabalham e, se quiser, <b>quem lidera</b> (uma ou várias lideranças). Na dúvida, <b>deixe no Automático</b> e toque em Próximo.',d:'Ninguém trabalha 3 domingos seguidos: o app cuida disso sozinho.'},
     {ic:'🎉',t:'Passo 4 — Feriados',x:'Marque <b>quem trabalha</b> em cada feriado. Quem trabalha ganha uma <b>folga em outro dia</b>: o app sugere a data e você toca em <b>✅ Aceitar</b>. Não gostou? Toque em <b>🔄 Outra data</b>.',d:'Se o mês não tem feriado, é só tocar em Próximo.'},
-    {ic:'🚀',t:'Passo 5 — Gerar a escala',x:'Toque no botão verde <b>🚀 Gerar escala</b>. Depois confira o resultado. Se algum aviso estiver <b>amarelo ou vermelho</b>, toque nele: o app leva você até o problema. Para terminar, toque em <b>📊 Baixar planilha (Excel)</b> e em <b>📦 Guardar histórico do mês</b>.',d:'No celular, também dá para 📱 copiar o texto para o WhatsApp.'},
+    {ic:'🚀',t:'Passo 5 — Resumo',x:'O botão verde <b>🚀 Gerar escala</b> fica no fim dos passos <b>3 Domingos</b> e <b>4 Feriados</b>. O resultado abre no passo 5, o <b>Resumo</b>: confira. Se algum aviso estiver <b>amarelo ou vermelho</b>, toque nele: o app leva você até o problema. Para terminar, toque em <b>📊 Baixar planilha (Excel)</b> e em <b>📦 Guardar histórico do mês</b>.',d:'No celular, também dá para 📱 copiar o texto para o WhatsApp.'},   // V338: Gerar nos passos 3 e 4, passo 5 = Resumo
     {ic:'💾',t:'Seus dados ficam salvos',x:'Tudo o que você preenche é <b>salvo sozinho neste aparelho</b>. Se fechar sem querer, abra de novo e continue de onde parou.',d:'No fim de cada mês, toque em <b>⋮ → Guardar histórico do mês</b>. No mês seguinte (ou em outro aparelho), abra esse arquivo em <b>⋮ → Abrir histórico guardado</b>.'},
     {ic:'🙋',t:'Ficou com dúvida?',x:'Toque em <b>⋮</b> e depois em <b>Ajuda e significado das palavras</b>. As palavras com <span class="gl" style="white-space:normal">risquinho pontilhado</span> mostram o significado quando você passa o mouse ou toca nelas.',d:'No computador, aperte a tecla <b>?</b> para ver este passo a passo de novo.'}
   ];
@@ -12105,7 +12110,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     'Passo 3 de 5':'Escolha quem monta a escala (o app ou você), quantas pessoas trabalham e, se quiser, quem lidera.',
     'Passo 4 de 5':'Marque quem trabalha em cada feriado do mês.',
     'Passo 2 de 5':'Marque quem trabalhou nos 2 últimos domingos do mês passado (ou abra o histórico guardado).',
-    'Passo 5 de 5':'Toque em Gerar escala, confira o resultado e guarde o histórico do mês.'
+    'Passo 5 de 5':'Aqui é o Resumo: confira a escala, baixe a planilha e guarde o histórico do mês.'   // V338: o Gerar fica nos passos 3 e 4 (V332)
   };
   function guias(){
     document.querySelectorAll('.guia').forEach(g=>{
@@ -15885,7 +15890,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(cargoTok) ids=ids.filter(i=>String(eq()[i].cargo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(cargoTok));
     if(turno) ids=ids.filter(i=>turnoDe(i)===turno);
     const dom=al.dt.getDay()===0;
-    if(dom&&!gerada()) return `📅 ${fmtL(al.dt)}: a escala de domingos deste mês <b>ainda não foi gerada</b> (passo 5). Depois de tocar em Gerar eu respondo.`;
+    if(dom&&!gerada()) return `📅 ${fmtL(al.dt)}: a escala de domingos deste mês <b>ainda não foi gerada</b>. Toque em 🚀 Gerar escala (no fim do passo 3 ou 4) e eu respondo.`;   // V338
     const tr=ids.filter(i=>trabalha(i,al.dt)), fo=ids.filter(i=>!trabalha(i,al.dt));
     const qual=(turno?` no turno de <b>${turno==='ABERTURA'?'abertura':'fechamento'}</b>`:'')+(cargoTok?` (cargo com “${es(cargoTok)}”)`:'');
     const nota='<br><small>Escala planejada (não tenho registro de ponto'+(dom?'':'; nos dias úteis conto a folga fixa, o descanso do domingo e o feriado')+').</small>';
@@ -15954,7 +15959,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function datasDoMes(){ const {a,m}=anoMes(), n=new Date(a,m+1,0).getDate(), out=[]; for(let d=1;d<=n;d++) out.push(new Date(a,m,d)); return out; }
   function contagens(){ const at=ativos(), {a,m}=anoMes(), fer=seguro(()=>feriados(a,m)||{},{}); return datasDoMes().map(dt=>{ const tr=at.filter(i=>trabalha(i,dt)); return {dt,fer:fer[dt.getDate()]||'',n:tr.length,ab:tr.filter(i=>turnoDe(i)==='ABERTURA').length,fe:tr.filter(i=>turnoDe(i)==='FECHAMENTO').length}; }); }
   const SEMCOB='<br><small>⚠️ A <b>cobertura mínima</b> (quantas pessoas cada setor/turno precisa) ainda <b>não está cadastrada</b> no app: por isso eu comparo quantidades, mas não afirmo se é “suficiente”.</small>';
-  function exigeEscala(){ return gerada()?null:'A escala deste mês <b>ainda não foi gerada</b> (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.'; }
+  function exigeEscala(){ return gerada()?null:'A escala deste mês <b>ainda não foi gerada</b>. Sem ela eu só conheço as folgas fixas. Toque em 🚀 Gerar escala (no fim do passo 3 ou 4) e pergunte de novo.'; }   // V338
   function respApertado(qn){
     const x=exigeEscala(); if(x) return x;
     const todosDias=contagens(), c=todosDias.filter(e=>!(e.fer&&e.n===0)), ferVazios=todosDias.filter(e=>e.fer&&e.n===0), porDia=[0,1,2,3,4,5,6].map(w=>{ const l=c.filter(e=>e.dt.getDay()===w); return {w,m:l.length?l.reduce((s,e)=>s+e.n,0)/l.length:0,l}; }).filter(e=>e.l.length);
@@ -16038,7 +16043,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   }
   function respComoSalvar(){
     ctxEstado.topic='salvar';
-    return '📦 <b>Como guardar:</b> depois de gerar a escala (passo 5), toque em <b>📦 Guardar histórico do mês</b> — o arquivo <b>Historico_…json</b> vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use <b>📊 Baixar planilha Excel</b>. O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.';
+    return '📦 <b>Como guardar:</b> depois de gerar a escala (🚀 Gerar escala, no passo 3 ou 4), abra o passo 5 (Resumo) e toque em <b>📦 Guardar histórico do mês</b> — o arquivo <b>Historico_…json</b> vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use <b>📊 Baixar planilha Excel</b>. O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.';
   }
   function respPlanilhaSemArquivo(){
     const s=estadoPlanilha(), n=eq().length;
@@ -16214,7 +16219,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     }
     if(tem(qn,'balanco')&&tem(qn,'quem','quais')&&tem(qn,'faz','fazem','trabalha','trabalham')){
       const {a,m}=anoMes(), b=seguro(()=>balancoDoMes(a,m),0);
-      if(!b) return `Não há <b>domingo de balanço</b> marcado em ${I.MES[m]} de ${a}. Marque no passo <b>Balanço</b> (datas de balanço) e eu respondo.`;
+      if(!b) return `Não há <b>domingo de balanço</b> marcado em ${I.MES[m]} de ${a}. Marque em <b>⋮ → Configurações da escala</b>, no quadro <b>📦 Domingos de balanço</b>, e eu respondo.`;   // V338: não existe mais passo Balanço (V246)
       const x=exigeEscala(); if(x) return x;
       return respDia({dt:new Date(a,m,b),rot:'Balanço'},'trab');
     }
@@ -16513,8 +16518,8 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     if(/\b(feriado|feriados)\b/.test(q))return '🎉 Para conferir trabalho e folga de feriado, abra o passo 4 — Feriados — e confira a pessoa e a data sugerida. Diga o nome e o feriado/data para eu orientar o caso concreto.';
     if(/\b(folga|folgas|dsr|descanso)\b/.test(q))return '💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.';
     if(/\b(equipe|funcionario|funcionarios|colaborador|colaboradores|cadastro|setor|setores)\b/.test(q))return '👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.';
-    if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Gerar. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
-    if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
+    if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Resumo. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
+    if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Resumo. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
     return '🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”';
   }
   function versaoPerguntada(texto){
