@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V334</title>
+<title>Escala de Setores — V335</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V335 [Claude] — 🖥️ BOTÕES DISTRIBUÍDOS NO DESKTOP + NOME "DEPOSISTA" CORRIGIDO (pedido do Gerente): (1) na versão desktop os botões da tela
+       inicial (Importar, Como usar, Resumo da loja, Local da planilha, Atualizar página) ficavam amontoados num bloco 2×2 à esquerda, com muito
+       espaço vazio à direita. Agora, no desktop (data-runtime="desktop"), eles viram um flex em que cada botão cresce igual e preenchem
+       toda a largura da faixa, de forma harmônica. No celular/APK continua o grid 2 colunas da V334. Só posicionamento: não muda ícones,
+       textos, cores nem ações. (2) No mapa de concentração (função × horário), o cargo DEPOSISTA do ERP era relabelado errado como
+       "Depositista" (com um "ti" a mais); agora mostra "Deposista".
 V334 [Claude] — 🖼️ LOGO CORRIGIDA + BOTÕES DA TELA INICIAL ALINHADOS (pedido do Gerente): (1) a logo do Supermercados Guanabara estava
        corrompida (a parte de baixo da imagem vinha embaralhada) desde a reconversão feita por volta da V300; trocada pela versão íntegra
        (webp limpo, o mesmo da V204). A logo também vai para a impressão e o Excel, então a correção vale em todo lugar. (2) Os botões da
@@ -2151,6 +2157,9 @@ input[type=checkbox],input[type=radio]{accent-color:var(--g-azul)}
 @media(min-width:601px){
   .home-actions-alinhadas #btnImportarERPHome{grid-column:1/-1;justify-self:start;width:auto}
 }
+/* V335: no desktop os botões da tela inicial se distribuem pela largura (flex, cada um cresce igual) em vez de um bloco 2×2 à esquerda. */
+html[data-runtime="desktop"] .home-actions-alinhadas{display:flex;flex-wrap:wrap;gap:12px}
+html[data-runtime="desktop"] .home-actions-alinhadas .erp-btn{flex:1 1 200px;width:auto;min-width:160px}
 .home-setores .home-top .erp-btn:focus-visible,.home-setores .home-top select:focus,.home-setores .home-top input:focus{box-shadow:0 0 0 3px rgba(255,204,0,.65)!important}
 /* início do setor */
 .is-top .is-voltar,.is-top .is-sec{background:rgba(255,255,255,.12)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important}
@@ -2948,7 +2957,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V334 · Logo corrigida e botões da tela inicial alinhados</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V335 · Botões distribuídos no desktop; nome "Deposista" corrigido</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -10753,7 +10762,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     [/SUB\s*-?\s*ENC|SUBENC/,'Subencarregado'],[/\bL[IÍ]DER/,'Líder'],[/\bENC\b|\bENC\.|ENCARREGAD/,'Encarregado'],
     [/BALC/,'Balconista'],[/FISCAL/,'Fiscal'],[/AUX(?:ILIAR)?\.?\s+DE\s+CAIXA\s+GERAL/,'Auxiliar de caixa geral'],[/CAIXA\s+GERAL(?:\s+A)?$/,'Caixa geral'],
     [/OPER\w*\s*\(?A?\)?\s*DE\s+CAIXA|OPERADOR.*CAIXA/,'Operador(a) de caixa'],[/FRENTE\s+DE\s+CAIXA/,'Auxiliar de frente de caixa'],
-    [/REPOSITOR/,'Repositor(a)'],[/DEPOSIST|DEPOSITIST/,'Depositista'],[/ACOUGUEIRO/,'Açougueiro'],[/PADEIRO/,'Padeiro'],
+    [/REPOSITOR/,'Repositor(a)'],[/DEPOSIST|DEPOSITIST/,'Deposista'],[/ACOUGUEIRO/,'Açougueiro'],[/PADEIRO/,'Padeiro'],   // V335: o cargo do ERP é DEPOSISTA → "Deposista" (antes relabelava errado como "Depositista")
     [/CAMARA\s+FRIA/,'Operador de câmara fria'],[/CONFERENTE/,'Conferente'],[/AJUDANTE\s+DE\s+COZINHA/,'Ajudante de cozinha'],[/ELEVADOR/,'Operador de elevador'],
     [/CONFEITEIRO/,'Confeiteiro'],[/PROMOTOR/,'Promotor de vendas']
   ];

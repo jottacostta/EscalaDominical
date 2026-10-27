@@ -2487,6 +2487,28 @@ async function testarLogoEBotoesHome(browser, app, nome){   // V334: logo ínteg
   ok(r.temImg && r.carregou && r.w === 420 && r.h === 276, nome + ': a logo carrega completa, com a ponta do triângulo (' + r.w + '×' + r.h + ')');
   ok(!!logoSet && logoSet === logoEnc, nome + ': a logo é a íntegra (mesma dos dois apps), não a corrompida');
   ok(r.temWrap && r.nBtns === 5 && r.temImportar && r.temAtualizar, nome + ': os botões da tela inicial estão no grid alinhado (' + r.nBtns + ')');
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 335){   // V335: no desktop os botões se distribuem pela largura (flex), não ficam amontoados à esquerda
+    const d = await p.evaluate(() => {
+      document.documentElement.setAttribute('data-runtime', 'desktop');   // novaPagina usa 1366px (desktop), mas garante o atributo
+      const wrap = document.querySelector('.home-actions-alinhadas');
+      const btns = [...wrap.querySelectorAll('.erp-btn')].filter(b => b.offsetParent !== null);
+      const rects = btns.map(b => b.getBoundingClientRect());
+      const wrapR = wrap.getBoundingClientRect();
+      const larguras = rects.map(x => Math.round(x.width));
+      return {
+        display: getComputedStyle(wrap).display,
+        preencheDireita: Math.max(...rects.map(x => x.right)) >= wrapR.right - 4,   // o último botão chega na borda direita = distribuído
+        comecaEsquerda: Math.min(...rects.map(x => x.left)) <= wrapR.left + 4,
+        largIguais: Math.max(...larguras) - Math.min(...larguras) <= 2,   // crescem igual
+        larg: larguras[0]
+      };
+    });
+    ok(d.display === 'flex' && d.preencheDireita && d.comecaEsquerda, nome + ': no desktop os botões se distribuem por toda a largura (não amontoados à esquerda)');
+    ok(d.largIguais, nome + ': no desktop os botões têm a mesma largura (distribuição harmônica, ' + d.larg + 'px cada)');
+    // V335: o cargo DEPOSISTA do ERP deve virar "Deposista" no mapa de função (antes relabelava errado como "Depositista")
+    const dep = await p.evaluate(() => { const g = window.v199Graf && window.v199Graf.funcaoDoCargo; return g ? { a: g('DEPOSISTA'), b: g('DEPOSITISTA') } : null; });
+    ok(dep && dep.a === 'Deposista' && dep.b === 'Deposista', nome + ': o cargo DEPOSISTA vira "Deposista" no mapa de função, não "Depositista" (' + (dep ? dep.a : 'sem v199Graf') + ')');
+  }
   ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
   await p.close();
 }
