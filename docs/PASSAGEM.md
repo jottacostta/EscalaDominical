@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V333.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V334.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V204.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V334**, Encarregados **V205**.
+- **Próximo número de versão:** Setores **V335**, Encarregados **V205**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -191,6 +191,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-26 — Logo corrigida (estava corrompida) + botões da tela inicial alinhados — Setores V334 — Claude
+- **Pedido do Gerente:** (1) a logo do Supermercados Guanabara estava **corrompida** no Setores — a parte de baixo (a ponta do triângulo) vinha embaralhada. (2) levar o alinhamento dos botões da tela inicial (de uma variante local "botoes_alinhados" da V330) para a versão oficial.
+- **Diagnóstico da logo (cuidado, tem pegadinha):** o `<img class="brand-logo">` é a única imagem embutida (um webp). Existem DUAS variantes, as duas com o mesmo prefixo base64 `UklGRv5p` e o mesmo tamanho de string, mas conteúdo diferente: (a) a **corrompida** (md5 do webp `165fe38c…`) — o `file` reconhece como webp e o Chromium até renderiza (420×276), mas o ImageMagick recusa ("insufficient image data"); os dados do bitstream divergem perto do char ~31356 e a base sai embaralhada. (b) a **íntegra e completa** (md5 `a9eb1ec…`, 420×276 com a ponta do triângulo) — a que o app de **Encarregados** já usava boa. Havia ainda uma 3ª, a da **V204** (prefixo `UklGRkpb`, 420×214), mas essa é a **CORTADA** embaixo (sem a ponta) — NÃO usar, o teste `logo do Guanabara completo` (linha ~332/793, `h/w>0.6`) justamente barra a cortada.
+- **Como ficou** (`setores/index.html`): (1) o data-URI corrompido foi trocado pelo **íntegro completo copiado do app de Encarregados** (agora os dois apps têm a logo idêntica, md5 do data-URI `28ba570b…`). A logo também vai para a impressão e o Excel (lida de `.brand-logo` em ~linha 12107), então vale em todo lugar. (2) os 5 botões da tela inicial foram envolvidos num `<div class="home-actions-alinhadas">` + CSS novo (grid 2 colunas; Importar ocupa a linha toda; responsivo em ≤600px) — só posicionamento, não muda ícones/textos/cores/ações.
+- **Teste novo:** `testarLogoEBotoesHome` (V334): a logo carrega completa (420×276, com a ponta do triângulo), e é a **íntegra** (o data-URI do Setores é idêntico ao do Encarregados — como a corrompida tem as mesmas dimensões no navegador, a única checagem segura é por bytes/igualdade entre os apps), e os 5 botões estão no grid `home-actions-alinhadas`.
+- **Bateria completa:** ✅ Tudo certo. V334 neste PR.
+- **Assinado:** Claude
 
 ### 2026-10-26 — Prévia clicável em todos os modos (ao tocar, vira à mão) — Setores V333 — Claude
 - **Pedido do Gerente:** o Gerente clicava na célula azul de um domingo na "📅 Prévia das folgas" e não desescalava a pessoa. Diagnóstico: a V330 só deixava clicar no modo **À mão**; a escala estava em **Mista/Automático** (sem a dica "👆 Toque num domingo"). O Gerente escolheu: o clique deve **funcionar em todos os modos** e, no Automático/Misto, **ao tocar a escala vira "à mão"** (copiando o que está na tela), para o ajuste colar.
