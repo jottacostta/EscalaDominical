@@ -2661,10 +2661,10 @@ async function testarEncAMaoConcordancia(browser, app){   // Enc V208: À mão �
     resto.push(enc.find(x => ![i0, encY, resto[0]].includes(x) && ![i0, subX, encY, ...resto].some(y => y !== undefined && setorDe(y) === setorDe(x))));
     const achou = { i: i0, d: doms[2], ds: doms.slice(0, 3) };
     let marcou = true;
-    doms.slice(0, 3).forEach(d => [subX, encY].forEach(x => window.v167.marcar(x, d, true)));
+    doms.slice(0, 3).forEach(d => [subX, encY].forEach(x => window.v167.marcar(x, d)));   // como toques: no 3º domingo eles também quebram o 2×1
     doms.slice(0, 2).forEach(d => window.v167.marcar(i0, d, true));
     resto.forEach(x => window.v167.marcar(x, doms[3], true));
-    marcou = window.v167.marcar(i0, doms[2], true);   // o 3º domingo seguido da pessoa 0
+    marcou = window.v167.marcar(i0, doms[2]);   // o 3º domingo seguido da pessoa 0, como um toque (não silencioso)
     document.getElementById('btnGerar').click(); await espera(1500);
     const val = document.getElementById('validacao')?.textContent || '';
     const jan = document.getElementById('v208Janela');

@@ -8390,19 +8390,23 @@ function perguntarOrientacaoImpressao(cb){
     if(S.length===2){ const t=[...S.map(x=>equipe[x].tipo),f.tipo];
       if(!t.includes('enc')) return 'A última vaga é de um Encarregado'; if(!t.includes('sub')) return 'A última vaga é de um Subencarregado'; }
     const s2=Object.assign({},s,{[d]:[...S,i]}), {doms,bal,full}=completo(s2);
-    if(modo()!=='manual' && trincas(i,doms,bal,full).some(x=>x.ds.includes(d))) return 'Seria o 3º domingo seguido';   // V208: no À mão vira aviso
-    const x=modo()!=='manual'&&folgaNoFeriadoTrabalhado(i,d); if(x) return `A folga cairia no feriado ${dd(x.getDate())}, em que trabalha`;   // V208
+    if(trincas(i,doms,bal,full).some(x=>x.ds.includes(d))) return 'Seria o 3º domingo seguido';
+    const x=folgaNoFeriadoTrabalhado(i,d); if(x) return `A folga cairia no feriado ${dd(x.getDate())}, em que trabalha`;
     return '';
   }
 
+  function motivoTela(i,d,s){   // V208: no À mão, o toque da pessoa pode criar 3 domingos seguidos / folga no feriado (vira aviso + concordância)
+    const mo=motivo(i,d,s); if(modo()!=='manual') return mo;
+    return (mo==='Seria o 3º domingo seguido'||/^A folga cairia no feriado/.test(mo))?'':mo;
+  }
   /* marca/desmarca com a conferência: nada que crie regra quebrada entra */
   function marcar(i,d,silencioso){
     const s=sel(), S=s[d]||[]; if(S.includes(i)) return true;
-    const mo=motivo(i,d,s);
+    const mo=(silencioso?motivo:motivoTela)(i,d,s);   // V208: só o toque da pessoa (não silencioso) libera a quebra de estrutura
     if(mo){ if(!silencioso) toast(`⛔ ${nome(i)} não pode entrar em ${dd(d)}: ${mo.toLowerCase()}.`,'warn'); return false; }
     const antes=new Set(auditar(s).r.map(x=>x.t));
     const s2=Object.assign({},s,{[d]:[...S,i]});
-    const nova=auditar(s2).r.find(x=>!antes.has(x.t)&&!(x.est&&modo()==='manual')&&(doDomingo(x,d)||x.is.includes(i)));   // V208
+    const nova=auditar(s2).r.find(x=>!antes.has(x.t)&&!(x.est&&modo()==='manual'&&!silencioso)&&(doDomingo(x,d)||x.is.includes(i)));   // V208: só no toque da pessoa
     if(nova){ if(!silencioso) toast('⛔ Não marquei: '+nova.t,'warn'); return false; }
     gravarDia(d,s2[d]); return true;
   }
@@ -8508,7 +8512,7 @@ function perguntarOrientacaoImpressao(cb){
     return '<span class="v167-st ok">✅ pronto</span>';
   }
   function linhaPessoa(i,d,s,full,doms,bal,marc,latVez){
-    const f=equipe[i], mo=marc?'':motivo(i,d,s);
+    const f=equipe[i], mo=marc?'':motivoTela(i,d,s);   // V208
     const nDom=doms.filter(x=>x!==bal&&full[x].includes(i)).length;
     const tags=[`<span class="v167-tag set">${H(setorDe(i))}</span>`];
     if(i===latVez) tags.push('<span class="v167-tag lat">🧀 vez do Laticínio</span>');
@@ -8618,7 +8622,7 @@ function perguntarOrientacaoImpressao(cb){
     if(!q){ box.innerHTML=''; return; }
     const s=sel(), S=s[d]||[];
     const l=equipe.map((f,i)=>i).filter(i=>!inativo(equipe[i])&&!S.includes(i)&&(norm(equipe[i].nome).includes(q)||String(equipe[i].matricula||'').includes(q))).slice(0,8);
-    box.innerHTML=l.length?l.map(i=>{ const mo=motivo(i,d,s); return `<button type="button" data-add="${i}" data-d="${d}"${mo?' disabled':''}><b>${H(nome(i))}</b> <small>${equipe[i].matricula?'mat. '+H(equipe[i].matricula)+' · ':''}${H(TIPO[equipe[i].tipo]||'')} · ${H(setorDe(i))}</small>${mo?`<span class="v167-mo">⛔ ${H(mo)}</span>`:''}</button>`; }).join(''):'<small class="v167-nota">Ninguém encontrado (ou já está marcado).</small>';
+    box.innerHTML=l.length?l.map(i=>{ const mo=motivoTela(i,d,s); return `<button type="button" data-add="${i}" data-d="${d}"${mo?' disabled':''}><b>${H(nome(i))}</b> <small>${equipe[i].matricula?'mat. '+H(equipe[i].matricula)+' · ':''}${H(TIPO[equipe[i].tipo]||'')} · ${H(setorDe(i))}</small>${mo?`<span class="v167-mo">⛔ ${H(mo)}</span>`:''}</button>`; }).join(''):'<small class="v167-nota">Ninguém encontrado (ou já está marcado).</small>';
   }
 
   document.addEventListener('click',e=>{
