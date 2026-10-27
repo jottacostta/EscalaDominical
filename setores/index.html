@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V335</title>
+<title>Escala de Setores — V336</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V336 [Claude] — ⚠️ AVISO PARA REIMPORTAR QUANDO O QUADRO É DE VERSÃO ANTIGA (pedido do Gerente): o quadro fica salvo no aparelho (V153).
+       Se foi importado numa versão anterior à V325, aquela versão descartava a Gerência e o TST/SESMT, e o quadro ficou salvo sem eles — e o
+       app carregava esse quadro salvo sem reprocessar. Agora: (1) a importação carimba a versão do app no quadro (versaoApp); (2) na tela
+       inicial, se o quadro tem gente, está SEM o TST e não foi importado por V336+, aparece um aviso "Atualize o quadro… pode estar sem o TST"
+       com um botão "📥 Reimportar planilha" (e um ✕ para fechar). A Gerência volta junto na reimportação, mas o aviso menciona só o TST.
 V335 [Claude] — 🖥️ BOTÕES DISTRIBUÍDOS NO DESKTOP + NOME "DEPOSISTA" CORRIGIDO (pedido do Gerente): (1) na versão desktop os botões da tela
        inicial (Importar, Como usar, Resumo da loja, Local da planilha, Atualizar página) ficavam amontoados num bloco 2×2 à esquerda, com muito
        espaço vazio à direita. Agora, no desktop (data-runtime="desktop"), eles viram um flex em que cada botão cresce igual e preenchem
@@ -2161,6 +2166,11 @@ input[type=checkbox],input[type=radio]{accent-color:var(--g-azul)}
 html[data-runtime="desktop"] .home-actions-alinhadas{display:flex;flex-wrap:wrap;gap:12px}
 html[data-runtime="desktop"] .home-actions-alinhadas .erp-btn{flex:1 1 200px;width:auto;min-width:160px}
 .home-setores .home-top .erp-btn:focus-visible,.home-setores .home-top select:focus,.home-setores .home-top input:focus{box-shadow:0 0 0 3px rgba(255,204,0,.65)!important}
+/* V336: aviso de quadro de versão antiga (pode estar sem o TST) — reimportar a planilha. */
+.v336-aviso{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:12px 16px 0;padding:12px 14px;border-radius:12px;background:var(--warn-lt,#FFF1C7);color:var(--warn-ink,#7A5700);border:1px solid var(--warn,#F5B400);font-size:14px;font-weight:600}
+.v336-aviso .v336-aviso-acoes{display:flex;align-items:center;gap:8px}
+.v336-aviso .v336-aviso-x{background:transparent;border:0;color:inherit;font-size:16px;cursor:pointer;opacity:.7;padding:4px}
+.v336-aviso .v336-aviso-x:hover{opacity:1}
 /* início do setor */
 .is-top .is-voltar,.is-top .is-sec{background:rgba(255,255,255,.12)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important}
 .is-top .is-abrir{background:var(--grad-amarelo)!important;color:var(--g-azul-3)!important;border-radius:999px!important;font-weight:800!important;box-shadow:0 10px 22px -12px rgba(245,180,0,.95)}
@@ -2957,7 +2967,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V335 · Botões distribuídos no desktop; nome "Deposista" corrigido</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V336 · Aviso para reimportar quando o quadro é de versão antiga (sem TST)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -10521,7 +10531,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     window.showToast?.(`✅ Funcionários atualizados: ${cmp.novos.length} novo(s), ${cmp.alterados.length} alterado(s), ${op.removerSaidas?cmp.saidas.length:0} removido(s).${nBloq?' '+nBloq+' jovem(ns) aprendiz(es) sem domingo.':''}${pendentes.size?' '+pendentes.size+' ainda sem dia de folga fixa: toque em “Definir agora”.':''}`,'ok',true);
     atualizarPendentes();
     try{ window.v271Planilha?.aplicada?.(an,ANALISE.nomeArq); }catch(e){}   // V271: guarda o inventário da planilha aplicada
-    quadroAtivo=true; salvarQuadro({arquivo:ANALISE.nomeArq,emissao:an.emissao,importadoEm:Date.now(),reg156:true,reg157:true},'importação').catch(()=>{});
+    quadroAtivo=true; salvarQuadro({arquivo:ANALISE.nomeArq,emissao:an.emissao,importadoEm:Date.now(),reg156:true,reg157:true,versaoApp:(+((document.title.match(/V(\d+)/)||[])[1])||0)},'importação').catch(()=>{});   // V336: carimba a versão do app na importação (para avisar quadros de versão antiga)
     try{ window.v188AoAplicar?.(ANALISE.nomeArq,{novos:cmp.novos.length,alterados:cmp.alterados.length,saidas:op.removerSaidas?cmp.saidas.length:0,total:an.pessoas.length}); }catch(e){}   // V188: avisa a “fonte da base”   // V153: o quadro fica salvo no aparelho
   }
 
@@ -16912,6 +16922,40 @@ function domingosQuantidadeForaDoSugerido(){
   document.addEventListener('click',()=>setTimeout(ajustarBarraResumo,0),true);
   setInterval(ajustarBarraResumo,500);
   window.v332={irGerar:window.v332IrGerar,ajustarBarraResumo};
+})();
+</script>
+<script>
+/* ═════ V336 — ⚠️ AVISO DE QUADRO DE VERSÃO ANTIGA (PODE ESTAR SEM O TST) ═════
+   Pedido do Gerente: o quadro fica salvo no aparelho (V153). Se foi importado numa versão antiga
+   (anterior à V325), aquela versão descartava a Gerência e o TST/SESMT, e esse quadro ficou salvo sem eles.
+   Esta camada avisa, na tela inicial, que o quadro pode estar sem o TST e oferece reimportar a planilha.
+   (A Gerência volta junto na reimportação, mas o aviso menciona só o TST, a pedido do Gerente.) */
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const qd=()=>{ try{ return Array.isArray(todasEquipes)?todasEquipes:[]; }catch(e){ return []; } };
+  const temTst=()=>qd().some(f=>/sesmt/i.test(String(f.setorApp||f.setor||''))||/t[eé]cnico\s+seg|seg\.?\s*(?:do\s+)?trabalho/i.test(String(f.cargo||'')));   // TST = SESMT / Técnico de Segurança do Trabalho
+  const versaoImport=()=>{ try{ return Number(window.v219QuadroInfo?.()?.versaoApp)||0; }catch(e){ return 0; } };
+  let dispensado=false;
+  function precisaReimportar(){ return qd().length>0 && !temTst() && versaoImport()<336 && !dispensado; }
+  function montar(){
+    const host=$('homeSetores'); if(!host) return;
+    let box=$('v336AvisoTst');
+    if(!precisaReimportar()){ if(box) box.style.display='none'; return; }
+    if(!box){
+      box=document.createElement('div'); box.id='v336AvisoTst'; box.className='v336-aviso';
+      box.innerHTML='<span>⚠️ <b>Atualize o quadro:</b> ele foi importado numa versão antiga e pode estar <b>sem o TST</b>. Reimporte a planilha do RH para incluí-lo.</span>'
+        +'<span class="v336-aviso-acoes"><button type="button" class="btn success sm" id="v336Reimportar">📥 Reimportar planilha</button><button type="button" class="v336-aviso-x" id="v336Fechar" aria-label="Fechar aviso" title="Fechar">✕</button></span>';
+      const top=host.querySelector('.home-top');
+      if(top&&top.parentNode) top.parentNode.insertBefore(box, top.nextSibling); else host.insertBefore(box, host.firstChild);
+      box.querySelector('#v336Reimportar').onclick=()=>{ ($('btnImportarERPHome')||$('btnImportarERP'))?.click(); };
+      box.querySelector('#v336Fechar').onclick=()=>{ dispensado=true; box.style.display='none'; };
+    }
+    box.style.display='';
+  }
+  setInterval(()=>{ try{ montar(); }catch(e){} }, 1500);
+  if(document.readyState!=='loading'){ try{ montar(); }catch(e){} } else document.addEventListener('DOMContentLoaded',()=>{ try{ montar(); }catch(e){} });
+  window.v336AvisoTst={montar,precisaReimportar,temTst};
 })();
 </script>
 <script>
