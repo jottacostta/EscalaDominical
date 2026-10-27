@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V338.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V339.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V208.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V339**, Encarregados **V209**.
+- **Próximo número de versão:** Setores **V340**, Encarregados **V209**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -201,6 +201,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-27 — Folga da semana cai no dia da folga fixa (FLV/Padaria) — Setores V339 — Claude
+- **Pedido do Gerente (print da escala à mão):** Roberto (BALC DE FLV, folga fixa quinta) aparecia com a folga antecipada na **sex 30/10** e a posterior na **sex 06/11**; deveria ser **qui 29/10** e **qui 05/11** (o dia da folga fixa).
+- **Investigação (REA, ✅ confirmado):** a escala GERADA grava a folga no dia da folga fixa — `registrarDescansosDoDomingo` usa `dataDescansoAnterior(d,fixa)`/`dataDescansoPosterior(d,fixa)`. Mas a **tela** da escala à mão e os **filtros do motor** usam `descansosDoCandidato`, que escolhia o dia de DSR **permitido mais perto** da folga fixa. Como `diasDescansoProibidos` tira quarta/quinta do FLV (e o sábado da Padaria), a folga fixa na quinta virava sexta. Reproduzido com a planilha fictícia (FLV quinta → sex; Padaria sábado → sex) e comparado com `dataDescansoPosterior` (dava qui, o certo).
+- **Conserto:** `descansosDoCandidato` passou a devolver sempre `[dataDescansoAnterior(d,fixa), dataDescansoPosterior(d,fixa)]` — o mesmo par que a geração grava. Assim a tela, o rótulo “(dia da folga)”, as opções “⚠️ Antecipar para…” e os filtros de candidato (`candidatoRespeita6x1`, `candidatoPodeReceberDSRPorTurno`, pontuação por carga de folga) ficam todos coerentes com a escala gerada. A folga fixa é o dia de descanso da própria pessoa; as restrições de setor/DSR não a movem. Quem tem folga fixa num dia sem restrição não muda.
+- **Teste novo:** `testarFolgaNoDiaDaFolgaFixa` (V339): FLV folga fixa quinta → qui 29/10 / qui 05/11; Padaria folga fixa sábado → sábado; Frente de Loja folga fixa terça → terça (sem mudança); e a folga mostrada na tela é igual à que a geração grava. **Falha na V338** (3 itens) e passa na V339.
+- **Bateria:** rodei a **completa (ano inteiro)** porque mexe no motor — resultado no PR.
+- **Assinado:** Claude
 
 ### 2026-10-27 — Mudanças da Setores levadas ao Encarregados — Encarregados V205–V208 — Claude
 - **Pedido do Gerente:** “Atualizar a versão encarregados com as mudanças que foram feitas na versão setores”. Perguntei quais (algumas mudam regra) e o Gerente escolheu as quatro: Gerar nos passos + Resumo (V332/V338), prévia clicável (V330/V333), folgas de feriado (V327/V328) e À mão pede concordância (V331). **Não se aplicam** ao Encarregados: Gerência/SESMT/TST (V325/V326/V336), quantidade por domingo (V329 — no Encarregados o domingo tem 3 pessoas), janela de horário (V337 — sem horário de domingo por pessoa), logo e botões da tela inicial (V334/V335).

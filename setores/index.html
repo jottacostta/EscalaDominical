@@ -7,10 +7,17 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V338</title>
+<title>Escala de Setores — V339</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V339 [Claude] — 🛌 FOLGA DA SEMANA CAI NO DIA DA FOLGA FIXA (conserto, pedido do Gerente): na escala à mão, quem tinha folga fixa
+       na quinta e é do FLV aparecia com a folga da semana na SEXTA (ex.: antecipada sex 30/10 e posterior sex 06/11 em vez de
+       qui 29/10 e qui 05/11). Causa: `descansosDoCandidato` empurrava a folga para o dia de DSR permitido mais perto, e o FLV tem
+       quarta/quinta proibidas para DSR (a Padaria tem o sábado) — mas a folga fixa é o próprio dia de descanso da pessoa, que ela
+       já folga toda semana. Agora `descansosDoCandidato` devolve SEMPRE o par no dia da folga fixa (dataDescansoAnterior/
+       dataDescansoPosterior), igual ao que a escala gerada já gravava — a tela, o aviso de antecipar e os filtros do motor ficam
+       iguais à geração. Pessoas cuja folga fixa não cai num dia proibido não mudam.
 V338 [Claude] — 📝 TEXTOS DO RESUMO (pedido do Gerente, "faça todas as correções"): desde a V332 o botão 🚀 Gerar escala fica
        nos passos 3 (Domingos) e 4 (Feriados) e o passo 5 virou "Resumo", mas alguns textos ainda mandavam "tocar em Gerar no
        passo 5". Corrigidos: a frase curta da caixa azul do passo 5, o slide do passo 5 no "Como usar" e 5 respostas do Gabriel
@@ -2988,7 +2995,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V338 · Textos do Resumo: o Gerar fica nos passos 3 e 4</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V339 · Folga da semana cai no dia da folga fixa (conserto FLV/Padaria)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5833,18 +5840,14 @@ function aplicarAntecipacaoManual(d,i,valor){
 function descansosDoCandidato(i,d){
   const f=equipe[i];
   if(!f || Number(f.folgaFixa)===0)return [];
-  const domingo=new Date(+$('ano').value,+$('mes').value,d), fixa=Number(f.folgaFixa);
-  const permitidos=normalizarDiasDsr(diasDsrPermitidos).filter(ds=>{
-    const probe=new Date(domingo); probe.setDate(domingo.getDate()+((ds-domingo.getDay()+7)%7||7));
-    return !diasDescansoProibidos(f,probe);
-  });
-  if(!permitidos.length)return [];
-  const distancia=(a,b)=>Math.min(Math.abs(a-b),7-Math.abs(a-b));
-  permitidos.sort((a,b)=>distancia(a,fixa)-distancia(b,fixa)||a-b);
-  const dia=permitidos[0];
-  const anterior=new Date(domingo); anterior.setDate(domingo.getDate()-((domingo.getDay()-dia+7)%7||7));
-  const posterior=new Date(domingo); posterior.setDate(domingo.getDate()+((dia-domingo.getDay()+7)%7||7));
-  return [anterior,posterior];
+  const fixa=Number(f.folgaFixa);
+  // V339: a folga da semana cai SEMPRE no mesmo dia da folga fixa da pessoa — igual ao que a escala
+  // gerada grava (registrarDescansosDoDomingo usa dataDescansoAnterior/dataDescansoPosterior). Antes,
+  // este cálculo escolhia o dia de DSR permitido mais perto da folga fixa, então um funcionário do FLV
+  // com folga fixa na quinta aparecia com a folga da semana na sexta (FLV: quarta/quinta proibidas para
+  // DSR; Padaria: sábado) — diferente da escala gerada. A folga fixa é o dia de descanso da própria
+  // pessoa, que ela já folga toda semana, então as restrições de setor/DSR não a movem.
+  return [dataDescansoAnterior(d,fixa), dataDescansoPosterior(d,fixa)];
 }
 function candidatoRespeitaDescanso(i,d){
   const datas=descansosDoCandidato(i,d);
