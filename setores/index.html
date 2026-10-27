@@ -7,10 +7,14 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V336</title>
+<title>Escala de Setores — V337</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V337 [Claude] — ⏰ AO COLOCAR PELA TABELA, ESCOLHE O HORÁRIO (pedido do Gerente): na tabela de prévia (passo 4), tocar num
+       domingo para COLOCAR uma pessoa de volta abre a janela "⏰ Que horário … vai trabalhar?" com os horários daquele domingo em
+       botões grandes (o mais perto do horário de sempre vem marcado com ⭐). A pessoa entra com o horário escolhido; "↩️ Cancelar"
+       não muda nada. Antes o app colocava sozinho o 1º horário da lista. Tirar continua com 1 toque. Liderança continua no passo 3.
 V336 [Claude] — ⚠️ AVISO PARA REIMPORTAR QUANDO O QUADRO É DE VERSÃO ANTIGA (pedido do Gerente): o quadro fica salvo no aparelho (V153).
        Se foi importado numa versão anterior à V325, aquela versão descartava a Gerência e o TST/SESMT, e o quadro ficou salvo sem eles — e o
        app carregava esse quadro salvo sem reprocessar. Agora: (1) a importação carimba a versão do app no quadro (versaoApp); (2) na tela
@@ -2869,6 +2873,18 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
 .v305-fn-alerta{color:var(--warn-text,#7a4d00);font-weight:700}
 .v305-funcoes .btn{min-height:44px}
 </style>
+<style id="v337-horario-tabela">
+.v337-janela{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.v337-caixa{background:var(--surface,#fff);color:var(--ink,#111);border-radius:16px;max-width:440px;width:100%;max-height:92dvh;overflow:auto;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.v337-caixa h3{margin:0 0 6px;font-size:18px}
+.v337-caixa p{margin:0 0 10px;font-size:14px}
+.v337-horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.v337-horas button{min-height:48px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;border-radius:12px;border:2px solid var(--border,#cbd5e1);background:var(--surface,#fff);color:var(--ink,#111);cursor:pointer;padding:6px 8px}
+.v337-horas button.v337-sempre{border-color:var(--brand,#0047BA);background:var(--brand-lt,#e6efff);color:var(--brand-ink,#0b2a66)}
+.v337-horas button small{display:block;font-size:12px;font-weight:600}
+.v337-acoes{display:flex;justify-content:flex-end;margin-top:14px}
+.v337-acoes button{min-height:44px}
+</style>
 </head>
 <body>
 <script>
@@ -2967,7 +2983,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V336 · Aviso para reimportar quando o quadro é de versão antiga (sem TST)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V337 · Ao colocar alguém pela tabela, escolhe o horário</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16808,7 +16824,7 @@ function domingosQuantidadeForaDoSugerido(){
       try{ renderLiderancaDomingo?.(); }catch(e){}
     }catch(e){ console.warn('[V333] congelar como à mão:',e); }
   }
-  function toggle(d,i){
+  function toggle(d,i,hEscolhido){   // V337: hEscolhido = horário escolhido na janela "⏰ Que horário…"
     const f=equipe[i]; if(!f || foraDom(f)) return;
     if(!manual()){ congelarComoManual(); window.showToast?.('✍️ A escala virou “à mão” para você ajustar: copiei o que estava na tela e mudei só este domingo.','info',true); }
     const ano=+$i('ano').value, mes=+$i('mes').value, bal=balancoDoMes(ano,mes);
@@ -16822,7 +16838,7 @@ function domingosQuantidadeForaDoSugerido(){
       const arr=new Set(selecaoManualDomingo[dkey].map(Number));
       const trab=arr.has(i)||(trabalhoDomingo[d]||[]).map(Number).includes(i);
       if(trab){ arr.delete(i); if(horariosManuaisDomingo?.[dkey]) delete horariosManuaisDomingo[dkey][String(i)]; window.showToast?.(`${nome} saiu do domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
-      else { arr.add(i); try{ const hv=(listaHorariosDomingoParaData(d)[0]||[])[0]||''; if(hv){ horariosManuaisDomingo[dkey]=horariosManuaisDomingo[dkey]||{}; horariosManuaisDomingo[dkey][String(i)]=hv; } }catch(e){} window.showToast?.(`${nome} entrou no domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
+      else { arr.add(i); let hv=''; try{ hv=hEscolhido||(listaHorariosDomingoParaData(d)[0]||[])[0]||''; if(hv){ horariosManuaisDomingo[dkey]=horariosManuaisDomingo[dkey]||{}; horariosManuaisDomingo[dkey][String(i)]=hv; } }catch(e){} window.showToast?.(`${nome} entrou no domingo ${pad(d)}${hEscolhido?` às ${hv}`:''}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }   // V337: usa o horário escolhido
       selecaoManualDomingo[dkey]=[...arr];
     }
     // reflete na prévia (quando já gerou, a tabela lê trabalhoDomingo) e marca que precisa gerar de novo
@@ -18487,6 +18503,61 @@ function domingosQuantidadeForaDoSugerido(){
   document.addEventListener('click',e=>{ if(e.target.closest?.('#v322Modelo [data-v322],#v322Janela [data-v322],#v323Janela [data-v323],#v323Sugerir')) setTimeout(stamp,0); },true);
   ['mes','ano','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(stamp,0)));
   window.v324Historico={pacote,stamp,restore,aprendizado:()=>ler(KA),diaAprendido};
+})();
+</script>
+<script>
+/* ═════ V337 — ⏰ AO COLOCAR ALGUÉM PELA TABELA DE PRÉVIA, ESCOLHE O HORÁRIO ═════
+   Pedido do Gerente: tocar num domingo da prévia (passo 4) para COLOCAR uma pessoa de volta deixa a escala
+   "à mão" — e na escala à mão cada pessoa precisa de horário. Então, ao colocar, abre a janela
+   "⏰ Que horário … vai trabalhar?" com os horários daquele domingo (o mais perto do horário de sempre vem
+   com ⭐). Ao escolher, chama a V330 (v330DomingoClicavel.toggle) com o horário. "↩️ Cancelar" não muda nada.
+   Tirar continua com 1 toque; liderança, balanço e quem não pode domingo seguem a V330 (este bloco não age). */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const pad=n=>String(n).padStart(2,'0');
+  const manual=()=>($i('modoGeracao')?.value||'motor')==='manual';
+  let pend=null;
+  // Só pergunta quando o toque vai COLOCAR um operacional (o resto a V330 resolve sozinha).
+  function vaiColocar(d,i){
+    const f=equipe[i]; if(!f || foraDom(f) || ehLiderancaDomingo(f)) return false;
+    try{ if(Number(d)===Number(balancoDoMes(+$i('ano').value,+$i('mes').value))) return false; }catch(e){ return false; }
+    const sel=manual()?(selecaoManualDomingo?.[String(d)]||[]).map(Number):[];
+    const trab=sel.includes(i)||(trabalhoDomingo[d]||trabalhoDomingo[String(d)]||[]).map(Number).includes(i);
+    return !trab;
+  }
+  function horarios(d){ try{ return (listaHorariosDomingoParaData(d)||[]).filter(x=>x&&x[0]); }catch(e){ return []; } }
+  function maisPerto(i,lista){   // índice do horário com início mais perto do horário de sempre da pessoa
+    try{ if(!String(equipe[i]?.horario||'').trim()) return -1; const h=horarioHabitualInicio(i); if(!isFinite(h)) return -1;
+      let k=-1, m=Infinity; lista.forEach((x,j)=>{ const dif=Math.abs(horaMinutos(x[0])-h); if(dif<m){ m=dif; k=j; } }); return k; }catch(e){ return -1; }
+  }
+  function fechar(){ $i('v337Janela')?.remove(); pend=null; }
+  function cancelar(){ fechar(); }
+  function escolher(h){ const p=pend; fechar(); if(!p) return; window.v330DomingoClicavel?.toggle(p.d,p.i,h); }
+  function abrir(d,i){
+    fechar();
+    const lista=horarios(d);
+    if(!lista.length){ window.v330DomingoClicavel?.toggle(d,i); return; }   // sem horários cadastrados: comportamento antigo
+    pend={d,i};
+    const nome=String(equipe[i]?.nome||'').split(' ')[0], k=maisPerto(i,lista);
+    const j=document.createElement('div'); j.id='v337Janela'; j.className='v337-janela';
+    j.innerHTML=`<div class="v337-caixa" role="dialog" aria-modal="true" aria-labelledby="v337Tit">
+      <h3 id="v337Tit">⏰ Que horário ${esc(nome)} vai trabalhar?</h3>
+      <p>Domingo <b>${pad(d)}</b>. Toque no horário.${k>=0?' A ⭐ marca o mais perto do horário de sempre.':''}${manual()?'':' A escala passa a ser <b>à mão</b>.'}</p>
+      <div class="v337-horas">${lista.map((x,n)=>`<button type="button" data-v337-hora="${esc(x[0])}"${n===k?' class="v337-sempre"':''}>${n===k?'⭐ ':'🕐 '}${esc(x[0])} às ${esc(x[1]||'')}${n===k?'<small>horário de sempre</small>':''}</button>`).join('')}</div>
+      <div class="v337-acoes"><button type="button" class="btn secondary" id="v337Cancelar">↩️ Cancelar (não coloca)</button></div></div>`;
+    document.body.appendChild(j);
+    j.addEventListener('click',e=>{ const b=e.target.closest('[data-v337-hora]'); if(b){ escolher(b.dataset.v337Hora); return; }
+      if(e.target===j || e.target.closest('#v337Cancelar')) cancelar(); });
+    (j.querySelector('.v337-sempre')||j.querySelector('[data-v337-hora]'))?.focus();
+  }
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $i('v337Janela')) cancelar(); });
+  // Fase de captura: roda antes do clique da V330 e só a segura quando o toque vai COLOCAR alguém.
+  document.addEventListener('click',e=>{ const td=e.target.closest?.('#previaTabelaFolgas td[data-pv-dom]'); if(!td) return;
+    const d=+td.dataset.pvDom, i=+td.dataset.pvFunc; if(!vaiColocar(d,i)) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); abrir(d,i); },true);
+  window.v337HorarioTabela={abrir, escolher, cancelar, vaiColocar};
 })();
 </script>
 </body>
