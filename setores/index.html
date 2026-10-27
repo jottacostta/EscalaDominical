@@ -7,10 +7,20 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V340</title>
+<title>Escala de Setores — V341</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V341 [Claude] — 🗓️ REGIME DE DOMINGO: 2×1, 2×2 OU MISTO (pedido do Gerente): em ⋮ → Configurações da escala o Gerente escolhe o
+       regime dos domingos. 2×1 (padrão, nada muda): trabalha 2 domingos e folga 1 (em cada domingo ~⅔ da equipe). 2×2: trabalha 2
+       domingos e folga 2 (ex.: trabalha 01 e 08/11, folga 15 e 22/11, trabalha 29/11 e 06/12…; em cada domingo ~metade da equipe).
+       Misto: o Gerente diz QUANTAS pessoas ficam no 2×2 e o app escolhe quem, dividindo pelos cargos; o resto fica no 2×1. Vale no
+       🤖 Automático e no Misto; o À mão continua livre. O motor novo (window.v341Regime.cicloDe = 3 ou 4) ajusta a cobertura e, no
+       2×2, garante folgar 2 depois de trabalhar 2 (ninguém trabalha se trabalhou o domingo retrasado). Nunca 3 domingos seguidos e a
+       6×1 continuam valendo. O domingo de balanço (todos trabalham) e a liderança não mudam. Com 2×1, o motor é idêntico ao de antes.
+       TAMBÉM (conserto do V340, pedido do Gerente): a folga fixa só bloqueia o feriado se a pessoa trabalha um dos DOIS domingos que
+       MARGEIAM o feriado (o de antes OU o de depois). O V340 olhava só o domingo de antes; quem trabalhava só o domingo de depois
+       (a folga antecipada cai no feriado) escapava. Quem não trabalha nenhum dos dois (ex.: Gyan) continua podendo pegar o feriado.
 V340 [Claude] — 🗓️ FOLGA FIXA SÓ BLOQUEIA O FERIADO SE TRABALHA O DOMINGO DA SEMANA (conserto, pedido do Gerente): quem tem
        folga fixa na sexta e é do FLV (ex.: Gyan) aparecia com "🔒 FOLGA FIXA OBRIGATÓRIA" no feriado de sexta mesmo FOLGANDO o
        domingo daquela semana — e não podia trabalhar o feriado. Mas a folga da semana só cai no dia da folga fixa quando a pessoa
@@ -3003,7 +3013,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V340 · Folga fixa só bloqueia o feriado se a pessoa trabalha o domingo da semana</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V341 · Regime de domingo: 2×1, 2×2 ou Misto (você escolhe)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3222,6 +3232,19 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <h3 class="v206-sub v331-dividir">② Quantas pessoas trabalham em cada domingo?</h3>
   <p class="hint v331-dividir">Escolha como dividir a equipe nos domingos.</p>
   <div class="grid">
+    <div class="field" style="grid-column:1/-1">
+      <label for="regimeDomingo">Regime de domingo (quantos domingos cada pessoa trabalha e folga)</label>
+      <select id="regimeDomingo">
+        <option value="2x1">2×1 — trabalha 2 domingos e folga 1 (padrão)</option>
+        <option value="2x2">2×2 — trabalha 2 domingos e folga 2</option>
+        <option value="misto">Misto — uma parte 2×1 e outra parte 2×2</option>
+      </select>
+      <div id="regimeMistoBox" hidden style="margin-top:8px">
+        <label for="regimeQtd2x2">Quantas pessoas ficam no 2×2? (o resto fica no 2×1; o app escolhe quem, dividindo pelos cargos)</label>
+        <input id="regimeQtd2x2" type="number" min="0" step="1" value="0" inputmode="numeric" style="max-width:160px">
+      </div>
+      <div id="regimeResumo" class="alert info" style="margin-top:8px">2×1: cada pessoa trabalha 2 domingos e folga 1. Em cada domingo trabalha cerca de ⅔ da equipe.</div>
+    </div>
     <div class="field" style="grid-column:1/-1">
       <div class="v331-dividir">
       <label for="modoCobertura">Como dividir o setor nos domingos</label>
@@ -4892,10 +4915,18 @@ function feriadoFixaObrigatoria(i,dt){
 function feriadoFixaBloqueiaOFeriado(i,dt){
   const f=equipe[i];
   if(!f || Number(f.folgaFixa)!==dt.getDay()) return false;   // não é o dia da folga fixa dele
-  const domSemana=new Date(dt); domSemana.setDate(dt.getDate()-dt.getDay());   // o domingo da semana do feriado (segunda: dia anterior; sexta: 5 dias antes)
-  return domSemana.getMonth()===+$('mes').value && domSemana.getFullYear()===+$('ano').value
-    ? (trabalhoDomingo[domSemana.getDate()]||[]).includes(i)
-    : domingoForaDoMesTrabalhado(i,domSemana);   // V229: domingo do mês passado/seguinte
+  const mes=+$('mes').value, ano=+$('ano').value;
+  const trabalhaNoDomingo=dom=>(dom.getMonth()===mes && dom.getFullYear()===ano)
+    ? (trabalhoDomingo[dom.getDate()]||[]).includes(i)
+    : domingoForaDoMesTrabalhado(i,dom);   // V229: domingo do mês passado/seguinte
+  // V341: a folga fixa só bloqueia o feriado se a pessoa trabalha um dos DOIS domingos que MARGEIAM o feriado
+  // (o de antes ou o de depois) — é aí que a folga da semana cai no dia da folga fixa (posterior do domingo de
+  // antes OU antecipada do domingo de depois). Se ela não trabalha nenhum dos dois, a folga fixa é só o descanso
+  // normal dela e NÃO bloqueia o feriado (ex.: Gyan, FLV, folga fixa sexta, que não trabalha domingo nenhum).
+  // V340 olhava só o domingo de antes; faltava o de depois (quem trabalha só o domingo seguinte também tem a folga no feriado).
+  const domAntes=new Date(dt); domAntes.setDate(dt.getDate()-dt.getDay());          // domingo imediatamente antes do feriado
+  const domDepois=new Date(dt); domDepois.setDate(dt.getDate()+(7-dt.getDay()));    // domingo imediatamente depois do feriado
+  return trabalhaNoDomingo(domAntes) || trabalhaNoDomingo(domDepois);
 }
 
 function folgaFixaAtivaNaData(i,dt){
@@ -7828,7 +7859,7 @@ function distribuirQuantidadeEquilibrada(total, slots, preferirPrimeiro=false){
   }
   return out;
 }
-function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306: rodizio2x1 = automático (2 de cada 3 domingos por pessoa)
+function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1, cicloDe){   // V306: rodizio2x1 = automático; V341: cicloDe(i)=3 (2×1) ou 4 (2×2)
   const mapa={};
   const porFuncao=new Map();
   let giro=0;   // V320: no 2×1, a sobra de cada cargo/turno vai para o domingo seguinte ao da sobra anterior
@@ -7848,10 +7879,13 @@ function calcularMetasDistribuicaoFuncoes(doms, indices, rodizio2x1){   // V306:
     const meta={cargo:equipe[ids[0]].cargo,total:ids.length,abertura:ab.length,fechamento:fe.length,semTurno:semTurno.length,porDomingo:[]};
     // Cada funcionário operacional deve participar de 2 domingos no ciclo.
     // A distribuição é feita separadamente por função e por turno.
-    const part=n=>rodizio2x1?Math.round(n*2*doms.length/3):n*2;   // V306: 2×1 = 2 de cada 3 domingos (antes: 2 domingos no mês)
-    const qa=ab.length ? repartir(part(ab.length),doms.length) : Array(doms.length).fill(0);
-    const qf=fe.length ? repartir(part(fe.length),doms.length) : Array(doms.length).fill(0);
-    const qo=semTurno.length ? repartir(part(semTurno.length),doms.length) : Array(doms.length).fill(0);
+    // V341: cada pessoa trabalha 2 por ciclo → 2/3 dos domingos no 2×1, 1/2 no 2×2. part soma por pessoa (2×1 fica idêntico).
+    const cicloFn=typeof cicloDe==='function'?cicloDe:(()=>3);
+    const fatorDe=i=>cicloFn(i)===4?0.5:2/3;
+    const part=arr=>rodizio2x1?Math.round(doms.length*arr.reduce((s,i)=>s+fatorDe(i),0)):arr.length*2;   // V306/V341
+    const qa=ab.length ? repartir(part(ab),doms.length) : Array(doms.length).fill(0);
+    const qf=fe.length ? repartir(part(fe),doms.length) : Array(doms.length).fill(0);
+    const qo=semTurno.length ? repartir(part(semTurno),doms.length) : Array(doms.length).fill(0);
     meta.porDomingo=doms.map((d,idx)=>({total:qa[idx]+qf[idx]+qo[idx],abertura:qa[idx],fechamento:qf[idx],outros:qo[idx]}));
     if(/promotor/.test(chave)){   // V258: promotor = 1 por domingo (alterna abertura/fechamento quando há dos dois)
       const tur=doms.map((d,idx)=>ab.length&&fe.length?(idx%2?'fe':'ab'):ab.length?'ab':fe.length?'fe':'ou');
@@ -8299,8 +8333,13 @@ function gerarSetoresCore(){
   const ativosOperacionais=ativos.filter(i=>!ehLiderancaDomingo(equipe[i]));
   if(!ativos.length){ const v=$('validacao'); if(v){ v.className='alert bad'; v.innerHTML='⛔ <b>Ninguém da equipe pode trabalhar no domingo</b>: todos estão afastados (AF/EP), de férias, marcados como não aptos ou com folga fixa no domingo. Confira a equipe no passo 1.'; } const sb=$('statusBadge'); if(sb) sb.textContent='Ninguém apto ao domingo'; window.showToast('Não há funcionários aptos ao domingo.','warn'); return; }   // V216: o status ficava preso em “Gerando…”
   const modo=$('modoCobertura')?.value||'50';
-  const rodizio2x1=modoGeracaoAtual==='motor';   // V306: no 🤖 Automático vale o rodízio 2×1 (trabalha 2 domingos, folga 1) em qualquer modo de cobertura
-  const fatorDom=rodizio2x1?2/3:1/2;
+  const rodizio2x1=modoGeracaoAtual==='motor';   // V306: no 🤖 Automático vale o rodízio dos domingos (trabalha 2, folga 1 no 2×1; folga 2 no 2×2) em qualquer modo de cobertura
+  // V341: ciclo de cada pessoa — 3 (2×1: trabalha 2, folga 1) ou 4 (2×2: trabalha 2, folga 2). Com 2×1 tudo fica igual.
+  const cicloDe=i=>{ try{ const c=window.v341Regime&&window.v341Regime.cicloDe(i); return c===4?4:3; }catch(e){ return 3; } };
+  const fatorPessoaDom=i=>cicloDe(i)===4?0.5:2/3;   // fração de domingos que a pessoa trabalha
+  const fatorDom=rodizio2x1
+    ? (ativosOperacionais.length ? ativosOperacionais.reduce((s,i)=>s+fatorPessoaDom(i),0)/ativosOperacionais.length : 2/3)
+    : 1/2;
   if(modoGeracaoAtual==='manual' || modoGeracaoAtual==='mista'){
     const errosPre=auditarSelecaoAntesDaGeracao(modoGeracaoAtual);
     const bloqueiam = modoGeracaoAtual==='manual' ? v331SepararErros(errosPre).duros : errosPre;   // V331: no À mão, só os impedimentos duros bloqueiam; a quebra de estrutura vira concordância
@@ -8341,7 +8380,7 @@ function gerarSetoresCore(){
   // Antes de escolher qualquer domingo, o motor calcula a demanda por função
   // e turno para o ciclo inteiro. Isso impede que um domingo receba 7
   // Açougueiros e outro apenas 4 quando o quadro pede uma distribuição 6/6/6/6.
-  const metasFuncoesGlobal=modo==='funcao' ? metasFuncaoUsuario(doms,ano,mes) : calcularMetasDistribuicaoFuncoes(doms,ativosOperacionais,rodizio2x1);
+  const metasFuncoesGlobal=modo==='funcao' ? metasFuncaoUsuario(doms,ano,mes) : calcularMetasDistribuicaoFuncoes(doms,ativosOperacionais,rodizio2x1,cicloDe);   // V341: cicloDe
   const alvosCalculados=metasTotaisPorDomingo(metasFuncoesGlobal,doms);
   const somaMetas=alvosCalculados.reduce((a,b)=>a+b,0);
   const alvoCiclo=Math.max(1,Math.round(ativosOperacionais.length*fatorDom));   // V306
@@ -8369,7 +8408,7 @@ function gerarSetoresCore(){
   if(rodizio2x1){
     const livres=new Map(),cont=new Map(),geral=[0,0,0];   // V320: geral = quantos folgam em cada vez no setor todo
     const grupoDe=i=>(chaveFuncaoDistribuicao(i)||'')+'|'+norm(equipe[i].turno||'');
-    ativosOperacionais.forEach(i=>{
+    ativosOperacionais.filter(i=>cicloDe(i)===3).forEach(i=>{   // V341: a vez de folga do 2×1 é só de quem é 2×1; o 2×2 descansa pelo filtro de ciclo
       const h=historicoManual(i)||{},g=grupoDe(i);
       if(!cont.has(g))cont.set(g,[0,0,0]);
       const fase=h.penultimo&&h.ultimo?0:h.ultimo?1:h.penultimo?2:null;
@@ -8513,6 +8552,7 @@ function gerarSetoresCore(){
     const candidatos=ativosOperacionais.filter(i=>{
       const e=estadoAnterior(i,idx);
       if(e[0]&&e[1])return false;
+      if(cicloDe(i)===4 && e[0]) return false;   // V341: 2×2 — folga 2 depois de trabalhar 2 (não trabalha se trabalhou o domingo retrasado; o dia-anterior fecha a dupla)
       if(violaAncoraBalanco(i,idx)) return false;   // V195: balanço é âncora
       const dsC=descansosDoCandidato(i,doms[idx]);
       if(!dsC.every(dt=>candidatoPodeReceberDSRPorTurno(i,dt))) return false;
@@ -18588,6 +18628,75 @@ function domingosQuantidadeForaDoSugerido(){
     const d=+td.dataset.pvDom, i=+td.dataset.pvFunc; if(!vaiColocar(d,i)) return;
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); abrir(d,i); },true);
   window.v337HorarioTabela={abrir, escolher, cancelar, vaiColocar};
+})();
+</script>
+<script>
+/* ═════ V341 — 🗓️ REGIME DE DOMINGO: 2×1 / 2×2 / MISTO (pedido do Gerente) ═════
+   Em ⋮ → Configurações da escala o Gerente escolhe o regime dos domingos:
+     • 2×1 (padrão): trabalha 2 domingos, folga 1 (nada muda — motor idêntico às versões anteriores).
+     • 2×2: trabalha 2 domingos, folga 2 (ex.: trabalha 01 e 08/11, folga 15 e 22/11, trabalha 29/11 e 06/12…).
+     • Misto: o Gerente diz QUANTAS pessoas ficam no 2×2; o resto fica no 2×1; o app escolhe quem,
+       dividindo pelos cargos (round-robin, ordem estável por matrícula).
+   window.v341Regime.cicloDe(i) devolve 3 (2×1) ou 4 (2×2) para cada pessoa; o motor (gerarEscalaDomingos,
+   calcularMetasDistribuicaoFuncoes) usa isso para a cobertura (⅔ no 2×1, ½ no 2×2) e para o descanso
+   (no 2×2 ninguém trabalha se trabalhou o domingo retrasado → garante folgar 2 depois de trabalhar 2).
+   Tudo gated: com 2×1 o caminho é o de sempre. */
+window.v341Regime=(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const LS='setores.v341Regime';
+  const st={modo:'2x1',qtd:0};
+  try{ const v=JSON.parse(localStorage.getItem(LS)||'null'); if(v&&typeof v==='object'){ if(['2x1','2x2','misto'].includes(v.modo)) st.modo=v.modo; if(Number.isFinite(+v.qtd)) st.qtd=Math.max(0,Math.floor(+v.qtd)); } }catch(e){}
+  const salvar=()=>{ try{ localStorage.setItem(LS,JSON.stringify(st)); }catch(e){} };
+  const modo=()=>st.modo, qtd2x2=()=>st.qtd;
+  function operacionais(){
+    try{ return (window.equipe||[]).map((f,i)=>i).filter(i=>{ const f=equipe[i]; return f && !foraDom(f) && !ehLiderancaDomingo(f); }); }catch(e){ return []; }
+  }
+  // quem fica no 2×2: no Misto divide pelos cargos (round-robin), ordem estável por matrícula
+  function set2x2(){
+    if(st.modo==='2x2') return new Set(operacionais());
+    if(st.modo!=='misto' || st.qtd<=0) return new Set();
+    const ops=operacionais(), n=Math.min(st.qtd, ops.length);
+    const porCargo=new Map();
+    ops.slice().sort((a,b)=>{ const ca=String(equipe[a].cargo||''), cb=String(equipe[b].cargo||''); if(ca!==cb) return ca<cb?-1:1; return String(equipe[a].matricula||a).localeCompare(String(equipe[b].matricula||b),'pt',{numeric:true}); })
+      .forEach(i=>{ const k=String(equipe[i].cargo||''); if(!porCargo.has(k)) porCargo.set(k,[]); porCargo.get(k).push(i); });
+    const filas=[...porCargo.values()], escolhidos=new Set();
+    while(escolhidos.size<n){ let avancou=false; for(const fila of filas){ if(fila.length){ escolhidos.add(fila.shift()); avancou=true; if(escolhidos.size>=n) break; } } if(!avancou) break; }
+    return escolhidos;
+  }
+  function cicloDe(i){ if(st.modo==='2x1') return 3; if(st.modo==='2x2') return 4; return set2x2().has(i)?4:3; }
+  const ehPessoa2x2=i=>cicloDe(i)===4;
+  // ── UI ──
+  function texto(){
+    if(st.modo==='2x1') return '2×1: cada pessoa trabalha 2 domingos e folga 1. Em cada domingo trabalha cerca de ⅔ da equipe.';
+    if(st.modo==='2x2') return '2×2: cada pessoa trabalha 2 domingos e folga 2. Em cada domingo trabalha cerca de metade da equipe (menos gente por domingo que no 2×1).';
+    const ops=operacionais().length, n=Math.min(st.qtd,ops);
+    return `Misto: ${n} pessoa(s) no 2×2 e ${Math.max(0,ops-n)} no 2×1. O app escolhe quem fica no 2×2, dividindo pelos cargos. No 2×2 trabalha-se 2 domingos e folga 2; no 2×1, trabalha 2 e folga 1.`;
+  }
+  function pintar(){
+    const sel=$i('regimeDomingo'); if(sel && sel.value!==st.modo) sel.value=st.modo;
+    const inp=$i('regimeQtd2x2'); if(inp && String(inp.value)!==String(st.qtd)) inp.value=st.qtd;
+    const box=$i('regimeMistoBox'); if(box) box.hidden=st.modo!=='misto';
+    const res=$i('regimeResumo'); if(res) res.textContent=texto();
+  }
+  function mudou(){
+    try{ if(typeof window.trabalhoDomingo!=='undefined') window.trabalhoDomingo={}; }catch(e){}
+    try{ window.ultimaEscala=null; }catch(e){}
+    pintar();
+    try{ if(typeof renderTabela==='function' && $i('previaTabelaFolgas')) renderTabela(+$i('mes').value,+$i('ano').value,balancoDoMes(+$i('ano').value,+$i('mes').value)); }catch(e){}
+  }
+  function ligar(){
+    const sel=$i('regimeDomingo'), inp=$i('regimeQtd2x2');
+    if(sel && !sel.dataset.v341){ sel.dataset.v341='1'; sel.addEventListener('change',()=>{ st.modo=['2x1','2x2','misto'].includes(sel.value)?sel.value:'2x1'; salvar(); mudou(); }); }
+    if(inp && !inp.dataset.v341){ inp.dataset.v341='1'; inp.addEventListener('input',()=>{ st.qtd=Math.max(0,Math.floor(+inp.value||0)); salvar(); if(st.modo==='misto') mudou(); else pintar(); }); }
+    pintar();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',ligar); else ligar();
+  // religa quando a caixa de Configurações é remontada (só quando o seletor aparece sem estar ligado)
+  try{ new MutationObserver(()=>{ const sel=$i('regimeDomingo'); if(sel && !sel.dataset.v341) ligar(); }).observe(document,{childList:true,subtree:true}); }catch(e){}
+  return {modo,qtd2x2,cicloDe,ehPessoa2x2,set2x2,operacionais,
+    estado:()=>({modo:st.modo,qtd:st.qtd}),
+    definir:(m,q)=>{ if(['2x1','2x2','misto'].includes(m)) st.modo=m; if(Number.isFinite(+q)) st.qtd=Math.max(0,Math.floor(+q)); salvar(); pintar(); }};
 })();
 </script>
 </body>
