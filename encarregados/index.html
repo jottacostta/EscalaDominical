@@ -7,10 +7,32 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V204</title>
+<title>Escala 2×1 — Encarregados V208</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V208 [Claude] — ✍️ À MÃO: AVISA E PEDE CONCORDÂNCIA, NÃO BLOQUEIA (pedido do Gerente, igual à Escala de Setores V331): na escala à
+       mão quem monta é o usuário. As quebras de estrutura — 3 domingos seguidos (2×1) e a folga do domingo caindo num feriado que
+       a pessoa trabalha — deixam de impedir a marcação e o 🚀 Gerar: a conferência avisa e, depois de gerar, abre a janela pedindo
+       a concordância (✅ Concordo, usar assim / ↩️ Voltar e ajustar). Continuam valendo como antes: a composição do domingo (3
+       pessoas, 1 Encarregado + 1 Subencarregado, setores diferentes), afastados/férias e folga fixa no domingo. No Automático e
+       no Misto nada muda.
+V207 [Claude] — 🗓️ FOLGA DE FERIADO SÓ DE QUEM TRABALHA, NA ORDEM DOS FERIADOS (pedido do Gerente, igual à Escala de Setores
+       V327/V328): (1) quem saía de um feriado (ex.: deixava de trabalhar o domingo-feriado 15/11 e a escala era gerada de novo)
+       continuava com a sugestão "💡 F15" — e o "✅ Aceitar todas" dava a folga de um feriado que a pessoa não trabalhou. Agora a
+       sugestão e a folga do feriado só ficam com quem trabalha aquele feriado. (2) Quem trabalha vários feriados (ex.: 2, 15 e 20)
+       recebe as folgas na ordem do feriado: a do 2 antes da do 15, e a do 15 antes da do 20. O prazo (20 ou 30 dias) e os limites
+       de folga por dia, por sábado e por setor continuam valendo; se nenhuma data respeitar a ordem, fica a melhor possível.
+V206 [Claude] — 👆 PRÉVIA CLICÁVEL NOS DOMINGOS (pedido do Gerente, igual à Escala de Setores V330/V333): na 📅 Prévia das folgas do
+       passo 4, tocar numa célula de domingo tira ou coloca a pessoa naquele domingo. Vale na escala à mão e, depois de gerar, em
+       qualquer modo: no Automático/Misto, ao tocar, a escala vira "à mão" (o app copia os domingos que estão na tela e muda só o
+       domingo tocado). Colocar segue as regras da escala à mão (3 pessoas, 1 Encarregado + 1 Subencarregado, setores diferentes,
+       sem 3º domingo seguido); se não puder, o app diz o motivo. O domingo de balanço não é tocável. Depois, toque em 🚀 Gerar escala.
+V205 [Claude] — 🚀 GERAR NOS PASSOS DOMINGOS E FERIADOS; PASSO 5 VIRA RESUMO (pedido do Gerente, igual à Escala de Setores V332/V338):
+       o botão "🚀 Gerar escala" passa a ficar no fim dos passos 3 (Domingos) e 4 (Feriados); ao gerar, o resultado abre no passo 5,
+       que vira "Resumo" (ver e baixar). A barra de baixo do Resumo passa a ser "📊 Baixar planilha". Os textos e o Gabriel que
+       mandavam gerar "no passo 5" agora dizem "no passo 3 ou 4"; e o Gabriel indica 📅 Mês e opções → Mais opções → 📦 Domingos
+       de balanço (não um "passo Balanço", que não existe). Vale em todos os modos. window.v205IrGerar gera e abre o Resumo.
 V204 [Claude] — 📦 TUDO NO HISTÓRICO + APRENDIZADO (pedido do Gerente): a escolha do modelo (6×1/5×2) de cada mês e a 2ª folga
        fixa de cada pessoa vão para o histórico guardado (dentro de estadoFinalMes.v324) e voltam ao abrir. O app aprende a 2ª folga preferida
        de cada pessoa (histograma por matrícula) e o “🪄 Sugerir” repete o dia mais usado.
@@ -2042,6 +2064,17 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 .v196-manual-cont.ruim{color:var(--danger,#a1121d)}
 .v196-manual-cont.ok{color:var(--ok,#047857)}
 </style>
+<style id="v205-gerar-nos-passos">
+.v205-gerar-wrap{display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:16px 0 4px}
+.v205-gerar-wrap .v205-gerar{font-size:17px;font-weight:800;padding:14px 18px;border-radius:12px;min-height:48px}
+.v205-gerar-wrap .hint{text-align:center;margin:0}
+</style>
+<style id="v206-previa-clicavel">
+.pv-dica-clic{margin:8px 0;padding:9px 11px;border-radius:10px;background:var(--brand-lt,#eef2ff);border:1px solid var(--blue-200,#bfdbfe);color:var(--brand-ink,#1e3a8a);font-size:12.5px;line-height:1.4;font-weight:600}
+#previaTabelaFolgas td.pv-click{cursor:pointer;position:relative}
+#previaTabelaFolgas td.pv-click::after{content:"✎";position:absolute;top:0;right:1px;font-size:8px;line-height:1;opacity:.4}
+#previaTabelaFolgas td.pv-click:hover,#previaTabelaFolgas td.pv-click:active{outline:2px solid var(--brand,#2563eb);outline-offset:-2px}
+</style>
 </head>
 <body class="em-inicio">
 
@@ -2096,7 +2129,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V204 · Tudo no histórico + aprendizado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V208 · À mão: avisa e pede concordância, não bloqueia</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2106,7 +2139,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button aria-selected="false" class="step" data-panel="historicoCard" data-step="2" role="tab" type="button"><span class="step-num"><span>2</span></span><b>Mês passado</b><span>Últimos domingos</span></button>
 <button aria-selected="false" class="step" data-panel="domingosEtapa" data-step="3" role="tab" type="button"><span class="step-num"><span>3</span></span><b>Domingos</b><span>Quem trabalha</span></button>
 <button aria-selected="false" class="step" data-panel="geracaoCard" data-step="4" role="tab" type="button"><span class="step-num"><span>4</span></span><b>Feriados</b><span>Quem trabalha</span></button>
-<button aria-selected="false" class="step" data-panel="resultadoCard" data-step="5" role="tab" type="button"><span class="step-num"><span>5</span></span><b>Gerar</b><span>Ver e baixar</span></button>
+<button aria-selected="false" class="step" data-panel="resultadoCard" data-step="5" role="tab" type="button"><span class="step-num"><span>5</span></span><b>Resumo</b><span>Ver e baixar</span></button>
 </div>
 </div>
 
@@ -2269,8 +2302,9 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 </section>
 <section class="card step-panel" id="domingosEtapa" data-panel-id="domingos">
 <h2 class="section-title"><span class="st-num">3</span> Domingos</h2>
-<div class="guia"><span class="passo">Passo 3 de 5</span><p class="guia-1">Escolha quem monta os domingos. Se for à mão, marque as 3 pessoas de cada domingo.</p><details class="guia-mais"><summary>Como funciona</summary><ul><li>🤖 <b>Automático</b>: o app escolhe as 3 pessoas de cada domingo quando você toca em <b>🚀 Gerar escala</b> (passo 5). Depois de gerar, os domingos aparecem aqui.</li><li>✋ <b>À mão</b>: você marca as 3 pessoas de cada domingo. 🤝 <b>Misto</b>: você marca algumas e o app completa.</li><li>Cada domingo leva 1 Encarregado, 1 Subencarregado e mais 1 pessoa, todos de setores diferentes. Ninguém trabalha 3 domingos seguidos.</li><li>Os domingos vêm antes dos feriados: no passo 4, quem trabalha no domingo não pode ser escalado no feriado que cai na folga desse domingo.</li></ul></details></div>
+<div class="guia"><span class="passo">Passo 3 de 5</span><p class="guia-1">Escolha quem monta os domingos. Se for à mão, marque as 3 pessoas de cada domingo.</p><details class="guia-mais"><summary>Como funciona</summary><ul><li>🤖 <b>Automático</b>: o app escolhe as 3 pessoas de cada domingo quando você toca em <b>🚀 Gerar escala</b> (no fim deste passo ou do passo 4). Depois de gerar, os domingos aparecem aqui.</li><li>✋ <b>À mão</b>: você marca as 3 pessoas de cada domingo. 🤝 <b>Misto</b>: você marca algumas e o app completa.</li><li>Cada domingo leva 1 Encarregado, 1 Subencarregado e mais 1 pessoa, todos de setores diferentes. Ninguém trabalha 3 domingos seguidos.</li><li>Os domingos vêm antes dos feriados: no passo 4, quem trabalha no domingo não pode ser escalado no feriado que cai na folga desse domingo.</li></ul></details></div>
 <div id="v169DomArea"></div>
+<div class="v205-gerar-wrap"><button type="button" class="btn success v205-gerar" onclick="window.v205IrGerar&&window.v205IrGerar()">🚀 Gerar escala</button><small class="hint">Monte os domingos e toque aqui. O resultado abre no passo <b>Resumo</b>.</small></div>
 </section>
 <section class="card step-panel" id="coberturaCard" data-panel-id="cobertura">
 <h2 class="section-title"><span class="st-num">3</span> Grupos de trabalho</h2>
@@ -2342,6 +2376,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 
 <div id="feriadosArea"></div>
 </div>
+<div class="v205-gerar-wrap"><button type="button" class="btn success v205-gerar" onclick="window.v205IrGerar&&window.v205IrGerar()">🚀 Gerar escala</button><small class="hint">Quando terminar os feriados, toque aqui. O resultado abre no passo <b>Resumo</b>.</small></div>
 </section>
 
 
@@ -2407,7 +2442,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <li>No máximo <b>2 pessoas</b> de folga no mesmo dia, e nunca 2 do mesmo setor.</li>
 <li>No sábado, no máximo 1 pessoa. A Padaria não folga no sábado.</li>
 <li>O app <b>evita 3 dias seguidos de folga</b> para a mesma pessoa (por exemplo, sexta + sábado + domingo). Dois dias seguidos (sábado + domingo) pode. Se você escolher uma data assim à mão, o app avisa e pede confirmação.</li>
-<li>A <b>📅 Prévia das folgas</b> (passo 4) é uma tabela igual à tabela mensal: linhas = pessoas, colunas = dias. <b>💡 F02</b> é folga sugerida do feriado 02 (ainda não aceita), <b>Folga F02</b> é aceita e <b>FOLGA</b> é DSR. O DSR só aparece depois de gerar a escala (passo 5).</li>
+<li>A <b>📅 Prévia das folgas</b> (passo 4) é uma tabela igual à tabela mensal: linhas = pessoas, colunas = dias. <b>💡 F02</b> é folga sugerida do feriado 02 (ainda não aceita), <b>Folga F02</b> é aceita e <b>FOLGA</b> é DSR. O DSR só aparece depois de gerar a escala (🚀 Gerar escala, no passo 3 ou 4).</li>
 <li><b>⭐ Rodízio de sábado:</b> o sábado de folga de feriado é dado em fila. A cada sábado livre, ganha o próximo da fila que tem o domingo seguinte de folga (sábado + domingo = 2 dias de descanso). Quem já recebeu vai para o fim, e a memória continua nos meses seguintes. Se você definir um sábado à mão, ele conta como recebido e o app passa ao próximo sábado e à próxima pessoa. Se não houver jeito, o sábado antes de um domingo trabalhado é usado só como último recurso.</li>
 <li>O botão <b>✅ Aceitar todas</b> (passo 4) aceita de uma vez as datas que o app sugeriu.</li>
 <li>A partir do 2º feriado do mês, <b>↻ Copiar o feriado anterior</b> marca para trabalhar as mesmas pessoas do feriado de antes (domingo com feriado não conta: domingo é domingo e segue a escala do domingo).</li>
@@ -2449,9 +2484,9 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 </section>
 
 <section class="card step-panel" id="resultadoCard" data-panel-id="resultado">
-<h2 class="section-title"><span class="st-num">5</span> Gerar e conferir a escala</h2>
-<div class="guia"><span class="passo">Passo 5 de 5</span><p class="guia-1">Toque em Gerar escala e confira o resultado.</p><details class="guia-mais"><summary>Como funciona</summary><ul><li>Quem monta os domingos (🤖 Automático, ✋ À mão ou 🤝 Misto) fica no <b>passo 3 (Domingos)</b>. À mão, o app só gera quando todos os domingos estão ✅.</li><li>Depois aceite as folgas de feriado (passo 4), se houver.</li><li>No fim desta tela: <b>Baixar planilha Excel</b>, <span class="so-celular"><b>Copiar para WhatsApp</b> e </span><b>Guardar histórico do mês</b>.</li><li>Guarde o histórico ao terminar o mês: no mês seguinte, abra esse arquivo em <b>⋮ → Abrir histórico guardado</b> e ele vira o “mês passado”.</li></ul></details></div>
-<div class="alert" id="validacao" aria-live="polite">Tudo preenchido? Toque em <b>🚀 Gerar escala</b> na barra verde lá embaixo.</div>
+<h2 class="section-title"><span class="st-num">5</span> Resumo da escala</h2>
+<div class="guia"><span class="passo">Passo 5 de 5</span><p class="guia-1">Aqui é o Resumo: confira a escala, baixe a planilha e guarde o histórico do mês.</p><details class="guia-mais"><summary>Como funciona</summary><ul><li>O botão <b>🚀 Gerar escala</b> fica no fim dos passos <b>3 (Domingos)</b> e <b>4 (Feriados)</b>. O resultado abre aqui.</li><li>Quem monta os domingos (🤖 Automático, ✋ À mão ou 🤝 Misto) fica no <b>passo 3 (Domingos)</b>. À mão, o app só gera quando todos os domingos estão ✅.</li><li>Depois aceite as folgas de feriado (passo 4), se houver.</li><li>No fim desta tela: <b>Baixar planilha Excel</b>, <span class="so-celular"><b>Copiar para WhatsApp</b> e </span><b>Guardar histórico do mês</b>.</li><li>Guarde o histórico ao terminar o mês: no mês seguinte, abra esse arquivo em <b>⋮ → Abrir histórico guardado</b> e ele vira o “mês passado”.</li></ul></details></div>
+<div class="alert" id="validacao" aria-live="polite">Toque em <b>🚀 Gerar escala</b> no passo <b>Domingos</b> (ou Feriados). O resultado aparece aqui.</div>
 <div id="v322Modelo" class="v322-modelo" aria-live="polite"></div>
 <button class="btn success" id="btnGerar" type="button" style="display:none" aria-hidden="true" tabindex="-1">🚀 Gerar escala</button>
 <div id="painelMes" style="display:none;margin-top:10px"></div>
@@ -3478,7 +3513,7 @@ function renderRodizioSabado(force){
   const acePor={}; Object.entries(folgasCompensatorias||{}).forEach(([k,v])=>{ if(v&&ehSabadoISO(v)&&String(k).match(/^\d+_\d+$/)) acePor[origemChaveComp(k).i]=v; });
   const fd=iso=>iso?iso.split('-').reverse().slice(0,2).join('/'):'—';
   const linhas=fila.map((x,pos)=>`<tr><td>${pos+1}º</td><td><b>${esc(equipe[x.i].nome)}</b></td><td style="text-align:center">${x.rec.length}</td><td style="text-align:center">${x.rec.length?fd(x.rec[x.rec.length-1]):'ainda não'}</td><td>${acePor[x.i]?`✅ aceito em ${fd(acePor[x.i])}`:sugPor[x.i]?`⭐ sugerido em ${fd(sugPor[x.i])}`:'—'}</td></tr>`).join('');
-  box.innerHTML=(geradas?'':'<div class="alert info" style="margin:6px 0">O rodízio começa depois de gerar a escala (passo 5), porque depende de quem trabalha em cada domingo.</div>')
+  box.innerHTML=(geradas?'':'<div class="alert info" style="margin:6px 0">O rodízio começa depois de gerar a escala (🚀 Gerar escala, no passo 3 ou 4), porque depende de quem trabalha em cada domingo.</div>')
     +`<div class="table-wrap" style="max-height:340px"><table style="min-width:0;width:100%"><thead><tr><th>Fila</th><th>Pessoa</th><th>Sábados recebidos</th><th>Último</th><th>Neste mês</th></tr></thead><tbody>${linhas}</tbody></table></div>`;
 }
 function pontuacaoFolgaCompensatoria(i,dt){
@@ -3776,6 +3811,7 @@ function dataSugestaoFolgaFeriado(i,d){
   }
 
   if(!candidatos.length)return null;
+  { const mn=window.v207MinAnterior?.(i,d)||''; if(mn){ const emOrdem=candidatos.filter(c=>c.chave>=mn); if(emOrdem.length) candidatos.splice(0,candidatos.length,...emOrdem); } }   // V207: na ordem dos feriados (se nenhuma data respeitar, vale o prazo)
 
   // Primeiro preserva a operação (sem folga casada e sem sábado).
   // Só usa essas alternativas em último recurso.
@@ -3798,6 +3834,7 @@ function gerarSugestoesFolgasFeriado(){
 
   sugestoesFolgasFeriado=sugestoesFolgasFeriado||{};
   const fer=feriados(+$('ano').value,+$('mes').value);
+  try{ window.v207LimparSemFeriado?.(fer); }catch(e){ console.warn('[V207] limpar:',e); }   // V207: só quem trabalha o feriado
 
   // Remove sugestões de feriados que não existem mais neste período.
   Object.keys(sugestoesFolgasFeriado).forEach(k=>{
@@ -3836,6 +3873,7 @@ function gerarSugestoesFolgasFeriado(){
   // V112: se alguém ficou sem data, redistribui todas as pendentes em conjunto.
   try{ if(!sugestoesPausadasFeriado && pendentesDeFolgaFeriado().some(p=>!sugestoesFolgasFeriado[p.k])) reorganizarSugestoesFolgas(); }catch(e){ console.error('Falha ao reorganizar sugestões:',e); }
 
+  try{ window.v207OrdenarSugestoes?.(); }catch(e){ console.warn('[V207] ordenar:',e); }   // V207
   document.querySelectorAll('.feriado-sugestao').forEach(el=>{
     const d=Number(el.dataset.dia),i=Number(el.dataset.func);
     const chave=`${d}_${i}`;
@@ -4580,7 +4618,7 @@ function renderConfigDiasDsr(){
 function aoMudarDiasDsr(){
   renderConfigDiasDsr();
   // as folgas semanais já calculadas ficam desatualizadas: avisa para gerar de novo
-  if(typeof ultimaEscala!=='undefined' && ultimaEscala) window.showToast?.('Dias de DSR alterados. Toque em “Gerar escala” (passo 5) para recalcular as folgas.','info',true);
+  if(typeof ultimaEscala!=='undefined' && ultimaEscala) window.showToast?.('Dias de DSR alterados. Toque em “🚀 Gerar escala” (no passo 3 ou 4) para recalcular as folgas.','info',true);
 }
 function definirDiasDsr(dias){ diasDsrPermitidos=normalizarDiasDsr(dias); aoMudarDiasDsr(); }
 /* ---------------- DESCANSO FIXO ASSOCIADO AO DOMINGO ---------------- */
@@ -6042,7 +6080,7 @@ function _makeEmpresaXlsx(filename){
 }
 function escalaGeradaParaPeriodo(){
   if(!ultimaEscala || ultimaEscala.mes!==+$('mes').value || ultimaEscala.ano!==+$('ano').value){
-    window.showToast('Antes, gere a escala no passo 5.','warn');
+    window.showToast('Antes, gere a escala: 🚀 Gerar escala, no fim do passo 3 ou 4.','warn');
     window.v80GotoStep?.(5,false);
     return false;
   }
@@ -6301,7 +6339,7 @@ $('btnWhats').onclick=async (ev)=>{
     bar.querySelector('[data-bar="prev"]').onclick=()=>gotoStep(current-1===1?0:Math.max(0,current-1),false);   // V171: o “Mês e opções” fica fora da sequência
     bar.querySelector('[data-bar="menu"]').onclick=e=>{e.stopPropagation();toggleMenu();};
     bar.querySelector('[data-bar="primary"]').onclick=()=>{
-      if(current===stepButtons.length-1){ document.getElementById('btnGerar')?.click(); setTimeout(()=>document.getElementById('validacao')?.scrollIntoView({behavior:'smooth',block:'center'}),120); }
+      if(current===stepButtons.length-1){ document.getElementById('btnExcel')?.click(); }   // V205: no Resumo a barra baixa a planilha (o Gerar fica nos passos 3 e 4)
       else { gotoStep(current+1===1?2:current+1,true); }   // V171
     };
     return bar;
@@ -6314,7 +6352,7 @@ $('btnWhats').onclick=async (ev)=>{
     prev.disabled=current===0;
     const ultimo=current===stepButtons.length-1;
     const prox=stepButtons[current+1===1?2:current+1]?.querySelector('b')?.textContent||'';   // V171   // V169: o índice 2 voltou a ser um passo (Domingos)
-    btn.textContent=ultimo?'🚀 Gerar escala':`Próximo: ${prox} ▸`;
+    btn.textContent=ultimo?'📊 Baixar planilha':`Próximo: ${prox} ▸`;   // V205
     btn.classList.toggle('success',ultimo); btn.classList.toggle('primary',!ultimo);
   }
 
@@ -6343,7 +6381,7 @@ $('btnWhats').onclick=async (ev)=>{
       else if(a==='diag') window.copiarDiagnostico?.();   // V143
       else if(a==='sobre') window.abrirSobre?.();   // V146
       else if(a==='print'){
-        if(!ultimaEscala){ window.showToast('Antes, gere a escala no passo 5.','warn'); return; }
+        if(!ultimaEscala){ window.showToast('Antes, gere a escala: 🚀 Gerar escala, no fim do passo 3 ou 4.','warn'); return; }
         let h=document.getElementById('printHead');
         if(!h){ h=document.createElement('div'); h.id='printHead'; h.className='print-head'; document.getElementById('resultadoCard')?.prepend(h); }
         const M=document.getElementById('mes');
@@ -7180,7 +7218,7 @@ function perguntarOrientacaoImpressao(cb){
     const dd=String(bal).padStart(2,'0')+'/'+String(mes+1).padStart(2,'0');
     info.className=dis.size?'alert warn':'alert info';
     const nAf=[...dis].filter(i=>inativo(equipe[i])).length, nFol=dis.size-nAf;   // V137: separa afastados de quem você deixou de folga
-    info.textContent=dis.size?`Balanço de ${dd}: ${equipe.length-dis.size} trabalham${nAf?`, ${nAf} ${nAf>1?'estão afastados ou de férias':'está afastado ou de férias'}`:''}${nFol?` e ${nFol} ${nFol>1?'ficam':'fica'} de folga`:''}.${nFol?' Gere a escala de novo (passo 5) para aplicar.':' Marque quem precisa ficar de folga.'}`:`Balanço de ${dd}: todos trabalham. Marque quem precisa ficar de folga.`;
+    info.textContent=dis.size?`Balanço de ${dd}: ${equipe.length-dis.size} trabalham${nAf?`, ${nAf} ${nAf>1?'estão afastados ou de férias':'está afastado ou de férias'}`:''}${nFol?` e ${nFol} ${nFol>1?'ficam':'fica'} de folga`:''}.${nFol?' Gere a escala de novo (🚀 Gerar escala, no passo 3 ou 4) para aplicar.':' Marque quem precisa ficar de folga.'}`:`Balanço de ${dd}: todos trabalham. Marque quem precisa ficar de folga.`;
     lista.innerHTML=equipe.map((f,i)=>`<label class="bal-item ${dis.has(i)?'off':''}"><input type="checkbox" data-bal="${i}" ${dis.has(i)?'checked':''} ${inativo(f)?'disabled':''}><span><b>${esc(f.nome)}</b><small>${esc(f.cargo)}${inativo(f)?' — 🩺 afastado(a)/férias: fora do balanço':(dis.has(i)?' — de folga no balanço':'')}</small></span></label>`).join('');
     lista.querySelectorAll('[data-bal]').forEach(ch=>ch.addEventListener('change',()=>{
       const i=Number(ch.dataset.bal), f=equipe[i], chave=chaveMesBal(ano,mes), nome=normNome(f.nome);
@@ -7192,7 +7230,7 @@ function perguntarOrientacaoImpressao(cb){
       dispensadosBalanco[chave]=[...arr];
       if(!arr.size) delete dispensadosBalanco[chave];
       render(true);
-      if(typeof ultimaEscala!=='undefined'&&ultimaEscala) window.showToast?.('Folga no balanço alterada. Toque em “Gerar escala” (passo 5) para recalcular.','info',true);
+      if(typeof ultimaEscala!=='undefined'&&ultimaEscala) window.showToast?.('Folga no balanço alterada. Toque em “🚀 Gerar escala” (no passo 3 ou 4) para recalcular.','info',true);
     }));
   }
   window.renderBalancoCard=render;
@@ -8327,14 +8365,14 @@ function perguntarOrientacaoImpressao(cb){
         const f=equipe[i];
         if(inativo(f)) r.push({d,is:[i],t:`${dt}: ${f.nome} está afastado(a) ou de férias e não pode trabalhar.`});
         else if(Number(f.folgaFixa)===0) r.push({d,is:[i],t:`${dt}: ${f.nome} tem folga fixa no domingo (não trabalha domingo).`});
-        else { const x=folgaNoFeriadoTrabalhado(i,d); if(x) r.push({d,is:[i],t:`${dt}: a folga de ${f.nome} por este domingo cai no feriado ${fmtDiaSemana(x)}, e ele(a) está marcado(a) para trabalhar nesse feriado (passo 4).`}); }
+        else { const x=folgaNoFeriadoTrabalhado(i,d); if(x) r.push({d,is:[i],est:1,t:`${dt}: a folga de ${f.nome} por este domingo cai no feriado ${fmtDiaSemana(x)}, e ele(a) está marcado(a) para trabalhar nesse feriado (passo 4).`}); }   // V208: est = quebra de estrutura
       });
     });
     const lab=rotulosDomingos(doms);
     equipe.forEach((f,i)=>{
       trincas(i,doms,bal,full).forEach(({k,ds})=>{
         if(!ds.some(d=>(s[d]||[]).includes(i))) return;
-        r.push({d:ds[ds.length-1],ds,is:[i],t:`${f.nome} trabalharia 3 domingos seguidos (${lab[k-2]}, ${lab[k-1]} e ${lab[k]}). O máximo são 2.`});
+        r.push({d:ds[ds.length-1],ds,is:[i],est:1,t:`${f.nome} trabalharia 3 domingos seguidos (${lab[k-2]}, ${lab[k-1]} e ${lab[k]}). O máximo são 2.`});   // V208: est
       });
     });
     return {r,y};
@@ -8357,14 +8395,18 @@ function perguntarOrientacaoImpressao(cb){
     return '';
   }
 
+  function motivoTela(i,d,s){   // V208: no À mão, o toque da pessoa pode criar 3 domingos seguidos / folga no feriado (vira aviso + concordância)
+    const mo=motivo(i,d,s); if(modo()!=='manual') return mo;
+    return (mo==='Seria o 3º domingo seguido'||/^A folga cairia no feriado/.test(mo))?'':mo;
+  }
   /* marca/desmarca com a conferência: nada que crie regra quebrada entra */
   function marcar(i,d,silencioso){
     const s=sel(), S=s[d]||[]; if(S.includes(i)) return true;
-    const mo=motivo(i,d,s);
+    const mo=(silencioso?motivo:motivoTela)(i,d,s);   // V208: só o toque da pessoa (não silencioso) libera a quebra de estrutura
     if(mo){ if(!silencioso) toast(`⛔ ${nome(i)} não pode entrar em ${dd(d)}: ${mo.toLowerCase()}.`,'warn'); return false; }
     const antes=new Set(auditar(s).r.map(x=>x.t));
     const s2=Object.assign({},s,{[d]:[...S,i]});
-    const nova=auditar(s2).r.find(x=>!antes.has(x.t)&&(doDomingo(x,d)||x.is.includes(i)));
+    const nova=auditar(s2).r.find(x=>!antes.has(x.t)&&!(x.est&&modo()==='manual'&&!silencioso)&&(doDomingo(x,d)||x.is.includes(i)));   // V208: só no toque da pessoa
     if(nova){ if(!silencioso) toast('⛔ Não marquei: '+nova.t,'warn'); return false; }
     gravarDia(d,s2[d]); return true;
   }
@@ -8470,7 +8512,7 @@ function perguntarOrientacaoImpressao(cb){
     return '<span class="v167-st ok">✅ pronto</span>';
   }
   function linhaPessoa(i,d,s,full,doms,bal,marc,latVez){
-    const f=equipe[i], mo=marc?'':motivo(i,d,s);
+    const f=equipe[i], mo=marc?'':motivoTela(i,d,s);   // V208
     const nDom=doms.filter(x=>x!==bal&&full[x].includes(i)).length;
     const tags=[`<span class="v167-tag set">${H(setorDe(i))}</span>`];
     if(i===latVez) tags.push('<span class="v167-tag lat">🧀 vez do Laticínio</span>');
@@ -8544,9 +8586,9 @@ function perguntarOrientacaoImpressao(cb){
     const s=sel(), au=auditar(s), {doms,bal,full}=completo(s);
     const lista=(arr,cls)=>arr.slice(0,12).map(x=>`<button type="button" class="v167-ai ${cls}" data-ir="${x.d}">${cls==='r'?'🔴':'🟡'} ${H(x.t)}</button>`).join('')+(arr.length>12?`<small>… e mais ${arr.length-12}.</small>`:'');
     const conf=(!au.r.length&&!au.y.length)
-      ?`<div class="v167-aud ok">🛡️ <b>Conferência:</b> ✅ todos os domingos estão prontos e dentro das regras. Agora toque em <b>Próximo</b> para os feriados e, no fim, em <b>🚀 Gerar escala</b> (passo 5).</div>`
+      ?`<div class="v167-aud ok">🛡️ <b>Conferência:</b> ✅ todos os domingos estão prontos e dentro das regras. Agora toque em <b>🚀 Gerar escala</b> aqui embaixo (tem feriado? marque no passo 4 e gere no fim dele).</div>`
       :`<div class="v167-aud${au.r.length?'':' so-y'}"><div class="v167-ah">🛡️ <b>Conferência</b> ${au.r.length?`<span class="v167-st r">🔴 ${au.r.length} regra(s) quebrada(s)</span>`:''} ${au.y.length?`<span class="v167-st y">🟡 ${au.y.length} para completar</span>`:''}</div>
-        <small>Toque num aviso para ir ao domingo.${m==='misto'?' No Misto, o 🟡 não impede: o app completa ao gerar.':''}</small>${lista(au.r,'r')}${lista(au.y,'y')}</div>`;
+        <small>Toque num aviso para ir ao domingo.${m==='misto'?' No Misto, o 🟡 não impede: o app completa ao gerar.':''}${m==='manual'&&au.r.some(x=>x.est)?' No À mão quem decide é você: 3 domingos seguidos e folga no feriado não impedem o Gerar — o app pede a sua concordância.':''}</small>${lista(au.r,'r')}${lista(au.y,'y')}</div>`;
     h+=`<h3 class="v167-t">② ${m==='manual'?'Marque as 3 pessoas de cada domingo':'Marque quem você quer em cada domingo (o app completa o resto)'}</h3>
       <p class="v167-nota">Cada domingo leva <b>3 pessoas</b>: pelo menos <b>1 Encarregado</b> e <b>1 Subencarregado</b>, todos de <b>setores diferentes</b>. Ninguém trabalha <b>3 domingos seguidos</b>. Quem não pode entrar aparece em cinza, com o motivo (⛔).</p>
       <div class="v167-mostrar">Mostrar: <button type="button" data-mostrar="todos" aria-pressed="${st.mostrar!=='escalados'}">Todos</button><button type="button" data-mostrar="escalados" aria-pressed="${st.mostrar==='escalados'}">Só os escalados</button></div>
@@ -8559,7 +8601,7 @@ function perguntarOrientacaoImpressao(cb){
     if(!equipe.length) return '';
     const a=ano(),m=mes(),doms=domingosDoMes(a,m),bal=balancoDoMes(a,m);
     const gerado=ultimaEscala&&ultimaEscala.mes===m&&ultimaEscala.ano===a;
-    if(!gerado) return `<div class="v169-auto">🤖 <b>No Automático</b>, o app escolhe as 3 pessoas de cada domingo quando você toca em <b>🚀 Gerar escala</b> (passo 5). Depois de gerar, os domingos aparecem aqui. Agora toque em <b>Próximo</b> para marcar os feriados.</div>`;
+    if(!gerado) return `<div class="v169-auto">🤖 <b>No Automático</b>, o app escolhe as 3 pessoas de cada domingo quando você toca em <b>🚀 Gerar escala</b> (aqui embaixo). Depois de gerar, os domingos aparecem aqui. Tem feriado no mês? Toque em <b>Próximo</b>, marque os feriados e gere no fim do passo 4.</div>`;
     return `<div class="v169-auto"><b>🗓️ Domingos que o app montou:</b>${doms.map(d=>`<div class="v169-dl"><b>☀️ ${dd(d)}</b> ${d===bal?'📦 balanço: todos trabalham':((trabalhoDomingo[d]||[]).map(i=>`${H(nome(i))} <small>(${H(setorDe(i))})</small>`).join(', ')||'—')}</div>`).join('')}<small class="v169-nt">Se mudar alguma coisa (equipe, feriados, mês passado), toque em 🚀 Gerar escala de novo.</small></div>`;
   }
   /* V169 — no passo Gerar, um resumo dos domingos com atalho para o passo 3 */
@@ -8580,14 +8622,14 @@ function perguntarOrientacaoImpressao(cb){
     if(!q){ box.innerHTML=''; return; }
     const s=sel(), S=s[d]||[];
     const l=equipe.map((f,i)=>i).filter(i=>!inativo(equipe[i])&&!S.includes(i)&&(norm(equipe[i].nome).includes(q)||String(equipe[i].matricula||'').includes(q))).slice(0,8);
-    box.innerHTML=l.length?l.map(i=>{ const mo=motivo(i,d,s); return `<button type="button" data-add="${i}" data-d="${d}"${mo?' disabled':''}><b>${H(nome(i))}</b> <small>${equipe[i].matricula?'mat. '+H(equipe[i].matricula)+' · ':''}${H(TIPO[equipe[i].tipo]||'')} · ${H(setorDe(i))}</small>${mo?`<span class="v167-mo">⛔ ${H(mo)}</span>`:''}</button>`; }).join(''):'<small class="v167-nota">Ninguém encontrado (ou já está marcado).</small>';
+    box.innerHTML=l.length?l.map(i=>{ const mo=motivoTela(i,d,s); return `<button type="button" data-add="${i}" data-d="${d}"${mo?' disabled':''}><b>${H(nome(i))}</b> <small>${equipe[i].matricula?'mat. '+H(equipe[i].matricula)+' · ':''}${H(TIPO[equipe[i].tipo]||'')} · ${H(setorDe(i))}</small>${mo?`<span class="v167-mo">⛔ ${H(mo)}</span>`:''}</button>`; }).join(''):'<small class="v167-nota">Ninguém encontrado (ou já está marcado).</small>';
   }
 
   document.addEventListener('click',e=>{
     const b=document.getElementById('v167Bloco'); if(!b||!b.contains(e.target)) return;
     const mb=e.target.closest('[data-modo]');
     if(mb){ st.modo=mb.dataset.modo; gravar(); render();
-      if(st.modo!=='auto') toast(st.modo==='manual'?'✋ Escala à mão: marque as 3 pessoas de cada domingo. No passo 5, toque em 🚀 Gerar escala.':'🤝 Misto: marque quem você quer; no passo 5, toque em 🚀 Gerar escala e o app completa o resto.','info');
+      if(st.modo!=='auto') toast(st.modo==='manual'?'✋ Escala à mão: marque as 3 pessoas de cada domingo. No fim do passo, toque em 🚀 Gerar escala.':'🤝 Misto: marque quem você quer; no fim do passo, toque em 🚀 Gerar escala e o app completa o resto.','info');
       return; }
     const ms=e.target.closest('[data-mostrar]'); if(ms){ st.mostrar=ms.dataset.mostrar; gravar(); render(); return; }
     const ir=e.target.closest('[data-ir]'); if(ir){ document.getElementById('v167c'+ir.dataset.ir)?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
@@ -8641,7 +8683,7 @@ function perguntarOrientacaoImpressao(cb){
   };
   window.gerar=function(){
     if(!ativo()||!equipe.length){ const res=gerarOrig.apply(this,arguments); try{ render(); }catch(e){} return res; }   // V169: o passo Domingos mostra o que o automático montou
-    const au=auditar(), bloq=modo()==='manual'?[...au.r,...au.y]:au.r;
+    const au=auditar(), bloq=modo()==='manual'?[...au.r.filter(x=>!x.est),...au.y]:au.r;   // V208: no À mão, a quebra de estrutura pede concordância depois de gerar
     if(bloq.length){
       const v=$('validacao');
       v.className='alert bad';
@@ -8656,6 +8698,7 @@ function perguntarOrientacaoImpressao(cb){
       const v=$('validacao');
       if(v&&/ok/.test(v.className)) v.textContent=v.textContent.replace('✅ Escala pronta e dentro das regras!',modo()==='manual'?'✅ Escala à mão pronta e dentro das regras!':'✅ Escala pronta (você marcou alguns e o app completou) e dentro das regras!');
     }catch(e){}
+    try{ if(modo()==='manual') window.v208Concordancia?.posGeracao(au.r.filter(x=>x.est).map(x=>x.t)); }catch(e){ console.warn('[V208]',e); }
     render(); return res;
   };
   document.addEventListener('click',e=>{ const b=e.target.closest?.('[data-ir2]'); if(b){ window.v80GotoStep?.(3,false); setTimeout(()=>document.getElementById('v167c'+b.dataset.ir2)?.scrollIntoView({behavior:'smooth',block:'start'}),200); } });   // V169: os domingos ficam no passo 3
@@ -9174,7 +9217,7 @@ function perguntarOrientacaoImpressao(cb){
     const P=pessoas(q), Ds=domingos(q), mesNome=`${MES[mes()]} de ${ano()}`;
     /* o que falta */
     if(tem(q,'falta','faltando','pendente*','pronta','pronto','posso gerar','esta certo','ta certo','erro','erros','problema*')&&!P.length){
-      const f=AP.falta(); if(f===null) return `No modo <b>Automático</b>, o app monta os domingos quando você toca em <b>Gerar</b> (passo 5). Antes, confira a equipe, o mês passado${APP==='setores'?' e a liderança (③ Quem lidera)':''}.`;
+      const f=AP.falta(); if(f===null) return `No modo <b>Automático</b>, o app monta os domingos quando você toca em <b>🚀 Gerar escala</b> (no fim do passo 3 ou 4). Antes, confira a equipe, o mês passado${APP==='setores'?' e a liderança (③ Quem lidera)':''}.`;
       if(!f.length) return '✅ Não falta nada na escala dos domingos. Pode ir para os feriados e depois <b>Gerar</b>.';
       return `🛠️ Falta${f.length>1?'m':''} <b>${f.length}</b> coisa(s):<ul>${f.slice(0,5).map(x=>'<li>'+es(x)+'</li>').join('')}</ul>${f.length>5?`…e mais ${f.length-5}. `:''}Ajuste no passo <b>3 Domingos</b>.`; }
     /* por que não pode */
@@ -9458,7 +9501,7 @@ function perguntarOrientacaoImpressao(cb){
       return `🤔 Não tenho a escala do ${rot}. A escala aberta é a de <b>${MESES[M]} de ${A}</b>; fora dela eu só guardo os <b>2 últimos domingos do mês passado</b> (passo 2) e não invento dados.${ult?` Para ver o último domingo da escala aberta, pergunte “<i>quem trabalha no domingo ${ult}?</i>”.`:''}`+nota;
     }
     let esc, fonteTxt;
-    if(est.fonte==='escala'){ const r=quemEscala(est.d); esc=r.l; fonteTxt=r.f; if(!r.l.length&&r.aberto) return `📋 Para o ${rot} ainda <b>não há escala</b>: no modo Automático o app escolhe quem trabalha quando você toca em <b>Gerar</b> (passo 5).`+nota; }
+    if(est.fonte==='escala'){ const r=quemEscala(est.d); esc=r.l; fonteTxt=r.f; if(!r.l.length&&r.aberto) return `📋 Para o ${rot} ainda <b>não há escala</b>: no modo Automático o app escolhe quem trabalha quando você toca em <b>🚀 Gerar escala</b> (no fim do passo 3 ou 4).`+nota; }
     else { esc=equipe.map((f,i)=>i).filter(i=>seguro(()=>historicoManual(i)[est.qual])); fonteTxt='passo 2 Mês passado (informado por você ou vindo do histórico guardado)'; }
     const fonte=`<small>Fonte: ${es(fonteTxt)}.</small>`;
     if(tipo==='folgou'){
@@ -9790,7 +9833,7 @@ function perguntarOrientacaoImpressao(cb){
     if(cargoTok) ids=ids.filter(i=>String(eq()[i].cargo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(cargoTok));
     if(turno) ids=ids.filter(i=>turnoDe(i)===turno);
     const dom=al.dt.getDay()===0;
-    if(dom&&!gerada()) return `📅 ${fmtL(al.dt)}: a escala de domingos deste mês <b>ainda não foi gerada</b> (passo 5). Depois de tocar em Gerar eu respondo.`;
+    if(dom&&!gerada()) return `📅 ${fmtL(al.dt)}: a escala de domingos deste mês <b>ainda não foi gerada</b>. Toque em 🚀 Gerar escala (no fim do passo 3 ou 4) e eu respondo.`;
     const tr=ids.filter(i=>trabalha(i,al.dt)), fo=ids.filter(i=>!trabalha(i,al.dt));
     const qual=(turno?` no turno de <b>${turno==='ABERTURA'?'abertura':'fechamento'}</b>`:'')+(cargoTok?` (cargo com “${es(cargoTok)}”)`:'');
     const nota='<br><small>Escala planejada (não tenho registro de ponto'+(dom?'':'; nos dias úteis conto a folga fixa, o descanso do domingo e o feriado')+').</small>';
@@ -9859,7 +9902,7 @@ function perguntarOrientacaoImpressao(cb){
   function datasDoMes(){ const {a,m}=anoMes(), n=new Date(a,m+1,0).getDate(), out=[]; for(let d=1;d<=n;d++) out.push(new Date(a,m,d)); return out; }
   function contagens(){ const at=ativos(), {a,m}=anoMes(), fer=seguro(()=>feriados(a,m)||{},{}); return datasDoMes().map(dt=>{ const tr=at.filter(i=>trabalha(i,dt)); return {dt,fer:fer[dt.getDate()]||'',n:tr.length,ab:tr.filter(i=>turnoDe(i)==='ABERTURA').length,fe:tr.filter(i=>turnoDe(i)==='FECHAMENTO').length}; }); }
   const SEMCOB='<br><small>⚠️ A <b>cobertura mínima</b> (quantas pessoas cada setor/turno precisa) ainda <b>não está cadastrada</b> no app: por isso eu comparo quantidades, mas não afirmo se é “suficiente”.</small>';
-  function exigeEscala(){ return gerada()?null:'A escala deste mês <b>ainda não foi gerada</b> (passo 5). Sem ela eu só conheço as folgas fixas; gere e pergunte de novo.'; }
+  function exigeEscala(){ return gerada()?null:'A escala deste mês <b>ainda não foi gerada</b>. Sem ela eu só conheço as folgas fixas. Toque em 🚀 Gerar escala (no fim do passo 3 ou 4) e pergunte de novo.'; }
   function respApertado(qn){
     const x=exigeEscala(); if(x) return x;
     const todosDias=contagens(), c=todosDias.filter(e=>!(e.fer&&e.n===0)), ferVazios=todosDias.filter(e=>e.fer&&e.n===0), porDia=[0,1,2,3,4,5,6].map(w=>{ const l=c.filter(e=>e.dt.getDay()===w); return {w,m:l.length?l.reduce((s,e)=>s+e.n,0)/l.length:0,l}; }).filter(e=>e.l.length);
@@ -9943,7 +9986,7 @@ function perguntarOrientacaoImpressao(cb){
   }
   function respComoSalvar(){
     ctxEstado.topic='salvar';
-    return '📦 <b>Como guardar:</b> depois de gerar a escala (passo 5), toque em <b>📦 Guardar histórico do mês</b> — o arquivo <b>Historico_…json</b> vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use <b>📊 Baixar planilha Excel</b>. O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.';
+    return '📦 <b>Como guardar:</b> depois de gerar a escala (🚀 Gerar escala, no passo 3 ou 4), abra o passo 5 (Resumo) e toque em <b>📦 Guardar histórico do mês</b> — o arquivo <b>Historico_…json</b> vai para a pasta Downloads (é ele que você abre no mês que vem). Para a planilha de impressão, use <b>📊 Baixar planilha Excel</b>. O app também guarda um rascunho no aparelho automaticamente, mas o histórico é o que vale como cópia segura.';
   }
   function respPlanilhaSemArquivo(){
     const s=estadoPlanilha(), n=eq().length;
@@ -9983,7 +10026,7 @@ function perguntarOrientacaoImpressao(cb){
   }
   function respConfirmaSalvar(){
     const ger=gerada();
-    return (ger?'':'⚠️ A escala deste mês ainda não foi gerada (passo 5), então não há o que guardar. ')+'Eu <b>não consigo confirmar</b> se o histórico foi baixado: o navegador salva o arquivo na pasta <b>Downloads</b> e não me avisa. Procure um arquivo chamado <b>Historico_…json</b>. Se o app mostrou o aviso verde “Histórico guardado”, o arquivo foi criado.';
+    return (ger?'':'⚠️ A escala deste mês ainda não foi gerada (🚀 Gerar escala, no passo 3 ou 4), então não há o que guardar. ')+'Eu <b>não consigo confirmar</b> se o histórico foi baixado: o navegador salva o arquivo na pasta <b>Downloads</b> e não me avisa. Procure um arquivo chamado <b>Historico_…json</b>. Se o app mostrou o aviso verde “Histórico guardado”, o arquivo foi criado.';
   }
   function respProblema(){
     const t=ctxEstado.topic;
@@ -10119,7 +10162,7 @@ function perguntarOrientacaoImpressao(cb){
     }
     if(tem(qn,'balanco')&&tem(qn,'quem','quais')&&tem(qn,'faz','fazem','trabalha','trabalham')){
       const {a,m}=anoMes(), b=seguro(()=>balancoDoMes(a,m),0);
-      if(!b) return `Não há <b>domingo de balanço</b> marcado em ${I.MES[m]} de ${a}. Marque no passo <b>Balanço</b> (datas de balanço) e eu respondo.`;
+      if(!b) return `Não há <b>domingo de balanço</b> marcado em ${I.MES[m]} de ${a}. Marque em <b>📅 Mês e opções → Mais opções</b>, no quadro <b>📦 Domingos de balanço</b>, e eu respondo.`;   // V205: não existe passo Balanço
       const x=exigeEscala(); if(x) return x;
       return respDia({dt:new Date(a,m,b),rot:'Balanço'},'trab');
     }
@@ -10418,8 +10461,8 @@ function perguntarOrientacaoImpressao(cb){
     if(/\b(feriado|feriados)\b/.test(q))return '🎉 Para conferir trabalho e folga de feriado, abra o passo 4 — Feriados — e confira a pessoa e a data sugerida. Diga o nome e o feriado/data para eu orientar o caso concreto.';
     if(/\b(folga|folgas|dsr|descanso)\b/.test(q))return '💤 A folga depende da escala e das regras de descanso. Informe o nome da pessoa e a data; assim posso orientar a conferência sem presumir dados que não estão na tela.';
     if(/\b(equipe|funcionario|funcionarios|colaborador|colaboradores|cadastro|setor|setores)\b/.test(q))return '👥 Para tratar da equipe, abra o passo 1 — Equipe. Informe também o nome da pessoa e o setor ou a situação que deseja conferir.';
-    if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Gerar. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
-    if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Gerar. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
+    if(/\b(historico|guardar|salvar|excel|planilha|whatsapp|imprimir)\b/.test(q))return '📦 Primeiro confira a escala no passo 5 — Resumo. Depois use a opção correspondente para guardar o histórico, baixar a planilha ou copiar para WhatsApp. Se aparecer um aviso, diga o texto dele.';
+    if(/\b(gerar|escala|erro|problema|pendencia|pendencias)\b/.test(q))return '🛠️ Para conferir a escala, veja os avisos no passo 3 — Domingos — e depois no passo 5 — Resumo. Diga o aviso exibido e o mês/setor para eu orientar a correção.';
     return '🤖 Posso ajudar com regras de domingo e feriado, folgas, equipe, geração da escala e uso do aplicativo. Para orientar sem passar informação errada, diga o assunto e, se houver, o nome da pessoa, a data ou o aviso que apareceu. Exemplo: “Como funciona a folga do feriado?”';
   }
   function versaoPerguntada(texto){
@@ -11574,6 +11617,200 @@ function perguntarOrientacaoImpressao(cb){
   document.addEventListener('click',e=>{ if(e.target.closest?.('#v322Modelo [data-v322],#v322Janela [data-v322],#v323Janela [data-v323],#v323Sugerir')) setTimeout(stamp,0); },true);
   ['mes','ano','setorSelecionado'].forEach(id=>$i(id)?.addEventListener('change',()=>setTimeout(stamp,0)));
   window.v324Historico={pacote,stamp,restore,aprendizado:()=>ler(KA),diaAprendido};
+})();
+</script>
+<script>
+/* ═════ V205 — 🚀 GERAR NOS PASSOS DOMINGOS E FERIADOS; PASSO 5 VIRA RESUMO (igual à Escala de Setores V332) ═════
+   O botão "🚀 Gerar escala" fica no fim dos passos 3 e 4; ao tocar, abre o passo 5 (Resumo) e gera ali (o #btnGerar
+   escondido continua sendo o gatilho, então as janelas de modelo 6×1/5×2 e 2ª folga continuam valendo). */
+(function(){
+  window.v205IrGerar=function(){
+    try{ window.v80GotoStep?.(5,true); }catch(e){}
+    setTimeout(()=>{ try{ document.getElementById('btnGerar')?.click(); setTimeout(()=>document.getElementById('validacao')?.scrollIntoView({behavior:'smooth',block:'center'}),120); }catch(e){} }, 220);
+  };
+})();
+</script>
+<script>
+/* ═════ V206 — 👆 PRÉVIA CLICÁVEL NOS DOMINGOS (igual à Escala de Setores V330/V333) ═════
+   Depois de desenhar a 📅 Prévia das folgas (passo 4), marca as células de domingo do mês como tocáveis (data-pv-dom /
+   data-pv-func) quando a escala está À mão ou já foi gerada. Tocar tira/coloca a pessoa pelo window.v167 (marcar/desmarcar:
+   as regras da escala à mão continuam valendo e o motivo aparece se não puder). Fora do À mão, antes do toque a escala vira
+   À mão copiando os domingos da tela (trabalhoDomingo) para a seleção do V167 — só o domingo tocado muda.
+   O balanço não é tocável. window.v206PreviaClicavel = {toggle, congelarComoManual, marcarCelulas}. */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const pad=n=>String(n).padStart(2,'0');
+  const v=()=>window.v167;
+  const modo=()=>{ try{ return window.v167Api?.modo?.()||'auto'; }catch(e){ return 'auto'; } };
+  const gerado=()=>Object.keys(trabalhoDomingo||{}).some(k=>(trabalhoDomingo[k]||[]).length);
+  const ano=()=>+$i('ano').value, mes=()=>+$i('mes').value;
+  const chaveMes=()=>`${ano()}-${pad(mes()+1)}`;
+
+  function marcarCelulas(){
+    const t=$i('previaTabelaFolgas'); if(!t||!equipe.length) return;
+    if(t.dataset.v206==='1') return;   // a prévia roda a cada 1 s; só remarca quando a tabela é redesenhada
+    t.dataset.v206='1';
+    const ativo=modo()==='manual'||gerado();
+    const box=$i('previaFolgasConteudo');
+    box?.querySelector('.pv-dica-clic')?.remove();
+    if(!ativo) return;
+    const bal=balancoDoMes(ano(),mes());
+    const ths=[...t.querySelectorAll('thead th')], cols=[];
+    ths.forEach((th,k)=>{ if(!th.classList.contains('dom')) return; const m=String(th.textContent||'').trim().match(/^(\d{1,2})(?!\/)/); if(!m) return; const d=+m[1]; if(d!==bal) cols.push([k,d]); });
+    [...t.querySelectorAll('tbody tr')].forEach((tr,i)=>{
+      if(!equipe[i]||foraDom(equipe[i])) return;
+      const tds=tr.children;
+      cols.forEach(([k,d])=>{ const td=tds[k]; if(!td) return; td.dataset.pvDom=d; td.dataset.pvFunc=i; td.classList.add('pv-click'); });
+    });
+    if(cols.length && box){
+      const dica=document.createElement('div'); dica.className='pv-dica-clic';
+      dica.innerHTML='👆 <b>Toque num domingo</b> para <b>tirar</b> ou <b>colocar</b> a pessoa naquele dia. Depois toque em 🚀 Gerar escala.'
+        +(modo()!=='manual'?' <b>Ao tocar, a escala passa a ser “à mão”</b> (copia o que está na tela e muda só o que você tocar).':'')
+        +' Cada domingo precisa de 3 pessoas: 1 Encarregado e 1 Sub, de setores diferentes.';
+      const wrap=t.closest('.table-wrap')||t; wrap.parentNode.insertBefore(dica,wrap);
+    }
+  }
+  const orig=window.renderPreviaFolgasFeriado;
+  if(typeof orig==='function'){
+    window.renderPreviaFolgasFeriado=function(){ const r=orig.apply(this,arguments); try{ marcarCelulas(); }catch(e){ console.warn('[V206]',e); } return r; };
+  }
+
+  function congelarComoManual(){
+    const api=v(); if(!api) return;
+    const st=api.estado(), a=ano(), m=mes(), bal=balancoDoMes(a,m), k=chaveMes();
+    st.meses=st.meses||{}; st.meses[k]={};
+    domingosDoMes(a,m).forEach(d=>{ if(d===bal) return; st.meses[k][d]=[...new Set((trabalhoDomingo[d]||trabalhoDomingo[String(d)]||[]).map(Number))].filter(i=>equipe[i]).map(i=>chaveDomingoPrevisto(i)).filter(Boolean); });
+    api.definirModo('manual');   // grava e redesenha o passo Domingos
+  }
+
+  function toggle(d,i){
+    const f=equipe[i]; if(!f||foraDom(f)) return;
+    if(Number(d)===Number(balancoDoMes(ano(),mes()))){ window.showToast?.('O domingo de balanço é obrigatório para todos — não dá para mexer aqui.','info',true); return; }
+    const api=v(); if(!api) return;
+    if(modo()!=='manual'){ congelarComoManual(); window.showToast?.('✍️ A escala virou “à mão” para você ajustar: copiei o que estava na tela e mudei só este domingo.','info',true); }
+    const nome=String(f.nome||'').split(' ')[0];
+    const s=api.sel(), dentro=(s[d]||[]).includes(i);
+    let mudou=false;
+    if(dentro){ api.desmarcar(i,d); mudou=true; window.showToast?.(`${nome} saiu do domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
+    else if(api.marcar(i,d)){ mudou=true; window.showToast?.(`${nome} entrou no domingo ${pad(d)}. Toque em 🚀 Gerar escala para refazer.`,'ok',true); }
+    if(!mudou) return;   // o V167 já avisou o motivo
+    try{ trabalhoDomingo[d]=(api.sel()[d]||[]).slice(); }catch(e){}
+    try{ ultimaEscala=null; }catch(e){}
+    try{ if($i('statusBadge')) $i('statusBadge').textContent='Revisar escala'; }catch(e){}
+    try{ api.render?.(); }catch(e){}
+    try{ window.renderPreviaFolgasFeriado?.(true); }catch(e){}
+  }
+  document.addEventListener('click',e=>{ const td=e.target.closest?.('#previaTabelaFolgas td[data-pv-dom]'); if(!td) return;
+    e.preventDefault(); toggle(+td.dataset.pvDom, +td.dataset.pvFunc); });
+  window.v206PreviaClicavel={toggle,congelarComoManual,marcarCelulas};
+})();
+</script>
+<script>
+/* ═════ V207 — 🗓️ FOLGA DE FERIADO SÓ DE QUEM TRABALHA, NA ORDEM DOS FERIADOS (igual à Escala de Setores V327/V328) ═════
+   v207LimparSemFeriado(fer): no começo de gerarSugestoesFolgasFeriado, apaga a sugestão (sugestoesFolgasFeriado) e a folga
+   aceita (folgasCompensatorias) do mês de quem NÃO trabalha aquele feriado (domingo-feriado: trabalhoDomingo; dia útil:
+   trabalhoFeriado). Só mexe num feriado cuja escala já existe (domingo gerado / lista do feriado montada). Folgas de outro mês
+   (chave P…) não são tocadas.
+   v207MinAnterior(i,d): a maior data de folga (aceita ou sugerida) da pessoa i para um feriado ANTERIOR a d — a sugestão do
+   feriado d não pode cair antes dela (dataSugestaoFolgaFeriado filtra; se nenhuma data servir, vale o prazo).
+   v207OrdenarSugestoes(): depois de distribuir, troca entre si as datas SUGERIDAS da mesma pessoa para ficarem na ordem dos
+   feriados, só se cada data couber no prazo do seu feriado (mesmas datas → mesmos limites por dia/sábado/setor). */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const ano=()=>+$i('ano').value, mes=()=>+$i('mes').value;
+  const ck=dt=>chaveData(dt);
+  function trabalhaFeriado(i,d){
+    const dt=new Date(ano(),mes(),d);
+    if(dt.getDay()===0){ const l=trabalhoDomingo[d]||trabalhoDomingo[String(d)]; return Array.isArray(l)&&l.length ? l.map(Number).includes(i) : null; }
+    const l=trabalhoFeriado[d]||trabalhoFeriado[String(d)]; return Array.isArray(l) ? l.map(Number).includes(i) : null;   // null = escala do feriado ainda não existe
+  }
+  window.v207LimparSemFeriado=function(fer){
+    fer=fer||feriados(ano(),mes());
+    [sugestoesFolgasFeriado, folgasCompensatorias].forEach(obj=>{
+      if(!obj) return;
+      Object.keys(obj).forEach(k=>{
+        const o=origemChaveComp(k); if(o.outroMes||!fer[o.d]||!equipe[o.i]) return;
+        if(trabalhaFeriado(o.i,o.d)===false) delete obj[k];
+      });
+    });
+  };
+  window.v207MinAnterior=function(i,d){
+    let mn='';
+    [folgasCompensatorias, sugestoesFolgasFeriado].forEach(obj=>{
+      Object.keys(obj||{}).forEach(k=>{ const o=origemChaveComp(k); if(o.outroMes||o.i!==i||!(o.d<d)) return; const v=obj[k]; if(v&&v>mn) mn=v; });
+    });
+    return mn;
+  };
+  window.v207OrdenarSugestoes=function(){
+    const fer=feriados(ano(),mes()), prazo=(typeof prazoFolgaFeriado==='function'?prazoFolgaFeriado():20);
+    const porPessoa={};
+    Object.keys(sugestoesFolgasFeriado||{}).forEach(k=>{ const o=origemChaveComp(k); if(o.outroMes||!fer[o.d]) return; (porPessoa[o.i]=porPessoa[o.i]||[]).push({k,d:o.d,v:sugestoesFolgasFeriado[k]}); });
+    let trocas=0;
+    Object.values(porPessoa).forEach(l=>{
+      if(l.length<2) return;
+      l.sort((a,b)=>a.d-b.d);
+      const datas=l.map(x=>x.v).sort();
+      if(l.every((x,j)=>x.v===datas[j])) return;   // já está na ordem
+      const cabe=l.every((x,j)=>{ const dt=new Date(datas[j]+'T12:00:00'), f=new Date(ano(),mes(),x.d,12); const dias=Math.round((dt-f)/864e5); return dias>=1&&dias<=prazo; });
+      if(!cabe) return;
+      l.forEach((x,j)=>{ sugestoesFolgasFeriado[x.k]=datas[j]; }); trocas++;
+    });
+    return trocas;
+  };
+})();
+</script>
+<script>
+/* ═════ V208 — ✍️ À MÃO: AVISA E PEDE CONCORDÂNCIA, NÃO BLOQUEIA (igual à Escala de Setores V331) ═════
+   No À mão, o auditar do V167 marca as quebras de estrutura com est:1 (3 domingos seguidos; folga do domingo num feriado
+   trabalhado). Elas não deixam a pessoa cinza, não impedem marcar nem gerar. Depois de gerar, se houver alguma, esta camada
+   mostra a janela “⚠️ … Você concorda?” logo abaixo do #validacao (✅ Concordo, usar assim / ↩️ Voltar e ajustar). A
+   concordância fica guardada por mês + seleção + quebras (localStorage enc.v208Concordo) e vira uma nota verde.
+   window.v208Concordancia = {posGeracao, quebras, concordou}. */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const LS='enc.v208Concordo';
+  let ultimas=[];
+  const ref=()=>{ try{ return `${+$i('ano').value}-${+$i('mes').value}`; }catch(e){ return ''; } };
+  const assinatura=qs=>{ try{ return `${ref()}|${JSON.stringify(window.v167?.sel?.()||{})}|${qs.join('§')}`; }catch(e){ return qs.join('§'); } };
+  let aceitos={}; try{ const v=JSON.parse(localStorage.getItem(LS)||'{}'); if(v&&typeof v==='object'&&!Array.isArray(v)) aceitos=v; }catch(e){}
+  const gravar=()=>{ try{ const ks=Object.keys(aceitos); while(ks.length>24) delete aceitos[ks.shift()]; localStorage.setItem(LS,JSON.stringify(aceitos)); }catch(e){} };
+  const fechar=()=>$i('v208Janela')?.remove();
+  const tirarNota=()=>$i('v208Nota')?.remove();
+  function nota(qs){ const v=$i('validacao'); if(!v) return; fechar();
+    let box=$i('v208Nota'); if(!box){ box=document.createElement('div'); box.id='v208Nota'; box.className='alert ok'; box.style.margin='8px 0'; v.insertAdjacentElement('afterend',box); }
+    box.innerHTML=`<p>✍️ <b>Escala à mão gerada com a sua concordância</b>, mesmo com ${qs.length} quebra(s):</p><ul>${qs.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>`;
+  }
+  function janela(qs){ fechar(); tirarNota(); const v=$i('validacao'); if(!v) return;
+    const box=document.createElement('div'); box.id='v208Janela'; box.className='alert warn'; box.style.margin='8px 0';
+    box.innerHTML=`<p>⚠️ <b>A escala foi gerada, mas quebra ${qs.length} regra(s)</b> (no À mão quem decide é você):</p>
+      <ul>${qs.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>
+      <p>O 2×1 (nunca 3 domingos seguidos) é uma proteção. Você concorda em usar a escala assim mesmo?</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button type="button" class="btn success" id="v208Sim" style="min-height:44px">✅ Concordo, usar assim</button><button type="button" class="btn secondary" id="v208Nao" style="min-height:44px">↩️ Voltar e ajustar</button></div>`;
+    v.insertAdjacentElement('afterend',box);
+    $i('v208Sim').onclick=()=>{ aceitos[assinatura(qs)]=true; gravar(); nota(qs); window.showToast?.('✅ Concordância registrada. A escala está pronta para conferir e baixar.','ok',true); };
+    $i('v208Nao').onclick=()=>{ fechar(); try{ window.v80GotoStep?.(3,false); }catch(e){} window.showToast?.('Ajuste os domingos (toque na prévia ou nos cartões) e gere de novo.','info',true); };
+  }
+  // O aviso do motor ("A escala precisa de revisão: … 3 domingos seguidos …") contradiz a concordância: quando TODOS os
+  // itens dele são as quebras decididas no À mão, ele vira o aviso de escala à mão gerada (a janela logo abaixo pede a concordância).
+  function suavizarAviso(){
+    const v=$i('validacao'); if(!v||!/bad|warn/.test(v.className)) return;
+    const itens=String(v.textContent||'').split('— Dica')[0].replace(/^[^:]*:/,'').split('|').map(x=>x.trim()).filter(Boolean);
+    if(!itens.length||!itens.every(x=>/3 domingos seguidos|feriado/i.test(x))) return;
+    v.className='alert ok';
+    v.innerHTML='✍️ <b>Escala à mão gerada.</b> Ela tem quebra(s) que você decidiu no À mão — confira abaixo e diga se concorda.';
+    const sb=$i('statusBadge'); if(sb) sb.textContent='Escala à mão gerada';
+  }
+  function posGeracao(qs){
+    ultimas=(qs||[]).slice();
+    if(!ultimas.length){ fechar(); tirarNota(); return; }
+    try{ suavizarAviso(); }catch(e){}
+    setTimeout(()=>{ if(aceitos[assinatura(ultimas)]) nota(ultimas); else janela(ultimas); },0);
+  }
+  window.v208Concordancia={posGeracao, quebras:()=>ultimas.slice(), concordou:()=>!!aceitos[assinatura(ultimas)]};
 })();
 </script>
 </body>

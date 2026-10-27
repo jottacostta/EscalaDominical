@@ -851,7 +851,7 @@ async function testarEncManual(browser){
     if(m === 9){
       if(await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
         const ordem = await p.$$eval('.stepper .step', b => b.filter(x => x.offsetParent !== null).map(x => x.querySelector('b').textContent.trim()));
-        ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → Gerar', 'passos na ordem: ' + ordem.join(' → '));   // V171: igual ao Setores (o “Mês” virou “📅 Mês e opções”)
+        ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → ' + (+path.basename(APP_ENC).match(/V(\d+)\.html$/)[1] >= 205 ? 'Resumo' : 'Gerar'), 'passos na ordem: ' + ordem.join(' → '));   // Enc V205: o passo 5 virou Resumo   // V171: igual ao Setores (o “Mês” virou “📅 Mês e opções”)
         if(await p.evaluate(() => !!window.v171AbrirMes)){
           const nav = await p.evaluate(async () => { const ativo = () => document.querySelector('.step-panel.active')?.id; const r = {};
             window.v80GotoStep(0, false); document.querySelector('#v80BottomBar [data-bar="primary"]').click(); await new Promise(z => setTimeout(z, 200)); r.proximo = ativo();
@@ -2465,6 +2465,261 @@ async function testarPreviaClicavelTodosModos(browser, app, nome){   // V333: a 
   await p.close();
 }
 
+async function testarHorarioAoColocarPelaTabela(browser, app, nome){   // V337: tocar na prévia para COLOCAR alguém abre a janela do horário; tirar continua com 1 toque
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 337) return;
+  console.log('\n▶ ' + nome + ' — ⏰ ao colocar alguém pela tabela de prévia, escolhe o horário');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="CPD"]').catch(() => {}); await p.waitForTimeout(400); await p.click('.is-abrir').catch(() => {}); await p.waitForTimeout(300);
+  await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_cpd_6.txt')); await p.waitForTimeout(2000);
+  await mudarMes(p, 9, 2026); await p.waitForTimeout(400);   // outubro: 6×1, sem a janela de modelo
+  const prep = await p.evaluate(() => {
+    const mg = $('modoGeracao'); mg.value = 'manual'; mg.dispatchEvent(new Event('change', { bubbles: true }));
+    const doms = domingosDoMes(2026, 9), d0 = doms[0], lista = listaHorariosDomingoParaData(d0);
+    selecaoManualDomingo = {}; liderancaManualDomingo = {}; horariosManuaisDomingo = {};
+    doms.forEach((d, k) => { const ops = (k % 2 === 0) ? [2, 3] : [4, 5]; selecaoManualDomingo[String(d)] = ops;
+      horariosManuaisDomingo[String(d)] = {}; ops.forEach(i => { horariosManuaisDomingo[String(d)][String(i)] = (listaHorariosDomingoParaData(d)[0] || [])[0]; }); });
+    renderSelecaoDomingosGeracao(); gerarSetoresCore();
+    try { window.v45GotoStep?.(4, false); } catch(e) {}
+    renderPreviaFolgasFeriado(true);
+    return { d0, primeiro: (lista[0] || [])[0], ultimo: (lista[lista.length - 1] || [])[0], n: lista.length };
+  });
+  const cel = `#previaTabelaFolgas td[data-pv-dom="${prep.d0}"][data-pv-func="4"]`;
+  const janela = () => p.evaluate(() => !!document.getElementById('v337Janela'));
+  const tocar = sel => p.$eval(sel, el => el.click());   // clique de verdade no elemento (o cabeçalho fixo cobre a tabela para o mouse do Playwright)
+  const estado = () => p.evaluate(d => ({ dentro: (selecaoManualDomingo[String(d)] || []).map(Number).includes(4), hora: (horariosManuaisDomingo[String(d)] || {})['4'] || '' }), prep.d0);
+  // 1) tocar para COLOCAR o 4 (que não trabalha o 1º domingo) abre a janela; escolher o ÚLTIMO horário
+  await tocar(cel); await p.waitForTimeout(300);
+  const abriu = await janela();
+  const nBotoes = await p.locator('#v337Janela [data-v337-hora]').count();
+  const antesEscolher = await estado();
+  await tocar(`#v337Janela [data-v337-hora="${prep.ultimo}"]`).catch(() => {}); await p.waitForTimeout(300);
+  const escolhido = await estado(); const fechou = !(await janela());
+  // 2) tocar de novo TIRA, sem janela
+  await tocar(cel); await p.waitForTimeout(300);
+  const semJanelaAoTirar = !(await janela()); const tirado = await estado();
+  // 3) tocar para colocar e CANCELAR não muda nada
+  await tocar(cel); await p.waitForTimeout(300);
+  const abriu2 = await janela();
+  await tocar('#v337Cancelar').catch(() => {}); await p.waitForTimeout(300);
+  const cancelado = await estado(); const fechou2 = !(await janela());
+  ok(prep.n > 1 && prep.primeiro !== prep.ultimo, nome + ': o domingo tem mais de um horário para escolher (' + prep.n + ')');
+  ok(abriu && nBotoes === prep.n && !antesEscolher.dentro, nome + ': tocar para colocar abre a janela "⏰ Que horário…" com os ' + prep.n + ' horários, sem colocar antes de escolher');
+  ok(escolhido.dentro && escolhido.hora === prep.ultimo && fechou, nome + ': ao escolher, a pessoa entra com o horário escolhido (' + escolhido.hora + ', esperado ' + prep.ultimo + ')');
+  ok(semJanelaAoTirar && !tirado.dentro, nome + ': tocar de novo tira a pessoa com 1 toque, sem janela');
+  ok(abriu2 && !cancelado.dentro && fechou2, nome + ': "↩️ Cancelar" fecha a janela e não coloca a pessoa');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarFolgaNoDiaDaFolgaFixa(browser, app, nome){   // V339: a folga da semana cai no dia da folga fixa (FLV/Padaria não empurram a folga da própria pessoa)
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 339) return;
+  console.log('\n▶ ' + nome + ' — 🛌 folga da semana no dia da folga fixa (FLV quinta, Padaria sábado)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  const r = await p.evaluate(() => {
+    $('ano').value = '2026'; $('mes').value = '10';   // novembro/2026, domingo 01/11
+    const fmt = dt => dt ? dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '—';
+    // FLV com folga fixa QUINTA (4) — o FLV tem quarta/quinta proibidas para DSR
+    // Padaria com folga fixa SÁBADO (6) — a Padaria tem o sábado proibido para DSR
+    // Frente de Loja com folga fixa TERÇA (2) — dia sem restrição (não muda)
+    equipe = [
+      { nome: 'ROBERTO FLV', cargo: 'BALC DE FLV', setor: 'FLV', turno: 'ABERTURA', folgaFixa: 4, situacao: 'A' },
+      { nome: 'PAULA PADARIA', cargo: 'PADEIRO', setor: 'Padaria', turno: 'ABERTURA', folgaFixa: 6, situacao: 'A' },
+      { nome: 'TEREZA FRENTE', cargo: 'OPERADOR DE CAIXA', setor: 'Frente de Loja', turno: 'ABERTURA', folgaFixa: 2, situacao: 'A' }
+    ];
+    const caso = i => {
+      const ds = descansosDoCandidato(i, 1);
+      const ger = [dataDescansoAnterior(1, Number(equipe[i].folgaFixa)), dataDescansoPosterior(1, Number(equipe[i].folgaFixa))];
+      return { ant: fmt(ds[0]), pos: fmt(ds[1]), antDia: ds[0] && ds[0].getDay(), posDia: ds[1] && ds[1].getDay(),
+        igualGeracao: fmt(ds[0]) === fmt(ger[0]) && fmt(ds[1]) === fmt(ger[1]) };
+    };
+    return { flv: caso(0), pad: caso(1), fl: caso(2) };
+  });
+  // FLV folga fixa quinta (dia 4): antecipada qui 29/10, posterior qui 05/11 (não sex 30/10 / sex 06/11)
+  ok(r.flv.antDia === 4 && r.flv.posDia === 4 && r.flv.ant === '29/10' && r.flv.pos === '05/11',
+    nome + ': FLV com folga fixa na quinta folga na QUINTA (antecipada ' + r.flv.ant + ', posterior ' + r.flv.pos + ')');
+  // Padaria folga fixa sábado (dia 6): fica no sábado, não é empurrada para sexta
+  ok(r.pad.antDia === 6 && r.pad.posDia === 6, nome + ': Padaria com folga fixa no sábado folga no SÁBADO (antecipada ' + r.pad.ant + ', posterior ' + r.pad.pos + ')');
+  // Frente de Loja, folga fixa terça (sem restrição): continua na terça
+  ok(r.fl.antDia === 2 && r.fl.posDia === 2, nome + ': folga fixa sem restrição (terça) continua na terça (' + r.fl.ant + ' / ' + r.fl.pos + ')');
+  // a tela (descansosDoCandidato) mostra o mesmo dia que a escala gerada grava (dataDescansoAnterior/Posterior)
+  ok(r.flv.igualGeracao && r.pad.igualGeracao && r.fl.igualGeracao, nome + ': a folga mostrada na tela é a mesma que a escala gerada grava');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarTextosResumo(browser, app, nome){   // V338: textos não mandam mais "Gerar no passo 5" (desde a V332 o Gerar fica nos passos 3 e 4; passo 5 = Resumo)
+  if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 338) return;
+  console.log('\n▶ ' + nome + ' — 📝 textos do Resumo (o Gerar fica nos passos 3 e 4)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await abrirSetoresFL(p); await mudarMes(p, 9, 2026); await p.waitForTimeout(600);
+  const r = await p.evaluate(async () => {
+    window.v45GotoStep?.(5, false); await new Promise(ok => setTimeout(ok, 600));
+    const guia = [...document.querySelectorAll('.guia')].find(g => /Passo 5 de 5/.test(g.querySelector('.passo')?.textContent || ''));
+    const curta = guia?.querySelector('.guia-1')?.textContent || '';
+    const html = document.documentElement.outerHTML;
+    const pergunta = async q => { try { return String(await window.v265Chat.responder(q) || '').replace(/<[^>]+>/g, ''); } catch(e) { return 'ERRO ' + e; } };
+    // sem escala gerada: "quem trabalha dia 11" (domingo) e "dia descoberto" caem nos dois avisos de escala não gerada
+    const resp = [await pergunta('Quem trabalha dia 11?'), await pergunta('Tem dia descoberto?')];
+    const bal = await pergunta('Quem faz o balanço?');   // outubro/2026 sem balanço
+    return { curta, slideResumo: html.includes("t:'Passo 5 — Resumo'"), slideAntigo: html.includes("t:'Passo 5 — Gerar a escala'"), resp, bal };
+  });
+  ok(/Resumo/.test(r.curta) && !/Gerar escala/.test(r.curta), nome + ': a caixa azul do passo 5 fala do Resumo, sem mandar gerar ali (' + r.curta + ')');
+  ok(r.slideResumo && !r.slideAntigo, nome + ': o "Como usar" chama o passo 5 de Resumo');
+  ok(r.resp.every(t => /passo 3 ou 4/.test(t) && !/\(passo 5\)/.test(t)), nome + ': sem escala gerada, o Gabriel manda gerar no passo 3 ou 4 (' + r.resp.map(t => t.slice(0, 90)).join(' | ') + ')');
+  ok(/Configurações da escala/.test(r.bal) && !/passo Balanço/.test(r.bal), nome + ': para marcar o balanço, o Gabriel indica as Configurações (não um "passo Balanço") (' + r.bal.slice(0, 120) + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEncResumoGerar(browser, app){   // Enc V205: Gerar no fim dos passos Domingos/Feriados; passo 5 vira Resumo (barra = Baixar planilha) — igual à Setores V332
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 205) return;
+  const nome = 'Encarregados';
+  console.log('\n▶ ' + nome + ' — 🚀 Gerar nos passos Domingos/Feriados; passo 5 = Resumo');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await abrirEnc15(p); await mudarMes(p, 9, 2026); await p.waitForTimeout(600);   // outubro: 6×1, sem a janela de modelo
+  const passo = () => p.evaluate(() => +(document.querySelector('.step[aria-selected="true"]')?.dataset.step ?? -1));
+  const r = await p.evaluate(() => {
+    const tab5 = document.querySelector('.step[data-step="5"] b')?.textContent || '';
+    const nBotoes = document.querySelectorAll('.v205-gerar').length;
+    const textos = document.documentElement.outerHTML.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    window.__excelClicks = 0; document.getElementById('btnExcel')?.addEventListener('click', () => window.__excelClicks++);
+    window.v80GotoStep?.(3, false);
+    return { tab5, nBotoes, temFn: typeof window.v205IrGerar === 'function', passo5: (textos.match(/\(passo 5\)|passo 5 — Gerar|[Nn]o passo 5, toque|gere a escala no passo 5/g) || []).length };
+  });
+  await p.evaluate(() => window.v205IrGerar?.()); await p.waitForTimeout(1500);
+  const g = await p.evaluate(() => ({ gerou: /pronta|gerada/i.test(document.getElementById('validacao')?.textContent || ''), barra: document.querySelector('#v80BottomBar [data-bar="primary"]')?.textContent || '' }));
+  const p5 = await passo();
+  await p.evaluate(() => document.querySelector('#v80BottomBar [data-bar="primary"]').click()); await p.waitForTimeout(300);
+  const d = await p.evaluate(() => window.__excelClicks);
+  const p5b = await passo();
+  ok(r.tab5 === 'Resumo', nome + ': o passo 5 virou "Resumo" (' + r.tab5 + ')');
+  ok(r.temFn && r.nBotoes === 2, nome + ': o botão "Gerar escala" está nos passos Domingos e Feriados (' + r.nBotoes + ' botões)');
+  ok(p5 === 5 && g.gerou, nome + ': tocar em Gerar no passo Domingos gera a escala e abre o Resumo (passo ' + p5 + ')');
+  ok(/baixar planilha/i.test(g.barra), nome + ': no Resumo, a barra de baixo é "📊 Baixar planilha" (' + g.barra.trim() + ')');
+  ok(d === 1 && p5b === 5, nome + ': tocar na barra do Resumo baixa a planilha (não gera de novo)');
+  ok(r.passo5 === 0, nome + ': nenhum texto manda mais gerar "no passo 5" (' + r.passo5 + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEncPreviaClicavel(browser, app){   // Enc V206: prévia (passo 4) clicável nos domingos; fora do À mão vira À mão copiando a tela — igual à Setores V330/V333
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 206) return;
+  const nome = 'Encarregados';
+  console.log('\n▶ ' + nome + ' — 👆 prévia clicável nos domingos (vira À mão, preservando a escala)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await abrirEnc15(p); await mudarMes(p, 9, 2026); await p.waitForTimeout(600);   // outubro/2026: 6×1, sem balanço
+  await p.evaluate(() => { window.v80GotoStep?.(5, false); document.getElementById('btnGerar').click(); }); await p.waitForTimeout(1500);
+  const r = await p.evaluate(() => {
+    window.v80GotoStep?.(4, false); renderPreviaFolgasFeriado(true);
+    const d0 = domingosDoMes(2026, 9)[0], antes = (trabalhoDomingo[d0] || []).map(Number).slice().sort((a, b) => a - b);
+    return { d0, antes, modo: window.v167Api.modo(), nClic: document.querySelectorAll('#previaTabelaFolgas td[data-pv-dom]').length, dica: !!document.querySelector('.pv-dica-clic'),
+      outros: domingosDoMes(2026, 9).slice(1).map(d => (trabalhoDomingo[d] || []).map(Number).slice().sort((a, b) => a - b).join(',')) };
+  });
+  const tocar = (d, i) => p.$eval(`#previaTabelaFolgas td[data-pv-dom="${d}"][data-pv-func="${i}"]`, el => el.click()).catch(() => {});
+  const alvo = r.antes[0];
+  await tocar(r.d0, alvo); await p.waitForTimeout(400);
+  const t1 = await p.evaluate(([d0, alvo]) => { const s = window.v167Api.sel(); return { modo: window.v167Api.modo(), dom0: (s[d0] || []).slice().sort((a, b) => a - b), saiu: !(s[d0] || []).includes(alvo),
+    outros: domingosDoMes(2026, 9).slice(1).map(d => (s[d] || []).slice().sort((a, b) => a - b).join(',')) }; }, [r.d0, alvo]);
+  await tocar(r.d0, alvo); await p.waitForTimeout(400);
+  const t2 = await p.evaluate(([d0]) => (window.v167Api.sel()[d0] || []).slice().sort((a, b) => a - b), [r.d0]);
+  ok(r.antes.length === 3 && r.modo === 'auto', nome + ': a escala automática foi gerada (domingo ' + r.d0 + ': ' + r.antes.join(',') + ')');
+  ok(r.nClic > 0 && r.dica, nome + ': depois de gerar, a prévia tem domingos tocáveis e a dica (' + r.nClic + ' células)');
+  ok(t1.modo === 'manual', nome + ': ao tocar, a escala vira "à mão" (' + t1.modo + ')');
+  ok(t1.saiu && t1.dom0.length === 2, nome + ': o toque tira só a pessoa tocada daquele domingo (' + t1.dom0.join(',') + ')');
+  ok(t1.outros.join('|') === r.outros.join('|'), nome + ': os outros domingos ficam iguais aos que estavam na tela');
+  ok(t2.join(',') === r.antes.join(','), nome + ': tocar de novo coloca a pessoa de volta (' + t2.join(',') + ')');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEncFolgaFeriadoQuemTrabalha(browser, app){   // Enc V207: folga de feriado só de quem trabalha + na ordem dos feriados — igual à Setores V327/V328
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 207) return;
+  const nome = 'Encarregados';
+  console.log('\n▶ ' + nome + ' — 🗓️ folga de feriado só de quem trabalha, na ordem dos feriados (2→15→20)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await abrirEnc15(p); await mudarMes(p, 10, 2026); await p.waitForTimeout(600);   // novembro/2026: feriados 2, 15 (domingo) e 20
+  const r = await p.evaluate(async () => {
+    const espera = ms => new Promise(ok => setTimeout(ok, ms));
+    window.v80GotoStep?.(5, false); document.getElementById('btnGerar').click(); await espera(800);
+    [...document.querySelectorAll('#v322Janela [data-v322]')].find(x => /6×1/.test(x.textContent))?.click(); await espera(2500);
+    const fer = Object.keys(feriados(2026, 10)).map(Number);
+    // A) quem trabalhava o domingo-feriado 15 sai dele (à mão) e a escala é gerada de novo
+    const i = (trabalhoDomingo[15] || [])[0];
+    window.v206PreviaClicavel.congelarComoManual(); window.v167.desmarcar(i, 15);
+    const s = window.v167.sel(); for(const k of equipe.map((f, j) => j).filter(j => j !== i && !(s[15] || []).includes(j))) { if(window.v167.marcar(k, 15, true)) break; }
+    window.v80GotoStep?.(5, false); document.getElementById('btnGerar').click(); await espera(2500);
+    const trabalha = (d, k) => (new Date(2026, 10, d).getDay() === 0 ? (trabalhoDomingo[d] || []) : (trabalhoFeriado[d] || [])).map(Number).includes(k);
+    const orfas = [...Object.keys(folgasCompensatorias || {}), ...Object.keys(sugestoesFolgasFeriado || {})].filter(k => { const [d, k2] = k.split('_').map(Number); return fer.includes(d) && !trabalha(d, k2); });
+    const saiu = !(trabalhoDomingo[15] || []).map(Number).includes(i);
+    // B) todos trabalham os três feriados
+    const todos = equipe.map((f, j) => j).filter(j => !foraDom(equipe[j]));
+    trabalhoDomingo[15] = todos.slice(); trabalhoFeriado = { 2: todos.slice(), 20: todos.slice() };
+    sugestoesFolgasFeriado = {}; folgasCompensatorias = {}; try { sugestoesRecusadasFeriado = {}; } catch(e) {}
+    gerarSugestoesFolgasFeriado();
+    const prazo = prazoFolgaFeriado(); let fora = 0, longe = 0, com = 0;
+    todos.forEach(k => { const ds = [2, 15, 20].map(d => sugestoesFolgasFeriado[d + '_' + k] || null);
+      ds.forEach((v, j) => { if(!v) return; com++; const dias = Math.round((new Date(v + 'T12:00:00') - new Date(2026, 10, [2, 15, 20][j], 12)) / 864e5); if(dias < 1 || dias > prazo) longe++; });
+      const c = ds.filter(Boolean); if(!c.every((v, j) => j === 0 || c[j - 1] <= v)) fora++; });
+    return { fer, saiu, orfas, n: todos.length, com, fora, longe };
+  });
+  ok(r.fer.join(',') === '2,15,20' && r.saiu, nome + ': novembro/2026 tem os feriados 2, 15 e 20, e a pessoa saiu do domingo-feriado 15');
+  ok(r.orfas.length === 0, nome + ': ninguém fica com sugestão ou folga de um feriado que não trabalha (' + (r.orfas.join(', ') || 'nenhuma') + ')');
+  ok(r.com > 0 && r.longe === 0, nome + ': as ' + r.com + ' folgas sugeridas ficam dentro do prazo do feriado');
+  ok(r.fora === 0, nome + ': em todas as ' + r.n + ' pessoas, a folga do 2 vem antes da do 15 e a do 15 antes da do 20 (' + r.fora + ' fora de ordem)');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
+async function testarEncAMaoConcordancia(browser, app){   // Enc V208: À mão — 3 domingos seguidos não bloqueia; gera e pede concordância (igual à Setores V331)
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] < 208) return;
+  const nome = 'Encarregados';
+  console.log('\n▶ ' + nome + ' — ✍️ à mão: 3 domingos seguidos pede concordância (não bloqueia)');
+  const { p, erros } = await novaPagina(browser);
+  await p.goto('file://' + app); await p.waitForTimeout(1200);
+  await abrirEnc15(p); await mudarMes(p, 9, 2026); await p.waitForTimeout(600);   // outubro/2026: 6×1, sem balanço
+  const r = await p.evaluate(async () => {
+    const espera = ms => new Promise(ok => setTimeout(ok, ms));
+    window.v80GotoStep?.(5, false); document.getElementById('btnGerar').click(); await espera(1500);
+    window.v206PreviaClicavel.congelarComoManual();
+    // monta à mão: a pessoa 0 (Encarregado do Açougue) nos domingos 4, 11 e 18 — cada domingo com 3 pessoas de setores diferentes
+    const doms = domingosDoMes(2026, 9), s0 = window.v167.sel();
+    doms.forEach(d => (s0[d] || []).forEach(x => window.v167.desmarcar(x, d)));
+    const setorDe = i => norm(setor(equipe[i])), tipo = i => equipe[i].tipo;
+    const enc = equipe.map((f, i) => i).filter(i => tipo(i) === 'enc' && !foraDom(equipe[i])), sub = equipe.map((f, i) => i).filter(i => tipo(i) === 'sub' && !foraDom(equipe[i]));
+    const i0 = enc[0], subX = sub.find(x => setorDe(x) !== setorDe(i0)), encY = enc.find(x => x !== i0 && setorDe(x) !== setorDe(i0) && setorDe(x) !== setorDe(subX));
+    const resto = [enc.find(x => ![i0, encY].includes(x) && ![i0, subX, encY].some(y => setorDe(y) === setorDe(x)))];
+    resto.push(sub.find(x => x !== subX && ![i0, subX, encY, resto[0]].some(y => setorDe(y) === setorDe(x))));
+    resto.push(enc.find(x => ![i0, encY, resto[0]].includes(x) && ![i0, subX, encY, ...resto].some(y => y !== undefined && setorDe(y) === setorDe(x))));
+    const achou = { i: i0, d: doms[2], ds: doms.slice(0, 3) };
+    let marcou = true;
+    doms.slice(0, 3).forEach(d => [subX, encY].forEach(x => window.v167.marcar(x, d)));   // como toques: no 3º domingo eles também quebram o 2×1
+    doms.slice(0, 2).forEach(d => window.v167.marcar(i0, d, true));
+    resto.forEach(x => window.v167.marcar(x, doms[3], true));
+    marcou = window.v167.marcar(i0, doms[2]);   // o 3º domingo seguido da pessoa 0, como um toque (não silencioso)
+    document.getElementById('btnGerar').click(); await espera(1500);
+    const val = document.getElementById('validacao')?.textContent || '';
+    const jan = document.getElementById('v208Janela');
+    const r2 = { achou, marcou, bloqueou: /Ainda não dá para gerar/.test(val), revisao: /precisa de revisão/i.test(val), janela: !!jan, texto: jan?.textContent || '', entrou: (trabalhoDomingo[achou.d] || []).map(Number).includes(achou.i) };
+    document.getElementById('v208Sim')?.click(); await espera(300);
+    r2.nota = !!document.getElementById('v208Nota') && !document.getElementById('v208Janela');
+    return r2;
+  });
+  ok(!!r.achou, nome + ': o teste montou à mão uma pessoa em 3 domingos seguidos, com domingos válidos' + (r.achou ? ' (' + r.achou.ds.join(', ') + ')' : ''));
+  ok(r.marcou, nome + ': no À mão, o app deixa marcar o 3º domingo seguido (vira aviso)');
+  ok(!r.bloqueou && r.entrou, nome + ': o 🚀 Gerar não bloqueia e a pessoa fica no domingo');
+  ok(r.janela && /3 domingos seguidos/.test(r.texto), nome + ': depois de gerar aparece a janela pedindo concordância, citando os 3 domingos seguidos');
+  ok(!r.revisao, nome + ': o aviso de cima não manda “revisar e gerar de novo” (a escala à mão foi gerada)');
+  ok(r.nota, nome + ': “✅ Concordo, usar assim” fecha a janela e deixa a nota verde');
+  ok(!erros.length, nome + ': sem erro de JavaScript' + (erros.length ? ': ' + erros[0] : ''));
+  await p.close();
+}
+
 async function testarLogoEBotoesHome(browser, app, nome){   // V334: logo íntegra (não a corrompida) + botões da tela inicial alinhados
   if(nome !== 'Setores' || +path.basename(app).match(/V(\d+)\.html$/)[1] < 334) return;
   console.log('\n▶ ' + nome + ' — 🖼️ logo íntegra + botões da tela inicial alinhados');
@@ -2950,7 +3205,7 @@ async function testarSemTxt(browser, app, nome, dados){
     const faltam = [APP_SETORES, APP_ENC].map(a => path.basename(a)).filter(n => !txt.includes(n));
     ok(txt && !faltam.length, 'docs/PASSAGEM.md cita as versões atuais' + (faltam.length ? ' — falta: ' + faltam.join(', ') + ' (atualize a passagem de bastão)' : '')); }
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  try{ if(process.argv.includes('--area-5x2')){ if(+APP_SETORES.match(/V(\d+)\.html$/)[1] < 300) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); }); await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); }); } else if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarMotoresPorData(browser, APP_SETORES, 'Setores', 286); await testarMotoresPorData(browser, APP_ENC, 'Encarregados', 190); await testarMotor5x2Nucleo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarMotor5x2Nucleo(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarDomingos5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarDomingos5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarRegimeParametrizado(browser, APP_SETORES, 'Setores', abrirSetoresFL, 303); await testarFeriadoNaoEDsr(browser, APP_SETORES, 'Setores', abrirSetoresFL, 321, true); await testarModeloEscala(browser, APP_SETORES, 'Setores', abrirSetoresFL, 322); await testarSemEnsaio(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarSegundaFolga(browser, APP_SETORES, 'Setores', abrirSetoresFL, 323); await testarHistoricoTudo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 324); await testarSetorForaDaEscala(browser, APP_SETORES, 'Setores'); await testarSesmtNoGrafico(browser, APP_SETORES, 'Setores'); await testarCompFeriadoSoQuemTrabalha(browser, APP_SETORES, 'Setores'); await testarOrdemCompensatorias(browser, APP_SETORES, 'Setores'); await testarQuantidadeManualNaoBloqueia(browser, APP_SETORES, 'Setores'); await testarCpdManualPiloto(browser, APP_SETORES, 'Setores'); await testarTabelaDomingoClicavel(browser, APP_SETORES, 'Setores'); await testarAMaoNaoBloqueia(browser, APP_SETORES, 'Setores'); await testarResumoEGerarNosPassos(browser, APP_SETORES, 'Setores'); await testarPreviaClicavelTodosModos(browser, APP_SETORES, 'Setores'); await testarLogoEBotoesHome(browser, APP_SETORES, 'Setores'); await testarAvisoReimportarTst(browser, APP_SETORES, 'Setores'); await testarRegimeParametrizado(browser, APP_ENC, 'Encarregados', abrirEnc15, 199); await testarFeriadoNaoEDsr(browser, APP_ENC, 'Encarregados', abrirEnc15, 201, false); await testarModeloEscala(browser, APP_ENC, 'Encarregados', abrirEnc15, 202); await testarSemEnsaio(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarSegundaFolga(browser, APP_ENC, 'Encarregados', abrirEnc15, 203); await testarHistoricoTudo(browser, APP_ENC, 'Encarregados', abrirEnc15, 204); await testarEnc5x2FolgaAMais(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 291) await testarToastNaoCobreGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarApk(browser, APP_ENC); if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 195) await testarToastNaoCobreGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
+  try{ if(process.argv.includes('--area-5x2')){ if(+APP_SETORES.match(/V(\d+)\.html$/)[1] < 300) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); }); await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); }); } else if(process.argv.includes('--gabriel-dialogos')){ await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); } else { await testarSetores(browser); await testarEncarregados(browser); if(/V(\d+)\.html$/.test(APP_ENC) && +APP_ENC.match(/V(\d+)\.html$/)[1] >= 167) await testarEncManual(browser); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 269) await testarSetoresAlternada(browser); await testarGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL, 270); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 271) await testarPlanilhaGabriel(browser); await testarGabriel272(browser, APP_SETORES, 'Setores', abrirSetoresFL, 272); await testarGabriel272(browser, APP_ENC, 'Encarregados', abrirEnc15, 180); await testarMemoria273(browser, APP_SETORES, 'Setores', abrirSetoresFL, 273); await testarMemoria273(browser, APP_ENC, 'Encarregados', abrirEnc15, 181); await testarRegime274(browser, APP_SETORES, 'Setores', abrirSetoresFL, 274); await testarRegime274(browser, APP_ENC, 'Encarregados', abrirEnc15, 182); await testarMotoresPorData(browser, APP_SETORES, 'Setores', 286); await testarMotoresPorData(browser, APP_ENC, 'Encarregados', 190); await testarMotor5x2Nucleo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarMotor5x2Nucleo(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarDomingos5x2(browser, APP_SETORES, 'Setores', abrirSetoresFL, 290); await testarDomingos5x2(browser, APP_ENC, 'Encarregados', abrirEnc15, 194); await testarRegimeParametrizado(browser, APP_SETORES, 'Setores', abrirSetoresFL, 303); await testarFeriadoNaoEDsr(browser, APP_SETORES, 'Setores', abrirSetoresFL, 321, true); await testarModeloEscala(browser, APP_SETORES, 'Setores', abrirSetoresFL, 322); await testarSemEnsaio(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarSegundaFolga(browser, APP_SETORES, 'Setores', abrirSetoresFL, 323); await testarHistoricoTudo(browser, APP_SETORES, 'Setores', abrirSetoresFL, 324); await testarSetorForaDaEscala(browser, APP_SETORES, 'Setores'); await testarSesmtNoGrafico(browser, APP_SETORES, 'Setores'); await testarCompFeriadoSoQuemTrabalha(browser, APP_SETORES, 'Setores'); await testarOrdemCompensatorias(browser, APP_SETORES, 'Setores'); await testarQuantidadeManualNaoBloqueia(browser, APP_SETORES, 'Setores'); await testarCpdManualPiloto(browser, APP_SETORES, 'Setores'); await testarTabelaDomingoClicavel(browser, APP_SETORES, 'Setores'); await testarAMaoNaoBloqueia(browser, APP_SETORES, 'Setores'); await testarResumoEGerarNosPassos(browser, APP_SETORES, 'Setores'); await testarPreviaClicavelTodosModos(browser, APP_SETORES, 'Setores'); await testarHorarioAoColocarPelaTabela(browser, APP_SETORES, 'Setores'); await testarTextosResumo(browser, APP_SETORES, 'Setores'); await testarFolgaNoDiaDaFolgaFixa(browser, APP_SETORES, 'Setores'); await testarEncResumoGerar(browser, APP_ENC); await testarEncPreviaClicavel(browser, APP_ENC); await testarEncFolgaFeriadoQuemTrabalha(browser, APP_ENC); await testarEncAMaoConcordancia(browser, APP_ENC); await testarLogoEBotoesHome(browser, APP_SETORES, 'Setores'); await testarAvisoReimportarTst(browser, APP_SETORES, 'Setores'); await testarRegimeParametrizado(browser, APP_ENC, 'Encarregados', abrirEnc15, 199); await testarFeriadoNaoEDsr(browser, APP_ENC, 'Encarregados', abrirEnc15, 201, false); await testarModeloEscala(browser, APP_ENC, 'Encarregados', abrirEnc15, 202); await testarSemEnsaio(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarSegundaFolga(browser, APP_ENC, 'Encarregados', abrirEnc15, 203); await testarHistoricoTudo(browser, APP_ENC, 'Encarregados', abrirEnc15, 204); await testarEnc5x2FolgaAMais(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarConversa275(browser, APP_SETORES, 'Setores', abrirSetoresFL, 275); await testarConversa275(browser, APP_ENC, 'Encarregados', abrirEnc15, 183); await testarDialogosGabriel(browser, APP_SETORES, 'Setores'); await testarDialogosGabriel(browser, APP_ENC, 'Encarregados'); await testarGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15, 179); await testarApk(browser, APP_SETORES); if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 291) await testarToastNaoCobreGabriel(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarApk(browser, APP_ENC); if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 195) await testarToastNaoCobreGabriel(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarAdmissao(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarTurnoEditor(browser, APP_SETORES); await testarCopiaLogo(browser, APP_SETORES); await testarEncAssistente(browser); await testarEncPrevia(browser); await testarAssistenteEstresse(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarAssistenteEstresse(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarChatAssistente(browser, APP_SETORES, 'Setores', abrirSetoresFL); await testarChatAssistente(browser, APP_ENC, 'Encarregados', abrirEnc15); await testarHorarioDomingoAuto(browser, APP_SETORES); await testarHorarioPorFuncao(browser, APP_SETORES); await testarAssistenteTelaInicial(browser, APP_SETORES); await testarAssistenteRobusto(browser, APP_SETORES, 'Setores', async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(2500); }); await testarAssistenteRobusto(browser, APP_ENC, 'Encarregados', async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); }); await testarPorCargo(browser, APP_SETORES); await testarLiderTurno(browser, APP_SETORES); await testarAdmissao(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt'); await testarSemTxt(browser, APP_SETORES, 'Setores', 'setores_frente_de_loja_50.txt'); await testarFolgasMesmoHorario(browser, APP_SETORES); await testarFolgasHorarioEnxuto(browser, APP_SETORES); await testarSemTxt(browser, APP_ENC, 'Encarregados', 'encarregados_15_pares.txt');
 
        if(+APP_SETORES.match(/V(\d+)\.html$/)[1] >= 292 && +APP_SETORES.match(/V(\d+)\.html$/)[1] < 300) await testarAreaTeste5x2(browser, APP_SETORES, 'Setores', path.join(DADOS, 'setores_frente_de_loja_50.txt'), 'v292Teste5x2', {area:'#v292Teste5x2Area',habilitar:'#v292Teste5x2Habilitar',simular:'#v292Teste5x2Simular',limpar:'#v292Teste5x2Limpar',resultado:'#v292Teste5x2Resultado'}, async p => { await p.click('#comeceFechar').catch(() => {}); await p.click('[data-home-setor="Frente de Loja"]'); await p.waitForTimeout(400); await p.click('.is-abrir'); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'setores_frente_de_loja_50.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v45GotoStep?.(1, false)); });   // V300: a área automática foi retirada do Setores; o ensaio 5×2 continua só na escala à mão (testado em testarSugestao5x2/testarTabelaMensal5x2/…)
        if(+APP_ENC.match(/V(\d+)\.html$/)[1] >= 196) await testarAreaTeste5x2(browser, APP_ENC, 'Encarregados', path.join(DADOS, 'encarregados_15_pares.txt'), 'v196Teste5x2', {area:'#v196Teste5x2Card',habilitar:'#v196Teste5x2Habilitar',simular:'#v196Teste5x2Simular',limpar:'#v196Teste5x2Limpar',resultado:'#v196Teste5x2Resultado'}, async p => { await p.click('.hero-cta').catch(() => {}); await p.waitForTimeout(300); await p.setInputFiles('#arquivoTxt', path.join(DADOS, 'encarregados_15_pares.txt')); await p.waitForTimeout(1800); await mudarMes(p, 9, 2026); await p.evaluate(() => window.v171AbrirMes?.()); await p.waitForTimeout(500); });
