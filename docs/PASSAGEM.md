@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V334.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V335.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V204.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,7 +28,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V335**, Encarregados **V205**.
+- **Próximo número de versão:** Setores **V336**, Encarregados **V205**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
@@ -191,6 +191,15 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-27 — Botões distribuídos no desktop + nome "Deposista" corrigido — Setores V335 — Claude
+- **Pedido do Gerente:** (1) na versão desktop os botões da tela inicial ficavam amontoados num bloco 2×2 à esquerda, com muito espaço vazio à direita; devem ficar distribuídos pela tela de forma harmônica. (2) No mapa de concentração (função × horário) o nome "Depositista" está errado — o cargo é "Deposista".
+- **Como ficou** (`setores/index.html`):
+  - **Botões (CSS do `.home-actions-alinhadas`):** adicionada a regra `html[data-runtime="desktop"] .home-actions-alinhadas{display:flex;flex-wrap:wrap;gap:12px}` + `.erp-btn{flex:1 1 200px;width:auto;min-width:160px}`. No desktop os botões crescem igual (flex:1) e preenchem toda a largura da faixa; o Importar mantém o destaque amarelo. No celular/APK (`data-runtime` mobile/apk) continua o grid 2 colunas da V334 (a regra é só para desktop). `data-runtime` é setado em ~linha 2865 (`apk`/`mobile`/`desktop`).
+  - **Nome Deposista (`REGRA_FUNCAO` em `funcaoDoCargo`, ~linha 10764):** a regra `[/DEPOSIST|DEPOSITIST/,'Depositista']` relabelava o cargo DEPOSISTA do ERP como "Depositista" (com "ti" a mais). Trocado o rótulo para `'Deposista'`. As duas grafias do ERP (DEPOSISTA e DEPOSITISTA) continuam unificadas, agora sob "Deposista".
+- **Teste:** `testarLogoEBotoesHome` (bloco `>=335`, viewport 1366 do `novaPagina` já é desktop): confere que o wrap é `flex`, os botões preenchem da borda esquerda à direita e têm a mesma largura; e que `window.v199Graf.funcaoDoCargo('DEPOSISTA')`/`('DEPOSITISTA')` retornam "Deposista".
+- **Bateria completa:** ✅ Tudo certo. V335 neste PR.
+- **Assinado:** Claude
 
 ### 2026-10-26 — Logo corrigida (estava corrompida) + botões da tela inicial alinhados — Setores V334 — Claude
 - **Pedido do Gerente:** (1) a logo do Supermercados Guanabara estava **corrompida** no Setores — a parte de baixo (a ponta do triângulo) vinha embaralhada. (2) levar o alinhamento dos botões da tela inicial (de uma variante local "botoes_alinhados" da V330) para a versão oficial.
