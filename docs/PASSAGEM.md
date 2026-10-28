@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V342.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V343.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V208.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,13 +28,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V343**, Encarregados **V209**.
+- **Próximo número de versão:** Setores **V344**, Encarregados **V209**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V208, atualizado em 27/10/2026): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V342, atualizado em 28/10/2026): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V343, atualizado em 28/10/2026): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V208, 17 cenários): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -201,6 +201,13 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-28 — Mover a folga de feriado para outro dia, com janela — Setores V343 — Claude
+- **Pedido do Gerente:** na tabela de feriado, clicar na sugestão de folga e ter uma janela perguntando se quer **aceitar** ou **mover para outro dia**; ao escolher mover, a **linha do funcionário muda de cor**, o usuário clica noutro dia dentro das regras e a sugestão move; depois de mover, a janela aparece de novo (aceitar a nova ou mover outra vez).
+- **O que mudou:** em `renderPreviaFolgasFeriado` cada `<tr>` ganhou `data-pv-row` e cada `<td>` `data-pv-date`; a faixa de datas (`fim`) passou a incluir a janela de compensação (feriado+20) dos feriados com gente trabalhando, para os dias de mover serem colunas visíveis. Nova camada `window.v343FolgaFeriado` (um `<script>` no fim do body) com um ouvinte de clique no **window em captura** (roda antes do V330/V337/V342): tocar numa 💡 sugestão (`data-pv-ace="0"`) abre a janela (✅ Aceitar → `aceitarSugestaoFolgaFeriado`; 📅 Mover → modo de movimento). No modo de movimento, a linha fica amarela (`.pv-mover-linha`) e os dias válidos verdes (`.pv-mover-ok`, via `diaValidoComp`: 1–20 dias depois, não-domingo, sem DSR/bloqueio/outro feriado, `candidatoPodeReceberDSRPorTurno`); clicar num dia verde grava `sugestoesFolgasFeriado[d_i]` no novo dia, re-renderiza e reabre a janela; clicar fora da linha, ou Esc, cancela.
+- **Teste novo:** `testarMoverFolgaFeriado` (nov/2026): abre a janela, pinta a linha (15 dias verdes), move 18/11 → 17/11, reabre a janela, aceita. `testarTabelaFeriadoClicavel` ajustado (o aceite da sugestão agora passa pela janela).
+- **Armadilha (REA):** a bateria acusou 1 falha que era do próprio teste — a janela reabre via `setTimeout` depois do re-render, e o teste conferia cedo demais; corrigido com um `waitForTimeout` antes do check. O código não mudou. Bateria completa: ✅ Tudo certo.
+- **Assinado:** Claude
 
 ### 2026-10-28 — Tabela de feriado toda clicável — Setores V342 — Claude
 - **Pedido do Gerente:** “coloque a tabela que está em feriado toda clicável — domingo clicável, feriado clicável, folga de feriado clicável”. O domingo já era clicável (V330); faltavam o feriado e a folga de feriado.
