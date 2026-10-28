@@ -7,10 +7,17 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V209</title>
+<title>Escala 2×1 — Encarregados V210</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V210 [Claude] — 🗓️ REGIME DE DOMINGO: 2×1, 2×2 OU MISTO (pedido do Gerente, igual à Escala de Setores V341): em 📅 Mês e opções o
+       Gerente escolhe o regime dos domingos. 2×1 (padrão, nada muda): trabalha 2 domingos e folga 1. 2×2: trabalha 2 domingos e
+       folga 2 (depois de trabalhar 2 domingos seguidos, descansa 2). Misto: o Gerente diz QUANTAS pessoas ficam no 2×2 e o app
+       escolhe quem, dividindo pelos setores; o resto fica no 2×1. Como a Encarregados escala sempre 3 por domingo (1 Encarregado +
+       1 Subencarregado + 1 de outro setor), o regime entra como uma regra a mais no candidato (podeDomingo): no 2×2 a pessoa não
+       trabalha se trabalhou o domingo retrasado. Nunca 3 domingos seguidos continua valendo; o balanço e os feriados não mudam.
+       Com 2×1, o motor é idêntico ao de antes. window.v210Regime.cicloDe(i) = 3 ou 4.
 V209 [Claude] — 👆 TABELA DE FERIADO CLICÁVEL + MOVER A FOLGA COM JANELA (pedido do Gerente, igual à Escala de Setores V342/V343):
        na tabela de prévia do passo Feriados, tocar numa célula de FERIADO (🟡) tira ou coloca a pessoa naquele feriado (respeita
        afastado/férias, a folga fixa obrigatória e a folga da semana/DSR). Tocar numa 💡 SUGESTÃO de folga de feriado abre uma janela
@@ -2136,7 +2143,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V209 · Tabela de feriado clicável + mover a folga com janela</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V210 · Regime de domingo: 2×1, 2×2 ou Misto (você escolhe)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2253,6 +2260,19 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option selected="" value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
 </select></div>
 <div class="field"><label>Ano</label><input id="ano" type="number" value="2026"/></div>
+<div class="field" style="grid-column:1/-1">
+  <label for="regimeDomingo">Regime de domingo (quantos domingos cada pessoa trabalha e folga)</label>
+  <select id="regimeDomingo">
+    <option value="2x1">2×1 — trabalha 2 domingos e folga 1 (padrão)</option>
+    <option value="2x2">2×2 — trabalha 2 domingos e folga 2</option>
+    <option value="misto">Misto — uma parte 2×1 e outra parte 2×2</option>
+  </select>
+  <div id="regimeMistoBox" hidden style="margin-top:8px">
+    <label for="regimeQtd2x2">Quantas pessoas ficam no 2×2? (o resto fica no 2×1; o app escolhe quem)</label>
+    <input id="regimeQtd2x2" type="number" min="0" step="1" value="0" inputmode="numeric" style="max-width:160px">
+  </div>
+  <div id="regimeResumo" class="alert info" style="margin-top:8px">2×1: cada pessoa trabalha 2 domingos seguidos e folga 1. É o de sempre.</div>
+</div>
 </div>
 <details class="mais-opcoes" id="maisOpcoes"><summary><span>Mais opções</span><small>balanço, feriados extras, dias de folga semanal, prazo da folga de feriado, título da planilha</small></summary>
 <div class="grid">
@@ -4555,7 +4575,10 @@ function podeDomingo(i,idx){
     ];
   }
 
-  return !(anteriores.length===2 && anteriores[0] && anteriores[1]);
+  if(anteriores.length===2 && anteriores[0] && anteriores[1]) return false;   // nunca 3 domingos seguidos (2×1)
+  // V210: no 2×2, folga 2 depois de trabalhar 2 — não trabalha se trabalhou o domingo retrasado (anteriores[0]). Com 2×1 nada muda.
+  try{ if(anteriores.length===2 && anteriores[0] && window.v210Regime && window.v210Regime.cicloDe(i)===4) return false; }catch(e){}
+  return true;
 }
 function pode(i,d){
   const ds=domingosDoMes(+$('ano').value,+$('mes').value);
@@ -11931,6 +11954,65 @@ function perguntarOrientacaoImpressao(cb){
   }, true);
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($i('v209Janela')) fechar(); else if(mover) cancelarMover('Movimentação cancelada.'); } });
   window.v209FolgaFeriado={abrirJanela, iniciarMover, cancelarMover, diaValidoComp, toggleFeriado, emMovimento:()=>!!mover};
+})();
+</script>
+<script>
+/* ═════ V210 — 🗓️ REGIME DE DOMINGO: 2×1 / 2×2 / MISTO (pedido do Gerente, igual à Escala de Setores V341) ═════
+   Em 📅 Mês e opções o Gerente escolhe o regime dos domingos:
+     • 2×1 (padrão): trabalha 2 domingos e folga 1 (nada muda — motor idêntico).
+     • 2×2: trabalha 2 domingos e folga 2 (depois de trabalhar 2, descansa 2).
+     • Misto: o Gerente diz QUANTAS pessoas ficam no 2×2; o resto fica no 2×1; o app escolhe quem (round-robin por setor).
+   Como a Encarregados escala sempre 3 por domingo (composição fixa), o regime entra como uma regra a mais no candidato
+   (podeDomingo): no 2×2 a pessoa não trabalha se trabalhou o domingo retrasado. window.v210Regime.cicloDe(i) = 3 ou 4. */
+window.v210Regime=(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const LS='enc.v210Regime';
+  const st={modo:'2x1',qtd:0};
+  try{ const v=JSON.parse(localStorage.getItem(LS)||'null'); if(v&&typeof v==='object'){ if(['2x1','2x2','misto'].includes(v.modo)) st.modo=v.modo; if(Number.isFinite(+v.qtd)) st.qtd=Math.max(0,Math.floor(+v.qtd)); } }catch(e){}
+  const salvar=()=>{ try{ localStorage.setItem(LS,JSON.stringify(st)); }catch(e){} };
+  const modo=()=>st.modo, qtd2x2=()=>st.qtd;
+  function operacionais(){ try{ return equipe.map((f,i)=>i).filter(i=>{ const f=equipe[i]; return f && !foraDom(f); }); }catch(e){ return []; } }
+  function set2x2(){
+    if(st.modo==='2x2') return new Set(operacionais());
+    if(st.modo!=='misto' || st.qtd<=0) return new Set();
+    const ops=operacionais(), n=Math.min(st.qtd, ops.length), porSetor=new Map();
+    ops.slice().sort((a,b)=>{ const sa=String(equipe[a].setor||''), sb=String(equipe[b].setor||''); if(sa!==sb) return sa<sb?-1:1; return String(equipe[a].nome||a).localeCompare(String(equipe[b].nome||b),'pt'); })
+      .forEach(i=>{ const k=String(equipe[i].setor||''); if(!porSetor.has(k)) porSetor.set(k,[]); porSetor.get(k).push(i); });
+    const filas=[...porSetor.values()], escolhidos=new Set();
+    while(escolhidos.size<n){ let avancou=false; for(const fila of filas){ if(fila.length){ escolhidos.add(fila.shift()); avancou=true; if(escolhidos.size>=n) break; } } if(!avancou) break; }
+    return escolhidos;
+  }
+  function cicloDe(i){ if(st.modo==='2x1') return 3; if(st.modo==='2x2') return 4; return set2x2().has(i)?4:3; }
+  function texto(){
+    if(st.modo==='2x1') return '2×1: cada pessoa trabalha 2 domingos seguidos e folga 1. É o de sempre.';
+    if(st.modo==='2x2') return '2×2: cada pessoa trabalha 2 domingos seguidos e folga 2 (depois de trabalhar 2 domingos, descansa 2).';
+    const ops=operacionais().length, n=Math.min(st.qtd,ops);
+    return `Misto: ${n} pessoa(s) no 2×2 e ${Math.max(0,ops-n)} no 2×1. O app escolhe quem fica no 2×2, dividindo pelos setores.`;
+  }
+  function pintar(){
+    const sel=$i('regimeDomingo'); if(sel && sel.value!==st.modo) sel.value=st.modo;
+    const inp=$i('regimeQtd2x2'); if(inp && String(inp.value)!==String(st.qtd)) inp.value=st.qtd;
+    const box=$i('regimeMistoBox'); if(box) box.hidden=st.modo!=='misto';
+    const res=$i('regimeResumo'); if(res) res.textContent=texto();
+  }
+  function mudou(){
+    try{ if(typeof window.trabalhoDomingo!=='undefined') window.trabalhoDomingo={}; }catch(e){}
+    try{ window.ultimaEscala=null; }catch(e){}
+    pintar();
+    try{ if(typeof renderPreviaFolgasFeriado==='function') renderPreviaFolgasFeriado(true); }catch(e){}
+  }
+  function ligar(){
+    const sel=$i('regimeDomingo'), inp=$i('regimeQtd2x2');
+    if(sel && !sel.dataset.v210){ sel.dataset.v210='1'; sel.addEventListener('change',()=>{ st.modo=['2x1','2x2','misto'].includes(sel.value)?sel.value:'2x1'; salvar(); mudou(); }); }
+    if(inp && !inp.dataset.v210){ inp.dataset.v210='1'; inp.addEventListener('input',()=>{ st.qtd=Math.max(0,Math.floor(+inp.value||0)); salvar(); if(st.modo==='misto') mudou(); else pintar(); }); }
+    pintar();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',ligar); else ligar();
+  try{ new MutationObserver(()=>{ const sel=$i('regimeDomingo'); if(sel && !sel.dataset.v210) ligar(); }).observe(document,{childList:true,subtree:true}); }catch(e){}
+  return {modo,qtd2x2,cicloDe,set2x2,operacionais,ehPessoa2x2:i=>cicloDe(i)===4,
+    estado:()=>({modo:st.modo,qtd:st.qtd}),
+    definir:(m,q)=>{ if(['2x1','2x2','misto'].includes(m)) st.modo=m; if(Number.isFinite(+q)) st.qtd=Math.max(0,Math.floor(+q)); salvar(); pintar(); }};
 })();
 </script>
 </body>
