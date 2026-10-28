@@ -7,10 +7,17 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V208</title>
+<title>Escala 2×1 — Encarregados V209</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V209 [Claude] — 👆 TABELA DE FERIADO CLICÁVEL + MOVER A FOLGA COM JANELA (pedido do Gerente, igual à Escala de Setores V342/V343):
+       na tabela de prévia do passo Feriados, tocar numa célula de FERIADO (🟡) tira ou coloca a pessoa naquele feriado (respeita
+       afastado/férias, a folga fixa obrigatória e a folga da semana/DSR). Tocar numa 💡 SUGESTÃO de folga de feriado abre uma janela
+       "✅ Aceitar a sugestão" / "📅 Mover para outro dia"; ao mover, a LINHA do funcionário fica amarela e os dias válidos ficam
+       VERDES (seg–sáb, até o prazo depois do feriado, sem folga da semana, sem outro feriado e sem estourar os limites por dia/
+       sábado/setor), e tocar num dia verde move a folga — depois a janela aparece de novo. Tocar numa folga já marcada (Folga Fxx)
+       REMOVE. Esc ou toque fora da linha cancela. window.v209FolgaFeriado.
 V208 [Claude] — ✍️ À MÃO: AVISA E PEDE CONCORDÂNCIA, NÃO BLOQUEIA (pedido do Gerente, igual à Escala de Setores V331): na escala à
        mão quem monta é o usuário. As quebras de estrutura — 3 domingos seguidos (2×1) e a folga do domingo caindo num feriado que
        a pessoa trabalha — deixam de impedir a marcação e o 🚀 Gerar: a conferência avisa e, depois de gerar, abre a janela pedindo
@@ -2129,7 +2136,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V208 · À mão: avisa e pede concordância, não bloqueia</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V209 · Tabela de feriado clicável + mover a folga com janela</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -3935,6 +3942,8 @@ function renderPreviaFolgasFeriado(force){
   const inicio=new Date(ano,mes,1), fimMes=new Date(ano,mes+1,0);
   let fim=new Date(fimMes);
   [...Object.keys(sugPorData),...Object.keys(acePorData)].forEach(c=>{ const dt=new Date(c+'T12:00:00'); if(dt>fim && dt-fimMes<=62*86400000) fim=dt; });
+  // V209: mostra a janela de compensação (até o prazo) dos feriados com gente trabalhando, para dar onde MOVER a folga
+  { const ferM=feriados(ano,mes), pz=(typeof prazoFolgaFeriado==='function'?prazoFolgaFeriado():20); Object.keys(ferM).map(Number).forEach(d=>{ if(!((trabalhoFeriado[d]||[]).length)) return; const lim=new Date(ano,mes,d+pz); if(lim>fim && lim-fimMes<=62*86400000) fim=lim; }); }
   const datas=[]; for(let dt=new Date(inicio);dt<=fim;dt.setDate(dt.getDate()+1)) datas.push(new Date(dt));
   const bal=balancoDoMes(ano,mes), ferMes=feriados(ano,mes);
   const noMes=dt=>dt.getMonth()===mes&&dt.getFullYear()===ano;
@@ -3953,27 +3962,28 @@ function renderPreviaFolgasFeriado(force){
   h+='</tr></thead><tbody>';
   equipe.forEach((x,i)=>{
     const gi=grupos.findIndex(g=>g.includes(i))+1;
-    h+=`<tr><td><b>${esc(x.nome)}</b><br><small style="font-weight:500;color:var(--muted)">${esc(x.cargo)}</small></td><td>${esc(x.cargo)}</td><td>${gi?'Grupo '+gi:'—'}</td>`;
+    h+=`<tr data-pv-row="${i}"><td><b>${esc(x.nome)}</b><br><small style="font-weight:500;color:var(--muted)">${esc(x.cargo)}</small></td><td>${esc(x.cargo)}</td><td>${gi?'Grupo '+gi:'—'}</td>`;   // V209: data-pv-row
     datas.forEach(dt=>{
       const d=dt.getDate(), ds=dt.getDay(), ck=chaveData(dt), fer=ferDe(dt);
-      let status='', cl='t';
+      let status='', cl='t', dataAttr='';
       if(noMes(dt)){
         if(ds===0){ const w=domPv(d).includes(i), ab=!w&&abertoPv(i,d); status=w?(d===bal?'BALANÇO':'DOM'):(ab?'—':'FOLGA DOM'); cl=w?(d===bal?'bal':'dom'):(ab?'t':'f'); }   // V177: domPv/abertoPv
-        else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer'; }
+        else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer';
+          if(w || (!inativo(equipe[i]) && !bloqueioFolgaFeriado(i,dt))){ dataAttr=` data-pv-fer="${d}" data-pv-func="${i}"`; cl+=' pv-click'; } }   // V209: feriado clicável (tira/coloca)
       }else if(ds===0){
         const pv=previsoesDomingo[ck];
         if(pv&&!pv.falhou&&!pv.balanco){ const idx=indicesDaPrevisao(pv); if(idx){ const w=idx.includes(i); status=w?'DOM':'FOLGA DOM'; cl=w?'dom':'f'; } }
       }
       if(!status){
         const ace=(acePorData[ck]||[]).find(o=>o.i===i);
-        if(ace){ status=`Folga F${String(ace.d).padStart(2,'0')}`; cl='folgafer'; }
+        if(ace){ status=`Folga F${String(ace.d).padStart(2,'0')}`; cl='folgafer'; dataAttr=` data-pv-folgafer="${ace.d}" data-pv-func="${i}" data-pv-ace="1"`; cl+=' pv-click'; }   // V209: folga aceita → toque remove
         else{
           const sg=(sugPorData[ck]||[]).find(o=>o.i===i);
-          if(sg){ status=`${sabadoRodizioSug[`${sg.d}_${i}`]&&ds===6?'⭐':'💡'} F${String(sg.d).padStart(2,'0')}`; cl='sugf'; }
+          if(sg){ status=`${sabadoRodizioSug[`${sg.d}_${i}`]&&ds===6?'⭐':'💡'} F${String(sg.d).padStart(2,'0')}`; cl='sugf'; dataAttr=` data-pv-folgafer="${sg.d}" data-pv-func="${i}" data-pv-ace="0"`; cl+=' pv-click'; }   // V209: sugestão → toque abre a janela
           else if(ehDescansoAssociado(i,dt)){ status='FOLGA'; cl='f'; }
         }
       }
-      h+=`<td class="${cl}">${status}</td>`;
+      h+=`<td class="${cl}"${dataAttr} data-pv-date="${ck}">${status}</td>`;   // V209: data-pv-date
     });
     h+='</tr>';
   });
@@ -11811,6 +11821,116 @@ function perguntarOrientacaoImpressao(cb){
     setTimeout(()=>{ if(aceitos[assinatura(ultimas)]) nota(ultimas); else janela(ultimas); },0);
   }
   window.v208Concordancia={posGeracao, quebras:()=>ultimas.slice(), concordou:()=>!!aceitos[assinatura(ultimas)]};
+})();
+</script>
+<script>
+/* ═════ V209 — 👆 TABELA DE FERIADO CLICÁVEL + MOVER A FOLGA COM JANELA (pedido do Gerente, igual à Escala de Setores V342/V343) ═════
+   Na tabela de prévia do passo Feriados:
+     • feriado (🟡): toca para TIRAR/COLOCAR a pessoa naquele feriado (respeita afastado/férias, folga fixa e a folga da semana/DSR).
+     • 💡 sugestão de folga de feriado: toca e abre a janela "✅ Aceitar a sugestão" / "📅 Mover para outro dia".
+     • folga já marcada (Folga Fxx): toca para REMOVER.
+   No "Mover", a LINHA do funcionário fica amarela e os dias válidos ficam VERDES (seg–sáb, até o prazo depois do feriado, sem folga
+   da semana, sem outro feriado, sem estourar os limites por dia/sábado/setor); toque num dia verde para mover. Depois de mover, a
+   janela aparece de novo. Esc ou toque fora da linha cancela. O ouvinte fica no window em captura. window.v209FolgaFeriado. */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const ano=()=>+$i('ano').value, mes=()=>+$i('mes').value, amDt=d=>new Date(ano(),mes(),d);
+  const escq=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  let mover=null;
+  const st=document.createElement('style');
+  st.textContent=`#previaTabelaFolgas tr.pv-mover-linha td{background:#fef9c3 !important;}
+    #previaTabelaFolgas td.pv-mover-ok{outline:2px solid #16a34a;outline-offset:-2px;cursor:pointer;background:#dcfce7 !important;}
+    .v209-back{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;}
+    .v209-card{background:var(--surface,#fff);color:var(--text,#111);border:1px solid var(--border,#e5e7eb);border-radius:14px;max-width:420px;width:100%;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+    .v209-card h3{margin:0 0 6px;font-size:18px;} .v209-card p{margin:0 0 12px;font-size:14px;color:var(--muted,#555);}
+    .v209-btns{display:flex;flex-direction:column;gap:8px;} .v209-btns button{min-height:46px;border-radius:10px;font-size:15px;}`;
+  document.head.appendChild(st);
+  const rerender=cb=>{ try{ renderPreviaFolgasFeriado?.(true); }catch(e){} try{ window.v45Persist?.(); }catch(e){} if(cb) setTimeout(cb,0); };
+  function diaValidoComp(i,d,dt){
+    const fer=amDt(d), pz=(typeof prazoFolgaFeriado==='function'?prazoFolgaFeriado():20), chave=`${d}_${i}`;
+    const dias=Math.round((new Date(dt.getFullYear(),dt.getMonth(),dt.getDate())-new Date(fer.getFullYear(),fer.getMonth(),fer.getDate()))/864e5);
+    if(dias<1||dias>pz) return false;
+    if(dt.getDay()===0) return false;
+    try{ if(ehDescansoAssociado(i,dt)) return false; }catch(e){}
+    try{ if(dataEmPeriodoBloqueado(dt)) return false; }catch(e){}
+    try{ if(ehOutroFeriadoNaData(dt,d)) return false; }catch(e){}
+    try{ if(contarFolgasNaData(dt,chave)>=2) return false; }catch(e){}
+    try{ if(dt.getDay()===6 && contarFolgasNaData(dt,chave)>=LIMITE_FOLGA_SABADO) return false; }catch(e){}
+    try{ if(setorJaTemFolgaNaData(i,dt,chave)) return false; }catch(e){}
+    return true;
+  }
+  function toggleFeriado(d,i){
+    const dt=amDt(d); if(dt.getDay()===0) return;
+    const trabalhava=(trabalhoFeriado[d]||[]).includes(i);
+    if(!trabalhava){
+      const motivo=bloqueioFolgaFeriado(i,dt);
+      if(motivo){ window.showToast?.(`${equipe[i].nome}: ${motivo} — não trabalha neste feriado.`,'warn'); return; }
+      trabalhoFeriado[d]=[...new Set([...(trabalhoFeriado[d]||[]),i])];
+    } else {
+      trabalhoFeriado[d]=(trabalhoFeriado[d]||[]).filter(x=>x!==i);
+      folgasCompensatorias=folgasCompensatorias||{}; delete folgasCompensatorias[`${d}_${i}`];
+    }
+    try{ montarEscalaFeriados(); }catch(e){}
+    rerender();
+    try{ gerarSugestoesFolgasFeriado(); }catch(e){}
+  }
+  const fechar=()=>$i('v209Janela')?.remove();
+  function abrirJanela(d,i){
+    fechar();
+    const chave=`${d}_${i}`, sug=sugestoesFolgasFeriado?.[chave]; if(!sug) return;
+    const dtSug=new Date(sug+'T12:00:00');
+    const back=document.createElement('div'); back.className='v209-back'; back.id='v209Janela';
+    back.innerHTML=`<div class="v209-card" role="dialog" aria-modal="true">
+      <h3>🗓️ Folga do feriado ${String(d).padStart(2,'0')}</h3>
+      <p><b>${escq(equipe[i]?.nome||'')}</b> — folga sugerida para <b>${dtSug.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'})}</b>. O que você quer fazer?</p>
+      <div class="v209-btns">
+        <button type="button" class="btn success" id="v209Aceitar">✅ Aceitar a sugestão</button>
+        <button type="button" class="btn secondary" id="v209Mover">📅 Mover para outro dia</button>
+        <button type="button" class="btn secondary" id="v209Fechar">✖️ Fechar</button>
+      </div></div>`;
+    document.body.appendChild(back);
+    back.addEventListener('click',e=>{ if(e.target===back) fechar(); });
+    $i('v209Aceitar').onclick=()=>{ fechar(); try{ aceitarSugestaoFolgaFeriado(d,i); }catch(e){ console.warn('[V209]',e); } rerender(); };
+    $i('v209Mover').onclick=()=>{ fechar(); iniciarMover(d,i); };
+    $i('v209Fechar').onclick=fechar;
+  }
+  function marcarLinha(i,on){
+    const tr=document.querySelector(`#previaTabelaFolgas tr[data-pv-row="${i}"]`); if(!tr) return;
+    tr.classList.toggle('pv-mover-linha',on);
+    tr.querySelectorAll('td[data-pv-date]').forEach(td=>{ td.classList.remove('pv-mover-ok');
+      if(on && mover){ const dt=new Date(td.dataset.pvDate+'T12:00:00'); if(diaValidoComp(mover.i,mover.d,dt)) td.classList.add('pv-mover-ok'); } });
+  }
+  function iniciarMover(d,i){ mover={d,i}; marcarLinha(i,true);
+    window.showToast?.(`Toque num dia VERDE na linha de ${equipe[i]?.nome||''} para mover a folga do feriado ${String(d).padStart(2,'0')}. (Toque fora da linha, ou Esc, para cancelar.)`,'info'); }
+  function cancelarMover(msg){ if(!mover) return; const i=mover.i;
+    const tr=document.querySelector(`#previaTabelaFolgas tr[data-pv-row="${i}"]`);
+    if(tr){ tr.classList.remove('pv-mover-linha'); tr.querySelectorAll('.pv-mover-ok').forEach(td=>td.classList.remove('pv-mover-ok')); }
+    mover=null; if(msg) window.showToast?.(msg,'info'); }
+  window.addEventListener('click',e=>{
+    if(mover){
+      const td=e.target.closest?.('#previaTabelaFolgas td[data-pv-date]');
+      const tr=td?.closest('tr'), naLinha=tr && +tr.dataset.pvRow===mover.i;
+      e.preventDefault(); e.stopImmediatePropagation();
+      if(!td || !naLinha){ cancelarMover('Movimentação cancelada.'); return; }
+      const dt=new Date(td.dataset.pvDate+'T12:00:00');
+      if(!diaValidoComp(mover.i,mover.d,dt)){ window.showToast?.('Esse dia não pode: escolha um dia VERDE (seg–sáb, dentro do prazo do feriado, sem folga da semana e sem outro feriado).','warn'); return; }
+      const d0=mover.d,i0=mover.i, chave=`${d0}_${i0}`;
+      sugestoesFolgasFeriado[chave]=td.dataset.pvDate;
+      try{ delete folgasCompensatorias[chave]; }catch(e){}
+      cancelarMover();
+      rerender(()=>abrirJanela(d0,i0));
+      return;
+    }
+    const sug=e.target.closest?.('#previaTabelaFolgas td[data-pv-folgafer][data-pv-ace="0"]');
+    if(sug){ e.preventDefault(); e.stopImmediatePropagation(); abrirJanela(+sug.dataset.pvFolgafer,+sug.dataset.pvFunc); return; }
+    const ace=e.target.closest?.('#previaTabelaFolgas td[data-pv-folgafer][data-pv-ace="1"]');
+    if(ace){ e.preventDefault(); e.stopImmediatePropagation(); const d=+ace.dataset.pvFolgafer,i=+ace.dataset.pvFunc; try{ delete folgasCompensatorias[`${d}_${i}`]; }catch(e){} try{ montarEscalaFeriados(); }catch(e){} rerender(); try{ gerarSugestoesFolgasFeriado(); }catch(e){} window.showToast?.(`Folga do feriado ${String(d).padStart(2,'0')} tirada de ${equipe[i]?.nome||''}.`,'ok'); return; }
+    const feriado=e.target.closest?.('#previaTabelaFolgas td[data-pv-fer]');
+    if(feriado){ e.preventDefault(); e.stopImmediatePropagation(); toggleFeriado(+feriado.dataset.pvFer,+feriado.dataset.pvFunc); }
+  }, true);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($i('v209Janela')) fechar(); else if(mover) cancelarMover('Movimentação cancelada.'); } });
+  window.v209FolgaFeriado={abrirJanela, iniciarMover, cancelarMover, diaValidoComp, toggleFeriado, emMovimento:()=>!!mover};
 })();
 </script>
 </body>
