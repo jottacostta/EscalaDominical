@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V341.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V342.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V208.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -28,13 +28,13 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 - **PR #88 (Manus):** Setores V279 / Encarregados V187, bateria de diálogos e separação de intenções do Gabriel; mesclada em 18/10/2026 no merge commit `8f1e2fb`; o branch `chatgpt/gabriel-responde-versao` foi mantido.
 - **Conversa nova?** Comece por [`docs/INICIO_NOVA_CONVERSA.txt`](INICIO_NOVA_CONVERSA.txt): regras de continuidade e a mensagem para colar.
 - **Branches antigos do ChatGPT** (todos já incorporados ao `main` ou com PR fechado): `chatgpt/teste-integracao`, `chatgpt/propostas-*`, `chatgpt/setores-filtro-escala-manual`, `chatgpt/setores-v231-…`, `chatgpt/setores-v232-…`, `chatgpt/sugestoes-escala-manual` e os dois `chatgpt/setores-v233-…`. **Não use nenhum deles.** O Claude não consegue apagar branches deste ambiente; o dono pode apagá-los no GitHub (aba **Branches** → 🗑️).
-- **Próximo número de versão:** Setores **V341**, Encarregados **V209**.
+- **Próximo número de versão:** Setores **V343**, Encarregados **V209**.
 - **Política automática atual:** antes de `2026-12-16`, o plano seleciona 6×1; em `2026-12-16` e depois, seleciona 5×2. No app de Encarregados, os domingos continuam como política separada 2×1. `window.escalaMotor` expõe `motorParaData()`, `planoPeriodo()` e `historico()`; nesta entrega o motor 6×1 e seus validadores ainda não foram substituídos pelo dispatcher 5×2.
 - **Plano legal e de execução:** [`docs/PLANO_5x2.md`](PLANO_5x2.md) foi copiado da PR #96 para esta branch. Ele organiza o diagnóstico, o motor 5×2, os avisos de transição, a homologação e o go-live antes de 16/12/2026.
 - **Documentação em seis pilares:** PRD, TRD, fluxos, Design System, modelo de dados e plano foram iniciados na PR #82 (`chatgpt/documentacao-seis-pilares`). São mapas iniciais; as lacunas precisam ser verificadas contra o código, os testes e as decisões do gerente.
 - **Manuais de uso (Claude Docs, atualizados pelo Claude — decisão do dono em 12/10/2026):**
   - Manual do Encarregado (V208, atualizado em 27/10/2026): https://claude.ai/code/artifact/29a1157b-f657-465e-ae85-2eb06a58c726
-  - Manual da Escala de Setores (V338, atualizado em 27/10/2026): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
+  - Manual da Escala de Setores (V342, atualizado em 28/10/2026): https://claude.ai/code/artifact/9ed54c8f-d381-4733-a6f4-220f6282f197
   - Roteiro do Beta (Encarregados V208, 17 cenários): https://claude.ai/code/artifact/ef9b9858-da19-4cbc-a0cc-663115b007e9
   - Mudou tela, passo ou nome de botão? Avise no PR que o manual precisa de print/texto novo. Prints sempre com os dados FICTÍCIOS de `testes/dados`.
 - **APK:** o dono transforma o link em APK com o **ApkForja** (app HTML dele, “modo site”). Veja a armadilha “Downloads dentro do APK” na seção 4.
@@ -201,6 +201,21 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-10-28 — Tabela de feriado toda clicável — Setores V342 — Claude
+- **Pedido do Gerente:** “coloque a tabela que está em feriado toda clicável — domingo clicável, feriado clicável, folga de feriado clicável”. O domingo já era clicável (V330); faltavam o feriado e a folga de feriado.
+- **O que mudou:** na tabela de prévia (`renderPreviaFolgasFeriado`, id `previaTabelaFolgas`), as células de FERIADO e de FOLGA DE FERIADO ganharam `data-pv-fer` / `data-pv-folgafer` + classe `pv-click`. Nova camada `window.v342FeriadoTabela` (um `<script>` no fim do body) captura o clique no document: feriado 🟡 → `toggleFeriado(d,i)` tira/coloca em `trabalhoFeriado[d]` com as mesmas travas dos cards (AF/EP, `feriadoFixaBloqueiaOFeriado`, e DSR `ehDescansoAssociado`) e re-renderiza (`montarEscalaFeriados` + `renderPreviaFolgasFeriado(true)` + `gerarSugestoesFolgasFeriado`); 💡 sugestão → `aceitarSugestaoFolgaFeriado(d,i)`; folga aceita (Folga Fxx) → apaga `folgasCompensatorias[d_i]`.
+- **Armadilha achada e consertada (REA):** a célula só deve virar clicável onde o toque faz algo. Faltava excluir quem está de **DSR** no dia do feriado (`ehDescansoAssociado`): o ✎ aparecia mas o `montarEscalaFeriados` tirava a pessoa de volta (ela está descansando). Agora o render não marca essa célula e o `toggleFeriado` também avisa por toast.
+- **Teste novo:** `testarTabelaFeriadoClicavel` (nov/2026): coloca no feriado, tira, aceita 💡 e remove Folga Fxx.
+- **Assinado:** Claude
+
+### 2026-10-28 — Regime de domingo 2×1/2×2/Misto + conserto do feriado (os dois domingos) — Setores V341 — Claude
+- **Pedido do Gerente:** criar em Configurações a escolha do regime de domingo — 2×1 (hoje), 2×2 (trabalha 2 domingos, folga 2) ou Misto (parte 2×1, parte 2×2; o app escolhe quem). E, antes, consertar a folga fixa no feriado: não pode ser obrigatória se a pessoa não trabalha os domingos que margeiam o feriado.
+- **Regime (gated, 2×1 intacto):** `window.v341Regime` (modo + quantidade no 2×2, guardado no localStorage `setores.v341Regime`) expõe `cicloDe(i)` = 3 (2×1) ou 4 (2×2). No Misto, `set2x2()` divide pelos cargos (round-robin, ordem estável por matrícula). O motor (`gerarEscalaDomingos`) usa `cicloDe` para a cobertura ponderada (`fatorDom` = média de 2/3 e 1/2) e, no 2×2, um filtro extra no candidato: **não trabalha se trabalhou o domingo retrasado** (`estadoAnterior(i,idx)[0]`), forçando folgar 2 depois de trabalhar 2. A `faseFolga` do 2×1 só vale para o ciclo 3; o 2×2 se apoia em `fechaDupla` + `domingosDeFolga` + o filtro. `calcularMetasDistribuicaoFuncoes` recebe `cicloDe` e soma 2/ciclo por pessoa. **Com 2×1 tudo é no-op (o 2×1 fica byte a byte).**
+- **Feriado (conserto do V340):** `feriadoFixaBloqueiaOFeriado` passou a olhar os DOIS domingos que margeiam o feriado (o de antes `dt-getDay()` e o de depois `dt+(7-getDay())`). O V340 olhava só o de antes; quem trabalhava só o domingo de depois (antecipada caindo no feriado) escapava. Só na tela; o motor (V339) não muda.
+- **Armadilha (REA):** a 1ª tentativa da V341 mexia direto em `feriadoFixaObrigatoria` (que alimenta o motor) e quebrava nov/dez de 2027 (“sem folga antecipada (sábado)”). Por isso o motor ficou idêntico ao V339 e a regra nova vive só na função de tela.
+- **Testes:** `testarRegimeDomingo` (2×2 e Misto válidos, nunca 3 seguidos, folga 2 depois de 2, cobertura ~metade) e `testarFeriadoFolgaFixaSeTrabalhaDomingo` reforçado (antes, depois, distantes, motor inalterado). Bateria completa ✅.
+- **Assinado:** Claude
 
 ### 2026-10-27 — Folga fixa só bloqueia o feriado se trabalha o domingo da semana — Setores V340 — Claude
 - **Pedido do Gerente (prints da escala à mão):** o Gyan (BALC DE FLV, folga fixa sexta) folga o domingo e aparecia com **🔒 FOLGA FIXA OBRIGATÓRIA** no feriado de sexta (20/11), sem poder trabalhar o feriado. Regra do Gerente: "a folga só é fixa se trabalhar domingo; ele não está trabalhando, então não tem essa folga na semana" → pode trabalhar o feriado. Confirmado por ele na pergunta.

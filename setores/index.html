@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V341</title>
+<title>Escala de Setores — V342</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V342 [Claude] — 👆 TABELA DE FERIADO TODA CLICÁVEL (pedido do Gerente): na tabela de prévia do passo 4, além do domingo (que já
+       era clicável desde a V330), agora o FERIADO e a FOLGA DE FERIADO também são clicáveis. Tocar numa célula de feriado (🟡)
+       TIRA ou COLOCA a pessoa para trabalhar aquele feriado (respeita AF/EP, a folga fixa obrigatória e a folga da semana/DSR —
+       quem descansa o dia não entra). Tocar numa 💡 SUGESTÃO de folga de feriado ACEITA a folga; tocar numa folga já marcada
+       (Folga Fxx) REMOVE. Reaproveita a lógica dos cards de feriado (trabalhoFeriado, aceitarSugestaoFolgaFeriado,
+       folgasCompensatorias), então a tela, os avisos e o motor continuam coerentes. window.v342FeriadoTabela.
 V341 [Claude] — 🗓️ REGIME DE DOMINGO: 2×1, 2×2 OU MISTO (pedido do Gerente): em ⋮ → Configurações da escala o Gerente escolhe o
        regime dos domingos. 2×1 (padrão, nada muda): trabalha 2 domingos e folga 1 (em cada domingo ~⅔ da equipe). 2×2: trabalha 2
        domingos e folga 2 (ex.: trabalha 01 e 08/11, folga 15 e 22/11, trabalha 29/11 e 06/12…; em cada domingo ~metade da equipe).
@@ -3013,7 +3019,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V341 · Regime de domingo: 2×1, 2×2 ou Misto (você escolhe)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V342 · Tabela de feriado toda clicável (feriado e folga de feriado)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5542,14 +5548,17 @@ function renderPreviaFolgasFeriado(force){
       if(noMes(dt)){
         if(ds===0){ const w=domPv(d).includes(i); status=w?(horarioDomingoSelecionado(d,i)||(d===bal?'BALANÇO':'DOM')):(abertoPv(i)?'—':'FOLGA DOM'); cl=w?(d===bal?'bal':'dom'):(abertoPv(i)?'t':'f');
           if((modoPv==='manual' || geradoPv) && d!==bal && !foraDom(equipe[i])){ dataAttr=` data-pv-dom="${d}" data-pv-func="${i}"`; cl+=' pv-click'; } }   // V263: domPv/abertoPv · V330: domingo clicável (tira/coloca) no À mão · V333: também depois de gerar em qualquer modo (vira À mão ao tocar)
-        else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer'; }
+        else if(fer[d]){ const w=(trabalhoFeriado[d]||[]).includes(i); status=w?'TRAB. FER.':'FOLGA FER.'; cl=w?'fertrab':'folgafer';
+          // V342: feriado clicável (tira/coloca). Só mostra o ✎ onde o toque faz algo: quem já trabalha (pode tirar) ou quem pode entrar
+          // (não AF/EP, sem folga fixa obrigatória e sem DSR naquele dia — quem descansa o dia pela folga da semana não entra no feriado).
+          if(w || (!naoAptoDomingoFeriado(equipe[i]) && !feriadoFixaBloqueiaOFeriado(i,dt) && !ehDescansoAssociado(i,dt))){ dataAttr=` data-pv-fer="${d}" data-pv-func="${i}"`; cl+=' pv-click'; } }
       }
       if(!status){
         const ace=(acePorData[ck]||[]).find(o=>o.i===i);
-        if(ace){ status=`Folga F${String(ace.d).padStart(2,'0')}`; cl='folgafer'; }
+        if(ace){ status=`Folga F${String(ace.d).padStart(2,'0')}`; cl='folgafer'; dataAttr=` data-pv-folgafer="${ace.d}" data-pv-func="${i}" data-pv-ace="1"`; cl+=' pv-click'; }   // V342: folga de feriado aceita → toque remove
         else{
           const sg=(sugPorData[ck]||[]).find(o=>o.i===i);
-          if(sg){ status=`💡 F${String(sg.d).padStart(2,'0')}`; cl='sugf'; }
+          if(sg){ status=`💡 F${String(sg.d).padStart(2,'0')}`; cl='sugf'; dataAttr=` data-pv-folgafer="${sg.d}" data-pv-func="${i}" data-pv-ace="0"`; cl+=' pv-click'; }   // V342: sugestão → toque aceita
           else if(ehDescansoAssociado(i,dt)){ status='FOLGA'; cl='f'; }
         }
       }
@@ -5565,6 +5574,7 @@ function renderPreviaFolgasFeriado(force){
   box.innerHTML=`<div class="pv-resumo"><span>💡 ${nSug} sugerida(s)</span><span>✅ ${nAce} aceita(s)</span><span>💤 DSR ${temDsr?'incluído':'aparece depois de gerar a escala'}</span><span>🔴 Domingos: ${geradoPv?'escala gerada':'o que você escolheu no passo Domingos'}</span></div>`   // V263
     +`<div class="pv-leg"><span class="lp">🔴 DOM</span><span class="lp">🟡 FER</span><span class="lp">💡 Fxx = sugerida</span><span class="lp">Folga Fxx = aceita</span><span class="lp">💤 FOLGA = DSR</span>${!geradoPv&&modoPv!=='manual'?'<span class="lp">— = o app escolhe ao gerar</span>':''}</div>`   // V263
     +`${(modoPv==='manual'||geradoPv)?`<div class="pv-dica-clic">👆 <b>Toque num domingo</b> para <b>tirar</b> ou <b>colocar</b> a pessoa naquele dia. Depois toque em 🚀 Gerar escala.${modoPv!=='manual'?' <b>Ao tocar, a escala passa a ser “à mão”</b> (copia o que está na tela e muda só o que você tocar).':''} (Liderança: o toque tira; para colocar e escolher a folga, use o passo 3.)</div>`:''}`   // V330 · V333: aparece também depois de gerar em qualquer modo
+    +`${datas.some(dt=>ferDe(dt)[dt.getDate()]&&dt.getDay()!==0)?`<div class="pv-dica-clic">🟡 <b>Toque num feriado</b> para <b>tirar</b> ou <b>colocar</b> a pessoa nele. Toque numa <b>💡 sugestão de folga</b> para <b>aceitar</b>, e numa <b>folga já marcada</b> (Folga Fxx) para <b>remover</b>.</div>`:''}`
     +`<div class="table-wrap pv-wrap"><table id="previaTabelaFolgas">${h}</table></div>`;
   const novo=box.querySelector('.table-wrap'); if(novo){ novo.scrollLeft=sl; novo.scrollTop=st; }
 }
@@ -18697,6 +18707,59 @@ window.v341Regime=(function(){
   return {modo,qtd2x2,cicloDe,ehPessoa2x2,set2x2,operacionais,
     estado:()=>({modo:st.modo,qtd:st.qtd}),
     definir:(m,q)=>{ if(['2x1','2x2','misto'].includes(m)) st.modo=m; if(Number.isFinite(+q)) st.qtd=Math.max(0,Math.floor(+q)); salvar(); pintar(); }};
+})();
+</script>
+<script>
+/* ═════ V342 — 👆 TABELA DE FERIADO TODA CLICÁVEL (pedido do Gerente) ═════
+   Na tabela de prévia do passo 4, além do domingo (V330), agora o FERIADO e a FOLGA DE FERIADO são clicáveis:
+     • feriado (🟡): toca para TIRAR/COLOCAR a pessoa naquele feriado (respeita AF/EP e a folga fixa obrigatória).
+     • 💡 sugestão de folga de feriado: toca para ACEITAR.
+     • folga de feriado já marcada (Folga Fxx): toca para REMOVER.
+   Reaproveita a lógica dos cards de feriado (trabalhoFeriado, aceitarSugestaoFolgaFeriado, folgasCompensatorias),
+   então a tela, os avisos e o motor continuam coerentes. */
+(function(){
+  'use strict';
+  const $i=id=>document.getElementById(id);
+  const amDt=d=>new Date(+$i('ano').value,+$i('mes').value,d);
+  const rerender=()=>{ try{ renderPreviaFolgasFeriado?.(true); }catch(e){} try{ window.v45Persist?.(); }catch(e){} };
+  function toggleFeriado(d,i){
+    const dt=amDt(d); if(dt.getDay()===0) return;   // domingo-feriado é pelo domingo (passo 3)
+    const trabalhava=(trabalhoFeriado[d]||[]).includes(i);
+    if(!trabalhava){
+      if(naoAptoDomingoFeriado(equipe[i])){ window.showToast?.(`${equipe[i].nome}: está em situação AF/EP e não pode trabalhar em feriado.`,'warn',true); return; }
+      if(feriadoFixaBloqueiaOFeriado(i,dt)){ window.showToast?.(`${equipe[i].nome}: ${dt.toLocaleDateString('pt-BR',{weekday:'long'})} é folga fixa obrigatória nesta situação.`,'warn',true); return; }
+      if(typeof ehDescansoAssociado==='function' && ehDescansoAssociado(i,dt)){ window.showToast?.(`${equipe[i].nome}: neste dia é a folga da semana (DSR); não dá para trabalhar o feriado.`,'warn',true); return; }
+      trabalhoFeriado[d]=[...new Set([...(trabalhoFeriado[d]||[]),i])];
+    } else {
+      trabalhoFeriado[d]=(trabalhoFeriado[d]||[]).filter(x=>x!==i);
+      folgasCompensatorias=folgasCompensatorias||{}; delete folgasCompensatorias[`${d}_${i}`];
+    }
+    if(estadoFinalMes){ try{ estadoFinalMes.trabalhoFeriado=JSON.parse(JSON.stringify(trabalhoFeriado||{})); estadoFinalMes.folgasCompensatorias=JSON.parse(JSON.stringify(folgasCompensatorias||{})); }catch(e){} }
+    try{ montarEscalaFeriados(); }catch(e){}
+    rerender();
+    try{ gerarSugestoesFolgasFeriado(); }catch(e){}
+  }
+  function toggleFolgaFeriado(d,i,aceita){
+    if(aceita){
+      folgasCompensatorias=folgasCompensatorias||{}; delete folgasCompensatorias[`${d}_${i}`];
+      if(estadoFinalMes){ try{ estadoFinalMes.folgasCompensatorias=JSON.parse(JSON.stringify(folgasCompensatorias||{})); }catch(e){} }
+      try{ montarEscalaFeriados(); }catch(e){}
+      rerender();
+      try{ gerarSugestoesFolgasFeriado(); }catch(e){}
+      window.showToast?.(`Folga do feriado ${String(d).padStart(2,'0')} tirada de ${equipe[i]?.nome||''}.`,'ok');
+    } else {
+      try{ aceitarSugestaoFolgaFeriado(d,i); }catch(e){ console.warn('[V342]',e); }   // monta os cards e re-sugere
+      rerender();   // atualiza a tabela de prévia na hora (o aceitar só mexe na tabela de resultado)
+    }
+  }
+  document.addEventListener('click',e=>{
+    const td=e.target.closest?.('#previaTabelaFolgas td[data-pv-fer],#previaTabelaFolgas td[data-pv-folgafer]');
+    if(!td) return;
+    e.preventDefault(); e.stopPropagation();
+    if(td.dataset.pvFer!==undefined) toggleFeriado(+td.dataset.pvFer,+td.dataset.pvFunc);
+    else toggleFolgaFeriado(+td.dataset.pvFolgafer,+td.dataset.pvFunc,td.dataset.pvAce==='1');
+  });
+  window.v342FeriadoTabela={toggleFeriado,toggleFolgaFeriado};
 })();
 </script>
 </body>
