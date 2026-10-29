@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V343</title>
+<title>Escala de Setores — V344</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V344 [Claude] — 🗓️ FOLGA DE FERIADO EVITA O MESMO TURNO DE FOLGA (pedido do Gerente): ao sugerir a data da folga compensatória de
+       feriado, o app agora evita o dia em que outra pessoa do MESMO TURNO (abertura/fechamento) já folga pela folga da semana (DSR)
+       ou pela folga fixa — ex.: a folga do Gyan não cai numa quinta em que o Jhon (mesmo turno) está de DSR. É uma preferência bem
+       forte, não um bloqueio: se nenhuma data evitar a coincidência, o app escolhe a de MENOR coincidência (último recurso, só
+       quando é inevitável). Antes o app só evitava empilhar duas compensatórias do mesmo turno; agora conta também o DSR e a folga
+       fixa. A regra dos 20 dias, a ordem dos feriados e o sábado que fecha com o domingo de folga continuam valendo.
 V343 [Claude] — 🗓️ MOVER A FOLGA DE FERIADO PARA OUTRO DIA, COM JANELA (pedido do Gerente): na tabela de prévia, tocar numa
        💡 SUGESTÃO de folga de feriado agora abre uma janela com "✅ Aceitar a sugestão" e "📅 Mover para outro dia". Ao tocar em
        Mover, a LINHA do funcionário muda de cor e os dias válidos ficam VERDES (dentro das regras do feriado: seg–sáb, até 20 dias
@@ -3026,7 +3032,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V343 · Mover a folga de feriado para outro dia, com janela</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V344 · Folga de feriado evita o mesmo turno de folga (último recurso)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5162,6 +5168,20 @@ function pontuacaoCandidatoFolgaFeriado(i,cand,reservas){
   const mesmaFuncao=existentes.filter(x=>x.funcao===funcao).length;
   score += mesmosTurno*1800;
   score += mesmaFuncao*1200;
+
+  // V344: a folga de feriado NÃO deve cair no mesmo dia em que outra pessoa do MESMO TURNO (abertura/fechamento)
+  // já folga pela folga da semana (DSR) ou pela folga fixa (pedido do Gerente: ex.: Gyan não folgar junto com o Jhon).
+  // Penalidade bem forte, mas não é bloqueio: se nenhuma data evitar a coincidência, ainda escolhe a de MENOR
+  // coincidência — é o último recurso, só quando é inevitável.
+  if(turno){
+    let mesmoTurnoFolgando=0;
+    equipe.forEach((g,j)=>{ if(j===i || !g) return;
+      if(String(g.turno||'').toUpperCase()!==turno) return;
+      if(['AF','EP'].includes(String(g.situacao||'A').trim().toUpperCase())) return;
+      try{ if(ehDescansoAssociado(j,dt) || temFolgaNormalNoDia(j,dt)) mesmoTurnoFolgando++; }catch(e){}
+    });
+    score += mesmoTurnoFolgando*5000;
+  }
 
   // Folga compensatória colada ao DSR normal é desvantajosa.
   if(folgaCompColadaNaFolgaNormal(i,dt)) score+=500;
