@@ -10,6 +10,19 @@ dos apps da Escala. No fim, você mostra o placar **JURADOS X/3** e entrega o ve
 em português, do jeito que o Gerente entende (regra de ouro: explique como se fosse para
 uma criança de 10 anos aprendendo informática).
 
+## PRIMEIRO PASSO — SEMPRE perguntar: enxuta ou completa?
+
+Antes de chamar qualquer jurado, **pergunte ao Gerente** como ele quer rodar a Banca
+(use a ferramenta de pergunta e **espere a resposta** — nunca decida sozinho):
+
+- 🪶 **ENXUTA** — você (Claude) mesmo faz as três revisões, direto, **sem abrir nenhum
+  subagente**. Mais rápida e barata; um pouco menos minuciosa.
+- 🔬 **COMPLETA** — deixa cada jurado rodar do jeito dele (o `code-review` abre os
+  subagentes revisores em paralelo). Mais minuciosa; consome mais.
+
+Só depois da escolha do Gerente é que a sessão da Banca começa. Se ele escolher ENXUTA,
+**não abra subagentes** em nenhum jurado — faça as três revisões você mesmo.
+
 ## Quem são os 3 jurados
 
 1. 🐛 **Jurado BUGS** — caça erros e lógicas erradas. Rode a skill **`code-review`**.
