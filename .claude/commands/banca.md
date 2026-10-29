@@ -79,6 +79,37 @@ Separe sempre **"bug de verdade"** de **"cosmético/organização"**.
 
 Quando julgar os dois apps, mostre o placar + veredito de **cada app separadamente**.
 
+## ⚖️ A BANCA NÃO PODE ERRAR — regra de rigor (pedido do Gerente)
+
+Nenhum jurado carimba um achado sem passar por interrogatório. Antes de anunciar
+QUALQUER achado (bug, segurança ou limpeza), questione de todos os ângulos:
+
+- **É real?** Trace o caminho concreto: que entrada/clique/estado real leva a esse
+  problema? Se não existir caminho real, **descarte** — a Banca não aceita boato.
+- **Já não está tratado em outro lugar?** Confira se outra função/regra/teste já cobre.
+- **Estou vendo a versão certa?** Ignore `versoes_anteriores/` e as cópias de raiz
+  (`Escala_*_Vnnn.html`); julgue só `setores/index.html` e `encarregados/index.html`.
+
+### "Código morto" só é morto quando PROVADO
+
+Análise estática (grep/contar nome) **nunca é prova** — ela erra. Antes de dizer que
+uma função está morta, descarte TODOS estes caminhos de uso:
+
+1. **Repositório inteiro**, não só o arquivo: `grep -rn` incluindo `testes/` (a suíte
+   chama funções do app por `page.evaluate`) e qualquer outro `.js`/`.html`.
+2. **Chamada por nome dinâmico**: `window['nome']()`, `obj['x'+'y']()`, tabela de
+   intents/handlers por string. Se o nome aparece **só 1 vez** no repo, não há despacho
+   por texto; se aparece em string, investigue.
+3. **HTML**: `onclick="nome()"`, `addEventListener`, atributos `data-*` que viram chamada.
+4. **App irmão**: a mesma função pode existir nos dois apps; confirme em QUAL página o
+   teste roda (ex.: `verificarEnc` roda só na página dos Encarregados).
+5. **Export**: `window.nome = nome`, módulos, `export`.
+
+E mesmo passando por tudo isso, a **prova final é dinâmica**: só declare morta a função
+cuja remoção mantém a **suíte completa verde** (`node testes/rodar.js --completo`, que
+exercita os dois apps). Suíte vermelha = estava viva → devolva a função na hora. Em
+dúvida, **não remova**: é melhor a Banca deixar passar uma sobra do que apagar algo vivo.
+
 ## Regras da casa (NÃO quebrar)
 
 - A Banca **só julga e reporta**. **Nada de alterar código** sem o Gerente (JottaCostta)
