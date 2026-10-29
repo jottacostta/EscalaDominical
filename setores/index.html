@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V344</title>
+<title>Escala de Setores — V345</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V345 [Claude] — 🧹 LIMPEZA E TEXTOS (auditoria): removidas duas funções mortas que sobraram de versões antigas e não eram mais
+       chamadas por ninguém — escolherDomingo (montava o trio de domingo numa versão antiga do motor) e coberturaOperacionalAçougue
+       (checava açougueiros/apoio por turno com números fixos, hoje substituída pela cobertura por função configurável). Nenhuma
+       mudança de comportamento. Também: o passo "→ Gerar" na tela de boas-vindas virou "→ Resumo" (nome correto do passo) e o aviso
+       "copiada para o clipboard" virou "copiada para a área de transferência" (português). Autorizado pelo Gerente.
 V344 [Claude] — 🗓️ FOLGA DE FERIADO EVITA O MESMO TURNO DE FOLGA (pedido do Gerente): ao sugerir a data da folga compensatória de
        feriado, o app agora evita o dia em que outra pessoa do MESMO TURNO (abertura/fechamento) já folga pela folga da semana (DSR)
        ou pela folga fixa — ex.: a folga do Gyan não cai numa quinta em que o Jhon (mesmo turno) está de DSR. É uma preferência bem
@@ -2990,7 +2995,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
     <ol class="comece-passos">
       <li><span class="n">1</span><div><b>Atualize os funcionários</b><small>Toque em “Importar funcionários” e escolha a planilha que o RH enviou. Só precisa repetir quando o RH mandar uma planilha nova.</small><button type="button" class="btn" id="comeceImportar">📥 Importar funcionários</button></div></li>
       <li><span class="n">2</span><div><b>Escolha o seu setor</b><small>Toque no cartão do seu setor aqui embaixo (Açougue, Padaria, CPD...).</small></div></li>
-      <li><span class="n">3</span><div><b>Siga os passos</b><small>Equipe → Mês passado → Domingos → Feriados → Gerar. Em cada passo uma caixa azul explica o que fazer.</small></div></li>
+      <li><span class="n">3</span><div><b>Siga os passos</b><small>Equipe → Mês passado → Domingos → Feriados → Resumo. Em cada passo uma caixa azul explica o que fazer.</small></div></li>
     </ol>
     <div class="comece-acoes"><button type="button" class="btn success" id="comeceTour">▶ Ver como usar (1 minuto)</button><button type="button" class="btn secondary" id="comeceFechar">Já sei usar</button></div>
   </section>
@@ -3032,7 +3037,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V344 · Folga de feriado evita o mesmo turno de folga (último recurso)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V345 · Limpeza de código morto e ajustes de texto</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -6621,28 +6626,6 @@ function renderLiderancaVarias(area,doms,topo){
   ligarDsrLideranca(area);
   atualizarAvisoLideranca();
 }
-function coberturaOperacionalAçougue(indices,d=null){
-  const ids=indices.filter(i=>equipe[i]&&!ehLiderancaDomingo(equipe[i]));
-  const faixa=i=>{
-    const h=d!==null ? horarioDomingoSelecionado(d,i) : '';
-    const ini=h?horaMinutos(h):null;
-    if(ini!==null) return ini>=720?'FECHAMENTO':'ABERTURA';
-    return norm(equipe[i].turno)==='fechamento'?'FECHAMENTO':'ABERTURA';
-  };
-  const abertura=ids.filter(i=>faixa(i)==='ABERTURA');
-  const fechamento=ids.filter(i=>faixa(i)==='FECHAMENTO');
-  const aAc=abertura.filter(cargoEhAcougueiro);
-  const fAc=fechamento.filter(cargoEhAcougueiro);
-  const aSup=abertura.filter(cargoEhApoioAcougue);
-  const fSup=fechamento.filter(cargoEhApoioAcougue);
-  const faltas=[];
-  if(aAc.length<3)faltas.push(`Açougueiros na abertura: ${aAc.length}/3`);
-  if(fAc.length<2)faltas.push(`Açougueiros no fechamento: ${fAc.length}/2`);
-  if(aSup.length<3)faltas.push(`Operadores/Balconistas na abertura: ${aSup.length}/3`);
-  if(fSup.length<3)faltas.push(`Operadores/Balconistas no fechamento: ${fSup.length}/3`);
-  if(ids.length!==11)faltas.push(`Operacionais: ${ids.length}/11`);
-  return {ok:!faltas.length,faltas,aAc,fAc,aSup,fSup};
-}
 function coberturaOperacional(indices,d=null){
   if(($('modoCobertura')?.value||'')==='funcao') return {ok:true,faltas:[]}; // V137: quem manda é a configuração por função
   const setorAtual=norm(equipe[indices.find(i=>equipe[i])]?.setor||$('setorSelecionado')?.value||'');
@@ -7605,7 +7588,7 @@ $('btnWhats').onclick=async (ev)=>{
         document.body.removeChild(ta); return ok;
       }catch(e){ return false; }
     })();
-    if(copiou) window.showToast('Escala copiada para o clipboard','ok');
+    if(copiou) window.showToast('Escala copiada para a área de transferência','ok');
     else window.showToast('Não foi possível copiar.','warn',true);
   }finally{ setTimeout(()=>{btn.dataset.copiando='0';},500); }
 };
@@ -7613,40 +7596,6 @@ $('btnWhats').onclick=async (ev)=>{
 /* ═══════════════════════════════════════════════════════════════
    MOTOR PRINCIPAL
    ═══════════════════════════════════════════════════════════════ */
-function escolherDomingo(idx,base){
-  const ds=domingosDoMes(+$('ano').value,+$('mes').value);
-  const d=ds[idx];
-  const maria=equipe.findIndex(f=>norm(f.nome)==='maria'&&f.setor==='Laticínio');
-  const cintia=equipe.findIndex(f=>norm(f.nome)==='cintia'&&f.setor==='Laticínio');
-  if(maria<0||cintia<0)return {erro:`${formatarDataDomingo(d)}: Maria e Cíntia não identificadas.`};
-  const primeiro=cintia, segundo=maria;
-  let lat;
-  if(idx===0)lat=primeiro; else if(idx===1)lat=segundo;
-  else{ const bloco=Math.floor((idx-1)/2); lat=(bloco%2===0)?segundo:primeiro; }
-  const candidatosLat=[lat,lat===maria?cintia:maria].filter((v,i,a)=>v>=0&&a.indexOf(v)===i).filter(i=>podeDomingo(i,idx)).filter(i=>candidatoRespeitaDescanso(i,d));
-  if(!candidatosLat.length)return {erro:`${formatarDataDomingo(d)}: Maria e Cíntia indisponíveis.`};
-  const candidatos=equipe.map((f,i)=>i).filter(i=>!foraDom(equipe[i])).filter(i=>podeDomingo(i,idx)).filter(i=>candidatoRespeitaDescanso(i,d));
-  const solucoes=[];
-  for(const l of candidatosLat){
-    const tipoLat=equipe[l].tipo;
-    if(tipoLat!=='enc'&&tipoLat!=='sub')continue;
-    const tipoComplementar=tipoLat==='enc'?'sub':'enc';
-    const lideres=candidatos.filter(i=>i!==l).filter(i=>equipe[i].tipo===tipoComplementar).filter(i=>setor(equipe[i])!==setor(equipe[l]));
-    for(const lider of lideres){
-      const terceiros=candidatos.filter(i=>i!==l&&i!==lider).filter(i=>i!==maria&&i!==cintia).filter(i=>setor(equipe[i])!==setor(equipe[l])).filter(i=>setor(equipe[i])!==setor(equipe[lider]));
-      for(const terceiro of terceiros){
-        const grupo=tipoLat==='enc'?[l,lider,terceiro]:[lider,l,terceiro];
-        const setores=new Set(grupo.map(i=>setor(equipe[i])));
-        if(setores.size!==3)continue;
-        solucoes.push({grupo,score:0});
-      }
-    }
-  }
-  if(!solucoes.length)return {erro:`${formatarDataDomingo(d)}: sem domingo válido.`};
-  return solucoes[0].grupo;
-}
-
-
 /* ═══════════════════════════════════════════════════════════════
    V48 — AUDITOR CENTRAL ANTES DA GERAÇÃO
    Todas as escolhas do encarregado são analisadas como um conjunto.
