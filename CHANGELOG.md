@@ -6,6 +6,7 @@ Resumo de todas as versões dos dois apps (o mesmo texto do comentário `HISTÓR
 As versões antigas ficam na pasta [`versoes_anteriores/`](versoes_anteriores/).
 
 ## Documentação
+- **02/11/2026** — Setores V345 [ChatGPT]: camada inicial de contexto curto para Gabriel, em memória volátil, sem persistência e sem alteração do motor da escala. — *ChatGPT*
 - **28/10/2026** — Atualização geral (pedido do Gerente, “atualizar tudo”): CHANGELOG, diário do `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt` com a **Setores V343** (mover a folga de feriado para outro dia, com janela); Manual da Escala de Setores no Claude Docs atualizado para a **V343**. — *Claude*
 - **28/10/2026** — Atualização geral (pedido do Gerente, “atualizar tudo”): CHANGELOG, diário do `docs/PASSAGEM.md` e `docs/INICIO_NOVA_CONVERSA.txt` com a **Setores V341** (regime 2×1/2×2/Misto + conserto da folga fixa no feriado) e **V342** (tabela de feriado clicável); Manual da Escala de Setores no Claude Docs atualizado para a **V342** (regime de domingo e tabela de feriado clicável). — *Claude*
 - **27/10/2026** — Manual do Encarregado e Roteiro do Beta atualizados para a **Encarregados V208**: passo 5 “Resumo”, 🚀 Gerar nos passos 3 e 4, concordância no À mão, prévia clicável e folga de feriado só de quem trabalha, na ordem dos feriados (4 prints novos; Roteiro com 17 cenários). — *Claude*
