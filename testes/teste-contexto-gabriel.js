@@ -10,7 +10,7 @@ const calls=[]; const window={equipe:[{nome:'Ana Silva'},{nome:'Leonardo Souza'}
 vm.runInNewContext(html.slice(start+8,end),{window}); const C=window.v345ContextoGabriel; assert(C);
 assert.equal(C.maxTurnos,24);
 assert.equal(C.resolverContinuacao('Quem trabalha amanhã?','e domingo?'),'Quem trabalha domingo?');
-assert.equal(C.resolverContinuacao('Qual a folga da Ana Silva?','e o Leonardo Souza?'),'Qual a folga da Leonardo Souza?');
+assert.equal(C.resolverContinuacao('Qual a folga da Ana Silva?','e o Leonardo?'),'Qual a folga da Leonardo Souza?');
 assert.equal(C.resolverContinuacao('Quem trabalha domingo?','qual o clima?'),'qual o clima?');
 window.v265Chat.responder('Quem trabalha amanhã?'); window.v265Chat.responder('e domingo?');
 assert.equal(calls[0],'Quem trabalha amanhã?'); assert.equal(calls[1],'Quem trabalha domingo?');
