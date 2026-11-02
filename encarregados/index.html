@@ -7,10 +7,18 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V211</title>
+<title>Escala 2×1 — Encarregados V212</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V212 [Claude] — 🏖️ FÉRIAS PROGRAMADAS (pedido do Gerente, igual à Escala de Setores V347): em 📅 Mês e opções entrou o quadro
+       "Férias programadas". O Gerente escolhe o funcionário + início + fim das férias; a lista aparece organizada por mês (do ano
+       selecionado), com 🗑️ para remover. Fica guardada no aparelho (por data; o ano vem junto). Na hora de gerar, quem está de
+       férias NÃO é escalado naqueles dias — nem domingo, nem feriado, nem dia normal (aparece "Férias" na grade por pessoa e
+       "FÉRIAS" no Excel); quem volta no meio do mês volta a ser escalado. Encaixes no motor (// V212): podeDomingo, statusDiaEnc,
+       a montagem dos feriados (marcarTodosFeriado e a redistribuição das compensatórias), _excelStatus, o resumo do dia, a
+       cobertura e a grade por pessoa. Novo helper global estaDeFeriasNaData(i, data) e window.feriasProgramadas (lê o estado real
+       `equipe`, que não vai no window).
 V211 [Claude] — 🧹 FAXINA DE CÓDIGO MORTO, PROVADA PELA SUÍTE (Banca de Revisão, pedido do Gerente): removidas 5 funções que ninguém
        chamava — mostrarEditorEquipe (o editor abre pela abrirEditorEquipe, viva), fallbackCopy, _zipStored e _xlsxStyleForCell
        (sobra do export antigo; o Excel sai pelo caminho vivo _zipFromTemplate→_zipStoredBytes, baseado em template) e
@@ -2150,7 +2158,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V211 · Faxina de código morto provada pela suíte (Banca de Revisão)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V212 · Férias programadas (quem está de férias não é escalado)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -4451,7 +4459,7 @@ function marcarTodosFeriado(d,trabalham){
     return;
   }
   trabalhoFeriado[d]=trabalham
-    ? equipe.map((_,i)=>i).filter(i=>!inativo(equipe[i])&&!bloqueioFolgaFeriado(i,dt))   // V164: folga fixa no feriado fica de fora
+    ? equipe.map((_,i)=>i).filter(i=>!inativo(equipe[i])&&!bloqueioFolgaFeriado(i,dt)&&!(typeof estaDeFeriasNaData==='function'&&estaDeFeriasNaData(i,dt)))   // V164: folga fixa no feriado fica de fora · V212 férias
     : [];
 
   montarEscalaFeriados();
@@ -4548,6 +4556,7 @@ function laticinioEsperado(idx){
    O único bloqueio dominical é o 3º consecutivo. */
 function podeDomingo(i,idx){
   const ds=domingosDoMes(+$('ano').value,+$('mes').value);
+  try{ if(typeof estaDeFeriasNaData==='function' && estaDeFeriasNaData(i,new Date(+$('ano').value,+$('mes').value,ds[idx]))) return false; }catch(e){}   // V212: férias programadas
   let anteriores=[];
 
   if(idx===0){
@@ -5593,6 +5602,7 @@ function iniciais(nome){ const p=String(nome||'').trim().split(/\s+/); return (p
 let painelDiaSel=null;
 function statusDiaEnc(i,dt,mes,ano,bal){
   const d=dt.getDate(), f=feriados(ano,mes);
+  if(typeof estaDeFeriasNaData==='function' && estaDeFeriasNaData(i,dt)) return 'ferias';   // V212: férias programadas
   if(dt.getDay()===0) return (trabalhoDomingo[d]||[]).includes(i)?(d===bal?'bal':'dom'):'fdom';
   if(f[d]) return (trabalhoFeriado[d]||[]).includes(i)?'ftrab':'ffol';
   if(temFolgaCompensatoria(i,dt)) return 'comp';
@@ -5681,10 +5691,10 @@ function renderPainelMes(mes,ano,bal){
   // detalhe do dia
   const det=(()=>{ const d=painelDiaSel; if(!d||d>dias) return '<div class="pm-det"><span class="pm-sub">Toque num dia do calendário para ver quem trabalha e quem folga.</span></div>';
     const dt=new Date(ano,mes,d); const nomeDia=dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'});
-    const grupos={dom:'Trabalham',bal:'Balanço (inventário)',ftrab:'Trabalham no feriado',dsr:'Folga semanal',comp:'Folga de feriado',ffol:'Folgam no feriado',fdom:'Folgam'};
+    const grupos={dom:'Trabalham',bal:'Balanço (inventário)',ftrab:'Trabalham no feriado',dsr:'Folga semanal',comp:'Folga de feriado',ffol:'Folgam no feriado',ferias:'Férias',fdom:'Folgam'};
     const por={}; equipe.forEach((f,i)=>{ const st=statusDiaEnc(i,dt,mes,ano,bal); if(st==='trab') return; (por[st]=por[st]||[]).push(i); });
     const chip=i=>`<span class="pm-chip"><i style="background:${corSetor(equipe[i])}"></i>${esc(equipe[i].nome)}</span>`;
-    const blocos=['dom','bal','ftrab','comp','dsr','ffol','fdom'].filter(k=>por[k]&&por[k].length).map(k=>`<div style="margin-top:6px"><b style="font-size:12px">${grupos[k]}${k==='comp'?'':''}</b><div class="pp" style="margin-top:4px">${por[k].map(chip).join('')}</div></div>`).join('');
+    const blocos=['dom','bal','ftrab','comp','dsr','ffol','ferias','fdom'].filter(k=>por[k]&&por[k].length).map(k=>`<div style="margin-top:6px"><b style="font-size:12px">${grupos[k]}${k==='comp'?'':''}</b><div class="pp" style="margin-top:4px">${por[k].map(chip).join('')}</div></div>`).join('');
     return `<div class="pm-det"><h4>${nomeDia.charAt(0).toUpperCase()+nomeDia.slice(1)}${fer[d]?` — ${esc(fer[d])}`:''}</h4>${blocos||'<span class="pm-sub">Todos trabalham normalmente.</span>'}</div>`; })();
   // distribuição de domingos no mês
   const contagem=equipe.map((f,i)=>({f,i,n:doms.filter(d=>d!==bal&&(trabalhoDomingo[d]||[]).includes(i)).length})).filter(x=>!foraDom(x.f)).sort((a,b)=>b.n-a.n||a.f.nome.localeCompare(b.f.nome));
@@ -5781,6 +5791,7 @@ function _quebrarHorarioXlsx(t){
 function _excelStatus(i,dt,mes,ano){
   const d=dt.getDate(), m=dt.getMonth(), y=dt.getFullYear();
   if(m!==mes || y!==ano)return '';
+  if(typeof estaDeFeriasNaData==='function' && estaDeFeriasNaData(i,dt)) return 'FÉRIAS';   // V212: férias programadas
   const f=feriados(ano,mes);
   if(dt.getDay()===0){
     if(d===balancoDoMes(ano,mes))return (trabalhoDomingo[d]||[]).includes(i)?'T':'F';
@@ -7567,16 +7578,17 @@ function perguntarOrientacaoImpressao(cb){
     const dias=new Date(ano,mes+1,0).getDate(), fer=feriados(ano,mes);
     box.innerHTML=equipe.map((f,i)=>{
       if(typeof inativo==='function'&&inativo(f)) return `<div class="pp-card"><h4><i style="background:${corSetor(f)}"></i>${esc(f.nome)}</h4><div class="pp-cargo">${esc(f.cargo||'')}</div><div class="pp-nada">Afastado ou de férias: fora da escala.</div></div>`;
-      const g={dom:[],dsr:[],fer:[],comp:[]};
+      const g={dom:[],dsr:[],fer:[],comp:[],ferias:[]};
       for(let d=1;d<=dias;d++){ const dt=new Date(ano,mes,d), st=statusDiaEnc(i,dt,mes,ano,bal);
-        if(st==='dom'||st==='bal') g.dom.push(`<span class="${st==='bal'?'c-bal':'c-dom'}">${String(d).padStart(2,'0')}${st==='bal'?' balanço':''}${fer[d]?' feriado':''}</span>`);
+        if(st==='ferias') g.ferias.push(`<span class="c-dsr" style="background:#0EA5E9;color:#fff">${dd(dt)} ${sem(dt)}</span>`);   // V212: férias
+        else if(st==='dom'||st==='bal') g.dom.push(`<span class="${st==='bal'?'c-bal':'c-dom'}">${String(d).padStart(2,'0')}${st==='bal'?' balanço':''}${fer[d]?' feriado':''}</span>`);
         else if(st==='dsr') g.dsr.push(`<span class="c-dsr">${dd(dt)} ${sem(dt)}</span>`);
         else if(st==='ftrab') g.fer.push(`<span class="c-fer">trabalha ${dd(dt)}</span>`);
         else if(st==='comp') g.comp.push(`<span class="c-comp">${dd(dt)} ${sem(dt)}</span>`); }
       const linha=(rot,arr,vazio)=>`<div class="pp-linha"><b>${rot}</b><div class="pp-chips">${arr.length?arr.join(''):`<span class="pp-nada" style="background:none;padding:0">${vazio}</span>`}</div></div>`;
       return `<div class="pp-card"><h4><i style="background:${corSetor(f)}"></i>${esc(f.nome)}</h4><div class="pp-cargo">${esc(f.cargo||'')}${Number(f.folgaFixa)===0?' · folga fixa no domingo':''}</div>`
         +linha('Domingos',g.dom,'Folga em todos')+linha('Folga semana',g.dsr,'—')
-        +(g.fer.length?linha('Feriados',g.fer,'—'):'')+(g.fer.length||g.comp.length?linha('Folga feriado',g.comp,'a definir'):'')+`</div>`;
+        +(g.fer.length?linha('Feriados',g.fer,'—'):'')+(g.fer.length||g.comp.length?linha('Folga feriado',g.comp,'a definir'):'')+(g.ferias.length?linha('Férias',g.ferias,'—'):'')+`</div>`;
     }).join('');
   }
   window.renderPorPessoa=renderPorPessoa;
@@ -7740,7 +7752,7 @@ function perguntarOrientacaoImpressao(cb){
     const dias=new Date(ano,mes+1,0).getDate(), fer=feriados(ano,mes);
     const cols=[], altos=[];
     for(let d=1;d<=dias;d++){ const dt=new Date(ano,mes,d); if(dt.getDay()===0) continue;
-      const fora=ativos.filter(i=>['dsr','comp','ffol'].includes(statusDiaEnc(i,dt,mes,ano,bal)));
+      const fora=ativos.filter(i=>['dsr','comp','ffol','ferias'].includes(statusDiaEnc(i,dt,mes,ano,bal)));
       const ehFer=!!fer[d], alto=!ehFer&&fora.length>=lim;
       if(alto) altos.push(`${DS[dt.getDay()]} ${dd(dt)} (${fora.length})`);
       cols.push({d,dt,n:fora.length,fora,ehFer,alto}); }
@@ -7954,8 +7966,8 @@ function perguntarOrientacaoImpressao(cb){
     const atuais=(trabalhoFeriado?.[d]||[]).map(Number);
     if(atuais.length && !confirm(`O feriado ${dd(d)} já tem ${atuais.length} pessoa(s) marcada(s) para trabalhar. Trocar pelas pessoas do feriado ${dd(o)}?`)) return;
     const dtF=new Date(+$('ano').value,+$('mes').value,d);   // V164: folga fixa no feriado também fica de fora
-    const fora=base.filter(i=>inativo(equipe[i])||bloqueioFolgaFeriado(i,dtF));
-    const ok=base.filter(i=>!inativo(equipe[i])&&!bloqueioFolgaFeriado(i,dtF));
+    const fora=base.filter(i=>inativo(equipe[i])||bloqueioFolgaFeriado(i,dtF)||(typeof estaDeFeriasNaData==='function'&&estaDeFeriasNaData(i,dtF)));   // V212 férias
+    const ok=base.filter(i=>!inativo(equipe[i])&&!bloqueioFolgaFeriado(i,dtF)&&!(typeof estaDeFeriasNaData==='function'&&estaDeFeriasNaData(i,dtF)));
     folgasCompensatorias=folgasCompensatorias||{};
     atuais.filter(i=>!ok.includes(i)).forEach(i=>{ delete folgasCompensatorias[`${d}_${i}`]; });   // quem sai do feriado perde a folga dele
     trabalhoFeriado[d]=ok.slice();
@@ -11975,6 +11987,123 @@ window.v210Regime=(function(){
   return {modo,qtd2x2,cicloDe,set2x2,operacionais,ehPessoa2x2:i=>cicloDe(i)===4,
     estado:()=>({modo:st.modo,qtd:st.qtd}),
     definir:(m,q)=>{ if(['2x1','2x2','misto'].includes(m)) st.modo=m; if(Number.isFinite(+q)) st.qtd=Math.max(0,Math.floor(+q)); salvar(); pintar(); }};
+})();
+</script>
+<script>
+/* ═════ V212 — 🏖️ FÉRIAS PROGRAMADAS (pedido do Gerente, igual à Escala de Setores V347) ═════
+   Em 📅 Mês e opções o Gerente marca quem está de férias e em que período (começo e fim).
+   Quem está de férias NÃO é escalado naqueles dias — nem domingo, nem feriado, nem dia normal
+   (aparece "Férias" na grade e "FÉRIAS" no Excel). Guardado no aparelho, por data. Encaixes // V212. */
+(function(){
+  const KEY='encarregados.v212Ferias';
+  function carregar(){ try{ const r=JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(r)?r.filter(v=>v&&v.inicio&&v.fim):[]; }catch(e){ return []; } }
+  function salvar(){ try{ localStorage.setItem(KEY, JSON.stringify(window.feriasProgramadas||[])); }catch(e){} }
+  window.feriasProgramadas = carregar();
+  const norma = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toLowerCase();
+  const brCurto = iso => { const p=String(iso||'').split('-'); return p.length===3?`${p[2]}/${p[1]}`:iso; };
+  const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  function eqList(){ try{ return (typeof equipe!=='undefined' && Array.isArray(equipe)) ? equipe : (window.equipe||[]); }catch(e){ return window.equipe||[]; } }   // V212: equipe é `let`, não vai no window
+  window.estaDeFeriasNaData = function(i,dt){
+    try{
+      const lista=window.feriasProgramadas; if(!lista||!lista.length) return false;
+      const f=eqList()[i]; if(!f) return false;
+      const mat=String(f.matricula||'').trim(), nome=norma(f.nome);
+      const ck=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      return lista.some(v=>{
+        const mesma = (mat && String(v.matricula||'').trim()===mat) || (!String(v.matricula||'').trim() && norma(v.nome)===nome && !!nome);
+        return mesma && ck>=v.inicio && ck<=v.fim;
+      });
+    }catch(e){ return false; }
+  };
+  function anoSel(){ const a=parseInt(document.getElementById('ano')?.value,10); return Number.isFinite(a)?a:new Date().getFullYear(); }
+  function preencherPessoas(sel){
+    if(!sel) return; const atual=sel.value;
+    const eq=eqList();
+    sel.innerHTML='<option value="">Escolha o funcionário…</option>'+eq.map((f,i)=>{
+      const mat=String(f&&f.matricula||'').trim();
+      return `<option value="${mat||('i'+i)}">${(f&&f.nome?String(f.nome):'Funcionário '+(i+1))}${mat?` (${mat})`:''}</option>`;
+    }).join('');
+    if(atual) sel.value=atual;
+  }
+  function pessoaDoValor(val){
+    const eq=eqList();
+    if(/^i\d+$/.test(val)){ const i=+val.slice(1); return eq[i]?{matricula:String(eq[i].matricula||'').trim(),nome:String(eq[i].nome||'')}:null; }
+    const f=eq.find(x=>String(x&&x.matricula||'').trim()===val);
+    return f?{matricula:String(f.matricula||'').trim(),nome:String(f.nome||'')}:null;
+  }
+  function nomeDaEntrada(v){
+    const eq=eqList();
+    const f=eq.find(x=>String(x&&x.matricula||'').trim()===String(v.matricula||'').trim() && String(v.matricula||'').trim()) || eq.find(x=>norma(x&&x.nome)===norma(v.nome));
+    return (f&&f.nome)?String(f.nome):(v.nome||'(sem nome)');
+  }
+  function render(){
+    const box=document.getElementById('v212Lista'); if(!box) return;
+    const ano=anoSel(); const sp=document.getElementById('v212Ano'); if(sp) sp.textContent=ano;
+    preencherPessoas(document.getElementById('v212Pessoa'));
+    const lista=(window.feriasProgramadas||[]).map((v,idx)=>({v,idx}));
+    const temNoAno = m => lista.filter(({v})=>{
+      const primeiro=`${ano}-${String(m+1).padStart(2,'0')}-01`;
+      const ultimo=`${ano}-${String(m+1).padStart(2,'0')}-${String(new Date(ano,m+1,0).getDate()).padStart(2,'0')}`;
+      return v.inicio<=ultimo && v.fim>=primeiro;
+    });
+    let temAlgum=false;
+    const html=MESES.map((nm,m)=>{
+      const its=temNoAno(m); if(!its.length) return '';
+      temAlgum=true;
+      const linhas=its.map(({v,idx})=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;margin-top:4px">
+        <span style="font-size:13px"><b>${nomeDaEntrada(v)}</b> — ${brCurto(v.inicio)} a ${brCurto(v.fim)}</span>
+        <button type="button" class="btn secondary sm v212-del" data-idx="${idx}" title="Remover" style="padding:2px 8px">🗑️</button>
+      </div>`).join('');
+      return `<div style="margin-top:10px"><b style="font-size:13px">${nm}</b>${linhas}</div>`;
+    }).join('');
+    box.innerHTML = temAlgum ? html : `<p style="font-size:12px;color:var(--muted);margin:6px 0 0">Ninguém de férias programado para ${ano}. Use o formulário acima para adicionar.</p>`;
+  }
+  window.v212Ferias={ render, get lista(){ return window.feriasProgramadas; } };
+  function montarCard(){
+    const cfg=document.getElementById('configCard'); if(!cfg || document.getElementById('v212FeriasCard')) return;
+    const estilo='width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface,#fff);color:var(--ink,#0f172a)';
+    cfg.insertAdjacentHTML('beforeend', `
+    <div class="card" id="v212FeriasCard" style="margin:14px 0 0;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
+      <h3 style="margin:0 0 6px;font-size:15px">🏖️ Férias programadas</h3>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Marque quem vai estar de férias e em que período. Quem está de férias <b>não é escalado</b> naqueles dias — nem domingo, nem feriado, nem dia normal. Valem para o ano escolhido no topo (<span id="v212Ano">—</span>).</p>
+      <div style="display:grid;gap:8px;margin-bottom:6px">
+        <label style="font-size:12px;font-weight:600;display:block">Funcionário<select id="v212Pessoa" style="${estilo};margin-top:3px"></select></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="font-size:12px;font-weight:600;flex:1 1 130px">Início das férias<input type="date" id="v212Inicio" style="${estilo};margin-top:3px"></label>
+          <label style="font-size:12px;font-weight:600;flex:1 1 130px">Fim das férias<input type="date" id="v212Fim" style="${estilo};margin-top:3px"></label>
+        </div>
+        <button type="button" class="btn success" id="v212Add">➕ Adicionar férias</button>
+      </div>
+      <div id="v212Lista"></div>
+    </div>`);
+    const selP=document.getElementById('v212Pessoa');
+    selP?.addEventListener('focus',()=>preencherPessoas(selP));
+    document.getElementById('v212Add')?.addEventListener('click',()=>{
+      const val=document.getElementById('v212Pessoa')?.value||'';
+      const ini=document.getElementById('v212Inicio')?.value||'';
+      const fim=document.getElementById('v212Fim')?.value||'';
+      if(!val){ window.showToast?.('Escolha o funcionário.','warn',true); return; }
+      if(!ini || !fim){ window.showToast?.('Preencha o início e o fim das férias.','warn',true); return; }
+      if(fim<ini){ window.showToast?.('O fim das férias não pode ser antes do início.','warn',true); return; }
+      const p=pessoaDoValor(val); if(!p){ window.showToast?.('Funcionário não encontrado.','warn',true); return; }
+      window.feriasProgramadas.push({matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim});
+      salvar(); render();
+      document.getElementById('v212Inicio').value=''; document.getElementById('v212Fim').value='';
+      window.showToast?.(`Férias de ${p.nome} (${brCurto(ini)} a ${brCurto(fim)}) programadas.`,'ok');
+    });
+    document.getElementById('v212Lista')?.addEventListener('click',(e)=>{
+      const b=e.target.closest?.('.v212-del'); if(!b) return;
+      const idx=+b.getAttribute('data-idx');
+      if(!(idx>=0) || !window.feriasProgramadas[idx]) return;
+      const v=window.feriasProgramadas[idx];
+      window.feriasProgramadas.splice(idx,1); salvar(); render();
+      window.showToast?.(`Férias de ${nomeDaEntrada(v)} removidas.`,'ok');
+    });
+    document.getElementById('ano')?.addEventListener('change',render);
+    render();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',montarCard);
+  else montarCard();
 })();
 </script>
 </body>
