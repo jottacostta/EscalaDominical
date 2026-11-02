@@ -17857,7 +17857,7 @@ function domingosQuantidadeForaDoSugerido(){
  const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  const follow=s=>/^(e\s+|esse\b|essa\b|ele\b|ela\b|dele\b|dela\b|tambem\b|também\b)/i.test(norm(s));
  const temporal=/\b(hoje|amanha|depois de amanha|ontem|segunda(-feira)?|terca(-feira)?|quarta(-feira)?|quinta(-feira)?|sexta(-feira)?|sabado|domingo|mes seguinte|proximo mes|mes passado)\b/i;
- const stripDate=s=>String(s||'').replace(/\b(hoje|amanha|depois de amanha|ontem|segunda(-feira)?|terca(-feira)?|quarta(-feira)?|quinta(-feira)?|sexta(-feira)?|sabado|domingo|mes seguinte|proximo mes|mes passado)\b/gi,'').replace(/\s+/g,' ').replace(/[?!.]+$/,'').trim();
+ const stripDate=s=>norm(s).replace(/\b(hoje|amanha|depois de amanha|ontem|segunda(-feira)?|terca(-feira)?|quarta(-feira)?|quinta(-feira)?|sexta(-feira)?|sabado|domingo|mes seguinte|proximo mes|mes passado)\b/gi,'').replace(/\s+/g,' ').replace(/[?!.]+$/,'').trim();
  function merge(prev,next){
   const q=String(next||'').trim(); if(!prev||!follow(q))return q;
   if(temporal.test(norm(q))){const base=stripDate(prev),term=q.replace(/^e\s+/i,'').replace(/[?!.]+$/,'').trim();return (base+' '+term).replace(/\s+/g,' ').replace(/[?!.]+$/,'').trim()+'?';}
