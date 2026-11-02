@@ -17861,7 +17861,7 @@ function domingosQuantidadeForaDoSugerido(){
  function merge(prev,next){
   const q=String(next||'').trim(); if(!prev||!follow(q))return q;
   if(temporal.test(norm(q))){const base=stripDate(prev),term=q.replace(/^e\s+/i,'').replace(/[?!.]+$/,'').trim();return (base+' '+term).replace(/\s+/g,' ').replace(/[?!.]+$/,'').trim()+'?';}
-  const candidate=norm(q.replace(/^e\s+/i,'').replace(/[?!.]+$/,''));
+  const candidate=norm(q.replace(/^e\s+/i,'').replace(/^(o|a|os|as)\s+/i,'').replace(/[?!.]+$/,''));
   const names=Array.isArray(window.equipe)?window.equipe.map(f=>String(f&&f.nome||'')).filter(Boolean):[];
   const target=names.find(n=>norm(n)===candidate);
   if(target){let base=String(prev);for(const old of names){if(norm(base).includes(norm(old)))return base.split(old).join(target);}return (base+' '+target).replace(/\s+/g,' ').trim();}
@@ -17871,7 +17871,7 @@ function domingosQuantidadeForaDoSugerido(){
   const raw=String(q||'').trim(), prev=turns.filter(x=>x.role==='user').slice(-1)[0]?.text||'';
   const resolved=merge(prev,raw);let answer;
   try{answer=original(resolved);}catch(e){answer=original(raw);}
-  turns.push({role:'user',text:raw},{role:'assistant',text:String(answer||'')});
+  turns.push({role:'user',text:resolved,raw},{role:'assistant',text:String(answer||'')});
   if(turns.length>MAX*2)turns.splice(0,turns.length-MAX*2);
   return answer;
  }
