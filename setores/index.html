@@ -17863,7 +17863,7 @@ function domingosQuantidadeForaDoSugerido(){
   if(temporal.test(norm(q))){const base=stripDate(prev),term=q.replace(/^e\s+/i,'').replace(/[?!.]+$/,'').trim();return (base+' '+term).replace(/\s+/g,' ').replace(/[?!.]+$/,'').trim()+'?';}
   const candidate=norm(q.replace(/^e\s+/i,'').replace(/^(o|a|os|as)\s+/i,'').replace(/[?!.]+$/,''));
   const names=Array.isArray(window.equipe)?window.equipe.map(f=>String(f&&f.nome||'')).filter(Boolean):[];
-  const target=names.find(n=>norm(n)===candidate);
+  const matches=names.filter(n=>norm(n)===candidate||norm(n).split(' ')[0]===candidate);const target=matches.length===1?matches[0]:null;
   if(target){let base=String(prev);for(const old of names){if(norm(base).includes(norm(old)))return base.split(old).join(target);}return (base+' '+target).replace(/\s+/g,' ').trim();}
   return prev+' '+q;
  }
