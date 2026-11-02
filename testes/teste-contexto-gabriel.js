@@ -9,10 +9,10 @@ const start=html.lastIndexOf('<script>',i), end=html.indexOf('</script>',i); ass
 const calls=[]; const window={equipe:[{nome:'Ana Silva'},{nome:'Leonardo Souza'}],v265Chat:{responder:q=>{calls.push(q);return 'OK';}}};
 vm.runInNewContext(html.slice(start+8,end),{window}); const C=window.v345ContextoGabriel; assert(C);
 assert.equal(C.maxTurnos,24);
-assert.equal(C.resolverContinuacao('Quem trabalha amanhã?','e domingo?'),'Quem trabalha domingo??');
+assert.equal(C.resolverContinuacao('Quem trabalha amanhã?','e domingo?'),'Quem trabalha domingo?');
 assert.equal(C.resolverContinuacao('Qual a folga da Ana Silva?','e Leonardo Souza?'),'Qual a folga da Leonardo Souza?');
 assert.equal(C.resolverContinuacao('Quem trabalha domingo?','qual o clima?'),'qual o clima?');
 window.v265Chat.responder('Quem trabalha amanhã?'); window.v265Chat.responder('e domingo?');
-assert.equal(calls[0],'Quem trabalha amanhã?'); assert.equal(calls[1],'Quem trabalha domingo??');
+assert.equal(calls[0],'Quem trabalha amanhã?'); assert.equal(calls[1],'Quem trabalha domingo?');
 assert.equal(C.estado().length,4); C.limpar(); assert.equal(C.estado().length,0);
 console.log('Gabriel V345: testes de contexto concluídos.');
