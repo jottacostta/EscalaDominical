@@ -17,7 +17,7 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V344.html` | `setores/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V345.html` | `setores/index.html` (cópia idêntica) |
 | Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V210.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
@@ -201,6 +201,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-11-02 — Contexto do Gabriel — Setores V345 — ChatGPT
+- Escopo: somente Escala de Setores; Encarregados fica pendente até validar esta versão.
+- Implementação: camada adicional no final do HTML com memória volátil de até 24 turnos, resolução heurística de continuação e API de limpeza `window.v345ContextoGabriel.limpar()`.
+- Não grava mensagens no histórico da escala nem altera motor, equipe ou regras.
+- Limitação: primeira heurística; perguntas compostas, pronome ambíguo e mês relativo precisam de validação Playwright. Não considerar homologado até CI no SHA final.
+- Arquivos: V345, setores/index.html; V344 arquivada. Branch `chatgpt/gabriel-contexto-setores`, sem merge.
+
 
 ### 2026-10-28 — Mover a folga de feriado para outro dia, com janela — Setores V343 — Claude
 - **Pedido do Gerente:** na tabela de feriado, clicar na sugestão de folga e ter uma janela perguntando se quer **aceitar** ou **mover para outro dia**; ao escolher mover, a **linha do funcionário muda de cor**, o usuário clica noutro dia dentro das regras e a sugestão move; depois de mover, a janela aparece de novo (aceitar a nova ou mover outra vez).
