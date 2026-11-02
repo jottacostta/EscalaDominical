@@ -7,10 +7,17 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V210</title>
+<title>Escala 2×1 — Encarregados V211</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V211 [Claude] — 🧹 FAXINA DE CÓDIGO MORTO, PROVADA PELA SUÍTE (Banca de Revisão, pedido do Gerente): removidas 5 funções que ninguém
+       chamava — mostrarEditorEquipe (o editor abre pela abrirEditorEquipe, viva), fallbackCopy, _zipStored e _xlsxStyleForCell
+       (sobra do export antigo; o Excel sai pelo caminho vivo _zipFromTemplate→_zipStoredBytes, baseado em template) e
+       respostaCapacidades (responder órfã; capacidades respondidas pelo caminho vivo). Cada remoção conferida no repo inteiro
+       (incluindo testes) e provada pela suíte completa verde. Nenhuma mudança de comportamento.
+       TEXTO: na janela de escolha (01/11 a 15/12/2026) a resposta do assistente sobre o regime voltou a começar com "Regime em
+       vigor: …" (antes, a partir de 01/11, o texto tinha deixado de usar essa frase — a suíte cobra ela em todo período).
 V210 [Claude] — 🗓️ REGIME DE DOMINGO: 2×1, 2×2 OU MISTO (pedido do Gerente, igual à Escala de Setores V341): em 📅 Mês e opções o
        Gerente escolhe o regime dos domingos. 2×1 (padrão, nada muda): trabalha 2 domingos e folga 1. 2×2: trabalha 2 domingos e
        folga 2 (depois de trabalhar 2 domingos seguidos, descansa 2). Misto: o Gerente diz QUANTAS pessoas ficam no 2×2 e o app
@@ -2143,7 +2150,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V210 · Regime de domingo: 2×1, 2×2 ou Misto (você escolhe)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V211 · Faxina de código morto provada pela suíte (Banca de Revisão)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2761,21 +2768,6 @@ function equipeTextoDosDados(dados){
   const nomes=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   return 'Matricula;Nome;Horario;Cargo;Turno;Setor;Subsetor;Folga;Situação;StatusERP;SituaçãoDetalhe;DataAdmissão;AptidaoDomingo\n'+dados.map(x=>[x.matricula,x.nome,x.horario||'',x.cargo,x.turno||'',x.setor||setor(x.cargo),x.subsetor||'',nomes[x.folga],x.situacao||'A',x.statusErp||'',x.situacaoDetalhe||'',x.admissao?fmtAdmissao(x.admissao):'',x.aptoDomingo===false?'0':'1'].join(';')).join('\n');
 }
-function mostrarEditorEquipe(texto=''){
-  $('equipeEditor').style.display='block';
-  if(texto&&!equipe.length){
-    const linhas=String(texto).replace(/\r/g,'').split('\n').filter(Boolean);
-    const primeira=norm(linhas[0]||'');
-    const inicio=(primeira.includes('matricula')||primeira.includes('nome'))?1:0;
-    const mapa={'domingo':0,'segunda':1,'terca':2,'terça':2,'quarta':3,'quinta':4,'sexta':5,'sabado':6,'sábado':6};
-    const rows=linhas.slice(inicio).map(l=>{
-      const p=l.split(',').map(x=>x.trim());
-      if(p.length>=4)return {matricula:p[0]||'',nome:p[1]||'',cargo:p[2]||'',folga:mapa[norm(p[3])]??2};
-      return {matricula:'',nome:p[0]||'',cargo:p[1]||'',folga:mapa[norm(p[2])]??2};
-    });
-    renderEditorRows(rows.length?rows:[{matricula:'',nome:'',cargo:'',folga:2}]);
-  }else renderEditorRows();
-}
 
 const situacaoRotuloEnc=t=>{const x=norm(t);if(!x||x.includes('trabalhando'))return '';if(x.includes('ferias'))return 'Férias';if(x.includes('suspens'))return 'Suspensão de contrato';if(x.includes('auxilio')||x.includes('doenca'))return 'Auxílio-doença';if(x.includes('acidente')&&x.includes('trajeto'))return 'Acidente de trajeto';if(x.includes('acidente'))return 'Acidente de trabalho';if(x.includes('lic')&&x.includes('medic'))return 'Licença médica';if(x.includes('maternidade'))return 'Licença maternidade';if(x.includes('aposent'))return 'Aposentadoria';const r=String(t).trim();return r?r.charAt(0).toUpperCase()+r.slice(1):'';};
 window.v160SituacaoRotulo=situacaoRotuloEnc;
@@ -2883,9 +2875,6 @@ function gerarEquipeTxtDownload(){
   return true;
 }
 
-function fallbackCopy(txt,ok){
-  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok()}catch(e){alert('Não foi possível copiar o TXT.')}document.body.removeChild(ta);
-}
 function carregarEquipeAutomatica(){
   try{
     if(window.Android && typeof Android.lerEquipe==='function'){
@@ -5779,31 +5768,7 @@ function renderTabela(mes,ano,bal){
 function _xmlEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 function _utf8(s){return new TextEncoder().encode(String(s));}
 function _crc32(bytes){let c=0xffffffff;for(let i=0;i<bytes.length;i++){c^=bytes[i];for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;}
-function _zipStored(files){
-  const chunks=[],central=[];let offset=0;
-  for(const f of files){
-    const name=_utf8(f.name),data=_utf8(f.data),crc=_crc32(data);
-    const local=new Uint8Array(30+name.length+data.length),dv=new DataView(local.buffer);let p=0;
-    dv.setUint32(p,0x04034b50,true);p+=4;dv.setUint16(p,20,true);p+=2;dv.setUint16(p,0x0800,true);p+=2;dv.setUint16(p,0,true);p+=2;dv.setUint16(p,0,true);p+=2;dv.setUint16(p,0,true);p+=2;dv.setUint32(p,crc,true);p+=4;dv.setUint32(p,data.length,true);p+=4;dv.setUint32(p,data.length,true);p+=4;dv.setUint16(p,name.length,true);p+=2;dv.setUint16(p,0,true);p+=2;local.set(name,p);p+=name.length;local.set(data,p);
-    chunks.push(local);
-    const cd=new Uint8Array(46+name.length),cv=new DataView(cd.buffer);p=0;
-    cv.setUint32(p,0x02014b50,true);p+=4;cv.setUint16(p,20,true);p+=2;cv.setUint16(p,20,true);p+=2;cv.setUint16(p,0x0800,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint32(p,crc,true);p+=4;cv.setUint32(p,data.length,true);p+=4;cv.setUint32(p,data.length,true);p+=4;cv.setUint16(p,name.length,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint16(p,0,true);p+=2;cv.setUint32(p,0,true);p+=4;cv.setUint32(p,offset,true);p+=4;cd.set(name,p);central.push(cd);offset+=local.length;
-  }
-  const centralSize=central.reduce((a,b)=>a+b.length,0),end=new Uint8Array(22),ev=new DataView(end.buffer);let p=0;
-  ev.setUint32(p,0x06054b50,true);p+=4;ev.setUint16(p,0,true);p+=2;ev.setUint16(p,0,true);p+=2;ev.setUint16(p,files.length,true);p+=2;ev.setUint16(p,files.length,true);p+=2;ev.setUint32(p,centralSize,true);p+=4;ev.setUint32(p,offset,true);p+=4;ev.setUint16(p,0,true);
-  return new Blob([...chunks,...central,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-}
 function _xlsxCol(n){let s='';n++;while(n>0){let r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26)}return s;}
-function _xlsxStyleForCell(cell){
-  const cls=String(cell.className||'').split(/\s+/).filter(Boolean);
-  if(cls.includes('dom'))return 2;
-  if(cls.includes('fertrab'))return 4;
-  if(cls.includes('folgafer'))return 6;
-  if(cls.includes('bal'))return 5;
-  if(cls.includes('fer'))return 3;
-  if(cls.includes('f'))return 1;
-  return 0;
-}
 function _excelSerial(dt){
   const utc=Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate());
   return Math.floor((utc-Date.UTC(1899,11,30))/86400000);
@@ -10464,9 +10429,6 @@ function perguntarOrientacaoImpressao(cb){
     return /\b(o que|que|quais|como)\b.{0,40}\b(sabe fazer|consegue fazer|pode fazer|ajudar|ajuda|capacidades|habilidades)\b/.test(q)
       || /\b(capacidades|habilidades|suas funcoes)\b/.test(q);
   }
-  function respostaCapacidades(){
-    return '🤖 Posso consultar a equipe carregada e identificar quem está escalado ou de folga; explicar as regras disponíveis sobre domingos, balanço, feriados e regimes configurados; apontar conflitos e sequências que os dados da escala permitem verificar; e orientar a importação/edição da equipe, geração manual ou automática, horários, histórico e planilha Excel. Trabalho apenas com os dados deste aplicativo: escala planejada não comprova presença real, não altero a escala e não invento regras ou informações ausentes.';
-  }
   function quantidadePerguntada(texto){
     const q=normalizar(texto),i=q.search(/\bquant(?:os|as|o|a)\b/);
     if(i<0)return false;
@@ -10759,7 +10721,7 @@ function perguntarOrientacaoImpressao(cb){
   function resumoAtual(){
     const atual=motorParaData(hoje());
     if(hoje()>=CORTE) return 'Regime em vigor: <b>5×2</b> desde <b>16/12/2026</b> (o 6×1 foi desligado). Os domingos dos Encarregados continuam no <b>2×1</b>.';
-    if(hoje()>='2026-11-01') return 'De <b>01/11</b> a <b>15/12/2026</b> você escolhe o modelo de cada mês: <b>6×1</b> (1 folga por semana) ou <b>5×2</b> (2 folgas por semana). A partir de <b>16/12/2026</b> fica só o <b>5×2</b>.';
+    if(hoje()>='2026-11-01') return 'Regime em vigor: de <b>01/11</b> a <b>15/12/2026</b> você escolhe o modelo de cada mês — <b>6×1</b> (1 folga por semana) ou <b>5×2</b> (2 folgas por semana). A partir de <b>16/12/2026</b> fica só o <b>5×2</b>.';
     return 'Regime em vigor: <b>6×1</b> até <b>31/10/2026</b>. De <b>01/11</b> a <b>15/12/2026</b> você escolhe 6×1 ou 5×2; a partir de <b>16/12/2026</b> fica só o <b>5×2</b>.';
   }
   function historico(){

@@ -8,4 +8,6 @@ Historico_*.json
 testes/screenshots/
 
 # pasta interna do Claude Code (worktrees de agentes, não entra no repositório)
-.claude/
+.claude/*
+# ...menos os comandos do projeto (ex.: /banca), que são versionados para todos
+!.claude/commands/
