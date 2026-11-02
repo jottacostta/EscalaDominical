@@ -6,7 +6,8 @@
     "test": "node rodar.js",
     "test:completo": "node rodar.js --completo",
     "test:gabriel-dialogos": "node rodar.js --gabriel-dialogos",
-    "test:gabriel-100": "node bateria-gabriel-100.js"
+    "test:gabriel-100": "node bateria-gabriel-100.js",
+    "test:gabriel-contexto": "node teste-contexto-gabriel.js"
   },
   "devDependencies": {
     "playwright": "^1.47.0"
