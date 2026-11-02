@@ -14,5 +14,5 @@ assert.equal(C.resolverContinuacao('Qual a folga da Ana Silva?','e o Leonardo So
 assert.equal(C.resolverContinuacao('Quem trabalha domingo?','qual o clima?'),'qual o clima?');
 window.v265Chat.responder('Quem trabalha amanhã?'); window.v265Chat.responder('e domingo?');
 assert.equal(calls[0],'Quem trabalha amanhã?'); assert.equal(calls[1],'Quem trabalha domingo?');
-assert.equal(C.estado().length,4); C.limpar(); assert.equal(C.estado().length,0);
+assert.equal(C.estado().length,4); assert.equal(C.estado()[2].text,'Quem trabalha domingo?'); C.limpar(); assert.equal(C.estado().length,0);
 console.log('Gabriel V345: testes de contexto concluídos.');
