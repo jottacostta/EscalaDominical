@@ -17864,7 +17864,7 @@ function domingosQuantidadeForaDoSugerido(){
   const candidate=norm(q.replace(/^e\s+/i,'').replace(/^(o|a|os|as)\s+/i,'').replace(/[?!.]+$/,''));
   const names=Array.isArray(window.equipe)?window.equipe.map(f=>String(f&&f.nome||'')).filter(Boolean):[];
   const matches=names.filter(n=>norm(n)===candidate||norm(n).split(' ')[0]===candidate);const target=matches.length===1?matches[0]:null;
-  if(target){let base=String(prev);for(const old of names){if(norm(base).includes(norm(old)))return base.split(old).join(target);}return (base+' '+target).replace(/\s+/g,' ').trim();}
+  if(target){let base=String(prev);for(const old of names){if(norm(base).includes(norm(old)))return base.split(old).join(target);}const m=base.match(/^\s*quem\s+(trabalha|folga|vem|descansa|abre|fecha)\s+(.+?)\s*[?!.]*$/i);if(m)return (target+' '+m[1]+' '+m[2]).replace(/\s+/g,' ').trim()+'?';return (base+' '+target).replace(/\s+/g,' ').trim();}
   return prev+' '+q;
  }
  function responder(q){
