@@ -7,10 +7,11 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V344</title>
+<title>Escala de Setores — V345</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V345 [ChatGPT] — 🤖 JANELA DE CONTEXTO DO GABRIEL (Setores): mantém contexto temporário em memória, reconhece perguntas curtas de continuidade (ex.: “e domingo?”, “e o Leonardo?”), preserva a pergunta anterior e permite limpar o contexto. Não persiste conversa no histórico da escala, não grava dados pessoais adicionais e não altera equipe, escala, regras ou motor.
 V344 [Claude] — 🗓️ FOLGA DE FERIADO EVITA O MESMO TURNO DE FOLGA (pedido do Gerente): ao sugerir a data da folga compensatória de
        feriado, o app agora evita o dia em que outra pessoa do MESMO TURNO (abertura/fechamento) já folga pela folga da semana (DSR)
        ou pela folga fixa — ex.: a folga do Gyan não cai numa quinta em que o Jhon (mesmo turno) está de DSR. É uma preferência bem
@@ -3032,7 +3033,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V344 · Folga de feriado evita o mesmo turno de folga (último recurso)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V345 · Gabriel mantém contexto da conversa</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -17846,7 +17847,40 @@ function domingosQuantidadeForaDoSugerido(){
     const w=window.open('','_blank');
     if(!w){window.showToast?.('Permita pop-ups para imprimir a tabela.','danger',true);return;}
     w.document.write('<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><title>'+esc(titulo)+'</title>'+css+'</head><body><h3>'+esc(titulo)+'</h3>'+t.outerHTML
-      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. T = trabalha domingo · t = trabalha feriado · F = folga no domingo · FH = folga do feriado (a mais, não é DSR) · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado (em até 20 dias) · · = trabalha.</p></body></html>');
+      +'<p style="font-size:10px;color:#64748b">Ensaio sem validade real. T = trabalha domingo · t = trabalha feriado · F = folga no domingo · FH = folga do feriado (a mais, não é DSR) · DSR1/DSR2 = folgas da semana (descanso semanal) · F02/F15/… = folga compensatória do feriado (em até 20 dias) · · = trabalha.</p>
+<script>
+/* V345 — janela de contexto Gabriel: memória temporária, isolada e sem persistência */
+(function(){
+ 'use strict';
+ const C=window.v265Chat; if(!C||typeof C.responder!=='function')return;
+ const original=C.responder.bind(C), MAX=24, turns=[];
+ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const follow=s=>/^(e\s+|esse\b|essa\b|ele\b|ela\b|dele\b|dela\b|tambem\b|também\b)/i.test(norm(s));
+ const temporal=/\b(hoje|amanha|depois de amanha|ontem|segunda(-feira)?|terca(-feira)?|quarta(-feira)?|quinta(-feira)?|sexta(-feira)?|sabado|domingo|mes seguinte|proximo mes|mes passado)\b/i;
+ const stripDate=s=>String(s||'').replace(/\b(hoje|amanha|depois de amanha|ontem|segunda(-feira)?|terca(-feira)?|quarta(-feira)?|quinta(-feira)?|sexta(-feira)?|sabado|domingo|mes seguinte|proximo mes|mes passado)\b/gi,'').replace(/\s+/g,' ').trim();
+ function merge(prev,next){
+  const q=String(next||'').trim(); if(!prev||!follow(q))return q;
+  if(temporal.test(norm(q))){const base=stripDate(prev),term=q.replace(/^e\s+/i,'').replace(/[?!.]+$/,'').trim();return (base+' '+term+'?').replace(/\s+/g,' ').trim();}
+  const candidate=norm(q.replace(/^e\s+/i,'').replace(/[?!.]+$/,''));
+  const names=Array.isArray(window.equipe)?window.equipe.map(f=>String(f&&f.nome||'')).filter(Boolean):[];
+  const target=names.find(n=>norm(n)===candidate);
+  if(target){let base=String(prev);for(const old of names){if(norm(base).includes(norm(old)))return base.split(old).join(target);}return (base+' '+target).replace(/\s+/g,' ').trim();}
+  return prev+' '+q;
+ }
+ function responder(q){
+  const raw=String(q||'').trim(), prev=turns.filter(x=>x.role==='user').slice(-1)[0]?.text||'';
+  const resolved=merge(prev,raw);let answer;
+  try{answer=original(resolved);}catch(e){answer=original(raw);}
+  turns.push({role:'user',text:raw},{role:'assistant',text:String(answer||'')});
+  if(turns.length>MAX*2)turns.splice(0,turns.length-MAX*2);
+  return answer;
+ }
+ C.responder=responder; C.resetContexto=()=>{turns.length=0;};
+ window.v345ContextoGabriel={estado:()=>turns.map(x=>({...x})),limpar:()=>{turns.length=0;},resolverContinuacao:merge,maxTurnos:MAX};
+})();
+</script>
+
+</body></html>');
     w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},300);
   }
   // ── Ensaio de escala à mão (grade editável): mesma isolação, reusa as tabelas. Sem validade real. ──
