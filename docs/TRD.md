@@ -4,7 +4,7 @@
 
 ## Arquitetura
 - Repositório: `jottacostta/EscalaDominical`.
-- Apps separados e autocontidos em HTML: `Escala_de_Setores_V286.html` e `Escala_2x1_encarregados_V190.html` na `main` consultada.
+- Apps separados e autocontidos em HTML: `Escala_de_Setores_V345.html` e `Escala_2x1_encarregados_V210.html` na `main` consultada.
 - `setores/index.html` e `encarregados/index.html` são cópias das versões atuais e sustentam os endereços fixos.
 - A experiência normal deve continuar offline; não adicionar dependência externa sem autorização.
 - A política automática `window.escalaMotor` escolhe 6×1 antes de `2026-12-16` e 5×2 a partir dessa data; em Encarregados, domingos retornam `2x1` separadamente. O plano de dezembro é misto e não deve ser reduzido a um único regime mensal.
@@ -17,6 +17,14 @@
 5. Persistência/exportação: armazenamento local, histórico JSON e saídas suportadas.
 6. Gabriel/Assistente RH: lógica local que responde com base nas funções e dados disponíveis; não é autoridade para validar escala.
 7. Testes automatizados e CI.
+
+## Gabriel — contexto de conversa (Setores V345)
+- Camada envolvente no fim do HTML sobre `window.v265Chat.responder`; não modifica o motor de escala.
+- Estado temporário em memória (máximo 24 turnos), sem `localStorage`, exportação ou inclusão no histórico de escala.
+- Reescreve continuidades curtas a partir da última pergunta canônica, com heurística para referência temporal e nome de colaborador.
+- Ambiguidade de primeiro nome não escolhe uma pessoa quando há mais de um candidato.
+- Escopo atual somente Setores. Encarregados não recebe esta camada até validação.
+- Limite: heurística inicial; validar diálogo real, mês relativo, assunto novo, ambiguidades e reset. O teste unitário existe, mas ainda não foi executado nesta sessão.
 
 Este mapa é conceitual. O mapa detalhado de funções e dependências ainda precisa ser rastreado no código.
 
