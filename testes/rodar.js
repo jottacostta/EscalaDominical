@@ -2752,6 +2752,21 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     });
     ok(auto === '2026-12-30', `${nome}: ao definir o início, o fim preenche com 30 dias (01/12 → ${auto}; V352)`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 353){
+    const setorF = await p.evaluate(() => {
+      const setor = document.getElementById('setorSelecionado')?.value || '';
+      const f = equipe[0];
+      window.feriasProgramadas = [
+        { matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2027-01-05', fim: '2027-01-24', setor },
+        { matricula: 'ZZZ9', nome: 'FULANO OUTRO', inicio: '2027-01-10', fim: '2027-01-31', setor: 'Açougue' }
+      ];
+      const A = document.getElementById('ano'); if(A){ A.value = '2027'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+      window.v347Ferias.render();
+      const box = document.getElementById('v347Lista');
+      return { doSetor: box.textContent.includes(String(f.nome).split(' ')[0]), outroSetor: /FULANO OUTRO/.test(box.textContent) };
+    });
+    ok(setorF.doSetor === true && setorF.outroSetor === false, `${nome}: a lista de férias mostra só o pessoal do setor aberto (V353: ${JSON.stringify(setorF)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto

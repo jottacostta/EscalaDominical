@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V352</title>
+<title>Escala de Setores — V353</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V353 [Claude] — 🏢 FÉRIAS SEPARADAS POR SETOR (pedido do Gerente): a lista e a impressão de férias passam a mostrar só o pessoal do
+       SETOR ABERTO — ao abrir Açougue, só as férias do Açougue; Mercearia, só Mercearia; etc. Cada férias cadastrada grava o setor
+       em que foi feita (campo setor); a lista/impressão filtram por setorSelecionado. Férias antigas (sem setor gravado) aparecem
+       se a pessoa estiver na equipe carregada daquele setor. O cadastro já era por setor (o seletor de funcionário só mostra a
+       equipe aberta). Só na Escala de Setores (o Encarregados carrega todos juntos).
 V352 [Claude] — 🗓️ FÉRIAS: FIM PREENCHE COM 30 DIAS (pedido do Gerente): no passo 🏖️ Férias, ao definir a DATA DE INÍCIO o app já
        preenche a DATA DE FIM com 30 dias (ex.: 01/12/2026 → 30/12/2026). É um atalho: o fim continua editável — se você mudar o fim
        à mão, o app respeita e não sobrescreve ao trocar o início; só recalcula quando o fim está vazio ou ainda está no valor
@@ -3078,7 +3083,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V352 · Férias: ao definir o início, o fim preenche com 30 dias (pode mudar)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V353 · Férias separadas por setor (mostra só o pessoal do setor aberto)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -18903,6 +18908,14 @@ window.v341Regime=(function(){
   function estaDeFeriasNaData(i,dt){ return window.estaDeFeriasNaData(i,dt); }
 
   function anoSel(){ const a=parseInt(document.getElementById('ano')?.value,10); return Number.isFinite(a)?a:new Date().getFullYear(); }
+  function setorAtual(){ return String(document.getElementById('setorSelecionado')?.value||'').trim(); }   // V353: setor aberto agora
+  function pertenceAoSetor(v){   // V353: a férias é deste setor? (entrada nova tem v.setor; a antiga vale se a pessoa está na equipe carregada)
+    const s=setorAtual(); if(!s) return true;
+    if(v && v.setor) return String(v.setor).trim()===s;
+    const mat=String(v&&v.matricula||'').trim();
+    if(!mat) return true;
+    return (window.equipe||[]).some(f=>String(f&&f.matricula||'').trim()===mat);
+  }
   function preencherPessoas(sel){
     if(!sel) return; const atual=sel.value;
     const eq=(window.equipe||[]);
@@ -18927,7 +18940,7 @@ window.v341Regime=(function(){
     const box=document.getElementById('v347Lista'); if(!box) return;
     const ano=anoSel(); const sp=document.getElementById('v347Ano'); if(sp) sp.textContent=ano;
     preencherPessoas(document.getElementById('v347Pessoa'));
-    const lista=(window.feriasProgramadas||[]).map((v,idx)=>({v,idx}));
+    const lista=(window.feriasProgramadas||[]).map((v,idx)=>({v,idx})).filter(({v})=>pertenceAoSetor(v));   // V353: só o pessoal do setor aberto
     const temNoAno = m => lista.filter(({v})=>{   // V348: agrupa pelo mês de INÍCIO das férias (não repete no mês do retorno)
       const p=String(v.inicio).split('-');
       return (+p[0])===ano && (+p[1]-1)===m;
@@ -18951,7 +18964,7 @@ window.v341Regime=(function(){
   }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
   function imprimirRelacao(){   // V351: imprime a relação de férias do ano, separada por mês (os 12 meses)
-    const ano=anoSel(), lista=(window.feriasProgramadas||[]);
+    const ano=anoSel(), lista=(window.feriasProgramadas||[]).filter(pertenceAoSetor);   // V353: só o pessoal do setor aberto
     const doMes=m=>lista.filter(v=>{ const p=String(v.inicio).split('-'); return (+p[0])===ano && (+p[1]-1)===m; }).sort((a,b)=>String(a.inicio).localeCompare(String(b.inicio)));
     const corpo=MESES.map((nm,m)=>{
       const its=doMes(m);
@@ -18980,7 +18993,7 @@ window.v341Regime=(function(){
     cfg.insertAdjacentHTML('beforeend', `
     <div class="card" id="v347FeriasCard" style="margin:14px 0 0;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
       <h3 style="margin:0 0 6px;font-size:15px">🏖️ Férias programadas</h3>
-      <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Marque quem vai estar de férias e em que período. Quem está de férias <b>não é escalado</b> naqueles dias — nem domingo, nem feriado, nem dia normal. Valem para o ano escolhido no topo (<span id="v347Ano">—</span>).</p>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Marque quem vai estar de férias e em que período. Quem está de férias <b>não é escalado</b> naqueles dias — nem domingo, nem feriado, nem dia normal. Esta lista mostra só o pessoal do <b>setor aberto</b>. Valem para o ano escolhido no topo (<span id="v347Ano">—</span>).</p>
       <div style="display:grid;gap:8px;margin-bottom:6px">
         <label style="font-size:12px;font-weight:600;display:block">Funcionário<select id="v347Pessoa" style="${estilo};margin-top:3px"></select></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -19008,7 +19021,7 @@ window.v341Regime=(function(){
       if(!ini || !fim){ window.showToast?.('Preencha o início e o fim das férias.','warn',true); return; }
       if(fim<ini){ window.showToast?.('O fim das férias não pode ser antes do início.','warn',true); return; }
       const p=pessoaDoValor(val); if(!p){ window.showToast?.('Funcionário não encontrado.','warn',true); return; }
-      window.feriasProgramadas.push({matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim});
+      window.feriasProgramadas.push({matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim,setor:setorAtual()});   // V353: grava o setor em que a férias foi cadastrada
       salvar(); render();
       document.getElementById('v347Inicio').value=''; document.getElementById('v347Fim').value='';
       window.showToast?.(`Férias de ${p.nome} (${brCurto(ini)} a ${brCurto(fim)}) programadas.`,'ok');
