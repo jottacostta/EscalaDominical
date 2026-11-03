@@ -7,10 +7,16 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V213</title>
+<title>Escala 2×1 — Encarregados V214</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V214 [Claude] — 🏖️ FÉRIAS GANHA PASSO PRÓPRIO (pedido do Gerente, igual à Escala de Setores V348): a área de Férias programadas
+       SAIU de 📅 Mês e opções e virou um PASSO PRÓPRIO na barra — o botão 🏖️ Férias aparece em PRIMEIRO (antes de Equipe), com
+       painel #feriasCard; a barra de baixo desse passo mostra "Ir para a Equipe ▸". Feito sem renumerar os passos: o botão fica no
+       fim do DOM (índice novo) e vai pro começo da barra por CSS order:-1. Como o Encarregados detectava o Resumo por "último passo"
+       (stepButtons.length-1), isso virou detecção pelo painel resultadoCard (helper idxResumo), pra o Resumo continuar baixando a
+       planilha. A área passou a ser injetada em #feriasCard em vez de #configCard.
 V213 [Claude] — 🏖️ FÉRIAS: LISTA SÓ NO MÊS DE INÍCIO (conserto, pedido do Gerente, igual à Escala de Setores V348): no quadro
        Férias programadas, uma férias que cruza o mês (ex.: 03/11 a 02/12) aparecia em NOVEMBRO e também em DEZEMBRO. Agora aparece
        só no mês em que COMEÇA; o retorno no mês seguinte fica subentendido. Mudança só na organização da lista (render) — o motor,
@@ -2162,7 +2168,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V213 · Férias: a lista aparece só no mês de início (não repete no retorno)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V214 · Férias vira passo próprio na barra (antes de Equipe)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -2173,6 +2179,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button aria-selected="false" class="step" data-panel="domingosEtapa" data-step="3" role="tab" type="button"><span class="step-num"><span>3</span></span><b>Domingos</b><span>Quem trabalha</span></button>
 <button aria-selected="false" class="step" data-panel="geracaoCard" data-step="4" role="tab" type="button"><span class="step-num"><span>4</span></span><b>Feriados</b><span>Quem trabalha</span></button>
 <button aria-selected="false" class="step" data-panel="resultadoCard" data-step="5" role="tab" type="button"><span class="step-num"><span>5</span></span><b>Resumo</b><span>Ver e baixar</span></button>
+<button aria-selected="false" class="step" data-panel="feriasCard" data-step="6" role="tab" type="button" style="order:-1"><span class="step-num"><span>🏖️</span></span><b>Férias</b><span>Quem está de férias</span></button>
 </div>
 </div>
 
@@ -2210,6 +2217,10 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 </section>
 </div></div>
 <p class="in-rodape" id="inRodape"></p>
+</section>
+<section class="card step-panel" id="feriasCard" data-panel-id="ferias">
+  <h2 class="section-title"><span class="st-num">🏖️</span> Férias programadas</h2>
+  <div class="guia"><span class="passo">Férias</span><p class="guia-1">Marque quem vai estar de férias e o período. Quem está de férias <b>não é escalado</b> naqueles dias. Faça isso depois de carregar a equipe no passo <b>Equipe</b>.</p></div>
 </section>
 <section class="card step-panel active" id="equipeCard" data-panel-id="equipe">
 <h2 class="section-title"><span class="st-num">1</span> Equipe</h2>
@@ -6298,6 +6309,8 @@ $('btnWhats').onclick=async (ev)=>{
   const $$=(s,el=document)=>[...el.querySelectorAll(s)];
   const stepButtons=$$('.stepper .step');
   const stepPanels=stepButtons.map(b=>document.getElementById(b.dataset.panel)).filter(Boolean);
+  const idxResumo=()=>{ const i=stepButtons.findIndex(b=>b.dataset.panel==='resultadoCard'); return i>=0?i:stepButtons.length-1; };   // V214: índice do Resumo (não depende de length, que agora inclui o passo Férias)
+  const idxEquipe=()=>{ const i=stepButtons.findIndex(b=>b.dataset.panel==='equipeCard'); return i>=0?i:0; };
   let current=0;
 
   function validateStep(idx){
@@ -6335,7 +6348,7 @@ $('btnWhats').onclick=async (ev)=>{
     updateBottomBar();
   }
   window.v80GotoStep=gotoStep;
-  stepButtons.forEach((b,idx)=>b.addEventListener('click',()=>gotoStep(idx,idx>current)));
+  stepButtons.forEach((b,idx)=>b.addEventListener('click',()=>gotoStep(idx,idx>current && b.dataset.panel!=='feriasCard')));   // V214: o passo Férias abre sem validar o passo atual
 
   function ensureBottomBar(){
     let bar=document.getElementById('v80BottomBar');
@@ -6352,8 +6365,10 @@ $('btnWhats').onclick=async (ev)=>{
     bar.querySelector('[data-bar="prev"]').onclick=()=>gotoStep(current-1===1?0:Math.max(0,current-1),false);   // V171: o “Mês e opções” fica fora da sequência
     bar.querySelector('[data-bar="menu"]').onclick=e=>{e.stopPropagation();toggleMenu();};
     bar.querySelector('[data-bar="primary"]').onclick=()=>{
-      if(current===stepButtons.length-1){ document.getElementById('btnExcel')?.click(); }   // V205: no Resumo a barra baixa a planilha (o Gerar fica nos passos 3 e 4)
-      else { gotoStep(current+1===1?2:current+1,true); }   // V171
+      const cur=stepButtons[current];
+      if(cur && cur.dataset.panel==='feriasCard'){ gotoStep(idxEquipe(),false); return; }   // V214: do passo Férias segue para a Equipe
+      if(cur && cur.dataset.panel==='resultadoCard'){ document.getElementById('btnExcel')?.click(); return; }   // V205/V214: no Resumo a barra baixa a planilha
+      gotoStep(current+1===1?2:current+1,true);   // V171
     };
     return bar;
   }
@@ -6362,8 +6377,10 @@ $('btnWhats').onclick=async (ev)=>{
     const btn=bar.querySelector('[data-bar="primary"]');
     const prev=bar.querySelector('[data-bar="prev"]');
     if(!btn||!prev)return;
+    const cur=stepButtons[current];
+    if(cur && cur.dataset.panel==='feriasCard'){ prev.disabled=true; btn.textContent='Ir para a Equipe ▸'; btn.classList.remove('success'); btn.classList.add('primary'); return; }   // V214: barra do passo Férias
     prev.disabled=current===0;
-    const ultimo=current===stepButtons.length-1;
+    const ultimo=cur && cur.dataset.panel==='resultadoCard';   // V214: Resumo é o último (não depende de length)
     const prox=stepButtons[current+1===1?2:current+1]?.querySelector('b')?.textContent||'';   // V171   // V169: o índice 2 voltou a ser um passo (Domingos)
     btn.textContent=ultimo?'📊 Baixar planilha':`Próximo: ${prox} ▸`;   // V205
     btn.classList.toggle('success',ultimo); btn.classList.toggle('primary',!ultimo);
@@ -6389,7 +6406,7 @@ $('btnWhats').onclick=async (ev)=>{
       if(a==='generate'||a==='preview'||a==='print') window.sairDoInicio?.();   // V120: sai da página inicial para mostrar o resultado
       if(a==='home') window.irParaInicio?.();
       else if(actions[a]) document.querySelector(actions[a])?.click();
-      else if(a==='preview') gotoStep(stepButtons.length-1,false);
+      else if(a==='preview') gotoStep(idxResumo(),false);
       else if(a==='help') abrirAjuda();
       else if(a==='diag') window.copiarDiagnostico?.();   // V143
       else if(a==='sobre') window.abrirSobre?.();   // V146
@@ -6399,7 +6416,7 @@ $('btnWhats').onclick=async (ev)=>{
         if(!h){ h=document.createElement('div'); h.id='printHead'; h.className='print-head'; document.getElementById('resultadoCard')?.prepend(h); }
         const M=document.getElementById('mes');
         h.textContent=`${document.getElementById('tituloXlsxEmpresa')?.value||'Escala 2×1 — Encarregados'} — ${M.options[M.selectedIndex].text}/${document.getElementById('ano').value}`;
-        gotoStep(stepButtons.length-1,false);
+        gotoStep(idxResumo(),false);
         // V115: pergunta a posição da folha (paisagem já vem marcada) antes de imprimir.
         perguntarOrientacaoImpressao(o=>{ aplicarOrientacaoImpressao(o); setTimeout(()=>window.print(),350); });
       }
@@ -12063,7 +12080,7 @@ window.v210Regime=(function(){
   }
   window.v212Ferias={ render, get lista(){ return window.feriasProgramadas; } };
   function montarCard(){
-    const cfg=document.getElementById('configCard'); if(!cfg || document.getElementById('v212FeriasCard')) return;
+    const cfg=document.getElementById('feriasCard')||document.getElementById('configCard'); if(!cfg || document.getElementById('v212FeriasCard')) return;   // V214: passo próprio de Férias (fora de Mês e opções)
     const estilo='width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface,#fff);color:var(--ink,#0f172a)';
     cfg.insertAdjacentHTML('beforeend', `
     <div class="card" id="v212FeriasCard" style="margin:14px 0 0;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
@@ -12103,6 +12120,7 @@ window.v210Regime=(function(){
       window.showToast?.(`Férias de ${nomeDaEntrada(v)} removidas.`,'ok');
     });
     document.getElementById('ano')?.addEventListener('change',render);
+    document.querySelector('.step[data-panel="feriasCard"]')?.addEventListener('click',()=>setTimeout(render,30));   // V214: atualiza a lista/funcionários ao abrir o passo Férias
     render();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',montarCard);
