@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V215</title>
+<title>Escala 2×1 — Encarregados V216</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V216 [Claude] — 🔒 TRAVA DURA DE FÉRIAS + AVISO (pedido do Gerente, igual à Escala de Setores V350): mesmo que alguém de férias seja
+       escalado por engano, o sistema tira e avisa. (1) removerFeriasDaEscala() varre trabalhoDomingo/trabalhoFeriado ao fim do
+       montarEscalaFeriados (a cada geração/mudança), tirando quem está de férias. (2) Clique manual no domingo (V206) e no feriado
+       (V209) bloqueado com aviso. (3) Conformidade ganhou o item "Ninguém de férias pode ser escalado" — verde/VERMELHO.
 V215 [Claude] — 🏖️ FÉRIAS PROGRAMADAS TAMBÉM VÃO NO HISTÓRICO DO MÊS (pedido do Gerente, igual à Escala de Setores V349): antes as
        férias ficavam só no aparelho; agora vão também dentro do histórico guardado do mês (planejamento.feriasProgramadas). Ao
        ABRIR um histórico, as férias dele são JUNTADAS às que já estão no aparelho (window.v212Ferias.mesclar) — nunca apaga nem
@@ -2172,7 +2176,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V215 · Férias programadas também vão no histórico do mês (juntando, sem apagar)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V216 · Trava dura: quem está de férias nunca é escalado + aviso na Conformidade</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -4239,6 +4243,22 @@ function aplicarBloqueioFolgaFeriado(){
   const sig=tirados.join(',');
   if(tirados.length && sig!==__v164Aviso){ __v164Aviso=sig; setTimeout(()=>window.showToast?.(`🔒 Folga fixa no dia do feriado: ${tirados.join(', ')} ${tirados.length>1?'saíram':'saiu'} da lista de quem trabalha no feriado.`,'warn',true),50); }
 }
+function removerFeriasDaEscala(){   // V216: GARANTIA DURA — quem está de férias NUNCA fica escalado, mesmo se entrou por engano
+  if(typeof estaDeFeriasNaData!=='function') return [];
+  const ano=+$('ano').value, mes=+$('mes').value, tirados=[];
+  [trabalhoDomingo,trabalhoFeriado].forEach(mapa=>{
+    if(!mapa) return;
+    Object.keys(mapa).forEach(d=>{
+      const dt=new Date(ano,mes,+d), arr=(mapa[d]||[]).map(Number);
+      const fica=arr.filter(i=>!estaDeFeriasNaData(i,dt));
+      if(fica.length!==arr.length){
+        arr.filter(i=>!fica.includes(i)).forEach(i=>{ if(equipe[i]) tirados.push(`${equipe[i].nome} (${String(d).padStart(2,'0')})`); if(folgasCompensatorias) delete folgasCompensatorias[`${d}_${i}`]; });
+        mapa[d]=fica;
+      }
+    });
+  });
+  return tirados;
+}
 function montarEscalaFeriados(){
   atualizarAvisoFeriados();
   if(!equipe.length)return;
@@ -4464,6 +4484,7 @@ function montarEscalaFeriados(){
     };
   });
 
+  try{ removerFeriasDaEscala(); }catch(e){}   // V216: garante que ninguém de férias fique escalado
   atualizarResumoFeriados();
 }
 
@@ -5662,6 +5683,13 @@ function conformidadeMes(mes,ano,bal){
     [...new Set(t)].forEach(i=>{ trabFer++; if(!(folgasCompensatorias||{})[`${d}_${i}`]) pend++; }); });
   if(Object.keys(fer).length) itens.push(pend?{st:'warn',t:'Folga dos feriados trabalhados',d:`${pend} de ${trabFer} ainda sem data. Use “✅ Aceitar todas” no passo 4 (Feriados).`}
                                            :{st:'ok',t:'Folga dos feriados trabalhados',d:trabFer?`As ${trabFer} folgas de feriado estão definidas.`:'Ninguém trabalha nos feriados deste mês.'});
+  if(typeof estaDeFeriasNaData==='function' && (window.feriasProgramadas||[]).length){   // V216: ninguém de férias pode estar escalado
+    const feriasEsc=[];
+    doms.forEach(d=>{ const dt=new Date(ano,mes,d); (trabalhoDomingo[d]||[]).forEach(i=>{ if(estaDeFeriasNaData(i,dt)&&equipe[i]) feriasEsc.push(`${equipe[i].nome} (${String(d).padStart(2,'0')})`); }); });
+    Object.keys(fer).map(Number).forEach(d=>{ const dt=new Date(ano,mes,d); if(dt.getDay()===0)return; (trabalhoFeriado[d]||[]).forEach(i=>{ if(estaDeFeriasNaData(i,dt)&&equipe[i]) feriasEsc.push(`${equipe[i].nome} (feriado ${String(d).padStart(2,'0')})`); }); });
+    const listaF=[...new Set(feriasEsc)];
+    itens.push(listaF.length?{st:'bad',t:'Ninguém de férias pode ser escalado',d:`De férias e escalado: ${listaF.slice(0,6).join(', ')}${listaF.length>6?` (+${listaF.length-6})`:''}. O app tira sozinho ao gerar; se aparecer aqui, gere de novo.`}:{st:'ok',t:'Ninguém de férias pode ser escalado',d:'Quem está de férias programada não aparece em nenhum domingo nem feriado.'});
+  }
   return {itens,pend};
 }
 /* V109 — para onde cada aviso de conformidade leva o usuário */
@@ -11718,6 +11746,7 @@ function perguntarOrientacaoImpressao(cb){
 
   function toggle(d,i){
     const f=equipe[i]; if(!f||foraDom(f)) return;
+    try{ if(typeof estaDeFeriasNaData==='function'){ const _dt=new Date(ano(),mes(),+d); if(estaDeFeriasNaData(i,_dt)){ window.showToast?.(`${String(f.nome||'').split(' ')[0]} está de férias neste dia — não pode ser escalado.`,'warn',true); return; } } }catch(e){}   // V216: trava de férias no clique manual
     if(Number(d)===Number(balancoDoMes(ano(),mes()))){ window.showToast?.('O domingo de balanço é obrigatório para todos — não dá para mexer aqui.','info',true); return; }
     const api=v(); if(!api) return;
     if(modo()!=='manual'){ congelarComoManual(); window.showToast?.('✍️ A escala virou “à mão” para você ajustar: copiei o que estava na tela e mudei só este domingo.','info',true); }
@@ -11888,6 +11917,7 @@ function perguntarOrientacaoImpressao(cb){
     if(!trabalhava){
       const motivo=bloqueioFolgaFeriado(i,dt);
       if(motivo){ window.showToast?.(`${equipe[i].nome}: ${motivo} — não trabalha neste feriado.`,'warn'); return; }
+      if(typeof estaDeFeriasNaData==='function' && estaDeFeriasNaData(i,dt)){ window.showToast?.(`${equipe[i].nome}: está de férias neste dia — não pode ser escalado.`,'warn',true); return; }   // V216: trava de férias no clique manual
       trabalhoFeriado[d]=[...new Set([...(trabalhoFeriado[d]||[]),i])];
     } else {
       trabalhoFeriado[d]=(trabalhoFeriado[d]||[]).filter(x=>x!==i);

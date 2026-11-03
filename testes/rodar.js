@@ -2715,6 +2715,19 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     return { n1, n2: window.feriasProgramadas.length, temAna: window.feriasProgramadas.some(v => v.nome === 'ANA') };
   });
   ok(mescla.n1 === 2 && mescla.n2 === 2 && mescla.temAna === true, `${nome}: férias do histórico entram no aparelho sem duplicar nem apagar as existentes (V349: ${JSON.stringify(mescla)})`);
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 350){
+    const trava = await p.evaluate(() => {
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-01', fim: '2026-11-30' }];
+      trabalhoDomingo[8] = [...new Set([...(trabalhoDomingo[8] || []), 0])];
+      trabalhoFeriado[20] = [...new Set([...(trabalhoFeriado[20] || []), 0])];
+      const confAntes = conformidadeMesSet(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      removerFeriasDaEscala();
+      const confDepois = conformidadeMesSet(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      return { confAntes, confDepois, dom: (trabalhoDomingo[8] || []).includes(0), fer: (trabalhoFeriado[20] || []).includes(0) };
+    });
+    ok(trava.confAntes === 'bad' && trava.dom === false && trava.fer === false && trava.confDepois === 'ok', `${nome}: trava dura — quem está de férias é retirado da escala e a Conformidade avisa (V350: ${JSON.stringify(trava)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -2987,6 +3000,19 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
     return { n1, n2: window.feriasProgramadas.length, temAna: window.feriasProgramadas.some(v => v.nome === 'ANA') };
   });
   ok(mesclaEnc.n1 === 2 && mesclaEnc.n2 === 2 && mesclaEnc.temAna === true, `Encarregados: férias do histórico entram no aparelho sem duplicar nem apagar as existentes (V215: ${JSON.stringify(mesclaEnc)})`);
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 216){
+    const travaEnc = await p.evaluate(() => {
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-01', fim: '2026-11-30' }];
+      trabalhoDomingo[8] = [...new Set([...(trabalhoDomingo[8] || []), 0])];
+      trabalhoFeriado[20] = [...new Set([...(trabalhoFeriado[20] || []), 0])];
+      const confAntes = conformidadeMes(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      removerFeriasDaEscala();
+      const confDepois = conformidadeMes(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      return { confAntes, confDepois, dom: (trabalhoDomingo[8] || []).includes(0), fer: (trabalhoFeriado[20] || []).includes(0) };
+    });
+    ok(travaEnc.confAntes === 'bad' && travaEnc.dom === false && travaEnc.fer === false && travaEnc.confDepois === 'ok', `Encarregados: trava dura — quem está de férias é retirado da escala e a Conformidade avisa (V216: ${JSON.stringify(travaEnc)})`);
+  }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
 async function testarEncRegimeDomingo(browser, app){   // Enc V210: regime de domingo 2×1 / 2×2 / Misto (igual à Setores V341)
