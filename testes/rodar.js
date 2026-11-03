@@ -2707,6 +2707,14 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     return [...document.getElementById('v347Lista').querySelectorAll('b')].map(b => b.textContent).filter(t => /^(Janeiro|Fevereiro|Mar|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)/.test(t));
   });
   ok(mesesCruz.length === 1 && /Novembro/.test(mesesCruz[0]), `${nome}: férias que cruzam o mês aparecem só no mês de início, Novembro (V348: ${JSON.stringify(mesesCruz)})`);
+  const mescla = await p.evaluate(() => {
+    window.feriasProgramadas = [{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }];
+    window.v347Ferias.mesclar([{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }, { matricula: '2', nome: 'BIA', inicio: '2027-03-02', fim: '2027-03-21' }]);
+    const n1 = window.feriasProgramadas.length;
+    window.v347Ferias.mesclar([{ matricula: '2', nome: 'BIA', inicio: '2027-03-02', fim: '2027-03-21' }]);
+    return { n1, n2: window.feriasProgramadas.length, temAna: window.feriasProgramadas.some(v => v.nome === 'ANA') };
+  });
+  ok(mescla.n1 === 2 && mescla.n2 === 2 && mescla.temAna === true, `${nome}: férias do histórico entram no aparelho sem duplicar nem apagar as existentes (V349: ${JSON.stringify(mescla)})`);
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -2971,6 +2979,14 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
     return [...document.getElementById('v212Lista').querySelectorAll('b')].map(b => b.textContent).filter(t => /^(Janeiro|Fevereiro|Mar|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)/.test(t));
   });
   ok(mesesCruzEnc.length === 1 && /Novembro/.test(mesesCruzEnc[0]), `Encarregados: férias que cruzam o mês aparecem só no mês de início, Novembro (V213: ${JSON.stringify(mesesCruzEnc)})`);
+  const mesclaEnc = await p.evaluate(() => {
+    window.feriasProgramadas = [{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }];
+    window.v212Ferias.mesclar([{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }, { matricula: '2', nome: 'BIA', inicio: '2027-03-02', fim: '2027-03-21' }]);
+    const n1 = window.feriasProgramadas.length;
+    window.v212Ferias.mesclar([{ matricula: '2', nome: 'BIA', inicio: '2027-03-02', fim: '2027-03-21' }]);
+    return { n1, n2: window.feriasProgramadas.length, temAna: window.feriasProgramadas.some(v => v.nome === 'ANA') };
+  });
+  ok(mesclaEnc.n1 === 2 && mesclaEnc.n2 === 2 && mesclaEnc.temAna === true, `Encarregados: férias do histórico entram no aparelho sem duplicar nem apagar as existentes (V215: ${JSON.stringify(mesclaEnc)})`);
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
 async function testarEncRegimeDomingo(browser, app){   // Enc V210: regime de domingo 2×1 / 2×2 / Misto (igual à Setores V341)
