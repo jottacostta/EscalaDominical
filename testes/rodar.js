@@ -852,8 +852,10 @@ async function testarEncManual(browser){
     await p.evaluate(() => { const k = [...document.querySelectorAll('.stepper .step')].findIndex(b => b.dataset.panel === 'domingosEtapa'); window.v80GotoStep(k >= 0 ? k : 5, false); }); await p.waitForTimeout(400);   // V169+: os domingos têm passo próprio
     if(m === 9){
       if(await p.evaluate(() => !!document.getElementById('domingosEtapa'))){
-        const ordem = await p.$$eval('.stepper .step', b => b.filter(x => x.offsetParent !== null).map(x => x.querySelector('b').textContent.trim()));
-        ok(ordem.join(' → ') === 'Equipe → Mês passado → Domingos → Feriados → ' + (+path.basename(APP_ENC).match(/V(\d+)\.html$/)[1] >= 205 ? 'Resumo' : 'Gerar'), 'passos na ordem: ' + ordem.join(' → '));   // Enc V205: o passo 5 virou Resumo   // V171: igual ao Setores (o “Mês” virou “📅 Mês e opções”)
+        const ordem = await p.$$eval('.stepper .step', b => { const vis = b.filter(x => x.offsetParent !== null); vis.sort((p,q) => (parseInt(getComputedStyle(p).order||'0',10) - parseInt(getComputedStyle(q).order||'0',10))); return vis.map(x => x.querySelector('b').textContent.trim()); });   // V214: ordem VISUAL (Férias vai pro começo por CSS order:-1)
+        const ve = +path.basename(APP_ENC).match(/V(\d+)\.html$/)[1];
+        const esperado = ve >= 214 ? 'Férias → Equipe → Mês passado → Domingos → Feriados → Resumo' : ('Equipe → Mês passado → Domingos → Feriados → ' + (ve >= 205 ? 'Resumo' : 'Gerar'));
+        ok(ordem.join(' → ') === esperado, 'passos na ordem: ' + ordem.join(' → '));   // Enc V205: o passo 5 virou Resumo · V214: Férias vira passo próprio
         if(await p.evaluate(() => !!window.v171AbrirMes)){
           const nav = await p.evaluate(async () => { const ativo = () => document.querySelector('.step-panel.active')?.id; const r = {};
             window.v80GotoStep(0, false); document.querySelector('#v80BottomBar [data-bar="primary"]').click(); await new Promise(z => setTimeout(z, 200)); r.proximo = ativo();
@@ -2943,6 +2945,9 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
     const dom = new Date(2026, 10, 8); const ds = domingosDoMes(2026, 10); const idx = ds.indexOf(8);
     return {
       temCard: !!document.getElementById('v212FeriasCard'),
+      temPassoFerias: !!document.querySelector('.stepper .step[data-panel="feriasCard"]'),
+      cardNoPassoFerias: !!document.querySelector('#feriasCard #v212FeriasCard'),
+      cardAindaEmConfig: !!document.querySelector('#configCard #v212FeriasCard'),
       feriasNoDom: window.estaDeFeriasNaData(0, dom),
       foraDoPeriodo: window.estaDeFeriasNaData(0, new Date(2026, 11, 15)),
       status: statusDiaEnc(0, dom, 10, 2026, 0),
@@ -2950,7 +2955,9 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
       podeDom: podeDomingo(0, idx >= 0 ? idx : 1)
     };
   });
-  ok(r.temCard === true, 'Encarregados: o quadro 🏖️ Férias programadas aparece em Mês e opções');
+  ok(r.temCard === true, 'Encarregados: o quadro 🏖️ Férias programadas existe');
+  ok(r.temPassoFerias === true, 'Encarregados: 🏖️ Férias é um passo próprio na barra (V214)');
+  ok(r.cardNoPassoFerias === true && r.cardAindaEmConfig === false, 'Encarregados: a área de Férias fica no passo próprio, fora de Mês e opções (V214)');
   ok(r.feriasNoDom === true, 'Encarregados: quem está de férias é reconhecido na data (estaDeFeriasNaData)');
   ok(r.foraDoPeriodo === false, 'Encarregados: fora do período das férias, não bloqueia');
   ok(r.status === 'ferias', 'Encarregados: a grade marca "Férias" no dia de férias');
