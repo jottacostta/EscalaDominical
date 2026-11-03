@@ -2744,6 +2744,14 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     });
     ok(imp.temBotao && imp.vazios === 11 && imp.h3 === 12 && imp.temNome, `${nome}: relação por mês (12 meses) + botão de imprimir (V351: ${JSON.stringify(imp)})`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 352){
+    const auto = await p.evaluate(() => {
+      const I = document.getElementById('v347Inicio'), F = document.getElementById('v347Fim');
+      F.value = ''; I.value = '2026-12-01'; I.dispatchEvent(new Event('change', { bubbles: true }));
+      return F.value;
+    });
+    ok(auto === '2026-12-30', `${nome}: ao definir o início, o fim preenche com 30 dias (01/12 → ${auto}; V352)`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -3044,6 +3052,14 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
       return { temBotao: !!document.getElementById('v212Imprimir'), vazios, h3: cont ? cont.querySelectorAll('h3').length : 0, temNome: cont ? /SILVA/.test(cont.textContent) : false };
     });
     ok(impEnc.temBotao && impEnc.vazios === 11 && impEnc.h3 === 12 && impEnc.temNome, `Encarregados: relação por mês (12 meses) + botão de imprimir (V217: ${JSON.stringify(impEnc)})`);
+  }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 218){
+    const autoEnc = await p.evaluate(() => {
+      const I = document.getElementById('v212Inicio'), F = document.getElementById('v212Fim');
+      F.value = ''; I.value = '2026-12-01'; I.dispatchEvent(new Event('change', { bubbles: true }));
+      return F.value;
+    });
+    ok(autoEnc === '2026-12-30', `Encarregados: ao definir o início, o fim preenche com 30 dias (01/12 → ${autoEnc}; V218)`);
   }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
