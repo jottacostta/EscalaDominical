@@ -2704,9 +2704,10 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-03', fim: '2026-12-02' }];
     const A = document.getElementById('ano'); if(A){ A.value = '2026'; A.dispatchEvent(new Event('change', { bubbles: true })); }
     window.v347Ferias?.render();
-    return [...document.getElementById('v347Lista').querySelectorAll('b')].map(b => b.textContent).filter(t => /^(Janeiro|Fevereiro|Mar|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)/.test(t));
+    const prim = String(f.nome || '').split(' ')[0];   // V351: a lista mostra os 12 meses; confere em QUAIS meses o nome da pessoa aparece
+    return [...document.getElementById('v347Lista').children].filter(div => div.textContent.includes(prim)).map(div => div.querySelector('b')?.textContent || '');
   });
-  ok(mesesCruz.length === 1 && /Novembro/.test(mesesCruz[0]), `${nome}: férias que cruzam o mês aparecem só no mês de início, Novembro (V348: ${JSON.stringify(mesesCruz)})`);
+  ok(mesesCruz.length === 1 && /Novembro/.test(mesesCruz[0]), `${nome}: férias que cruzam o mês aparecem só no mês de início, Novembro (${JSON.stringify(mesesCruz)})`);
   const mescla = await p.evaluate(() => {
     window.feriasProgramadas = [{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }];
     window.v347Ferias.mesclar([{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }, { matricula: '2', nome: 'BIA', inicio: '2027-03-02', fim: '2027-03-21' }]);
@@ -2715,6 +2716,34 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     return { n1, n2: window.feriasProgramadas.length, temAna: window.feriasProgramadas.some(v => v.nome === 'ANA') };
   });
   ok(mescla.n1 === 2 && mescla.n2 === 2 && mescla.temAna === true, `${nome}: férias do histórico entram no aparelho sem duplicar nem apagar as existentes (V349: ${JSON.stringify(mescla)})`);
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 350){
+    const trava = await p.evaluate(() => {
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-01', fim: '2026-11-30' }];
+      trabalhoDomingo[8] = [...new Set([...(trabalhoDomingo[8] || []), 0])];
+      trabalhoFeriado[20] = [...new Set([...(trabalhoFeriado[20] || []), 0])];
+      const confAntes = conformidadeMesSet(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      removerFeriasDaEscala();
+      const confDepois = conformidadeMesSet(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      return { confAntes, confDepois, dom: (trabalhoDomingo[8] || []).includes(0), fer: (trabalhoFeriado[20] || []).includes(0) };
+    });
+    ok(trava.confAntes === 'bad' && trava.dom === false && trava.fer === false && trava.confDepois === 'ok', `${nome}: trava dura — quem está de férias é retirado da escala e a Conformidade avisa (V350: ${JSON.stringify(trava)})`);
+  }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 351){
+    const imp = await p.evaluate(() => {
+      window.print = () => {};
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2027-01-05', fim: '2027-01-24' }];
+      const A = document.getElementById('ano'); if(A){ A.value = '2027'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+      window.v347Ferias.render();
+      const box = document.getElementById('v347Lista');
+      const vazios = (box.textContent.match(/— ninguém —/g) || []).length;
+      window.v347Ferias.imprimirRelacao();
+      const cont = document.getElementById('v347FeriasPrint');
+      return { temBotao: !!document.getElementById('v347Imprimir'), vazios, h3: cont ? cont.querySelectorAll('h3').length : 0, temNome: cont ? /SILVA/.test(cont.textContent) : false };
+    });
+    ok(imp.temBotao && imp.vazios === 11 && imp.h3 === 12 && imp.temNome, `${nome}: relação por mês (12 meses) + botão de imprimir (V351: ${JSON.stringify(imp)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -2976,9 +3005,10 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
     window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-03', fim: '2026-12-02' }];
     const A = document.getElementById('ano'); if(A){ A.value = '2026'; A.dispatchEvent(new Event('change', { bubbles: true })); }
     window.v212Ferias?.render();
-    return [...document.getElementById('v212Lista').querySelectorAll('b')].map(b => b.textContent).filter(t => /^(Janeiro|Fevereiro|Mar|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)/.test(t));
+    const prim = String(f.nome || '').split(' ')[0];   // V217: a lista mostra os 12 meses; confere em QUAIS meses o nome da pessoa aparece
+    return [...document.getElementById('v212Lista').children].filter(div => div.textContent.includes(prim)).map(div => div.querySelector('b')?.textContent || '');
   });
-  ok(mesesCruzEnc.length === 1 && /Novembro/.test(mesesCruzEnc[0]), `Encarregados: férias que cruzam o mês aparecem só no mês de início, Novembro (V213: ${JSON.stringify(mesesCruzEnc)})`);
+  ok(mesesCruzEnc.length === 1 && /Novembro/.test(mesesCruzEnc[0]), `Encarregados: férias que cruzam o mês aparecem só no mês de início, Novembro (${JSON.stringify(mesesCruzEnc)})`);
   const mesclaEnc = await p.evaluate(() => {
     window.feriasProgramadas = [{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }];
     window.v212Ferias.mesclar([{ matricula: '1', nome: 'ANA', inicio: '2027-01-05', fim: '2027-01-24' }, { matricula: '2', nome: 'BIA', inicio: '2027-03-02', fim: '2027-03-21' }]);
@@ -2987,6 +3017,34 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
     return { n1, n2: window.feriasProgramadas.length, temAna: window.feriasProgramadas.some(v => v.nome === 'ANA') };
   });
   ok(mesclaEnc.n1 === 2 && mesclaEnc.n2 === 2 && mesclaEnc.temAna === true, `Encarregados: férias do histórico entram no aparelho sem duplicar nem apagar as existentes (V215: ${JSON.stringify(mesclaEnc)})`);
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 216){
+    const travaEnc = await p.evaluate(() => {
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-01', fim: '2026-11-30' }];
+      trabalhoDomingo[8] = [...new Set([...(trabalhoDomingo[8] || []), 0])];
+      trabalhoFeriado[20] = [...new Set([...(trabalhoFeriado[20] || []), 0])];
+      const confAntes = conformidadeMes(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      removerFeriasDaEscala();
+      const confDepois = conformidadeMes(10, 2026, balancoDoMes(2026, 10)).itens.find(x => /Ninguém de férias/.test(x.t))?.st;
+      return { confAntes, confDepois, dom: (trabalhoDomingo[8] || []).includes(0), fer: (trabalhoFeriado[20] || []).includes(0) };
+    });
+    ok(travaEnc.confAntes === 'bad' && travaEnc.dom === false && travaEnc.fer === false && travaEnc.confDepois === 'ok', `Encarregados: trava dura — quem está de férias é retirado da escala e a Conformidade avisa (V216: ${JSON.stringify(travaEnc)})`);
+  }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 217){
+    const impEnc = await p.evaluate(() => {
+      window.print = () => {};
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2027-01-05', fim: '2027-01-24' }];
+      const A = document.getElementById('ano'); if(A){ A.value = '2027'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+      window.v212Ferias.render();
+      const box = document.getElementById('v212Lista');
+      const vazios = (box.textContent.match(/— ninguém —/g) || []).length;
+      window.v212Ferias.imprimirRelacao();
+      const cont = document.getElementById('v212FeriasPrint');
+      return { temBotao: !!document.getElementById('v212Imprimir'), vazios, h3: cont ? cont.querySelectorAll('h3').length : 0, temNome: cont ? /SILVA/.test(cont.textContent) : false };
+    });
+    ok(impEnc.temBotao && impEnc.vazios === 11 && impEnc.h3 === 12 && impEnc.temNome, `Encarregados: relação por mês (12 meses) + botão de imprimir (V217: ${JSON.stringify(impEnc)})`);
+  }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
 async function testarEncRegimeDomingo(browser, app){   // Enc V210: regime de domingo 2×1 / 2×2 / Misto (igual à Setores V341)

@@ -7,10 +7,21 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V349</title>
+<title>Escala de Setores — V351</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V351 [Claude] — 🖨️ RELAÇÃO DE FÉRIAS POR MÊS + IMPRIMIR (pedido do Gerente): no passo 🏖️ Férias, a lista agora mostra os 12 meses
+       (Janeiro…Dezembro) do ano selecionado, com os meses sem ninguém aparecendo como "— ninguém —". Novo botão "🖨️ Imprimir
+       relação de férias" gera uma folha com o ano todo, separado por mês (nome do funcionário + período), inclusive os meses
+       vazios. A impressão usa uma área própria (#v347FeriasPrint) mostrada só no modo de impressão (classe imprimindo-ferias), sem
+       mexer na impressão da escala. As datas continuam (necessárias pra trava); só a organização/relatório é por mês.
+V350 [Claude] — 🔒 TRAVA DURA DE FÉRIAS + AVISO (pedido do Gerente): "mesmo que o funcionário seja escalado por engano, o sistema
+       não pode deixar e tem que avisar". (1) GARANTIA: a função removerFeriasDaEscala() varre trabalhoDomingo/trabalhoFeriado e
+       TIRA quem está de férias — roda ao fim do montarEscalaFeriados (ou seja, a cada geração e a cada mudança de feriado), então
+       ninguém de férias fica escalado, aconteça o que acontecer. (2) CLIQUE MANUAL: tentar colocar alguém de férias num domingo
+       (tabela clicável V330) ou num feriado (V342) é bloqueado com aviso. (3) AVISO: a Conformidade ganhou o item "Ninguém de
+       férias pode ser escalado" — verde quando ok, VERMELHO listando quem, se escapar. Não muda o motor nem o bloqueio normal.
 V349 [Claude] — 🏖️ FÉRIAS PROGRAMADAS TAMBÉM VÃO NO HISTÓRICO DO MÊS (pedido do Gerente): antes as férias ficavam só no aparelho
        (localStorage); agora vão também dentro do histórico guardado do mês (planejamento.feriasProgramadas). Ao ABRIR um histórico,
        as férias dele são JUNTADAS às que já estão no aparelho (window.v347Ferias.mesclar) — nunca apaga nem sobrescreve as atuais,
@@ -3063,7 +3074,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V349 · Férias programadas também vão no histórico do mês (juntando, sem apagar)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V351 · Relação de férias por mês (os 12 meses) + 🖨️ imprimir</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -5676,6 +5687,22 @@ function atualizarAvisoFeriados(){
   else if(!equipe.length){ el.textContent=`📅 Feriados do mês: ${ds.map(d=>String(d).padStart(2,'0')+' — '+f[d]).join(' • ')}. Carregue a equipe para definir quem trabalha.`; el.style.display='block'; }
   else el.style.display='none';
 }
+function removerFeriasDaEscala(){   // V350: GARANTIA DURA — quem está de férias NUNCA fica escalado, mesmo se entrou por engano
+  if(typeof estaDeFeriasNaData!=='function') return [];
+  const ano=+$('ano').value, mes=+$('mes').value, tirados=[];
+  [trabalhoDomingo,trabalhoFeriado].forEach(mapa=>{
+    if(!mapa) return;
+    Object.keys(mapa).forEach(d=>{
+      const dt=new Date(ano,mes,+d), arr=(mapa[d]||[]).map(Number);
+      const fica=arr.filter(i=>!estaDeFeriasNaData(i,dt));
+      if(fica.length!==arr.length){
+        arr.filter(i=>!fica.includes(i)).forEach(i=>{ if(equipe[i]) tirados.push(`${equipe[i].nome} (${String(d).padStart(2,'0')})`); if(folgasCompensatorias) delete folgasCompensatorias[`${d}_${i}`]; });
+        mapa[d]=fica;
+      }
+    });
+  });
+  return tirados;
+}
 function montarEscalaFeriados(){
   atualizarAvisoFeriados();
   if(!equipe.length)return;
@@ -5810,6 +5837,7 @@ function montarEscalaFeriados(){
       if(sel.value)horariosManuaisFeriado[d][i]=sel.value; else delete horariosManuaisFeriado[d][i];
     };
   });
+  try{ removerFeriasDaEscala(); }catch(e){}   // V350: garante que ninguém de férias fique escalado
   atualizarResumoFeriados();
 }
 function aplicarFolgasFixasNosFeriados(){
@@ -6959,6 +6987,13 @@ function conformidadeMesSet(mes,ano,bal){
   }else{
     const faltas=doms.filter(d=>d!==bal).filter(d=>(trabalhoDomingo[d]||[]).filter(i=>!ehLiderancaDomingo(equipe[i])).length<Number(alvosPorDomingo?.[d]||0));
     itens.push(faltas.length?{st:'warn',t:'Cobertura do domingo',d:`Abaixo do alvo em: ${faltas.map(d=>String(d).padStart(2,'0')).join(', ')}.`}:{st:'ok',t:'Cobertura do domingo',d:'Todos os domingos têm o número de pessoas previsto.'});
+  }
+  if(typeof estaDeFeriasNaData==='function' && (window.feriasProgramadas||[]).length){   // V350: ninguém de férias pode estar escalado
+    const feriasEsc=[];
+    doms.forEach(d=>{ const dt=new Date(ano,mes,d); (trabalhoDomingo[d]||[]).forEach(i=>{ if(estaDeFeriasNaData(i,dt)&&equipe[i]) feriasEsc.push(`${equipe[i].nome} (${String(d).padStart(2,'0')})`); }); });
+    Object.keys(fer).map(Number).forEach(d=>{ const dt=new Date(ano,mes,d); if(dt.getDay()===0)return; (trabalhoFeriado[d]||[]).forEach(i=>{ if(estaDeFeriasNaData(i,dt)&&equipe[i]) feriasEsc.push(`${equipe[i].nome} (feriado ${String(d).padStart(2,'0')})`); }); });
+    const lista=[...new Set(feriasEsc)];
+    itens.push(lista.length?{st:'bad',t:'Ninguém de férias pode ser escalado',d:`De férias e escalado: ${lista.slice(0,6).join(', ')}${lista.length>6?` (+${lista.length-6})`:''}. O app tira sozinho ao gerar; se aparecer aqui, gere de novo.`}:{st:'ok',t:'Ninguém de férias pode ser escalado',d:'Quem está de férias programada não aparece em nenhum domingo nem feriado.'});
   }
   let pend=0,trabFer=0;
   Object.keys(fer).map(Number).forEach(d=>{ const dt=new Date(ano,mes,d); const t=dt.getDay()===0?(trabalhoDomingo[d]||[]):(trabalhoFeriado[d]||[]);
@@ -16882,6 +16917,7 @@ function domingosQuantidadeForaDoSugerido(){
   }
   function toggle(d,i,hEscolhido){   // V337: hEscolhido = horário escolhido na janela "⏰ Que horário…"
     const f=equipe[i]; if(!f || foraDom(f)) return;
+    try{ if(typeof estaDeFeriasNaData==='function'){ const _dt=new Date(+$i('ano').value,+$i('mes').value,+d); if(estaDeFeriasNaData(i,_dt)){ window.showToast?.(`${String(f.nome||'').split(' ')[0]} está de férias neste dia — não pode ser escalado.`,'warn',true); return; } } }catch(e){}   // V350: trava de férias no clique manual
     if(!manual()){ congelarComoManual(); window.showToast?.('✍️ A escala virou “à mão” para você ajustar: copiei o que estava na tela e mudei só este domingo.','info',true); }
     const ano=+$i('ano').value, mes=+$i('mes').value, bal=balancoDoMes(ano,mes);
     if(Number(d)===Number(bal)){ window.showToast?.('O domingo de balanço é obrigatório para todos — não dá para tirar aqui.','info',true); return; }
@@ -18705,6 +18741,7 @@ window.v341Regime=(function(){
       if(naoAptoDomingoFeriado(equipe[i])){ window.showToast?.(`${equipe[i].nome}: está em situação AF/EP e não pode trabalhar em feriado.`,'warn',true); return; }
       if(feriadoFixaBloqueiaOFeriado(i,dt)){ window.showToast?.(`${equipe[i].nome}: ${dt.toLocaleDateString('pt-BR',{weekday:'long'})} é folga fixa obrigatória nesta situação.`,'warn',true); return; }
       if(typeof ehDescansoAssociado==='function' && ehDescansoAssociado(i,dt)){ window.showToast?.(`${equipe[i].nome}: neste dia é a folga da semana (DSR); não dá para trabalhar o feriado.`,'warn',true); return; }
+      if(typeof estaDeFeriasNaData==='function' && estaDeFeriasNaData(i,dt)){ window.showToast?.(`${equipe[i].nome}: está de férias neste dia — não pode ser escalado.`,'warn',true); return; }   // V350: trava de férias no clique manual
       trabalhoFeriado[d]=[...new Set([...(trabalhoFeriado[d]||[]),i])];
     } else {
       trabalhoFeriado[d]=(trabalhoFeriado[d]||[]).filter(x=>x!==i);
@@ -18891,17 +18928,15 @@ window.v341Regime=(function(){
       const p=String(v.inicio).split('-');
       return (+p[0])===ano && (+p[1]-1)===m;
     });
-    let temAlgum=false;
-    const html=MESES.map((nm,m)=>{
-      const its=temNoAno(m); if(!its.length) return '';
-      temAlgum=true;
-      const linhas=its.map(({v,idx})=>`<div class="v347-linha" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;margin-top:4px">
+    const html=MESES.map((nm,m)=>{   // V351: mostra os 12 meses (Jan–Dez), mês vazio aparece como "— ninguém —"
+      const its=temNoAno(m);
+      const linhas=its.length ? its.map(({v,idx})=>`<div class="v347-linha" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;margin-top:4px">
         <span style="font-size:13px"><b>${nomeDaEntrada(v)}</b> — ${brCurto(v.inicio)} a ${brCurto(v.fim)}</span>
         <button type="button" class="btn secondary sm v347-del" data-idx="${idx}" title="Remover" style="padding:2px 8px">🗑️</button>
-      </div>`).join('');
+      </div>`).join('') : `<p style="font-size:12px;color:var(--muted);margin:4px 0 0">— ninguém —</p>`;
       return `<div style="margin-top:10px"><b style="font-size:13px">${nm}</b>${linhas}</div>`;
     }).join('');
-    box.innerHTML = temAlgum ? html : `<p style="font-size:12px;color:var(--muted);margin:6px 0 0">Ninguém de férias programado para ${ano}. Use o formulário acima para adicionar.</p>`;
+    box.innerHTML = html;
   }
   function mesclar(lista){   // V349: ao abrir um histórico guardado, junta as férias dele sem apagar as que já estão no aparelho
     if(!Array.isArray(lista)||!lista.length) return;
@@ -18910,10 +18945,33 @@ window.v341Regime=(function(){
     lista.forEach(v=>{ if(v&&v.inicio&&v.fim){ const k=ch(v); if(!vistos.has(k)){ window.feriasProgramadas.push({matricula:String(v.matricula||'').trim(),nome:String(v.nome||''),inicio:v.inicio,fim:v.fim}); vistos.add(k); } } });
     salvar(); try{ render(); }catch(e){}
   }
-  window.v347Ferias={ render, mesclar, get lista(){ return window.feriasProgramadas; } };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function imprimirRelacao(){   // V351: imprime a relação de férias do ano, separada por mês (os 12 meses)
+    const ano=anoSel(), lista=(window.feriasProgramadas||[]);
+    const doMes=m=>lista.filter(v=>{ const p=String(v.inicio).split('-'); return (+p[0])===ano && (+p[1]-1)===m; }).sort((a,b)=>String(a.inicio).localeCompare(String(b.inicio)));
+    const corpo=MESES.map((nm,m)=>{
+      const its=doMes(m);
+      const linhas=its.length ? its.map(v=>`<tr><td>${esc(nomeDaEntrada(v))}</td><td>${brCurto(v.inicio)} a ${brCurto(v.fim)}</td></tr>`).join('') : `<tr><td colspan="2" class="vazio">— ninguém —</td></tr>`;
+      return `<h3>${nm}</h3><table><thead><tr><th>Funcionário</th><th>Período</th></tr></thead><tbody>${linhas}</tbody></table>`;
+    }).join('');
+    let cont=document.getElementById('v347FeriasPrint');
+    if(!cont){ cont=document.createElement('div'); cont.id='v347FeriasPrint'; document.body.appendChild(cont); }
+    const setorTxt=(document.getElementById('setorSelecionado')?.value)||'';
+    cont.innerHTML=`<h1>🏖️ Relação de Férias — ${ano}</h1>${setorTxt?`<p class="sub">${esc(setorTxt)}</p>`:''}${corpo}`;
+    document.body.classList.add('imprimindo-ferias');
+    const limpar=()=>{ document.body.classList.remove('imprimindo-ferias'); window.removeEventListener('afterprint',limpar); };
+    window.addEventListener('afterprint',limpar);
+    setTimeout(()=>{ try{ window.print(); }catch(e){} setTimeout(limpar,2000); },60);
+  }
+  window.v347Ferias={ render, mesclar, imprimirRelacao, get lista(){ return window.feriasProgramadas; } };
 
   function montarCard(){
     const cfg=document.getElementById('feriasCard')||document.getElementById('configCard'); if(!cfg || document.getElementById('v347FeriasCard')) return;   // V348: passo próprio de Férias (fora de Configurações)
+    if(!document.getElementById('v347FeriasPrintCss')){   // V351: CSS da impressão da relação de férias
+      const st=document.createElement('style'); st.id='v347FeriasPrintCss';
+      st.textContent='#v347FeriasPrint{display:none}@media print{body.imprimindo-ferias>*:not(#v347FeriasPrint){display:none!important}body.imprimindo-ferias #v347FeriasPrint{display:block!important;margin:0;padding:0;color:#000}#v347FeriasPrint h1{font-size:20px;margin:0 0 4px}#v347FeriasPrint .sub{font-size:13px;color:#444;margin:0 0 12px}#v347FeriasPrint h3{font-size:14px;margin:14px 0 2px;border-bottom:1px solid #bbb;padding-bottom:2px}#v347FeriasPrint table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px}#v347FeriasPrint th,#v347FeriasPrint td{text-align:left;padding:3px 6px;border-bottom:1px solid #eee}#v347FeriasPrint .vazio{color:#888}}';
+      document.head.appendChild(st);
+    }
     const estilo='width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface,#fff);color:var(--ink,#0f172a)';
     cfg.insertAdjacentHTML('beforeend', `
     <div class="card" id="v347FeriasCard" style="margin:14px 0 0;background:var(--surface-2,#f8fafc);border:1px solid var(--border)">
@@ -18928,6 +18986,7 @@ window.v341Regime=(function(){
         <button type="button" class="btn success" id="v347Add">➕ Adicionar férias</button>
       </div>
       <div id="v347Lista"></div>
+      <button type="button" class="btn secondary" id="v347Imprimir" style="margin-top:10px">🖨️ Imprimir relação de férias</button>
     </div>`);
     const selP=document.getElementById('v347Pessoa');
     selP?.addEventListener('focus',()=>preencherPessoas(selP));
@@ -18952,6 +19011,7 @@ window.v341Regime=(function(){
       window.feriasProgramadas.splice(idx,1); salvar(); render();
       window.showToast?.(`Férias de ${nomeDaEntrada(v)} removidas.`,'ok');
     });
+    document.getElementById('v347Imprimir')?.addEventListener('click',imprimirRelacao);   // V351: imprimir a relação de férias
     document.getElementById('ano')?.addEventListener('change',render);
     document.querySelector('.step[data-panel="feriasCard"]')?.addEventListener('click',()=>setTimeout(render,30));   // V348: atualiza a lista/funcionários ao abrir o passo Férias
     render();
