@@ -636,8 +636,10 @@ async function testarSetores(browser){
     });
     ok(r.manual && r.auto && r.gerado, `V263: prévia das folgas mostra os domingos antes de gerar (à mão: escolhido com o horário e o resto “FOLGA DOM”: ${r.manual}; automático: “—”: ${r.auto}; depois de gerar, a escala gerada: ${r.gerado})`);
   }
-  { const ordem = await p.$$eval('.stepper .step', b => b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')).map(x => x.querySelector('b').textContent.trim()));
-    if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 238){ const ult = +path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 332 ? 'Resumo' : 'Gerar'; ok(ordem.join(' → ') === `Equipe → Mês passado → Domingos → Feriados → ${ult}`, 'Setores: passos na ordem ' + ordem.join(' → ')); } }   // V332: o passo 5 virou "Resumo"
+  { const ordem = await p.$$eval('.stepper .step', b => { const vis = b.filter(x => getComputedStyle(x).display !== 'none' && !x.classList.contains('config-step-hidden')); vis.sort((p,q) => (parseInt(getComputedStyle(p).order||'0',10) - parseInt(getComputedStyle(q).order||'0',10))); return vis.map(x => x.querySelector('b').textContent.trim()); });   // V348: ordem VISUAL (Férias vai pro começo por CSS order:-1)
+    const v = +path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1];
+    if(v >= 348){ ok(ordem.join(' → ') === 'Férias → Equipe → Mês passado → Domingos → Feriados → Resumo', 'Setores: passos na ordem ' + ordem.join(' → ')); }
+    else if(v >= 238){ const ult = v >= 332 ? 'Resumo' : 'Gerar'; ok(ordem.join(' → ') === `Equipe → Mês passado → Domingos → Feriados → ${ult}`, 'Setores: passos na ordem ' + ordem.join(' → ')); } }   // V332: o passo 5 virou "Resumo"
   if(+path.basename(APP_SETORES).match(/V(\d+)\.html$/)[1] >= 245){   // V245: consertos da investigação de erros
     const r = await p.evaluate(() => {
       const ano = +$('ano').value, mes = +$('mes').value, fer = feriados(ano, mes), out = { cand: 0, naFixa: 0 };
@@ -2674,13 +2676,18 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     const dom = new Date(2026, 10, 8);   // domingo 08/11
     return {
       temCard: !!document.getElementById('v347FeriasCard'),
+      temPassoFerias: !!document.querySelector('.stepper .step[data-panel="feriasCard"]'),
+      cardNoPassoFerias: !!document.querySelector('#feriasCard #v347FeriasCard'),
+      cardAindaEmConfig: !!document.querySelector('#configCard #v347FeriasCard'),
       feriasNoDom: window.estaDeFeriasNaData(0, dom),
       foraDoPeriodo: window.estaDeFeriasNaData(0, new Date(2026, 11, 15)),   // 15/12 → fora
       status: statusDiaSet(0, dom, 10, 2026, 0),
       excel: _excelStatus(0, new Date(2026, 10, 10), 10, 2026)
     };
   });
-  ok(r.temCard === true, `${nome}: o quadro 🏖️ Férias programadas aparece em Configurações`);
+  ok(r.temCard === true, `${nome}: o quadro 🏖️ Férias programadas existe`);
+  ok(r.temPassoFerias === true, `${nome}: 🏖️ Férias é um passo próprio na barra (V348)`);
+  ok(r.cardNoPassoFerias === true && r.cardAindaEmConfig === false, `${nome}: a área de Férias fica no passo próprio, fora de Configurações (V348)`);
   ok(r.feriasNoDom === true, `${nome}: quem está de férias é reconhecido na data (estaDeFeriasNaData)`);
   ok(r.foraDoPeriodo === false, `${nome}: fora do período das férias, não bloqueia`);
   ok(r.status === 'ferias', `${nome}: a grade marca "Férias" no dia de férias`);
@@ -2690,6 +2697,14 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
   for(let w = 0; w < 200; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => /pronta|validada|revis|⚠️/i.test(document.getElementById('validacao')?.innerText || ''))) break; }
   const escalado = await p.evaluate(() => { const ds = domingosDoMes(2026, 10); return ds.filter(d => (trabalhoDomingo[d] || []).includes(0)); });
   ok(escalado.length === 0, `${nome}: quem está de férias NÃO é escalado em nenhum domingo do período (escalado: ${JSON.stringify(escalado)})`);
+  const mesesCruz = await p.evaluate(() => {
+    const f = equipe[0];
+    window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-03', fim: '2026-12-02' }];
+    const A = document.getElementById('ano'); if(A){ A.value = '2026'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+    window.v347Ferias?.render();
+    return [...document.getElementById('v347Lista').querySelectorAll('b')].map(b => b.textContent).filter(t => /^(Janeiro|Fevereiro|Mar|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)/.test(t));
+  });
+  ok(mesesCruz.length === 1 && /Novembro/.test(mesesCruz[0]), `${nome}: férias que cruzam o mês aparecem só no mês de início, Novembro (V348: ${JSON.stringify(mesesCruz)})`);
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -2941,6 +2956,14 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
   ok(r.status === 'ferias', 'Encarregados: a grade marca "Férias" no dia de férias');
   ok(String(r.excel).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().includes('FERIAS'), 'Encarregados: o Excel mostra FÉRIAS no dia de férias');
   ok(r.podeDom === false, 'Encarregados: quem está de férias não pode ser escalado no domingo do período (podeDomingo=false)');
+  const mesesCruzEnc = await p.evaluate(() => {
+    const f = equipe[0];
+    window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2026-11-03', fim: '2026-12-02' }];
+    const A = document.getElementById('ano'); if(A){ A.value = '2026'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+    window.v212Ferias?.render();
+    return [...document.getElementById('v212Lista').querySelectorAll('b')].map(b => b.textContent).filter(t => /^(Janeiro|Fevereiro|Mar|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)/.test(t));
+  });
+  ok(mesesCruzEnc.length === 1 && /Novembro/.test(mesesCruzEnc[0]), `Encarregados: férias que cruzam o mês aparecem só no mês de início, Novembro (V213: ${JSON.stringify(mesesCruzEnc)})`);
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
 async function testarEncRegimeDomingo(browser, app){   // Enc V210: regime de domingo 2×1 / 2×2 / Misto (igual à Setores V341)
