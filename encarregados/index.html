@@ -7,10 +7,13 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V217</title>
+<title>Escala 2×1 — Encarregados V218</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V218 [Claude] — 🗓️ FÉRIAS: FIM PREENCHE COM 30 DIAS (pedido do Gerente, igual à Escala de Setores V352): ao definir a data de início
+       das férias, o app preenche a data de fim com 30 dias (ex.: 01/12/2026 → 30/12/2026). O fim continua editável; se mudar à mão,
+       o app respeita e não sobrescreve ao trocar o início.
 V217 [Claude] — 🖨️ RELAÇÃO DE FÉRIAS POR MÊS + IMPRIMIR (pedido do Gerente, igual à Escala de Setores V351): no passo 🏖️ Férias, a
        lista mostra os 12 meses (Janeiro…Dezembro) do ano, com meses vazios como "— ninguém —", e um botão "🖨️ Imprimir relação de
        férias" gera a folha do ano todo separada por mês (área própria #v212FeriasPrint, só no modo de impressão).
@@ -2179,7 +2182,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V217 · Relação de férias por mês (os 12 meses) + 🖨️ imprimir</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V218 · Férias: ao definir o início, o fim preenche com 30 dias (pode mudar)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -12163,6 +12166,12 @@ window.v210Regime=(function(){
     </div>`);
     const selP=document.getElementById('v212Pessoa');
     selP?.addEventListener('focus',()=>preencherPessoas(selP));
+    const maisDias=(iso,n)=>{ const p=String(iso).split('-').map(Number); if(p.length!==3||p.some(isNaN)) return ''; const d=new Date(p[0],p[1]-1,p[2]); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+    let fimAuto='';
+    document.getElementById('v212Inicio')?.addEventListener('change',()=>{   // V218: ao definir o início, o fim preenche com 30 dias (ex.: 01/12 → 30/12) — pode mudar depois
+      const ini=document.getElementById('v212Inicio').value, inpFim=document.getElementById('v212Fim'); if(!ini||!inpFim) return;
+      if(!inpFim.value || inpFim.value===fimAuto){ fimAuto=maisDias(ini,29); if(fimAuto) inpFim.value=fimAuto; }
+    });
     document.getElementById('v212Add')?.addEventListener('click',()=>{
       const val=document.getElementById('v212Pessoa')?.value||'';
       const ini=document.getElementById('v212Inicio')?.value||'';
