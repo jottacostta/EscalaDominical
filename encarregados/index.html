@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V214</title>
+<title>Escala 2×1 — Encarregados V215</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V215 [Claude] — 🏖️ FÉRIAS PROGRAMADAS TAMBÉM VÃO NO HISTÓRICO DO MÊS (pedido do Gerente, igual à Escala de Setores V349): antes as
+       férias ficavam só no aparelho; agora vão também dentro do histórico guardado do mês (planejamento.feriasProgramadas). Ao
+       ABRIR um histórico, as férias dele são JUNTADAS às que já estão no aparelho (window.v212Ferias.mesclar) — nunca apaga nem
+       sobrescreve as atuais, e não duplica. Assim as férias podem viajar entre aparelhos sem um histórico antigo apagar as novas.
 V214 [Claude] — 🏖️ FÉRIAS GANHA PASSO PRÓPRIO (pedido do Gerente, igual à Escala de Setores V348): a área de Férias programadas
        SAIU de 📅 Mês e opções e virou um PASSO PRÓPRIO na barra — o botão 🏖️ Férias aparece em PRIMEIRO (antes de Equipe), com
        painel #feriasCard; a barra de baixo desse passo mostra "Ir para a Equipe ▸". Feito sem renumerar os passos: o botão fica no
@@ -2168,7 +2172,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V214 · Férias vira passo próprio na barra (antes de Equipe)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V215 · Férias programadas também vão no histórico do mês (juntando, sem apagar)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -6533,7 +6537,7 @@ $('btnWhats').onclick=async (ev)=>{
     const p=projetoBase(); p.system='ENCARREGADOS';
     p.config={mes:val('mes'),ano:val('ano'),tituloXlsx:val('tituloXlsxEmpresa'),feriadosExtras:val('feriadosExtras'),prazoFolgaFeriado:prazoFolgaFeriado()};   // V159
     p.equipe={atual:clone(equipe)};
-    p.planejamento={grupos:clone(grupos),datasBalanco:clone(datasBalanco)};
+    p.planejamento={grupos:clone(grupos),datasBalanco:clone(datasBalanco),feriasProgramadas:clone(window.feriasProgramadas||[])};   // V215: férias programadas também vão no histórico do mês
     p.resultado={previsoesDomingo:clone(previsoesDomingo),trabalhoDomingo:clone(trabalhoDomingo),trabalhoFeriado:clone(trabalhoFeriado),descansosDomingo:clone(descansosDomingo),estadoFinalMes:clone(estadoFinalMes),ultimaEscala:clone(ultimaEscala),folgasCompensatorias:clone(folgasCompensatorias),sugestoesFolgasFeriado:clone(sugestoesFolgasFeriado)};
     try{ const m5=window.motor5x2?.estado?.()||{}; const plano=JSON.parse(JSON.stringify(m5.plano||estadoFinalMes?.motor5x2||null));
       p.config.motor5x2={v:1,cctMensal:!!m5.cctMensal,corte5x2:m5.corte5x2||'2026-12-16',domingoPolicy:m5.domingoPolicy||'2x1',geracaoPendente:!!m5.geracaoPendente};
@@ -6560,7 +6564,7 @@ $('btnWhats').onclick=async (ev)=>{
     const c=p.config||{},e=p.equipe||{},pl=p.planejamento||{},r=p.resultado||{};
     setVal('mes',c.mes); setVal('ano',c.ano); setVal('tituloXlsxEmpresa',c.tituloXlsx); setVal('feriadosExtras',c.feriadosExtras||'');
     try{ if(c.prazoFolgaFeriado===20||c.prazoFolgaFeriado===30){ localStorage.setItem('enc.prazoFolgaFeriado',String(c.prazoFolgaFeriado)); window.v159SyncPrazo?.(); } }catch(e){}   // V159
-    equipe=Array.isArray(e.atual)?clone(e.atual):[]; grupos=Array.isArray(pl.grupos)?clone(pl.grupos):[]; datasBalanco=Array.isArray(pl.datasBalanco)?clone(pl.datasBalanco):[];
+    equipe=Array.isArray(e.atual)?clone(e.atual):[]; grupos=Array.isArray(pl.grupos)?clone(pl.grupos):[]; datasBalanco=Array.isArray(pl.datasBalanco)?clone(pl.datasBalanco):[]; try{ window.v212Ferias?.mesclar(pl.feriasProgramadas); }catch(e){}   // V215: junta as férias do histórico (sem apagar as do aparelho)
     trabalhoDomingo=clone(r.trabalhoDomingo)||{}; trabalhoFeriado=clone(r.trabalhoFeriado)||{}; descansosDomingo=clone(r.descansosDomingo)||{}; estadoFinalMes=clone(r.estadoFinalMes)||{}; ultimaEscala=clone(r.ultimaEscala)||null; folgasCompensatorias=clone(r.folgasCompensatorias)||{}; sugestoesFolgasFeriado=clone(r.sugestoesFolgasFeriado)||{}; previsoesDomingo=clone(r.previsoesDomingo)||{}; historico=clone(p.historico);
     periodosSemFolgaFeriado=Array.isArray(p.periodosSemFolgaFeriado)?clone(p.periodosSemFolgaFeriado):[];
     diasDsrPermitidos=normalizarDiasDsr(p.diasDsrPermitidos||[1,2,3,4,5,6]); if(!p.dsrSabadoV138&&!diasDsrPermitidos.includes(6)) diasDsrPermitidos=normalizarDiasDsr([...diasDsrPermitidos,6]); try{renderConfigDiasDsr();}catch(e){}   // V138: sábado entra marcado uma vez
@@ -12078,7 +12082,14 @@ window.v210Regime=(function(){
     }).join('');
     box.innerHTML = temAlgum ? html : `<p style="font-size:12px;color:var(--muted);margin:6px 0 0">Ninguém de férias programado para ${ano}. Use o formulário acima para adicionar.</p>`;
   }
-  window.v212Ferias={ render, get lista(){ return window.feriasProgramadas; } };
+  function mesclar(lista){   // V215: ao abrir um histórico guardado, junta as férias dele sem apagar as que já estão no aparelho
+    if(!Array.isArray(lista)||!lista.length) return;
+    const ch=v=>`${String(v.matricula||'').trim()}|${norma(v.nome)}|${v.inicio}|${v.fim}`;
+    const vistos=new Set((window.feriasProgramadas||[]).map(ch));
+    lista.forEach(v=>{ if(v&&v.inicio&&v.fim){ const k=ch(v); if(!vistos.has(k)){ window.feriasProgramadas.push({matricula:String(v.matricula||'').trim(),nome:String(v.nome||''),inicio:v.inicio,fim:v.fim}); vistos.add(k); } } });
+    salvar(); try{ render(); }catch(e){}
+  }
+  window.v212Ferias={ render, mesclar, get lista(){ return window.feriasProgramadas; } };
   function montarCard(){
     const cfg=document.getElementById('feriasCard')||document.getElementById('configCard'); if(!cfg || document.getElementById('v212FeriasCard')) return;   // V214: passo próprio de Férias (fora de Mês e opções)
     const estilo='width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface,#fff);color:var(--ink,#0f172a)';
