@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V212</title>
+<title>Escala 2×1 — Encarregados V213</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V213 [Claude] — 🏖️ FÉRIAS: LISTA SÓ NO MÊS DE INÍCIO (conserto, pedido do Gerente, igual à Escala de Setores V348): no quadro
+       Férias programadas, uma férias que cruza o mês (ex.: 03/11 a 02/12) aparecia em NOVEMBRO e também em DEZEMBRO. Agora aparece
+       só no mês em que COMEÇA; o retorno no mês seguinte fica subentendido. Mudança só na organização da lista (render) — o motor,
+       o bloqueio e o "FÉRIAS" na escala/Excel não mudam.
 V212 [Claude] — 🏖️ FÉRIAS PROGRAMADAS (pedido do Gerente, igual à Escala de Setores V347): em 📅 Mês e opções entrou o quadro
        "Férias programadas". O Gerente escolhe o funcionário + início + fim das férias; a lista aparece organizada por mês (do ano
        selecionado), com 🗑️ para remover. Fica guardada no aparelho (por data; o ano vem junto). Na hora de gerar, quem está de
@@ -2158,7 +2162,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V212 · Férias programadas (quem está de férias não é escalado)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V213 · Férias: a lista aparece só no mês de início (não repete no retorno)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -12041,10 +12045,9 @@ window.v210Regime=(function(){
     const ano=anoSel(); const sp=document.getElementById('v212Ano'); if(sp) sp.textContent=ano;
     preencherPessoas(document.getElementById('v212Pessoa'));
     const lista=(window.feriasProgramadas||[]).map((v,idx)=>({v,idx}));
-    const temNoAno = m => lista.filter(({v})=>{
-      const primeiro=`${ano}-${String(m+1).padStart(2,'0')}-01`;
-      const ultimo=`${ano}-${String(m+1).padStart(2,'0')}-${String(new Date(ano,m+1,0).getDate()).padStart(2,'0')}`;
-      return v.inicio<=ultimo && v.fim>=primeiro;
+    const temNoAno = m => lista.filter(({v})=>{   // V213: agrupa pelo mês de INÍCIO das férias (não repete no mês do retorno)
+      const p=String(v.inicio).split('-');
+      return (+p[0])===ano && (+p[1]-1)===m;
     });
     let temAlgum=false;
     const html=MESES.map((nm,m)=>{
