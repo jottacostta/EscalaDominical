@@ -2767,6 +2767,32 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     });
     ok(setorF.doSetor === true && setorF.outroSetor === false, `${nome}: a lista de férias mostra só o pessoal do setor aberto (V353: ${JSON.stringify(setorF)})`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 354){
+    const jan = await p.evaluate(() => {
+      window.print = () => {};
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2027-02-10', fim: '2027-03-11' }];
+      const A = document.getElementById('ano'); if(A){ A.value = '2027'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+      window.v347Ferias.render();
+      document.getElementById('v347Imprimir').click();   // abre a janela de escolha
+      const temJanela = !!document.getElementById('v354ImprJanela');
+      const temTodos = !!document.getElementById('v354ImprTodos');
+      const temSelect = !!document.getElementById('v354ImprMes');
+      const temUm = !!document.getElementById('v354ImprUm');
+      document.getElementById('v354ImprMes').value = '1';   // Fevereiro
+      document.getElementById('v354ImprUm').click();
+      const contUm = document.getElementById('v347FeriasPrint');
+      const h3Um = contUm.querySelectorAll('h3').length;
+      const tituloUm = contUm.querySelector('h1').textContent;
+      const nomeUm = /SILVA/.test(contUm.textContent);
+      const fechouApos = !document.getElementById('v354ImprJanela');
+      document.getElementById('v347Imprimir').click();
+      document.getElementById('v354ImprTodos').click();
+      const h3Todos = document.getElementById('v347FeriasPrint').querySelectorAll('h3').length;
+      return { temJanela, temTodos, temSelect, temUm, h3Um, tituloUm, nomeUm, fechouApos, h3Todos };
+    });
+    ok(jan.temJanela && jan.temTodos && jan.temSelect && jan.temUm && jan.h3Um === 1 && /Fevereiro/.test(jan.tituloUm) && jan.nomeUm && jan.fechouApos && jan.h3Todos === 12, `${nome}: janela de imprimir férias — um mês (1 bloco) ou todos (12 blocos) (V354: ${JSON.stringify(jan)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -3075,6 +3101,32 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
       return F.value;
     });
     ok(autoEnc === '2026-12-30', `Encarregados: ao definir o início, o fim preenche com 30 dias (01/12 → ${autoEnc}; V218)`);
+  }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 219){
+    const janEnc = await p.evaluate(() => {
+      window.print = () => {};
+      const f = equipe[0];
+      window.feriasProgramadas = [{ matricula: String(f.matricula || '').trim(), nome: f.nome, inicio: '2027-02-10', fim: '2027-03-11' }];
+      const A = document.getElementById('ano'); if(A){ A.value = '2027'; A.dispatchEvent(new Event('change', { bubbles: true })); }
+      window.v212Ferias.render();
+      document.getElementById('v212Imprimir').click();   // abre a janela de escolha
+      const temJanela = !!document.getElementById('v219ImprJanela');
+      const temTodos = !!document.getElementById('v219ImprTodos');
+      const temSelect = !!document.getElementById('v219ImprMes');
+      const temUm = !!document.getElementById('v219ImprUm');
+      document.getElementById('v219ImprMes').value = '1';   // Fevereiro
+      document.getElementById('v219ImprUm').click();
+      const contUm = document.getElementById('v212FeriasPrint');
+      const h3Um = contUm.querySelectorAll('h3').length;
+      const tituloUm = contUm.querySelector('h1').textContent;
+      const nomeUm = /SILVA/.test(contUm.textContent);
+      const fechouApos = !document.getElementById('v219ImprJanela');
+      document.getElementById('v212Imprimir').click();
+      document.getElementById('v219ImprTodos').click();
+      const h3Todos = document.getElementById('v212FeriasPrint').querySelectorAll('h3').length;
+      return { temJanela, temTodos, temSelect, temUm, h3Um, tituloUm, nomeUm, fechouApos, h3Todos };
+    });
+    ok(janEnc.temJanela && janEnc.temTodos && janEnc.temSelect && janEnc.temUm && janEnc.h3Um === 1 && /Fevereiro/.test(janEnc.tituloUm) && janEnc.nomeUm && janEnc.fechouApos && janEnc.h3Todos === 12, `Encarregados: janela de imprimir férias — um mês (1 bloco) ou todos (12 blocos) (V219: ${JSON.stringify(janEnc)})`);
   }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }

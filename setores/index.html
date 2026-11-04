@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V353</title>
+<title>Escala de Setores — V354</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V354 [Claude] — 🖨️ IMPRIMIR FÉRIAS: ESCOLHER TODOS OS MESES OU UM MÊS (pedido do Gerente): ao tocar em "🖨️ Imprimir relação de
+       férias" abre uma janela perguntando se quer imprimir TODOS os meses do ano ou só UM mês específico. "📅 Imprimir todos os
+       meses" imprime o ano inteiro (como antes); escolhendo um mês no seletor e "🖨️ Imprimir este mês", sai só aquele mês (1
+       bloco, com o título "Fevereiro de 2027", por exemplo). imprimirRelacao(mesEspecifico) ganhou o parâmetro opcional do mês
+       (0–11); sem ele, imprime os 12 meses. O seletor já vem no mês de hoje. Vale na Escala de Setores e no Encarregados (V219).
 V353 [Claude] — 🏢 FÉRIAS SEPARADAS POR SETOR (pedido do Gerente): a lista e a impressão de férias passam a mostrar só o pessoal do
        SETOR ABERTO — ao abrir Açougue, só as férias do Açougue; Mercearia, só Mercearia; etc. Cada férias cadastrada grava o setor
        em que foi feita (campo setor); a lista/impressão filtram por setorSelecionado. Férias antigas (sem setor gravado) aparecem
@@ -3083,7 +3088,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V353 · Férias separadas por setor (mostra só o pessoal do setor aberto)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V354 · Imprimir férias: escolher todos os meses ou um mês só</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -18963,24 +18968,54 @@ window.v341Regime=(function(){
     salvar(); try{ render(); }catch(e){}
   }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-  function imprimirRelacao(){   // V351: imprime a relação de férias do ano, separada por mês (os 12 meses)
+  function imprimirRelacao(mesEspecifico){   // V351: imprime a relação de férias do ano, separada por mês. V354: mesEspecifico (0–11) imprime só um mês; senão, os 12 meses
     const ano=anoSel(), lista=(window.feriasProgramadas||[]).filter(pertenceAoSetor);   // V353: só o pessoal do setor aberto
+    const umMes = Number.isInteger(mesEspecifico) && mesEspecifico>=0 && mesEspecifico<=11;   // V354
     const doMes=m=>lista.filter(v=>{ const p=String(v.inicio).split('-'); return (+p[0])===ano && (+p[1]-1)===m; }).sort((a,b)=>String(a.inicio).localeCompare(String(b.inicio)));
-    const corpo=MESES.map((nm,m)=>{
+    const meses = umMes ? [mesEspecifico] : MESES.map((_,m)=>m);   // V354: um mês só ou todos
+    const corpo=meses.map(m=>{
       const its=doMes(m);
       const linhas=its.length ? its.map(v=>`<tr><td>${esc(nomeDaEntrada(v))}</td><td>${brCurto(v.inicio)} a ${brCurto(v.fim)}</td></tr>`).join('') : `<tr><td colspan="2" class="vazio">— ninguém —</td></tr>`;
-      return `<h3>${nm}</h3><table><thead><tr><th>Funcionário</th><th>Período</th></tr></thead><tbody>${linhas}</tbody></table>`;
+      return `<h3>${MESES[m]}</h3><table><thead><tr><th>Funcionário</th><th>Período</th></tr></thead><tbody>${linhas}</tbody></table>`;
     }).join('');
     let cont=document.getElementById('v347FeriasPrint');
     if(!cont){ cont=document.createElement('div'); cont.id='v347FeriasPrint'; document.body.appendChild(cont); }
     const setorTxt=(document.getElementById('setorSelecionado')?.value)||'';
-    cont.innerHTML=`<h1>🏖️ Relação de Férias — ${ano}</h1>${setorTxt?`<p class="sub">${esc(setorTxt)}</p>`:''}${corpo}`;
+    const titulo = umMes ? `🏖️ Relação de Férias — ${MESES[mesEspecifico]} de ${ano}` : `🏖️ Relação de Férias — ${ano}`;   // V354
+    cont.innerHTML=`<h1>${titulo}</h1>${setorTxt?`<p class="sub">${esc(setorTxt)}</p>`:''}${corpo}`;
     document.body.classList.add('imprimindo-ferias');
     const limpar=()=>{ document.body.classList.remove('imprimindo-ferias'); window.removeEventListener('afterprint',limpar); };
     window.addEventListener('afterprint',limpar);
     setTimeout(()=>{ try{ window.print(); }catch(e){} setTimeout(limpar,2000); },60);
   }
-  window.v347Ferias={ render, mesclar, imprimirRelacao, get lista(){ return window.feriasProgramadas; } };
+  function abrirJanelaImprimir(){   // V354: pergunta se imprime TODOS os meses ou UM mês específico
+    const ano=anoSel();
+    document.getElementById('v354ImprJanela')?.remove();
+    const j=document.createElement('div'); j.id='v354ImprJanela';
+    j.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px';
+    const opts=MESES.map((nm,m)=>`<option value="${m}">${nm}</option>`).join('');
+    j.innerHTML=`<div role="dialog" aria-modal="true" aria-labelledby="v354ImprTit" style="background:var(--surface,#fff);color:var(--ink,#0f172a);border:1px solid var(--border,#e2e8f0);border-radius:14px;max-width:360px;width:100%;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.25)">
+      <h3 id="v354ImprTit" style="margin:0 0 6px;font-size:17px">🖨️ Imprimir relação de férias</h3>
+      <p style="font-size:13px;color:var(--muted,#64748b);margin:0 0 14px">Você quer imprimir <b>todos os meses</b> de ${ano} ou <b>só um mês</b>?</p>
+      <button type="button" class="btn success" id="v354ImprTodos" style="width:100%;margin-bottom:12px">📅 Imprimir todos os meses</button>
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Imprimir só um mês:</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="v354ImprMes" style="flex:1 1 150px;padding:8px;border:1px solid var(--border,#e2e8f0);border-radius:8px;font-size:14px;background:var(--surface,#fff);color:var(--ink,#0f172a)">${opts}</select>
+        <button type="button" class="btn secondary" id="v354ImprUm" style="flex:0 0 auto">🖨️ Imprimir este mês</button>
+      </div>
+      <div style="margin-top:14px;text-align:right"><button type="button" class="btn secondary" id="v354ImprCancelar">↩️ Cancelar</button></div>
+    </div>`;
+    const mesAtual=new Date().getMonth();
+    document.body.appendChild(j);
+    const sel=j.querySelector('#v354ImprMes'); if(sel) sel.value=String(mesAtual);
+    const fechar=()=>j.remove();
+    j.addEventListener('click',e=>{ if(e.target===j||e.target.closest('#v354ImprCancelar')) fechar(); });
+    j.querySelector('#v354ImprTodos')?.addEventListener('click',()=>{ fechar(); imprimirRelacao(); });
+    j.querySelector('#v354ImprUm')?.addEventListener('click',()=>{ const m=+sel.value; fechar(); imprimirRelacao(m); });
+    document.addEventListener('keydown',function onEsc(e){ if(e.key==='Escape'){ fechar(); document.removeEventListener('keydown',onEsc); } });
+    j.querySelector('#v354ImprTodos')?.focus();
+  }
+  window.v347Ferias={ render, mesclar, imprimirRelacao, abrirJanelaImprimir, get lista(){ return window.feriasProgramadas; } };
 
   function montarCard(){
     const cfg=document.getElementById('feriasCard')||document.getElementById('configCard'); if(!cfg || document.getElementById('v347FeriasCard')) return;   // V348: passo próprio de Férias (fora de Configurações)
@@ -19034,7 +19069,7 @@ window.v341Regime=(function(){
       window.feriasProgramadas.splice(idx,1); salvar(); render();
       window.showToast?.(`Férias de ${nomeDaEntrada(v)} removidas.`,'ok');
     });
-    document.getElementById('v347Imprimir')?.addEventListener('click',imprimirRelacao);   // V351: imprimir a relação de férias
+    document.getElementById('v347Imprimir')?.addEventListener('click',abrirJanelaImprimir);   // V351/V354: abre a janela (todos os meses ou um mês)
     document.getElementById('ano')?.addEventListener('change',render);
     document.querySelector('.step[data-panel="feriasCard"]')?.addEventListener('click',()=>setTimeout(render,30));   // V348: atualiza a lista/funcionários ao abrir o passo Férias
     render();
