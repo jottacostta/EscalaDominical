@@ -2793,6 +2793,28 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     });
     ok(jan.temJanela && jan.temTodos && jan.temSelect && jan.temUm && jan.h3Um === 1 && /Fevereiro/.test(jan.tituloUm) && jan.nomeUm && jan.fechouApos && jan.h3Todos === 12, `${nome}: janela de imprimir férias — um mês (1 bloco) ou todos (12 blocos) (V354: ${JSON.stringify(jan)})`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 355){
+    const multi = await p.evaluate(() => {
+      window.feriasProgramadas = [];
+      window.v347Ferias.render();
+      const box = document.getElementById('v347Pessoas');
+      const cbs = box ? box.querySelectorAll('input[type="checkbox"]') : [];
+      const nLinhas = cbs.length;
+      if(nLinhas >= 2){ cbs[0].checked = true; cbs[1].checked = true; box.dispatchEvent(new Event('change', { bubbles: true })); }
+      const contagem = document.getElementById('v347Contagem')?.textContent || '';
+      const I = document.getElementById('v347Inicio'), Fi = document.getElementById('v347Fim');
+      I.value = '2026-12-01'; I.dispatchEvent(new Event('change', { bubbles: true }));
+      const fimAuto = Fi.value;
+      document.getElementById('v347Add').click();
+      const total = window.feriasProgramadas.length;
+      const mesmo = window.feriasProgramadas.every(v => v.inicio === '2026-12-01' && v.fim === fimAuto);
+      const limpou = box ? box.querySelectorAll('input[type="checkbox"]:checked').length : -1;
+      document.getElementById('v347Add').click();   // reincluir sem marcar ninguém não duplica
+      const totalApos = window.feriasProgramadas.length;
+      return { nLinhas, contagem, fimAuto, total, mesmo, limpou, totalApos };
+    });
+    ok(multi.nLinhas >= 2 && /2/.test(multi.contagem) && multi.total === 2 && multi.mesmo && multi.fimAuto === '2026-12-30' && multi.limpou === 0 && multi.totalApos === 2, `${nome}: incluir férias de vários funcionários de uma vez, mesmo período (V355: ${JSON.stringify(multi)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -3127,6 +3149,28 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
       return { temJanela, temTodos, temSelect, temUm, h3Um, tituloUm, nomeUm, fechouApos, h3Todos };
     });
     ok(janEnc.temJanela && janEnc.temTodos && janEnc.temSelect && janEnc.temUm && janEnc.h3Um === 1 && /Fevereiro/.test(janEnc.tituloUm) && janEnc.nomeUm && janEnc.fechouApos && janEnc.h3Todos === 12, `Encarregados: janela de imprimir férias — um mês (1 bloco) ou todos (12 blocos) (V219: ${JSON.stringify(janEnc)})`);
+  }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 220){
+    const multiEnc = await p.evaluate(() => {
+      window.feriasProgramadas = [];
+      window.v212Ferias.render();
+      const box = document.getElementById('v212Pessoas');
+      const cbs = box ? box.querySelectorAll('input[type="checkbox"]') : [];
+      const nLinhas = cbs.length;
+      if(nLinhas >= 2){ cbs[0].checked = true; cbs[1].checked = true; box.dispatchEvent(new Event('change', { bubbles: true })); }
+      const contagem = document.getElementById('v212Contagem')?.textContent || '';
+      const I = document.getElementById('v212Inicio'), Fi = document.getElementById('v212Fim');
+      I.value = '2026-12-01'; I.dispatchEvent(new Event('change', { bubbles: true }));
+      const fimAuto = Fi.value;
+      document.getElementById('v212Add').click();
+      const total = window.feriasProgramadas.length;
+      const mesmo = window.feriasProgramadas.every(v => v.inicio === '2026-12-01' && v.fim === fimAuto);
+      const limpou = box ? box.querySelectorAll('input[type="checkbox"]:checked').length : -1;
+      document.getElementById('v212Add').click();
+      const totalApos = window.feriasProgramadas.length;
+      return { nLinhas, contagem, fimAuto, total, mesmo, limpou, totalApos };
+    });
+    ok(multiEnc.nLinhas >= 2 && /2/.test(multiEnc.contagem) && multiEnc.total === 2 && multiEnc.mesmo && multiEnc.fimAuto === '2026-12-30' && multiEnc.limpou === 0 && multiEnc.totalApos === 2, `Encarregados: incluir férias de vários funcionários de uma vez, mesmo período (V220: ${JSON.stringify(multiEnc)})`);
   }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }

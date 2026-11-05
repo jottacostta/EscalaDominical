@@ -7,10 +7,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V219</title>
+<title>Escala 2×1 — Encarregados V220</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V220 [Claude] — 👥 FÉRIAS: MARCAR VÁRIOS FUNCIONÁRIOS DE UMA VEZ (pedido do Gerente, igual à Escala de Setores V355): no passo 🏖️
+       Férias, em vez de um seletor de um por vez, uma LISTA de marcação (checkbox) onde dá para marcar vários (João, Francisco,
+       Maria…), definir o período uma vez (o fim ainda preenche com 30 dias) e tocar em "➕ Adicionar férias dos marcados" — todos
+       entram com o mesmo período. Tem busca, "☑️ Marcar todos", "◻️ Limpar" e a contagem; não duplica e limpa as marcações depois.
 V219 [Claude] — 🖨️ IMPRIMIR FÉRIAS: ESCOLHER TODOS OS MESES OU UM MÊS (pedido do Gerente, igual à Escala de Setores V354): ao tocar
        em "🖨️ Imprimir relação de férias" abre uma janela perguntando se quer imprimir TODOS os meses do ano ou só UM mês. "📅
        Imprimir todos os meses" imprime o ano inteiro; escolhendo um mês e "🖨️ Imprimir este mês", sai só aquele mês.
@@ -2186,7 +2190,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V219 · Imprimir férias: escolher todos os meses ou um mês só</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V220 · Férias: marcar vários funcionários de uma vez para o mesmo período</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -12096,6 +12100,31 @@ window.v210Regime=(function(){
     const f=eq.find(x=>String(x&&x.matricula||'').trim()===val);
     return f?{matricula:String(f.matricula||'').trim(),nome:String(f.nome||'')}:null;
   }
+  function preencherListaPessoas(){   // V220: lista de marcação — dá para escolher vários funcionários de uma vez
+    const box=document.getElementById('v212Pessoas'); if(!box) return;
+    const marcados=new Set([...box.querySelectorAll('input[type="checkbox"]:checked')].map(c=>c.value));
+    const eq=eqList();
+    box.innerHTML = eq.length ? eq.map((f,i)=>{
+      const mat=String(f&&f.matricula||'').trim();
+      const nome=(f&&f.nome?String(f.nome):'Funcionário '+(i+1));
+      const val=mat||('i'+i);
+      return `<label data-v212-row style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" value="${val}"${marcados.has(val)?' checked':''} style="width:16px;height:16px;flex:0 0 auto">
+        <span>${nome}${mat?` (${mat})`:''}</span></label>`;
+    }).join('') : '<p style="font-size:12px;color:var(--muted);margin:4px">Nenhum funcionário na equipe.</p>';
+    aplicarBuscaPessoas(); atualizarContagemPessoas();
+  }
+  function aplicarBuscaPessoas(){   // V220: filtra a lista sem perder as marcações
+    const termo=norma(document.getElementById('v212Busca')?.value||'');
+    document.querySelectorAll('#v212Pessoas label[data-v212-row]').forEach(l=>{
+      l.style.display = (!termo || norma(l.textContent).includes(termo)) ? 'flex' : 'none';
+    });
+  }
+  function atualizarContagemPessoas(){   // V220
+    const box=document.getElementById('v212Pessoas'), sp=document.getElementById('v212Contagem'); if(!box||!sp) return;
+    const n=box.querySelectorAll('input[type="checkbox"]:checked').length;
+    sp.textContent = n ? `${n} marcado${n>1?'s':''}` : '';
+  }
   function nomeDaEntrada(v){
     const eq=eqList();
     const f=eq.find(x=>String(x&&x.matricula||'').trim()===String(v.matricula||'').trim() && String(v.matricula||'').trim()) || eq.find(x=>norma(x&&x.nome)===norma(v.nome));
@@ -12104,7 +12133,7 @@ window.v210Regime=(function(){
   function render(){
     const box=document.getElementById('v212Lista'); if(!box) return;
     const ano=anoSel(); const sp=document.getElementById('v212Ano'); if(sp) sp.textContent=ano;
-    preencherPessoas(document.getElementById('v212Pessoa'));
+    preencherListaPessoas();   // V220: lista de marcação (vários funcionários de uma vez)
     const lista=(window.feriasProgramadas||[]).map((v,idx)=>({v,idx}));
     const temNoAno = m => lista.filter(({v})=>{   // V213: agrupa pelo mês de INÍCIO das férias (não repete no mês do retorno)
       const p=String(v.inicio).split('-');
@@ -12188,36 +12217,60 @@ window.v210Regime=(function(){
       <h3 style="margin:0 0 6px;font-size:15px">🏖️ Férias programadas</h3>
       <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Marque quem vai estar de férias e em que período. Quem está de férias <b>não é escalado</b> naqueles dias — nem domingo, nem feriado, nem dia normal. Valem para o ano escolhido no topo (<span id="v212Ano">—</span>).</p>
       <div style="display:grid;gap:8px;margin-bottom:6px">
-        <label style="font-size:12px;font-weight:600;display:block">Funcionário<select id="v212Pessoa" style="${estilo};margin-top:3px"></select></label>
+        <label style="font-size:12px;font-weight:600;display:block">Funcionários <span style="font-weight:400;color:var(--muted)">(marque um ou vários)</span>
+          <input type="search" id="v212Busca" placeholder="🔎 Buscar por nome ou matrícula" style="${estilo};margin-top:3px"></label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px">
+          <button type="button" class="btn secondary sm" id="v212MarcarTodos" style="padding:2px 8px">☑️ Marcar todos</button>
+          <button type="button" class="btn secondary sm" id="v212Limpar" style="padding:2px 8px">◻️ Limpar</button>
+          <span id="v212Contagem" style="color:var(--muted)"></span>
+        </div>
+        <div id="v212Pessoas" style="max-height:180px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:4px;background:var(--surface,#fff)"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <label style="font-size:12px;font-weight:600;flex:1 1 130px">Início das férias<input type="date" id="v212Inicio" style="${estilo};margin-top:3px"></label>
           <label style="font-size:12px;font-weight:600;flex:1 1 130px">Fim das férias<input type="date" id="v212Fim" style="${estilo};margin-top:3px"></label>
         </div>
-        <button type="button" class="btn success" id="v212Add">➕ Adicionar férias</button>
+        <button type="button" class="btn success" id="v212Add">➕ Adicionar férias dos marcados</button>
       </div>
       <div id="v212Lista"></div>
       <button type="button" class="btn secondary" id="v212Imprimir" style="margin-top:10px">🖨️ Imprimir relação de férias</button>
     </div>`);
-    const selP=document.getElementById('v212Pessoa');
-    selP?.addEventListener('focus',()=>preencherPessoas(selP));
+    document.getElementById('v212Busca')?.addEventListener('input',aplicarBuscaPessoas);   // V220
+    document.getElementById('v212Pessoas')?.addEventListener('change',atualizarContagemPessoas);   // V220
+    document.getElementById('v212MarcarTodos')?.addEventListener('click',()=>{   // V220: marca os visíveis (respeita a busca)
+      document.querySelectorAll('#v212Pessoas label[data-v212-row]').forEach(l=>{ if(l.style.display!=='none'){ const c=l.querySelector('input[type="checkbox"]'); if(c) c.checked=true; } });
+      atualizarContagemPessoas();
+    });
+    document.getElementById('v212Limpar')?.addEventListener('click',()=>{   // V220: desmarca todos
+      document.querySelectorAll('#v212Pessoas input[type="checkbox"]').forEach(c=>c.checked=false);
+      atualizarContagemPessoas();
+    });
     const maisDias=(iso,n)=>{ const p=String(iso).split('-').map(Number); if(p.length!==3||p.some(isNaN)) return ''; const d=new Date(p[0],p[1]-1,p[2]); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
     let fimAuto='';
     document.getElementById('v212Inicio')?.addEventListener('change',()=>{   // V218: ao definir o início, o fim preenche com 30 dias (ex.: 01/12 → 30/12) — pode mudar depois
       const ini=document.getElementById('v212Inicio').value, inpFim=document.getElementById('v212Fim'); if(!ini||!inpFim) return;
       if(!inpFim.value || inpFim.value===fimAuto){ fimAuto=maisDias(ini,29); if(fimAuto) inpFim.value=fimAuto; }
     });
-    document.getElementById('v212Add')?.addEventListener('click',()=>{
-      const val=document.getElementById('v212Pessoa')?.value||'';
+    document.getElementById('v212Add')?.addEventListener('click',()=>{   // V220: inclui as férias de TODOS os funcionários marcados de uma vez
+      const box=document.getElementById('v212Pessoas');
+      const vals=[...(box?.querySelectorAll('input[type="checkbox"]:checked')||[])].map(c=>c.value);
       const ini=document.getElementById('v212Inicio')?.value||'';
       const fim=document.getElementById('v212Fim')?.value||'';
-      if(!val){ window.showToast?.('Escolha o funcionário.','warn',true); return; }
+      if(!vals.length){ window.showToast?.('Marque pelo menos um funcionário.','warn',true); return; }
       if(!ini || !fim){ window.showToast?.('Preencha o início e o fim das férias.','warn',true); return; }
       if(fim<ini){ window.showToast?.('O fim das férias não pode ser antes do início.','warn',true); return; }
-      const p=pessoaDoValor(val); if(!p){ window.showToast?.('Funcionário não encontrado.','warn',true); return; }
-      window.feriasProgramadas.push({matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim});
+      const ch=v=>`${String(v.matricula||'').trim()}|${norma(v.nome)}|${v.inicio}|${v.fim}`;
+      const existentes=new Set((window.feriasProgramadas||[]).map(ch));
+      let add=0, ultimo='';
+      vals.forEach(val=>{ const p=pessoaDoValor(val); if(!p) return;
+        const entrada={matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim};
+        if(existentes.has(ch(entrada))) return;
+        window.feriasProgramadas.push(entrada); existentes.add(ch(entrada)); add++; ultimo=p.nome;
+      });
       salvar(); render();
-      document.getElementById('v212Inicio').value=''; document.getElementById('v212Fim').value='';
-      window.showToast?.(`Férias de ${p.nome} (${brCurto(ini)} a ${brCurto(fim)}) programadas.`,'ok');
+      document.querySelectorAll('#v212Pessoas input[type="checkbox"]').forEach(c=>c.checked=false); atualizarContagemPessoas();   // V220: limpa as marcações depois de incluir
+      document.getElementById('v212Inicio').value=''; document.getElementById('v212Fim').value=''; fimAuto='';
+      if(add){ window.showToast?.(add===1?`Férias de ${ultimo} (${brCurto(ini)} a ${brCurto(fim)}) programadas.`:`${add} funcionários com férias de ${brCurto(ini)} a ${brCurto(fim)} programadas.`,'ok'); }
+      else { window.showToast?.('Nada incluído: os marcados já tinham essas férias.','warn',true); }
     });
     document.getElementById('v212Lista')?.addEventListener('click',(e)=>{
       const b=e.target.closest?.('.v212-del'); if(!b) return;

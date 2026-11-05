@@ -7,10 +7,16 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V354</title>
+<title>Escala de Setores — V355</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V355 [Claude] — 👥 FÉRIAS: MARCAR VÁRIOS FUNCIONÁRIOS DE UMA VEZ (pedido do Gerente): no passo 🏖️ Férias, em vez de escolher um
+       funcionário por vez num seletor, agora há uma LISTA de marcação (checkbox) onde dá para marcar João, Francisco, Maria,
+       Anísio, William… definir o período UMA vez (o fim ainda preenche com 30 dias ao definir o início) e tocar em "➕ Adicionar
+       férias dos marcados" — todos os marcados entram com o mesmo período de uma só vez. Tem busca por nome/matrícula, "☑️ Marcar
+       todos" (dos visíveis), "◻️ Limpar" e a contagem de marcados. Não duplica (mesma pessoa + mesmo período é ignorado) e as
+       marcações são limpas depois de incluir. Na Escala de Setores a lista segue só o pessoal do setor aberto (V353).
 V354 [Claude] — 🖨️ IMPRIMIR FÉRIAS: ESCOLHER TODOS OS MESES OU UM MÊS (pedido do Gerente): ao tocar em "🖨️ Imprimir relação de
        férias" abre uma janela perguntando se quer imprimir TODOS os meses do ano ou só UM mês específico. "📅 Imprimir todos os
        meses" imprime o ano inteiro (como antes); escolhendo um mês no seletor e "🖨️ Imprimir este mês", sai só aquele mês (1
@@ -3088,7 +3094,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V354 · Imprimir férias: escolher todos os meses ou um mês só</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V355 · Férias: marcar vários funcionários de uma vez para o mesmo período</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -18936,6 +18942,31 @@ window.v341Regime=(function(){
     const f=eq.find(x=>String(x&&x.matricula||'').trim()===val);
     return f?{matricula:String(f.matricula||'').trim(),nome:String(f.nome||'')}:null;
   }
+  function preencherListaPessoas(){   // V355: lista de marcação — dá para escolher vários funcionários de uma vez
+    const box=document.getElementById('v347Pessoas'); if(!box) return;
+    const marcados=new Set([...box.querySelectorAll('input[type="checkbox"]:checked')].map(c=>c.value));
+    const eq=(window.equipe||[]);
+    box.innerHTML = eq.length ? eq.map((f,i)=>{
+      const mat=String(f&&f.matricula||'').trim();
+      const nome=(f&&f.nome?String(f.nome):'Funcionário '+(i+1));
+      const val=mat||('i'+i);
+      return `<label data-v347-row style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" value="${val}"${marcados.has(val)?' checked':''} style="width:16px;height:16px;flex:0 0 auto">
+        <span>${nome}${mat?` (${mat})`:''}</span></label>`;
+    }).join('') : '<p style="font-size:12px;color:var(--muted);margin:4px">Nenhum funcionário na equipe deste setor.</p>';
+    aplicarBuscaPessoas(); atualizarContagemPessoas();
+  }
+  function aplicarBuscaPessoas(){   // V355: filtra a lista sem perder as marcações
+    const termo=norma(document.getElementById('v347Busca')?.value||'');
+    document.querySelectorAll('#v347Pessoas label[data-v347-row]').forEach(l=>{
+      l.style.display = (!termo || norma(l.textContent).includes(termo)) ? 'flex' : 'none';
+    });
+  }
+  function atualizarContagemPessoas(){   // V355
+    const box=document.getElementById('v347Pessoas'), sp=document.getElementById('v347Contagem'); if(!box||!sp) return;
+    const n=box.querySelectorAll('input[type="checkbox"]:checked').length;
+    sp.textContent = n ? `${n} marcado${n>1?'s':''}` : '';
+  }
   function nomeDaEntrada(v){
     const eq=(window.equipe||[]);
     const f=eq.find(x=>String(x&&x.matricula||'').trim()===String(v.matricula||'').trim() && String(v.matricula||'').trim()) || eq.find(x=>norma(x&&x.nome)===norma(v.nome));
@@ -18944,7 +18975,7 @@ window.v341Regime=(function(){
   function render(){
     const box=document.getElementById('v347Lista'); if(!box) return;
     const ano=anoSel(); const sp=document.getElementById('v347Ano'); if(sp) sp.textContent=ano;
-    preencherPessoas(document.getElementById('v347Pessoa'));
+    preencherListaPessoas();   // V355: lista de marcação (vários funcionários de uma vez)
     const lista=(window.feriasProgramadas||[]).map((v,idx)=>({v,idx})).filter(({v})=>pertenceAoSetor(v));   // V353: só o pessoal do setor aberto
     const temNoAno = m => lista.filter(({v})=>{   // V348: agrupa pelo mês de INÍCIO das férias (não repete no mês do retorno)
       const p=String(v.inicio).split('-');
@@ -19030,36 +19061,60 @@ window.v341Regime=(function(){
       <h3 style="margin:0 0 6px;font-size:15px">🏖️ Férias programadas</h3>
       <p style="font-size:12px;color:var(--muted);margin:0 0 10px">Marque quem vai estar de férias e em que período. Quem está de férias <b>não é escalado</b> naqueles dias — nem domingo, nem feriado, nem dia normal. Esta lista mostra só o pessoal do <b>setor aberto</b>. Valem para o ano escolhido no topo (<span id="v347Ano">—</span>).</p>
       <div style="display:grid;gap:8px;margin-bottom:6px">
-        <label style="font-size:12px;font-weight:600;display:block">Funcionário<select id="v347Pessoa" style="${estilo};margin-top:3px"></select></label>
+        <label style="font-size:12px;font-weight:600;display:block">Funcionários <span style="font-weight:400;color:var(--muted)">(marque um ou vários)</span>
+          <input type="search" id="v347Busca" placeholder="🔎 Buscar por nome ou matrícula" style="${estilo};margin-top:3px"></label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px">
+          <button type="button" class="btn secondary sm" id="v347MarcarTodos" style="padding:2px 8px">☑️ Marcar todos</button>
+          <button type="button" class="btn secondary sm" id="v347Limpar" style="padding:2px 8px">◻️ Limpar</button>
+          <span id="v347Contagem" style="color:var(--muted)"></span>
+        </div>
+        <div id="v347Pessoas" style="max-height:180px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:4px;background:var(--surface,#fff)"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <label style="font-size:12px;font-weight:600;flex:1 1 130px">Início das férias<input type="date" id="v347Inicio" style="${estilo};margin-top:3px"></label>
           <label style="font-size:12px;font-weight:600;flex:1 1 130px">Fim das férias<input type="date" id="v347Fim" style="${estilo};margin-top:3px"></label>
         </div>
-        <button type="button" class="btn success" id="v347Add">➕ Adicionar férias</button>
+        <button type="button" class="btn success" id="v347Add">➕ Adicionar férias dos marcados</button>
       </div>
       <div id="v347Lista"></div>
       <button type="button" class="btn secondary" id="v347Imprimir" style="margin-top:10px">🖨️ Imprimir relação de férias</button>
     </div>`);
-    const selP=document.getElementById('v347Pessoa');
-    selP?.addEventListener('focus',()=>preencherPessoas(selP));
+    document.getElementById('v347Busca')?.addEventListener('input',aplicarBuscaPessoas);   // V355
+    document.getElementById('v347Pessoas')?.addEventListener('change',atualizarContagemPessoas);   // V355
+    document.getElementById('v347MarcarTodos')?.addEventListener('click',()=>{   // V355: marca os visíveis (respeita a busca)
+      document.querySelectorAll('#v347Pessoas label[data-v347-row]').forEach(l=>{ if(l.style.display!=='none'){ const c=l.querySelector('input[type="checkbox"]'); if(c) c.checked=true; } });
+      atualizarContagemPessoas();
+    });
+    document.getElementById('v347Limpar')?.addEventListener('click',()=>{   // V355: desmarca todos
+      document.querySelectorAll('#v347Pessoas input[type="checkbox"]').forEach(c=>c.checked=false);
+      atualizarContagemPessoas();
+    });
     const maisDias=(iso,n)=>{ const p=String(iso).split('-').map(Number); if(p.length!==3||p.some(isNaN)) return ''; const d=new Date(p[0],p[1]-1,p[2]); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
     let fimAuto='';
     document.getElementById('v347Inicio')?.addEventListener('change',()=>{   // V352: ao definir o início, o fim preenche com 30 dias (ex.: 01/12 → 30/12) — pode mudar depois
       const ini=document.getElementById('v347Inicio').value, inpFim=document.getElementById('v347Fim'); if(!ini||!inpFim) return;
       if(!inpFim.value || inpFim.value===fimAuto){ fimAuto=maisDias(ini,29); if(fimAuto) inpFim.value=fimAuto; }
     });
-    document.getElementById('v347Add')?.addEventListener('click',()=>{
-      const val=document.getElementById('v347Pessoa')?.value||'';
+    document.getElementById('v347Add')?.addEventListener('click',()=>{   // V355: inclui as férias de TODOS os funcionários marcados de uma vez
+      const box=document.getElementById('v347Pessoas');
+      const vals=[...(box?.querySelectorAll('input[type="checkbox"]:checked')||[])].map(c=>c.value);
       const ini=document.getElementById('v347Inicio')?.value||'';
       const fim=document.getElementById('v347Fim')?.value||'';
-      if(!val){ window.showToast?.('Escolha o funcionário.','warn',true); return; }
+      if(!vals.length){ window.showToast?.('Marque pelo menos um funcionário.','warn',true); return; }
       if(!ini || !fim){ window.showToast?.('Preencha o início e o fim das férias.','warn',true); return; }
       if(fim<ini){ window.showToast?.('O fim das férias não pode ser antes do início.','warn',true); return; }
-      const p=pessoaDoValor(val); if(!p){ window.showToast?.('Funcionário não encontrado.','warn',true); return; }
-      window.feriasProgramadas.push({matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim,setor:setorAtual()});   // V353: grava o setor em que a férias foi cadastrada
+      const ch=v=>`${String(v.matricula||'').trim()}|${norma(v.nome)}|${v.inicio}|${v.fim}`;
+      const existentes=new Set((window.feriasProgramadas||[]).map(ch));
+      let add=0, ultimo='';
+      vals.forEach(val=>{ const p=pessoaDoValor(val); if(!p) return;
+        const entrada={matricula:p.matricula,nome:p.nome,inicio:ini,fim:fim,setor:setorAtual()};   // V353: grava o setor
+        if(existentes.has(ch(entrada))) return;
+        window.feriasProgramadas.push(entrada); existentes.add(ch(entrada)); add++; ultimo=p.nome;
+      });
       salvar(); render();
-      document.getElementById('v347Inicio').value=''; document.getElementById('v347Fim').value='';
-      window.showToast?.(`Férias de ${p.nome} (${brCurto(ini)} a ${brCurto(fim)}) programadas.`,'ok');
+      document.querySelectorAll('#v347Pessoas input[type="checkbox"]').forEach(c=>c.checked=false); atualizarContagemPessoas();   // V355: limpa as marcações depois de incluir
+      document.getElementById('v347Inicio').value=''; document.getElementById('v347Fim').value=''; fimAuto='';
+      if(add){ window.showToast?.(add===1?`Férias de ${ultimo} (${brCurto(ini)} a ${brCurto(fim)}) programadas.`:`${add} funcionários com férias de ${brCurto(ini)} a ${brCurto(fim)} programadas.`,'ok'); }
+      else { window.showToast?.('Nada incluído: os marcados já tinham essas férias.','warn',true); }
     });
     document.getElementById('v347Lista')?.addEventListener('click',(e)=>{
       const b=e.target.closest?.('.v347-del'); if(!b) return;
