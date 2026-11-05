@@ -7,10 +7,17 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V221</title>
+<title>Escala 2×1 — Encarregados V222</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V222 [Claude] — 📂 ABRIR HISTÓRICO DE OUTRO MÊS: O GERENTE ESCOLHE (pedido do Gerente): ao abrir um histórico guardado cujo mês é
+       DIFERENTE do que está na tela e que TEM escala pronta (ex.: mandar o histórico de novembro para o computador da empresa, que
+       abre em dezembro), o app agora PERGUNTA, com dois botões: "📅 Abrir a escala de novembro (ver os domingos e quem trabalha)" —
+       restaura e mostra a escala completa daquele mês — ou "➡️ Usar como mês passado de dezembro" — o comportamento antigo (monta o
+       mês seguinte com os últimos domingos). Antes, nesse caso, ele ia direto pro mês seguinte e a escala do mês do arquivo nunca
+       aparecia. Mesmo mês da tela ou arquivo sem escala pronta seguem como antes (abre direto). Feito em escolherAberturaArquivo
+       (a lógica de "mês passado" virou a função usarComoMesPassado; a de restaurar continua a mesma). Desenvolvido com TDD.
 V221 [Claude] — 🔎 FÉRIAS: BUSCA SEM RESULTADO MOSTRA "— NENHUM ENCONTRADO —" (pedido do Gerente, igual à Escala de Setores V356): na
        lista de marcação do passo 🏖️ Férias, quando a busca não acha ninguém, aparece a linha "— nenhum encontrado —" em vez de a
        lista ficar vazia. Com busca vazia ou achando alguém, nada muda. Feito em aplicarBuscaPessoas (#v212SemResultado).
@@ -2193,7 +2200,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V221 · Férias: busca sem resultado mostra "— nenhum encontrado —"</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V222 · Abrir histórico de outro mês: escolher ver a escala ou usar como mês passado</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -7889,25 +7896,32 @@ function perguntarOrientacaoImpressao(cb){
       return;
     }
     const prox=new Date(aArq,mArq+1,1);
-    if((!Array.isArray(equipe)||!equipe.length) && Array.isArray(p.equipe?.atual)){ equipe=clone(p.equipe.atual); try{ renderEquipe?.(); window.dbAgendarEquipe?.(); }catch(e){} }   // aparelho novo
-    let guardou=false;
-    try{ const reg=registroDoArquivo(p); if(reg && !window.dbRegistroDoMes?.(reg.mes,reg.ano)) guardou=!!window.dbGuardarRegistro?.(reg); }catch(e){}
-    if(p.historicoSabados){ try{ historicoSabados=unirSabados(historicoSabados,clone(p.historicoSabados)); }catch(e){} }
-    trocarMes(prox.getMonth(),prox.getFullYear());
-    setTimeout(()=>{
-      try{
-        const h=clone(r.estadoFinalMes);
-        h.mesGerado=h.mesGerado||mArq+1; h.anoGerado=h.anoGerado||aArq; h.tipoEscala='encarregados';
-        if(!h.equipeNomes&&p.equipe?.atual) h.equipeNomes=p.equipe.atual.map(f=>f.nome);
-        if(r.previsoesDomingo) Object.assign(previsoesDomingo,clone(r.previsoesDomingo));
-        const t=window.showToast; window.showToast=()=>null;
-        try{ aplicarHistoricoArquivo(h); } finally{ window.showToast=t; }
-        try{ aplicarHistoricoAutomatico(); }catch(e){}
-        try{ window.sairDoInicio?.(); }catch(e){}
-        try{ window.v80GotoStep?.(2,false); }catch(e){}   // V170: Mês passado é o passo 2 (índice 2)
-        window.showToast?.(`✅ ${MESES[mArq]} virou o mês passado de ${MESES[prox.getMonth()]}/${prox.getFullYear()} (domingos, rodízio de sábado e folgas de feriado). Confira e siga para Gerar.`,'ok');
-      }catch(err){ console.error(err); window.showToast?.('Não foi possível usar o arquivo como mês passado: '+(err?.message||err),'danger',true); }
-    },120);
+    const usarComoMesPassado=()=>{   // V222: comportamento antigo — monta o mês seguinte com este arquivo como "mês passado"
+      if((!Array.isArray(equipe)||!equipe.length) && Array.isArray(p.equipe?.atual)){ equipe=clone(p.equipe.atual); try{ renderEquipe?.(); window.dbAgendarEquipe?.(); }catch(e){} }   // aparelho novo
+      let guardou=false;
+      try{ const reg=registroDoArquivo(p); if(reg && !window.dbRegistroDoMes?.(reg.mes,reg.ano)) guardou=!!window.dbGuardarRegistro?.(reg); }catch(e){}
+      if(p.historicoSabados){ try{ historicoSabados=unirSabados(historicoSabados,clone(p.historicoSabados)); }catch(e){} }
+      trocarMes(prox.getMonth(),prox.getFullYear());
+      setTimeout(()=>{
+        try{
+          const h=clone(r.estadoFinalMes);
+          h.mesGerado=h.mesGerado||mArq+1; h.anoGerado=h.anoGerado||aArq; h.tipoEscala='encarregados';
+          if(!h.equipeNomes&&p.equipe?.atual) h.equipeNomes=p.equipe.atual.map(f=>f.nome);
+          if(r.previsoesDomingo) Object.assign(previsoesDomingo,clone(r.previsoesDomingo));
+          const t=window.showToast; window.showToast=()=>null;
+          try{ aplicarHistoricoArquivo(h); } finally{ window.showToast=t; }
+          try{ aplicarHistoricoAutomatico(); }catch(e){}
+          try{ window.sairDoInicio?.(); }catch(e){}
+          try{ window.v80GotoStep?.(2,false); }catch(e){}   // V170: Mês passado é o passo 2 (índice 2)
+          window.showToast?.(`✅ ${MESES[mArq]} virou o mês passado de ${MESES[prox.getMonth()]}/${prox.getFullYear()} (domingos, rodízio de sábado e folgas de feriado). Confira e siga para Gerar.`,'ok');
+        }catch(err){ console.error(err); window.showToast?.('Não foi possível usar o arquivo como mês passado: '+(err?.message||err),'danger',true); }
+      },120);
+    };
+    // V222: o arquivo é de um mês diferente do da tela E tem escala pronta → o Gerente escolhe (ver a escala do arquivo ou montar o próximo mês)
+    modal(`Abrir ${escH(nomeArq)}`,`Este arquivo tem a escala de <b>${escH(MESES[mArq]+'/'+aArq)}</b>. O que você quer fazer?`,[
+      {t:`📅 Abrir a escala de ${MESES[mArq]} (ver os domingos e quem trabalha)`,cls:'primary',f:abrir},
+      {t:`➡️ Usar como mês passado de ${MESES[prox.getMonth()]}`,f:usarComoMesPassado}
+    ]);
   };
 })();
 </script>
