@@ -7,10 +7,13 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V220</title>
+<title>Escala 2×1 — Encarregados V221</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V221 [Claude] — 🔎 FÉRIAS: BUSCA SEM RESULTADO MOSTRA "— NENHUM ENCONTRADO —" (pedido do Gerente, igual à Escala de Setores V356): na
+       lista de marcação do passo 🏖️ Férias, quando a busca não acha ninguém, aparece a linha "— nenhum encontrado —" em vez de a
+       lista ficar vazia. Com busca vazia ou achando alguém, nada muda. Feito em aplicarBuscaPessoas (#v212SemResultado).
 V220 [Claude] — 👥 FÉRIAS: MARCAR VÁRIOS FUNCIONÁRIOS DE UMA VEZ (pedido do Gerente, igual à Escala de Setores V355): no passo 🏖️
        Férias, em vez de um seletor de um por vez, uma LISTA de marcação (checkbox) onde dá para marcar vários (João, Francisco,
        Maria…), definir o período uma vez (o fim ainda preenche com 30 dias) e tocar em "➕ Adicionar férias dos marcados" — todos
@@ -2190,7 +2193,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V220 · Férias: marcar vários funcionários de uma vez para o mesmo período</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V221 · Férias: busca sem resultado mostra "— nenhum encontrado —"</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -12115,10 +12118,16 @@ window.v210Regime=(function(){
     aplicarBuscaPessoas(); atualizarContagemPessoas();
   }
   function aplicarBuscaPessoas(){   // V220: filtra a lista sem perder as marcações
+    const box=document.getElementById('v212Pessoas'); if(!box) return;
     const termo=norma(document.getElementById('v212Busca')?.value||'');
-    document.querySelectorAll('#v212Pessoas label[data-v212-row]').forEach(l=>{
-      l.style.display = (!termo || norma(l.textContent).includes(termo)) ? 'flex' : 'none';
-    });
+    const linhas=box.querySelectorAll('label[data-v212-row]');
+    let visiveis=0;
+    linhas.forEach(l=>{ const casa=(!termo || norma(l.textContent).includes(termo)); l.style.display=casa?'flex':'none'; if(casa) visiveis++; });
+    let vazio=document.getElementById('v212SemResultado');   // V221: busca sem resultado mostra "— nenhum encontrado —"
+    if(termo && linhas.length && visiveis===0){
+      if(!vazio){ vazio=document.createElement('p'); vazio.id='v212SemResultado'; vazio.style.cssText='font-size:12px;color:var(--muted);margin:4px;text-align:center'; box.appendChild(vazio); }
+      vazio.textContent='— nenhum encontrado —'; vazio.style.display='block';
+    } else if(vazio){ vazio.style.display='none'; }
   }
   function atualizarContagemPessoas(){   // V220
     const box=document.getElementById('v212Pessoas'), sp=document.getElementById('v212Contagem'); if(!box||!sp) return;
