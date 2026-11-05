@@ -2832,6 +2832,27 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     });
     ok(semRes.mostra && semRes.aindaMostra && semRes.some, `${nome}: busca de férias sem resultado mostra "— nenhum encontrado —" e some quando limpa (V356: ${JSON.stringify(semRes)})`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 357){
+    const abrirHist = await p.evaluate(() => {
+      const M = document.getElementById('mes'), A = document.getElementById('ano');
+      if(A) A.value = '2026'; if(M) M.value = '10';   // tela em NOVEMBRO
+      const setor = document.getElementById('setorSelecionado')?.value || 'Frente de Loja';
+      const proj = { schema: 'escala-setores', system: 'SETORES', config: { mes: 9, ano: 2026, setor },   // arquivo de OUTUBRO com escala pronta
+        equipe: { atual: [{ matricula: '1', nome: 'ANA SILVA' }, { matricula: '2', nome: 'BIA LIMA' }] },
+        resultado: { estadoFinalMes: { funciStatus: [] }, ultimaEscala: { mes: 9, ano: 2026, doms: [4, 11, 18, 25], bal: 0, setor }, trabalhoDomingo: { 4: [0] }, trabalhoFeriado: {} } };
+      let chamou = false; const stub = () => { chamou = true; };
+      window.escolherAberturaArquivo(proj, stub);
+      const modal = document.getElementById('abrirArqModal');
+      const botoes = modal ? [...modal.querySelectorAll('[data-k]')].map(b => b.textContent) : [];
+      const temAbrir = botoes.some(t => /Abrir a escala de outubro/i.test(t));
+      const temMesPassado = botoes.some(t => /mês passado de novembro/i.test(t));
+      const btn = modal ? [...modal.querySelectorAll('[data-k]')].find(b => /Abrir a escala de outubro/i.test(b.textContent)) : null;
+      if(btn) btn.click();
+      document.getElementById('abrirArqModal')?.remove();
+      return { modalApareceu: !!modal, temAbrir, temMesPassado, chamou };
+    });
+    ok(abrirHist.modalApareceu && abrirHist.temAbrir && abrirHist.temMesPassado && abrirHist.chamou, `${nome}: abrir histórico de outro mês com escala pronta pergunta "abrir a escala" ou "mês passado", e "abrir a escala" restaura (V357: ${JSON.stringify(abrirHist)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
