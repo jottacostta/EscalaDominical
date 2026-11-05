@@ -3204,6 +3204,26 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
     });
     ok(semResEnc.mostra && semResEnc.some, `Encarregados: busca de férias sem resultado mostra "— nenhum encontrado —" e some quando limpa (V221: ${JSON.stringify(semResEnc)})`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 222){
+    const abrirHist = await p.evaluate(() => {
+      const M = document.getElementById('mes'), A = document.getElementById('ano');
+      if(A) A.value = '2026'; if(M) M.value = '10';   // tela em NOVEMBRO
+      const proj = { schema: 'escala-encarregados', system: 'ENCARREGADOS', config: { mes: 9, ano: 2026 },   // arquivo de OUTUBRO com escala pronta
+        equipe: { atual: [{ matricula: '1', nome: 'ANA SILVA' }, { matricula: '2', nome: 'BIA LIMA' }] },
+        resultado: { estadoFinalMes: { funciStatus: [] }, ultimaEscala: { mes: 9, ano: 2026, doms: [4, 11, 18, 25], bal: 0 }, trabalhoDomingo: { 4: [0], 11: [1] }, trabalhoFeriado: {} } };
+      let chamou = false; const stub = () => { chamou = true; };
+      window.escolherAberturaArquivo(proj, stub);
+      const modal = document.getElementById('abrirArqModal');
+      const botoes = modal ? [...modal.querySelectorAll('[data-k]')].map(b => b.textContent) : [];
+      const temAbrir = botoes.some(t => /Abrir a escala de outubro/i.test(t));
+      const temMesPassado = botoes.some(t => /mês passado de novembro/i.test(t));
+      const btn = modal ? [...modal.querySelectorAll('[data-k]')].find(b => /Abrir a escala de outubro/i.test(b.textContent)) : null;
+      if(btn) btn.click();
+      document.getElementById('abrirArqModal')?.remove();
+      return { modalApareceu: !!modal, temAbrir, temMesPassado, chamou };
+    });
+    ok(abrirHist.modalApareceu && abrirHist.temAbrir && abrirHist.temMesPassado && abrirHist.chamou, `Encarregados: abrir histórico de outro mês com escala pronta pergunta "abrir a escala" ou "mês passado", e "abrir a escala" restaura (V222: ${JSON.stringify(abrirHist)})`);
+  }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
 async function testarEncRegimeDomingo(browser, app){   // Enc V210: regime de domingo 2×1 / 2×2 / Misto (igual à Setores V341)
