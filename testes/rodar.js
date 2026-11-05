@@ -2815,6 +2815,23 @@ async function testarFeriasProgramadas(browser, app, nome){   // V347: férias p
     });
     ok(multi.nLinhas >= 2 && /2/.test(multi.contagem) && multi.total === 2 && multi.mesmo && multi.fimAuto === '2026-12-30' && multi.limpou === 0 && multi.totalApos === 2, `${nome}: incluir férias de vários funcionários de uma vez, mesmo período (V355: ${JSON.stringify(multi)})`);
   }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 356){
+    const semRes = await p.evaluate(() => {
+      window.feriasProgramadas = [];
+      window.v347Ferias.render();
+      const busca = document.getElementById('v347Busca');
+      busca.value = 'zzxxqq'; busca.dispatchEvent(new Event('input', { bubbles: true }));   // busca que não acha ninguém
+      const m1 = document.getElementById('v347SemResultado');
+      const mostra = !!m1 && m1.style.display !== 'none' && /nenhum encontrado/i.test(m1.textContent || '');
+      busca.value = 'ZZZZZ_nao_existe'; busca.dispatchEvent(new Event('input', { bubbles: true }));
+      const aindaMostra = !!document.getElementById('v347SemResultado') && document.getElementById('v347SemResultado').style.display !== 'none';
+      busca.value = ''; busca.dispatchEvent(new Event('input', { bubbles: true }));   // busca vazia esconde
+      const m2 = document.getElementById('v347SemResultado');
+      const some = !m2 || m2.style.display === 'none';
+      return { mostra, aindaMostra, some };
+    });
+    ok(semRes.mostra && semRes.aindaMostra && semRes.some, `${nome}: busca de férias sem resultado mostra "— nenhum encontrado —" e some quando limpa (V356: ${JSON.stringify(semRes)})`);
+  }
   ok(erros.length === 0, `${nome}: sem erro de JavaScript`);
 }
 async function testarRegimeDomingo(browser, app, nome){   // V341: regime de domingo 2×1 / 2×2 / Misto
@@ -3171,6 +3188,21 @@ async function testarEncFeriasProgramadas(browser, app){   // Enc V212: férias 
       return { nLinhas, contagem, fimAuto, total, mesmo, limpou, totalApos };
     });
     ok(multiEnc.nLinhas >= 2 && /2/.test(multiEnc.contagem) && multiEnc.total === 2 && multiEnc.mesmo && multiEnc.fimAuto === '2026-12-30' && multiEnc.limpou === 0 && multiEnc.totalApos === 2, `Encarregados: incluir férias de vários funcionários de uma vez, mesmo período (V220: ${JSON.stringify(multiEnc)})`);
+  }
+  if(+path.basename(app).match(/V(\d+)\.html$/)[1] >= 221){
+    const semResEnc = await p.evaluate(() => {
+      window.feriasProgramadas = [];
+      window.v212Ferias.render();
+      const busca = document.getElementById('v212Busca');
+      busca.value = 'zzxxqq'; busca.dispatchEvent(new Event('input', { bubbles: true }));
+      const m1 = document.getElementById('v212SemResultado');
+      const mostra = !!m1 && m1.style.display !== 'none' && /nenhum encontrado/i.test(m1.textContent || '');
+      busca.value = ''; busca.dispatchEvent(new Event('input', { bubbles: true }));
+      const m2 = document.getElementById('v212SemResultado');
+      const some = !m2 || m2.style.display === 'none';
+      return { mostra, some };
+    });
+    ok(semResEnc.mostra && semResEnc.some, `Encarregados: busca de férias sem resultado mostra "— nenhum encontrado —" e some quando limpa (V221: ${JSON.stringify(semResEnc)})`);
   }
   ok(erros.length === 0, 'Encarregados: sem erro de JavaScript');
 }
