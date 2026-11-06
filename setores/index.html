@@ -7,10 +7,18 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V357</title>
+<title>Escala de Setores — V358</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V358 [Claude] — 🛌 FOLGA FIXA NO PAINEL "ESTA SEMANA" SÓ SE TRABALHA O DOMINGO (pedido do Gerente): no início do
+       setor, nos blocos "De folga hoje" e "De folga amanhã", a FOLGA FIXA de um dia de semana só aparece se a
+       pessoa TRABALHA o domingo que abre aquela semana — é aí que a folga da semana (DSR) cai no dia da folga
+       fixa. Se ela folga o domingo, ela trabalha no dia da folga fixa e NÃO aparece mais como de folga (antes
+       aparecia como folga só por estar cadastrada como fixa, dando a impressão errada de que estava descansando).
+       Quem NUNCA pega domingo (foraDom: FLV, não apto ao domingo, gerência) mantém a folga fixa como descanso
+       normal da semana. Só muda a TELA do início do setor (infoDia): motor, grade do mês e Excel continuam iguais
+       ao V357. Desenvolvido com TDD.
 V357 [Claude] — 📂 ABRIR HISTÓRICO DE OUTRO MÊS: O GERENTE ESCOLHE (pedido do Gerente, igual à Escala de Encarregados V222): ao abrir
        um histórico guardado cujo mês é DIFERENTE do que está na tela e que TEM escala pronta (ex.: abrir o histórico de outubro com
        a tela já em novembro), o app agora PERGUNTA, com dois botões: "📅 Abrir a escala de outubro (ver os domingos e quem trabalha)"
@@ -3106,7 +3114,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V357 · Abrir histórico de outro mês: escolher ver a escala ou usar como mês passado</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V358 · Folga fixa no "Esta semana" só se a pessoa trabalha o domingo da semana</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -12051,6 +12059,19 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   const ehBal=(set,dt)=>set.has(`${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`);
   const ferDe=dt=>{ try{ return feriados(dt.getFullYear(),dt.getMonth())[dt.getDate()]||null; }catch(e){ return null; } };
 
+  /* V358 (pedido do Gerente, 06/11/2026) — no painel "Esta semana" a FOLGA FIXA de um dia de semana só é
+     folga de verdade se a pessoa TRABALHA o domingo que abre aquela semana (é aí que a folga da semana/DSR
+     cai no dia da folga fixa; se ela folga o domingo, trabalha no dia da folga fixa). Quem NUNCA pega domingo
+     (foraDom: FLV, não apto ao domingo, gerência) mantém a folga fixa como descanso normal da semana.
+     Só muda a TELA do início do setor — motor, grade e Excel continuam iguais ao V357. */
+  function trabalhaNoDomingoSnap(setor,i,domDate){
+    const s=snap(setor,new Date(domDate.getFullYear(),domDate.getMonth(),1));
+    const r=s?.proj?.resultado; if(!r) return false;
+    return [...new Set((r.trabalhoDomingo?.[domDate.getDate()]||[]).map(Number))].includes(i);
+  }
+  function mostraFolgaFixa(f,trabalhaDomingoDaSemana){ try{ return foraDom(f)||!!trabalhaDomingoDaSemana; }catch(e){ return true; } }
+  window.v358MostraFolgaFixa=mostraFolgaFixa;   // exposto para teste
+
   /* situação de um dia, a partir das escalas guardadas do setor */
   function infoDia(setor,eq,dt){
     const vizinhos=[-1,0,1].map(k=>snap(setor,new Date(dt.getFullYear(),dt.getMonth()+k,1)));
@@ -12067,16 +12088,18 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     vizinhos.forEach(v=>{ const rr=v?.proj?.resultado; if(!rr) return;
       Object.entries(rr.folgasCompensatorias||{}).forEach(([ch,val])=>{ if(val===k) comp.add(Number(String(ch).split('_').pop())); });
       (rr.descansosDomingo?.[k]||[]).forEach(x=>dsr.add(Number(x.i))); });
+    const domSemana=addD(dt,-dt.getDay());   // V358: domingo que abre a semana deste dia (dt é dia de semana aqui)
     eq.forEach((f,i)=>{ if(!ativa(f)) return;
       let tipo='';
       if(out.trabFer){ if(!out.trabFer.has(i)) tipo='folga no feriado'; }
       if(!tipo&&comp.has(i)) tipo='folga de feriado';
       else if(!tipo&&dsr.has(i)) tipo='folga do domingo';
-      else if(!tipo&&!out.trabFer&&Number(f.folgaFixa)===dt.getDay()) tipo='folga fixa';
+      else if(!tipo&&!out.trabFer&&Number(f.folgaFixa)===dt.getDay()&&mostraFolgaFixa(f,trabalhaNoDomingoSnap(setor,i,domSemana))) tipo='folga fixa';   // V358: só se trabalha o domingo da semana (quem nunca pega domingo mantém)
       if(tipo) out.folgas.push({f,tipo});
     });
     return out;
   }
+  window.v358InfoDia=infoDia;   // V358: exposto para teste (situação de um dia no painel "Esta semana")
   const chip=(f,extra)=>`<span><i class="${lid(f)?'lid':''}"></i>${esc(f.nome)}${extra?` <em>${esc(extra)}</em>`:''}</span>`;
   const nomes=arr=>arr.length?`<div class="sem-nomes">${arr.join('')}</div>`:'<div class="sem-vazio">Ninguém.</div>';
   const talvezRecolher=(arr,rot)=>arr.length>10?`<details class="sem-mais"><summary>${rot} — ver nomes ▾</summary>${nomes(arr)}</details>`:nomes(arr);
