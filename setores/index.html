@@ -7,10 +7,15 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V358</title>
+<title>Escala de Setores — V359</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V359 [Claude] — 🕙 DOMINGO ESPECIAL VAI ATÉ 23:40 (pedido do Gerente): no perfil "Domingo especial" (⚙️ Horários de
+       domingo e feriado), o fechamento permitido passou de 21:40 para 23:40 — o horário 15:00 às 23:40 (que já existia
+       na lista de horários) agora aparece para escolher nos domingos especiais, tanto na escala à mão quanto na geração.
+       O "Domingo regular" continua até 20:40 e o feriado/balanço não mudam. Mexe só no teto do perfil especial
+       (listaHorariosDomingoParaData) e nos textos da tela. Desenvolvido com TDD.
 V358 [Claude] — 🛌 FOLGA FIXA NO PAINEL "ESTA SEMANA" SÓ SE TRABALHA O DOMINGO (pedido do Gerente): no início do
        setor, nos blocos "De folga hoje" e "De folga amanhã", a FOLGA FIXA de um dia de semana só aparece se a
        pessoa TRABALHA o domingo que abre aquela semana — é aí que a folga da semana (DSR) cai no dia da folga
@@ -3114,7 +3119,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V358 · Folga fixa no "Esta semana" só se a pessoa trabalha o domingo da semana</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V359 · Domingo especial vai até 23:40 (antes 21:40)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -3227,7 +3232,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
           </label>
           <label class="check-row" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);font-size:12.5px;font-weight:700;cursor:pointer">
             <input type="checkbox" id="flagDomingoEspecial" style="width:18px;height:18px;accent-color:var(--brand)">
-            <span>☑️ Domingo especial — fechamento até 21:40</span>
+            <span>☑️ Domingo especial — fechamento até 23:40</span>
           </label>
           <label class="check-row" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);font-size:12.5px;font-weight:700;cursor:pointer">
             <input type="checkbox" id="flagDomingoBalanco" disabled style="width:18px;height:18px;accent-color:var(--warn)">
@@ -6864,7 +6869,7 @@ function renderResumoPerfilDomingo(){
   const el=$('domingoPerfilResumo'); if(!el)return;
   const p=perfilHorarioDomingo;
   if(p.balanco) el.innerHTML='🟡 <b>Domingo de balanço:</b> usa a lista de horários de feriado.';
-  else if(p.especial) el.innerHTML='🔵 <b>Domingo especial:</b> horários dominicais permitidos até 21:40.';
+  else if(p.especial) el.innerHTML='🔵 <b>Domingo especial:</b> horários dominicais permitidos até 23:40.';
   else el.innerHTML='🟢 <b>Domingo regular:</b> horários dominicais permitidos até 20:40.';
 }
 $('flagDomingoRegular')?.addEventListener('change',e=>sincronizarFlagsDomingo(e.target));
@@ -8952,7 +8957,7 @@ const HORARIOS_PADRAO_DOMINGO=[['06:00','14:40'],['06:30','15:10'],['06:50','15:
 const HORARIOS_PADRAO_FERIADO=[['06:00','14:40'],['06:30','15:10'],['06:50','15:30'],['07:20','16:00'],['07:45','16:20'],['08:00','16:40'],['09:00','17:40'],['10:00','18:40'],['11:00','19:40'],['12:00','20:40'],['13:00','21:40'],['15:00','23:40']];
 let HORARIOS_OFICIAIS_DOMINGO=HORARIOS_PADRAO_DOMINGO.map(x=>[...x]);
 let HORARIOS_OFICIAIS_FERIADO=HORARIOS_PADRAO_FERIADO.map(x=>[...x]);
-// Perfil dominical: regular é o padrão. Especial amplia o fechamento até 21:40.
+// Perfil dominical: regular é o padrão. Especial amplia o fechamento até 23:40 (V359).
 // Balanço usa exatamente a lista configurada de feriado.
 let perfilHorarioDomingo={regular:true,especial:false,balanco:false};
 
@@ -8973,7 +8978,7 @@ function perfilHorarioDomingoAtual(d){
 function listaHorariosDomingoParaData(d){
   const perfil=perfilHorarioDomingoAtual(d);
   if(perfil==='balanco') return HORARIOS_OFICIAIS_FERIADO;
-  const limite=perfil==='especial'?horaMinutos('21:40'):horaMinutos('20:40');
+  const limite=perfil==='especial'?horaMinutos('23:40'):horaMinutos('20:40');   // V359: domingo especial vai até 23:40
   return HORARIOS_OFICIAIS_DOMINGO.filter(([_,fim])=>horaMinutos(fim)<=limite);
 }
 function opcoesHorarioManual(valor='',d=null){ const h=opcoesHorarioLista(listaHorariosDomingoParaData(d),valor); return (d!=null&&perfilHorarioDomingoAtual(d)==='balanco')?h.replace('<option value="">Selecione o horário</option>','<option value="">Automático (perto do horário de sempre)</option>'):h; }
