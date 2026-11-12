@@ -132,7 +132,7 @@ Quando estiver em dúvida, leia a tela em voz alta: se uma criança de 10 anos n
 - Sugestões da escala manual (V233) devem reutilizar essa auditoria no momento do aceite, não substituir nem apagar escolhas existentes e nunca incluir candidatos que falhem nas regras. `testes/rodar.js` deve cobrir a presença do painel, geração/rejeição e preservar o estado da escala.
 
 **Escala 2×1 de Encarregados**
-- Domingo normal: **3 pessoas**, com pelo menos **1 Encarregado e 1 Subencarregado**, de **setores diferentes**, no máximo **1 do Laticínio**; ninguém faz 3 domingos seguidos.
+- Domingo normal: no **Automático e no Misto**, exatamente **3 pessoas**. Na escala **À mão**, o total é escolhido pelo usuário (sem número fixo), com pelo menos **1 Encarregado e 1 Subencarregado**, cada pessoa de **setor diferente** e no máximo **1 do Laticínio**. Ninguém faz 3 domingos seguidos; o balanço continua com todos os aptos.
 - Folga de feriado: no máximo **2 pessoas de folga por dia** (contando DSR), **1 no sábado**, **1 por setor**; prazo de **20 dias (Guanabara)** ou **30 dias (CLT)**, escolhido em Mais opções; sugestões espalhadas no prazo.
 - Folga fixa (ou DSR) no dia do feriado impede trabalhar nesse feriado (mesma exceção da segunda).
 - Não existe mais passo de “Grupos” (os grupos não mudavam a escala).
