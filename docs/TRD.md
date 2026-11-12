@@ -4,10 +4,11 @@
 
 ## Arquitetura
 - Repositório: `jottacostta/EscalaDominical`.
-- Apps separados e autocontidos em HTML: `Escala_de_Setores_V286.html` e `Escala_2x1_encarregados_V190.html` na `main` consultada.
+- Apps separados e autocontidos em HTML: Setores `Escala_de_Setores_V357.html` e Encarregados `Escala_2x1_encarregados_V223.html` nesta entrega.
 - `setores/index.html` e `encarregados/index.html` são cópias das versões atuais e sustentam os endereços fixos.
 - A experiência normal deve continuar offline; não adicionar dependência externa sem autorização.
 - A política automática `window.escalaMotor` escolhe 6×1 antes de `2026-12-16` e 5×2 a partir dessa data; em Encarregados, domingos retornam `2x1` separadamente. O plano de dezembro é misto e não deve ser reduzido a um único regime mensal.
+- No Encarregados, Automático/Misto mantêm 3 pessoas por domingo normal; À mão aceita quantidade variável, exigindo 1 Encarregado + 1 Subencarregado, setores diferentes e no máximo 1 pessoa do Laticínio. O ciclo 2×1 e as regras semanais continuam independentes da quantidade; a sugestão manual acrescenta um candidato elegível por vez.
 
 ## Camadas lógicas
 1. Interface: etapas, cartões, formulários, avisos e diálogos.
