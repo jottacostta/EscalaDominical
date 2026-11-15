@@ -7,7 +7,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V224</title>
+<title>Escala 2×1 — Encarregados V225</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
@@ -2207,7 +2207,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V224 · À mão: escolha quantas pessoas trabalham por domingo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V225 · À mão: escolha quantas pessoas trabalham por domingo</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -4301,7 +4301,7 @@ function montarEscalaFeriados(){
   const datas=Object.keys(f).map(Number).sort((a,b)=>a-b);
 
   if(!datas.length){
-    $('feriadosCard').style.display='none';
+    $('feriadosCard').style.display=(window.v224Pendencias||[]).length?'block':'none';
     return;
   }
 
@@ -5572,10 +5572,65 @@ function calcularPendenciasHerdadas(fonte,mes,ano){
       const sugestao=(fonte.sugestoesFolgasFeriado||{})[dia+'_'+indice]||'';
       const dataSug=sugestao?new Date(sugestao+'T12:00:00'):null;
       const valida=!!dataSug&&dataSug>=inicio&&dataSug<=fim&&dataSug<=limite&&dataSug.getDay()!==0;
-      out.push({nome:equipe[atual].nome,origem:chaveDataLocal(origem),limite:chaveDataLocal(limite),sugestao:valida?sugestao:''});
+      out.push({indice:atual,nome:equipe[atual].nome,origem:chaveDataLocal(origem),limite:chaveDataLocal(limite),sugestao:valida?sugestao:''});
     });
   });
   return out;
+}
+/* V225 — agendamento efetivo das pendências herdadas.
+   A compensação é registrada na mesma estrutura das demais folgas. */
+function v225Chave(p){
+  return 'P'+p.origem.replaceAll('-','')+'_'+p.indice;
+}
+function v225Persistir(){
+  const mes=+$('mes').value,ano=+$('ano').value;
+  const dados={};
+  (window.v224Pendencias||[]).forEach(p=>{
+    const v=folgasCompensatorias?.[v225Chave(p)];
+    if(v)dados[v225Chave(p)]=v;
+  });
+  try{localStorage.setItem('enc.v225.comp.'+ano+'-'+mes,JSON.stringify(dados));}catch(e){console.warn('[V225] persistência local:',e);}
+  if(estadoFinalMes&&estadoFinalMes.mesGerado===mes+1&&estadoFinalMes.anoGerado===ano)
+    estadoFinalMes.folgasCompensatorias=JSON.parse(JSON.stringify(folgasCompensatorias||{}));
+  try{window.dbAgendarEscala?.();}catch(e){}
+}
+function v225Restaurar(){
+  const mes=+$('mes').value,ano=+$('ano').value;
+  try{
+    const dados=JSON.parse(localStorage.getItem('enc.v225.comp.'+ano+'-'+mes)||'{}');
+    const permitidas=new Set((window.v224Pendencias||[]).map(v225Chave));
+    Object.entries(dados).forEach(([k,v])=>{if(permitidas.has(k)&&typeof v==='string')folgasCompensatorias[k]=v;});
+  }catch(e){console.warn('[V225] restauração:',e);}
+}
+function v225Validar(p,valor){
+  const dt=new Date(valor+'T12:00:00');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(valor)||!Number.isFinite(dt.getTime())||chaveData(dt)!==valor)return 'Data inválida.';
+  const mes=+$('mes').value,ano=+$('ano').value;
+  if(dt.getFullYear()!==ano||dt.getMonth()!==mes)return 'Escolha uma data do mês atual.';
+  if(valor<=p.origem||valor>p.limite)return 'Fora do prazo da compensação.';
+  if(dt.getDay()===0)return 'Domingo não pode receber compensação.';
+  if(Object.prototype.hasOwnProperty.call(feriados(ano,mes),dt.getDate()))return 'Não é permitido compensar em outro feriado.';
+  if(dataEmPeriodoBloqueado(dt))return 'Data bloqueada para folgas de feriado.';
+  if(ehDescansoAssociado(p.indice,dt))return 'A pessoa já possui descanso associado nessa data.';
+  if(diasDescansoProibidos(equipe[p.indice],dt))return 'Data incompatível com a cobertura do setor.';
+  if(sequenciaDeFolgaCom(p.indice,dt,extraFolgasDaPessoa(p.indice,v225Chave(p)))>MAX_FOLGA_SEGUIDA_COMP)return 'Excede o limite de folgas consecutivas.';
+  if(contarFolgasNaData(dt,v225Chave(p))>=2)return 'Já existem duas pessoas de folga nessa data.';
+  if(dt.getDay()===6&&contarFolgasNaData(dt,v225Chave(p))>=LIMITE_FOLGA_SABADO)return 'Limite de folgas no sábado atingido.';
+  if(setorJaTemFolgaNaData(p.indice,dt,v225Chave(p)))return 'Já existe uma folga no mesmo setor nessa data.';
+  return '';
+}
+function v225Salvar(indice){
+  const p=(window.v224Pendencias||[])[indice];if(!p)return;
+  const sel=document.getElementById('v225-data-'+indice);if(!sel)return;
+  const valor=sel.value,chave=v225Chave(p);
+  if(!valor){
+    delete folgasCompensatorias[chave];v225Persistir();mostrarPendenciasHerdadas();return;
+  }
+  const erro=v225Validar(p,valor);
+  if(erro){alert(erro);return;}
+  folgasCompensatorias[chave]=valor;
+  v225Persistir();mostrarPendenciasHerdadas();
+  try{renderPreviaFolgasFeriado(true);}catch(e){}
 }
 function mostrarPendenciasHerdadas(){
   const card=$('feriadosCard');if(!card)return;
@@ -5584,11 +5639,33 @@ function mostrarPendenciasHerdadas(){
   const itens=window.v224Pendencias||[];
   aviso.style.display=itens.length?'block':'none';
   if(!itens.length)return;
-  aviso.replaceChildren();
-  const titulo=document.createElement('strong');titulo.textContent='🟡 '+itens.length+' folga(s) de feriado pendente(s) do mês anterior';aviso.append(titulo);
-  const lista=document.createElement('ul');
-  itens.forEach(p=>{const li=document.createElement('li');li.textContent=p.nome+' — feriado '+p.origem+' · prazo '+p.limite+(p.sugestao?' · sugestão anterior '+p.sugestao:' · escolha uma data válida');lista.append(li);});
-  aviso.append(lista);
+  card.style.display='block';aviso.replaceChildren();
+  const pendentes=itens.filter(p=>!folgasCompensatorias?.[v225Chave(p)]).length;
+  const titulo=document.createElement('strong');
+  titulo.textContent='🟡 '+pendentes+' folga(s) pendente(s) do mês anterior · '+(itens.length-pendentes)+' programada(s)';
+  aviso.append(titulo);
+  const explicacao=document.createElement('p');
+  explicacao.textContent='Escolha uma data para cada compensação e toque em Salvar. A folga será registrada na escala do mês atual.';
+  aviso.append(explicacao);
+  itens.forEach((p,i)=>{
+    const linha=document.createElement('div');linha.style.cssText='padding:12px 0;border-top:1px solid #d8ca87';
+    const nome=document.createElement('div');nome.style.fontWeight='700';nome.textContent=p.nome+' — feriado '+p.origem+' · prazo '+p.limite;linha.append(nome);
+    const controles=document.createElement('div');controles.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';
+    const sel=document.createElement('select');sel.id='v225-data-'+i;sel.style.cssText='max-width:100%;min-width:170px;padding:8px;border-radius:8px';
+    const branco=document.createElement('option');branco.value='';branco.textContent='Sem folga definida';sel.append(branco);
+    const ini=new Date(+$('ano').value,+$('mes').value,1),fim=new Date(+$('ano').value,+$('mes').value+1,0);
+    const salvo=folgasCompensatorias?.[v225Chave(p)]||'';
+    for(let dt=new Date(ini);dt<=fim;dt.setDate(dt.getDate()+1)){
+      const valor=chaveData(dt);
+      if(valor<=p.origem||valor>p.limite||dt.getDay()===0)continue;
+      const opt=document.createElement('option');opt.value=valor;opt.textContent=dt.toLocaleDateString('pt-BR');sel.append(opt);
+    }
+    sel.value=salvo||p.sugestao||'';
+    const btn=document.createElement('button');btn.type='button';btn.className='btn secondary';btn.textContent='Salvar folga';btn.onclick=()=>v225Salvar(i);
+    controles.append(sel,btn);linha.append(controles);
+    if(salvo){const status=document.createElement('small');status.textContent='✅ Folga programada: '+salvo;linha.append(status);}
+    aviso.append(linha);
+  });
 }
 function trocarPeriodo(){
   const mes=+$('mes').value, ano=+$('ano').value;
@@ -5620,6 +5697,7 @@ function trocarPeriodo(){
     : {};
   // V224: não apagar pendências de feriado trabalhado na virada da competência.
   window.v224Pendencias=calcularPendenciasHerdadas(fonteComp,mes,ano);
+  v225Restaurar();
   mostrarPendenciasHerdadas();
   // V124: a memória do rodízio de sábado atravessa a virada do mês (mês anterior + histórico importado + banco).
   { let acum=fonteComp?acumuladoDe(fonteComp):{};
