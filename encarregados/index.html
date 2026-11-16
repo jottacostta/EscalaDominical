@@ -7,7 +7,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V225</title>
+<title>Escala 2×1 — Encarregados V226</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
@@ -2207,7 +2207,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V225 · À mão: escolha quantas pessoas trabalham por domingo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V226 · À mão: escolha quantas pessoas trabalham por domingo</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -5599,7 +5599,15 @@ function v225Restaurar(){
   try{
     const dados=JSON.parse(localStorage.getItem('enc.v225.comp.'+ano+'-'+mes)||'{}');
     const permitidas=new Set((window.v224Pendencias||[]).map(v225Chave));
-    Object.entries(dados).forEach(([k,v])=>{if(permitidas.has(k)&&typeof v==='string')folgasCompensatorias[k]=v;});
+    // V226: nunca reintroduzir uma folga inválida após recarga, mudança de equipe ou bloqueios.
+    Object.entries(dados).forEach(([k,v])=>{
+      if(!permitidas.has(k)||typeof v!=='string')return;
+      const p=(window.v224Pendencias||[]).find(x=>v225Chave(x)===k);
+      if(!p)return;
+      const erro=v225Validar(p,v);
+      if(!erro)folgasCompensatorias[k]=v;
+      else console.warn('[V226] compensação não restaurada:',k,erro);
+    });
   }catch(e){console.warn('[V225] restauração:',e);}
 }
 function v225Validar(p,valor){
@@ -5624,7 +5632,9 @@ function v225Salvar(indice){
   const sel=document.getElementById('v225-data-'+indice);if(!sel)return;
   const valor=sel.value,chave=v225Chave(p);
   if(!valor){
-    delete folgasCompensatorias[chave];v225Persistir();mostrarPendenciasHerdadas();return;
+    delete folgasCompensatorias[chave];v225Persistir();mostrarPendenciasHerdadas();
+    try{renderPreviaFolgasFeriado(true);}catch(e){}
+    return;
   }
   const erro=v225Validar(p,valor);
   if(erro){alert(erro);return;}
@@ -5658,9 +5668,12 @@ function mostrarPendenciasHerdadas(){
     for(let dt=new Date(ini);dt<=fim;dt.setDate(dt.getDate()+1)){
       const valor=chaveData(dt);
       if(valor<=p.origem||valor>p.limite||dt.getDay()===0)continue;
-      const opt=document.createElement('option');opt.value=valor;opt.textContent=dt.toLocaleDateString('pt-BR');sel.append(opt);
+      const opt=document.createElement('option');opt.value=valor;opt.textContent=dt.toLocaleDateString('pt-BR');
+      const erro=v225Validar(p,valor);
+      if(erro&&valor!==salvo){opt.disabled=true;opt.textContent+=' — '+erro;}
+      sel.append(opt);
     }
-    sel.value=salvo||p.sugestao||'';
+    sel.value=salvo||(!v225Validar(p,p.sugestao)?p.sugestao:'')||'';
     const btn=document.createElement('button');btn.type='button';btn.className='btn secondary';btn.textContent='Salvar folga';btn.onclick=()=>v225Salvar(i);
     controles.append(sel,btn);linha.append(controles);
     if(salvo){const status=document.createElement('small');status.textContent='✅ Folga programada: '+salvo;linha.append(status);}
