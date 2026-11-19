@@ -7,10 +7,17 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V226</title>
+<title>Escala 2×1 — Encarregados V227</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V227 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — NÃO CASA FOLGAS SEGUIDAS E ESPALHA (pedido do Gerente, igual à Escala
+       de Setores V360): no "🪄 Sugerir" da 2ª folga fixa (5×2): (1) a 2ª folga NUNCA cai no dia vizinho da 1ª (ex.:
+       1ª segunda + 2ª terça é proibido), para não deixar duas folgas seguidas de DSR; e (2) espalha as 2ªs folgas
+       pelos dias (seg–sáb), uma por dia — como o Encarregados não tem setor, espalha entre todos os encarregados,
+       só dobrando quando há mais gente que dias. "Não encostar na 1ª folga" virou regra DURA; o dia preferido
+       aprendido só é usado se não for vizinho da 1ª e o dia ainda não estiver ocupado. Continua sem cair no mesmo
+       dia da 1ª folga. Desenvolvido com TDD.
 V224 [ChatGPT] — PENDÊNCIAS DE FERIADO NA VIRADA DO MÊS: mostra folgas de feriados trabalhados ainda não compensadas, com prazo e sugestão anterior quando válida. Não concede automaticamente. — ChatGPT
 V223 [Manus] — ✋ À MÃO: SEM NÚMERO FIXO DE PESSOAS POR DOMINGO (pedido do Gerente): no modo À mão, o encarregado escolhe
        quantas pessoas trabalham em cada domingo. Para gerar, precisa marcar pelo menos 1 Encarregado e 1 Subencarregado; cada
@@ -2207,7 +2214,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V226 · À mão: escolha quantas pessoas trabalham por domingo</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V227 · 5×2: 2ª folga sem folgas seguidas (vizinha da 1ª) e espalhada</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -11798,7 +11805,7 @@ function perguntarOrientacaoImpressao(cb){
     const conta=(f,d)=>{ cont[d]=(cont[d]||0)+1; const c=String(f.cargo||''); contCargo[c]=contCargo[c]||{}; contCargo[c][d]=(contCargo[c][d]||0)+1; };
     todos.forEach(f=>{ const a=fixa1(f), b=dia(f); if(a) conta(f,a); if(b) conta(f,b); });
     pessoas.forEach(f=>{ if(dia(f)) return; const a=fixa1(f), c=String(f.cargo||'');
-      let melhor=0,pm=Infinity; for(let d=1;d<=6;d++){ if(d===a) continue; const pen=(a&&Math.abs(d-a)===1?1000:0)+((contCargo[c]||{})[d]||0)*10+(cont[d]||0); if(pen<pm){ pm=pen; melhor=d; } }
+      let melhor=0,pm=Infinity; for(let d=1;d<=6;d++){ if(d===a) continue; const pen=(a&&Math.abs(d-a)===1?10000000:0)+(cont[d]||0)*1000+((contCargo[c]||{})[d]||0)*10+d; if(pen<pm){ pm=pen; melhor=d; } }   // V227: NUNCA casar folga seguida (dia vizinho da 1ª, dominante); depois espalhar as 2ªs folgas (sem setor: entre todos; 1 por dia, só dobra se faltar dia)
       definir(f,melhor); conta(f,melhor); });
   }
   function fechar(){ $i('v323Janela')?.remove(); }
@@ -11855,7 +11862,11 @@ function perguntarOrientacaoImpressao(cb){
     const defOrig=F.definir;
     F.definir=function(f,d){ const r=defOrig.apply(this,arguments); try{ if(Number(d)>=1&&Number(d)<=6) aprender(f,d); }catch(e){} return r; };
     const sugOrig=F.sugerir;
-    F.sugerir=function(pessoas){ try{ (pessoas||[]).forEach(f=>{ if(F.dia(f)) return; const d=diaAprendido(f), a=Number(f&&f.folgaFixa); if(d>=1&&d<=6&&d!==a) F.definir(f,d); }); }catch(e){} return sugOrig.call(this,pessoas); };
+    F.sugerir=function(pessoas){ try{
+      const usados={}; (Array.isArray(equipe)?equipe:[]).forEach(f=>{ const d=Number(F.dia(f)); if(d>=1&&d<=6) usados[d]=(usados[d]||0)+1; });   // V227: dias de 2ª folga já ocupados
+      (pessoas||[]).forEach(f=>{ if(F.dia(f)) return; const d=diaAprendido(f), a=Number(f&&f.folgaFixa);
+        if(d>=1&&d<=6&&d!==a&&(!a||Math.abs(d-a)!==1)&&!usados[d]){ F.definir(f,d); usados[d]=(usados[d]||0)+1; } });   // V227: só repete o dia preferido se NÃO for vizinho da 1ª folga e ninguém já tiver a 2ª folga nesse dia
+    }catch(e){} return sugOrig.call(this,pessoas); };
     F.aprendizado=()=>ler(KA); F.diaAprendido=diaAprendido;
     F.exportar=()=>ler(KF); F.importar=o=>{ if(o&&typeof o==='object') gravar(KF,Object.assign(ler(KF),o)); };
   }
