@@ -7,10 +7,17 @@
 <meta name="theme-color" content="#0047BA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V359</title>
+<title>Escala de Setores — V360</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V360 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — ESPALHA PELO SETOR E NÃO CASA FOLGAS SEGUIDAS (pedido do Gerente): no
+       "🪄 Sugerir" da 2ª folga fixa (5×2): (1) NÃO escolhe mais o mesmo dia para duas pessoas do mesmo setor —
+       espalha uma por dia (seg–sáb), só dobrando quando há mais gente que dias (preserva a cobertura); e (2) NUNCA
+       casa a 2ª folga no dia vizinho da 1ª (ex.: 1ª segunda + 2ª terça é proibido), para não deixar duas folgas
+       seguidas de DSR. "Não encostar na 1ª folga" virou regra DURA (antes era só preferência fraca), acima do
+       espalhamento por setor; o dia preferido aprendido (V324) só é usado se não for vizinho da 1ª e ninguém do
+       setor já tiver a 2ª folga nesse dia. Continua sem cair no mesmo dia da 1ª folga. Desenvolvido com TDD.
 V359 [Claude] — 🕙 DOMINGO ESPECIAL VAI ATÉ 23:40 (pedido do Gerente): no perfil "Domingo especial" (⚙️ Horários de
        domingo e feriado), o fechamento permitido passou de 21:40 para 23:40 — o horário 15:00 às 23:40 (que já existia
        na lista de horários) agora aparece para escolher nos domingos especiais, tanto na escala à mão quanto na geração.
@@ -3119,7 +3126,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V359 · Domingo especial vai até 23:40 (antes 21:40)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V360 · 5×2: 2ª folga espalhada pelo setor e sem folgas seguidas (vizinha da 1ª)</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -18582,7 +18589,7 @@ function domingosQuantidadeForaDoSugerido(){
     const conta=(f,d)=>{ cont[d]=(cont[d]||0)+1; const c=String(f.cargo||''); contCargo[c]=contCargo[c]||{}; contCargo[c][d]=(contCargo[c][d]||0)+1; };
     todos.forEach(f=>{ const a=fixa1(f), b=dia(f); if(a) conta(f,a); if(b) conta(f,b); });
     pessoas.forEach(f=>{ if(dia(f)) return; const a=fixa1(f), c=String(f.cargo||'');
-      let melhor=0,pm=Infinity; for(let d=1;d<=6;d++){ if(d===a) continue; const pen=(a&&Math.abs(d-a)===1?1000:0)+((contCargo[c]||{})[d]||0)*10+(cont[d]||0); if(pen<pm){ pm=pen; melhor=d; } }
+      let melhor=0,pm=Infinity; for(let d=1;d<=6;d++){ if(d===a) continue; const pen=(a&&Math.abs(d-a)===1?10000000:0)+(cont[d]||0)*1000+((contCargo[c]||{})[d]||0)*10+d; if(pen<pm){ pm=pen; melhor=d; } }   // V360: NUNCA casar folga seguida (dia vizinho da 1ª, peso dominante); depois NÃO repetir o dia no mesmo setor (espalha 1 por dia; só dobra se faltar dia)
       definir(f,melhor); conta(f,melhor); });
   }
   function fechar(){ $i('v323Janela')?.remove(); }
@@ -18639,7 +18646,11 @@ function domingosQuantidadeForaDoSugerido(){
     const defOrig=F.definir;
     F.definir=function(f,d){ const r=defOrig.apply(this,arguments); try{ if(Number(d)>=1&&Number(d)<=6) aprender(f,d); }catch(e){} return r; };
     const sugOrig=F.sugerir;
-    F.sugerir=function(pessoas){ try{ (pessoas||[]).forEach(f=>{ if(F.dia(f)) return; const d=diaAprendido(f), a=Number(f&&f.folgaFixa); if(d>=1&&d<=6&&d!==a) F.definir(f,d); }); }catch(e){} return sugOrig.call(this,pessoas); };
+    F.sugerir=function(pessoas){ try{
+      const usados={}; (Array.isArray(equipe)?equipe:[]).forEach(f=>{ const d=Number(F.dia(f)); if(d>=1&&d<=6) usados[d]=(usados[d]||0)+1; });   // V360: dias de 2ª folga já ocupados no setor
+      (pessoas||[]).forEach(f=>{ if(F.dia(f)) return; const d=diaAprendido(f), a=Number(f&&f.folgaFixa);
+        if(d>=1&&d<=6&&d!==a&&(!a||Math.abs(d-a)!==1)&&!usados[d]){ F.definir(f,d); usados[d]=(usados[d]||0)+1; } });   // V360: só repete o dia preferido se NÃO for vizinho da 1ª folga e ninguém do setor já tiver a 2ª folga nesse dia
+    }catch(e){} return sugOrig.call(this,pessoas); };
     F.aprendizado=()=>ler(KA); F.diaAprendido=diaAprendido;
     F.exportar=()=>ler(KF); F.importar=o=>{ if(o&&typeof o==='object') gravar(KF,Object.assign(ler(KF),o)); };
   }
