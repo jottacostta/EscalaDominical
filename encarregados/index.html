@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V227</title>
+<title>Escala 2×1 — Encarregados V228</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V228 [Manus] — 📅 5×2: VALIDAÇÃO OPCIONAL DA 2ª FOLGA: com a caixa marcada, a validação fica desligada; desmarcada, impede folgas consecutivas e duas pessoas do mesmo setor de folga no mesmo dia. Domingo é exceção. A escolha fica no aparelho e no histórico mensal.
 V227 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — NÃO CASA FOLGAS SEGUIDAS E ESPALHA (pedido do Gerente, igual à Escala
        de Setores V360): no "🪄 Sugerir" da 2ª folga fixa (5×2): (1) a 2ª folga NUNCA cai no dia vizinho da 1ª (ex.:
        1ª segunda + 2ª terça é proibido), para não deixar duas folgas seguidas de DSR; e (2) espalha as 2ªs folgas
@@ -2214,7 +2215,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V227 · 5×2: 2ª folga sem folgas seguidas (vizinha da 1ª) e espalhada</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V228 · 5×2: validação opcional da 2ª folga e espalhada</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -6751,7 +6752,7 @@ $('btnWhats').onclick=async (ev)=>{
     p.planejamento={grupos:clone(grupos),datasBalanco:clone(datasBalanco),feriasProgramadas:clone(window.feriasProgramadas||[])};   // V215: férias programadas também vão no histórico do mês
     p.resultado={previsoesDomingo:clone(previsoesDomingo),trabalhoDomingo:clone(trabalhoDomingo),trabalhoFeriado:clone(trabalhoFeriado),descansosDomingo:clone(descansosDomingo),estadoFinalMes:clone(estadoFinalMes),ultimaEscala:clone(ultimaEscala),folgasCompensatorias:clone(folgasCompensatorias),sugestoesFolgasFeriado:clone(sugestoesFolgasFeriado)};
     try{ const m5=window.motor5x2?.estado?.()||{}; const plano=JSON.parse(JSON.stringify(m5.plano||estadoFinalMes?.motor5x2||null));
-      p.config.motor5x2={v:1,cctMensal:!!m5.cctMensal,corte5x2:m5.corte5x2||'2026-12-16',domingoPolicy:m5.domingoPolicy||'2x1',geracaoPendente:!!m5.geracaoPendente};
+      p.config.motor5x2={v:1,cctMensal:!!m5.cctMensal,desativarSegundaFolga:m5.desativarSegundaFolga!==false,corte5x2:m5.corte5x2||'2026-12-16',domingoPolicy:m5.domingoPolicy||'2x1',geracaoPendente:!!m5.geracaoPendente};
       p.resultado.motor5x2=plano; p.resultado.motorPolicy=JSON.parse(JSON.stringify(estadoFinalMes?.motorPolicy||{regime:'5x2',corte5x2:'2026-12-16',cctMensal:!!m5.cctMensal}));
       p.resultado.engineSegments=JSON.parse(JSON.stringify(window.escalaMotor?.historico?.()?.segmentos||[])); p.politicaDominical=m5.domingoPolicy||'2x1';
     }catch(e){}   // V288/V194: plano 5×2, CCT e política dominical vão no histórico guardado.
@@ -11080,11 +11081,21 @@ function perguntarOrientacaoImpressao(cb){
   const domingosAtuais=()=>{try{return trabalhoDomingo||{};}catch(e){return{};}};
   const feriadosAtuais=()=>{const m=dataHojeMes();try{return m?feriados(m.ano,m.mes)||{}:{};}catch(e){return{};}};
   const trabalhoFeriadoAtual=()=>{try{return trabalhoFeriado||{};}catch(e){return{};}};
-  const configPadrao={v:1,cctMensal:false};
+  const configPadrao={v:1,cctMensal:false,desativarSegundaFolga:true};
   let cfg=Object.assign({},configPadrao);
+  const validarSegundaFolga=()=>!SETORES&&cfg.desativarSegundaFolga===false;
+  const setorChave=f=>String(f?.setor||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ');
+  const primeiraFixa=f=>{const d=Number(f?.folgaFixa);return !f?.folgaPendente&&d>=1&&d<=6?d:0;};
+  let designadasEmConstrucao=null;
+  function conflitoSetorSegundaFolga(i,dt){
+    if(!validarSegundaFolga()||!dt||dt.getDay()===0)return false;
+    const eq=equipeAtual(),f=eq[i],setor=setorChave(f);if(!setor)return false;const dia=dt.getDay();
+    if(eq.some((g,j)=>j!==Number(i)&&setorChave(g)===setor&&primeiraFixa(g)===dia))return true;
+    return (designadasEmConstrucao?.[dataKey(dt)]||[]).some(j=>Number(j)!==Number(i)&&setorChave(eq[Number(j)])===setor);
+  }
   try{
     const salvo=JSON.parse(localStorage.getItem(CH)||'null');
-    if(salvo&&typeof salvo==='object'&&!Array.isArray(salvo))cfg={v:1,cctMensal:salvo.cctMensal===true};
+    if(salvo&&typeof salvo==='object'&&!Array.isArray(salvo))cfg={v:1,cctMensal:salvo.cctMensal===true,desativarSegundaFolga:salvo.desativarSegundaFolga!==false};
   }catch(e){}
   let planoAtual=null,ultimaAuditoria=null,persistidosCache=null,persistidosAssinatura='',geracaoPendente=false;
   const salvarCfg=()=>{try{localStorage.setItem(CH,JSON.stringify(cfg));}catch(e){}};
@@ -11210,6 +11221,7 @@ function perguntarOrientacaoImpressao(cb){
     if(typeof v292ContextoTeste!=='undefined'&&v292ContextoTeste) return null;
     const api=window.v323Folga2, f=equipeAtual()[i]; if(!api||!f) return null; const dia=Number(api.dia(f)); if(!(dia>=1&&dia<=6)) return null;
     const dt=sem.find(d=>d.getDay()===dia); if(!dt||!dataGerenciada(dt)||descansoExistente(i,dt)) return null;
+    const primeira=primeiraFixa(f);if(validarSegundaFolga()&&((primeira&&Math.abs(dia-primeira)===1)||conflitoSetorSegundaFolga(i,dt)))return null;
     const m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
     if(m&&dt.getMonth()===m.mes&&dt.getFullYear()===m.ano&&fer[dt.getDate()]&&(tf[dt.getDate()]||[]).map(Number).includes(Number(i))) return null;
     return dt;
@@ -11240,6 +11252,7 @@ function perguntarOrientacaoImpressao(cb){
     if(!dataGerenciada(dt)||dt.getDay()===0||descansoExistente(i,dt)||selecionadas.has(k))return false;
     const f=equipeAtual()[i],m=dataHojeMes(),fer=feriadosAtuais(),tf=trabalhoFeriadoAtual();
     if(f&&m&&fer[dt.getDate()]&&(tf[dt.getDate()]||[]).map(Number).includes(Number(i)))return false;
+    if(conflitoSetorSegundaFolga(i,dt))return false;
     return true;
   }
   function candidatoValido(i,dt,selecionadas,pessoaDesignadas){
@@ -11292,11 +11305,12 @@ function perguntarOrientacaoImpressao(cb){
       const melhor=opcoes[0];if(!melhor)return null;
       return{selecionadas:melhor.set,modoFolga:modo==='separada'&&!melhor.custo.adj?'separada':'ultimo-recurso'};
     };
-    return buscar('separada')||buscar('junta')||buscar('qualquer');
+    return buscar('separada')||(validarSegundaFolga()?null:(buscar('junta')||buscar('qualquer')));
   }
   function construir(){
     const semanas=semanasDoMes(),pessoas={},designadas={},erros=[],carga=cargaRestosBase(semanas);
     memoDescanso=new Map(); // V199
+    designadasEmConstrucao=designadas;
     equipeAtual().forEach((f,i)=>{
       const chave=funcionarioChave(f,i),pessoaDesignadas=new Set(),semanasPessoa=[];
       semanas.forEach(sem=>{
@@ -11327,7 +11341,7 @@ function perguntarOrientacaoImpressao(cb){
       pessoas[String(i)]={chave,nome:String(f?.nome||''),matricula:String(f?.matricula||''),folgas:Array.from(pessoaDesignadas).sort(),semanas:semanasPessoa};
     });
     const plano={schema:2,regime:'5x2',corte5x2:CORTE,periodo:periodoChave(),domingoPolicy:SETORES?'existente':'2x1',cctMensal:!!cfg.cctMensal,pessoas,designadas,semanas:semanas.map(sem=>({inicio:dataKey(sem[0]),fim:dataKey(sem[6]),regime:semanaTem5x2(sem)?'5x2':'6x1'})),erros};
-    memoDescanso=null;plano.parametros=copia(REGIMES);plano.adicionadas=copia(designadas);plano.auditoria=auditar(plano);return plano;
+    memoDescanso=null;designadasEmConstrucao=null;plano.parametros=copia(REGIMES);plano.adicionadas=copia(designadas);plano.auditoria=auditar(plano);return plano;
   }
   function semanaTem5x2(sem){return sem.some(dataGerenciada);}
   function trabalhandoNoPlano(plano,i,dt){return !descansoExistente(i,dt)&&!chaveNoPlano(plano,i,dataKey(dt));}
@@ -11356,11 +11370,16 @@ function perguntarOrientacaoImpressao(cb){
           if(!dataGerenciada(dt)||dt.getDay()===0)add(`${f?.nome||'Pessoa '+(i+1)}: folga 5×2 inválida em ${s}; domingo e período anterior ao corte ficam na política antiga.`);
           if(!Array.isArray(wk.designadas)||!wk.designadas.includes(s))add(`${f?.nome||'Pessoa '+(i+1)}: folga ${s} não está marcada como designada.`);
           const anterior=new Date(dt);anterior.setDate(anterior.getDate()-1);
-          if(folgas.includes(dataKey(anterior)))avisos.push(`${f?.nome||'Pessoa '+(i+1)}: folgas consecutivas em ${dataKey(anterior)} e ${s}; usadas como último recurso.`);
+          if(folgas.includes(dataKey(anterior))){const msg=`${f?.nome||'Pessoa '+(i+1)}: folgas consecutivas em ${dataKey(anterior)} e ${s}; usadas como último recurso.`;if(validarSegundaFolga())add(msg);else avisos.push(msg);}
           if(!porData.has(s))porData.set(s,[]);porData.get(s).push(i);
         });
       });
     });
+    if(validarSegundaFolga())for(const [s,ids] of porData){
+      const dt=dataDe(s);if(!dt||dt.getDay()===0)continue;const porSetor=new Map();
+      [...new Set(ids.map(Number))].forEach(i=>{const setor=setorChave(equipeAtualLista[i]);if(!setor)return;if(!porSetor.has(setor))porSetor.set(setor,[]);porSetor.get(setor).push(i);});
+      porSetor.forEach(indices=>{if(indices.length>1)add(`Conflito de setor: duas pessoas folgam no mesmo dia (${s}).`);});
+    }
     Object.entries(designadas).forEach(([s,ids])=>{
       const dt=dataDe(s);if(!dt){add(`Plano 5×2: data designada inválida (${s}).`);return;}
       if(!Array.isArray(ids)||!ids.length) {add(`Plano 5×2: nenhuma pessoa na data designada ${s}.`);return;}
@@ -11391,6 +11410,7 @@ function perguntarOrientacaoImpressao(cb){
   }
   function limpar(){planoAtual=null;ultimaAuditoria=null;geracaoPendente=false;renderStatus();}
   function invalidar(){planoAtual=null;ultimaAuditoria=null;geracaoPendente=true;try{if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes){delete estadoFinalMes.motor5x2;delete estadoFinalMes.motorPolicy;delete estadoFinalMes.engineSegments;}}catch(e){}renderStatus();}
+  function invalidarConfiguracao(){if(mesTem5x2())invalidar();else limpar();}
   function renderStatus(extra){
     const card=document.getElementById('motorEscalaCard');if(!card)return;
     let box=document.getElementById(PREFIX+'Motor5x2Config');
@@ -11398,8 +11418,9 @@ function perguntarOrientacaoImpressao(cb){
     const a=extra||planoAtual?.auditoria||ultimaAuditoria;
     let texto=geracaoPendente?'⚠️ Você mudou a opção. Gere a escala novamente antes de conferir ou guardar.':(mesTem5x2()?(a?.erros?.length?`⚠️ O plano foi recusado: ${a.erros.length} aviso(s) para revisar.`:(planoAtual?'✅ Plano 5×2 pronto: 2 descansos por semana (o domingo de folga conta como 1).':'Depois de tocar em “Gerar escala”, o app monta 2 descansos por semana (o domingo de folga conta como 1), em dias separados quando possível.')):'O motor 6×1 continua valendo até 15/12/2026.');
     if(a?.erros?.length&&!geracaoPendente)texto=`⚠️ O plano foi recusado: ${a.erros.slice(0,2).join(' · ')}`;
-    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" aria-label="Compensação mensal autorizada por CCT" style="width:18px;height:18px;accent-color:var(--brand)"><span>Compensação mensal (somente com CCT)<br><small id="${PREFIX}CctAviso" style="font-weight:400">Use somente se houver CCT aprovada. Ao mudar, gere a escala de novo.</small></span></label>`;
-    const cb=document.getElementById(PREFIX+'CctMensal');if(cb){cb.checked=!!cfg.cctMensal;cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();invalidar();window.showToast?.(cfg.cctMensal?'CCT ligada. Gere a escala de novo.':'CCT desligada. Gere a escala de novo.','info',true);};}
+    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" aria-label="Compensação mensal autorizada por CCT" style="width:18px;height:18px;accent-color:var(--brand)"><span>Compensação mensal (somente com CCT)<br><small id="${PREFIX}CctAviso" style="font-weight:400">Use somente se houver CCT aprovada. Ao mudar, gere a escala de novo.</small></span></label><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}DesativarSegundaFolga" type="checkbox" aria-label="Desativar validação da 2ª folga" style="width:18px;height:18px;accent-color:var(--brand)"><span>Desativar validação da 2ª folga<br><small style="font-weight:400">Marcada: não confere essas regras. Desmarcada: evita folgas seguidas e duas pessoas do mesmo setor no mesmo dia. Domingo é exceção.</small></span></label>`;
+    const cb=document.getElementById(PREFIX+'CctMensal');if(cb){cb.checked=!!cfg.cctMensal;cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();const usa5x2=mesTem5x2();invalidarConfiguracao();const msg=cfg.cctMensal?'CCT ligada.':'CCT desligada.';window.showToast?.(usa5x2?msg+' Gere a escala de novo.':msg,'info',true);};}
+    const cb2=document.getElementById(PREFIX+'DesativarSegundaFolga');if(cb2){cb2.checked=cfg.desativarSegundaFolga!==false;cb2.onchange=()=>{cfg.desativarSegundaFolga=!!cb2.checked;salvarCfg();const usa5x2=mesTem5x2();invalidarConfiguracao();const msg=cb2.checked?'Validação da 2ª folga desligada.':'Validação da 2ª folga ligada.';window.showToast?.(usa5x2?msg+' Gere a escala de novo.':msg,'info',true);};}
     if(extra){let p=document.getElementById(PREFIX+'Motor5x2Extra');if(!p){p=document.createElement('div');p.id=PREFIX+'Motor5x2Extra';box.appendChild(p);}p.innerHTML=extra;}
   }
   function renderResultado(){try{const m=dataHojeMes();if(!m||typeof ultimaEscala==='undefined'||!ultimaEscala)return;if(typeof renderTabela==='function')renderTabela(m.mes,m.ano,typeof balancoDoMes==='function'?balancoDoMes(m.ano,m.mes):0);}catch(e){console.warn('[5×2] render',e);}}
@@ -11411,8 +11432,9 @@ function perguntarOrientacaoImpressao(cb){
     else{const box=document.getElementById('validacao');if(box){box.className='alert bad';box.textContent='⚠️ A escala 5×2 não foi guardada porque há folgas inválidas. '+a.erros.slice(0,3).join(' ');}}
   }
   const api={
-    estado:()=>({v:2,cctMensal:!!cfg.cctMensal,plano:copia(planoAtual),auditoria:copia(planoAtual?.auditoria||ultimaAuditoria),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1',geracaoPendente:!!geracaoPendente}),
-    configurar:o=>{if(o&&typeof o==='object'){cfg.cctMensal=o.cctMensal===true;salvarCfg();invalidar();}return api.estado();},
+    estado:()=>({v:2,cctMensal:!!cfg.cctMensal,desativarSegundaFolga:cfg.desativarSegundaFolga!==false,plano:copia(planoAtual),auditoria:copia(planoAtual?.auditoria||ultimaAuditoria),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1',geracaoPendente:!!geracaoPendente}),
+    configurar:o=>{if(o&&typeof o==='object'){if(Object.prototype.hasOwnProperty.call(o,'cctMensal'))cfg.cctMensal=o.cctMensal===true;if(Object.prototype.hasOwnProperty.call(o,'desativarSegundaFolga'))cfg.desativarSegundaFolga=o.desativarSegundaFolga===true;salvarCfg();invalidarConfiguracao();}return api.estado();},
+    restaurarConfig:o=>{if(o&&typeof o==='object'&&Object.prototype.hasOwnProperty.call(o,'desativarSegundaFolga')){cfg.desativarSegundaFolga=o.desativarSegundaFolga===true;salvarCfg();renderStatus();}return api.estado();},
     construir,aplicar,auditar,limiteDias:d=>{const dt=dataDe(d);return parametros(dt?baseRegime(d):(mesInteiro5x2()?'5x2':'6x1')).maxSeguidos;},parametros:r=>Object.assign({},parametros(r)),regimes:()=>copia(REGIMES),alvoSemana:(i,inicio)=>{const sem=semanasDoMes().find(w=>dataKey(w[0])===inicio);return sem?alvoSemana(i,sem,!!cfg.cctMensal):null;},mesTem5x2,folgas:i=>copia(planoAtual?.pessoas?.[String(i)]?.folgas||[]),plano:()=>copia(planoAtual),render:renderStatus
   };
   planoAtual=null;
@@ -11426,7 +11448,7 @@ function perguntarOrientacaoImpressao(cb){
   const gerador=SETORES?'gerarSetores':'gerar',originalGerar=window[gerador];
   if(typeof originalGerar==='function')window[gerador]=function(...args){limpar();const r=originalGerar.apply(this,args);try{const modoManual=!SETORES&&['manual','misto'].includes(window.v167Api?.modo?.());if(!modoManual)depoisDeGerar();}catch(e){console.error('[5×2] erro no planejamento',e);window.showToast?.('O motor 5×2 não conseguiu distribuir todas as folgas. Confira os avisos.','warn',true);}return r;};
   const restaurar=window.v194RestaurarProjeto||window.v147RestaurarProjeto||window.restaurarProjeto;
-  if(typeof restaurar==='function'){const restaurarComMotor=function(p){const r=restaurar.apply(this,arguments);const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy;if(c&&typeof c==='object'){cfg={v:1,cctMensal:c.cctMensal===true};salvarCfg();}const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano;if(saved&&auditar(saved).erros.length===0)aplicar(saved);else if(saved){ultimaAuditoria=auditar(saved);limpar();renderStatus(ultimaAuditoria);}else limpar();renderStatus();return r;};window.v194RestaurarProjeto=restaurarComMotor;window.restaurarProjeto=restaurarComMotor;}
+  if(typeof restaurar==='function'){const restaurarComMotor=function(p){const r=restaurar.apply(this,arguments);const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy;if(c&&typeof c==='object'){const salvo2=c.desativarSegundaFolga,mesHistorico=p?.resultado?.estadoFinalMes?.v324?.desativarSegundaFolga;cfg={v:1,cctMensal:c.cctMensal===true,desativarSegundaFolga:typeof salvo2==='boolean'?salvo2:(typeof mesHistorico==='boolean'?mesHistorico:cfg.desativarSegundaFolga!==false)};salvarCfg();}const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano;if(saved&&auditar(saved).erros.length===0)aplicar(saved);else if(saved){ultimaAuditoria=auditar(saved);limpar();renderStatus(ultimaAuditoria);}else limpar();renderStatus();return r;};window.v194RestaurarProjeto=restaurarComMotor;window.restaurarProjeto=restaurarComMotor;}
   ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>{persistidosCache=null;persistidosAssinatura='';limpar();}));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderStatus(),{once:true});else renderStatus();
 })();
@@ -12493,5 +12515,63 @@ window.v210Regime=(function(){
   else montarCard();
 })();
 </script>
+<script>
+(function(){
+  'use strict';
+  /* ═════ V228 — Validação opcional da segunda folga ═════ */
+  const F=window.v323Folga2, api=window.motor5x2;
+  if(!F||!api)return;
+  const ativa=()=>api.estado().desativarSegundaFolga===false;
+  const eq=()=>{try{return Array.isArray(equipe)?equipe:[];}catch(e){return Array.isArray(window.equipe)?window.equipe:[];}};
+  const ativo=f=>String(f?.situacao||'A').toUpperCase()==='A';
+  const normalizar=v=>String(v||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ');
+  const primeira=f=>{const d=Number(f?.folgaFixa);return !f?.folgaPendente&&d>=1&&d<=6?d:0;};
+  function erroEscolha(f,d){
+    d=Number(d);if(!ativa()||d<1||d>6)return '';
+    const a=primeira(f),setor=normalizar(f?.setor);
+    if(a&&Math.abs(d-a)===1)return 'A 2ª folga não pode ficar no dia seguido da 1ª.';
+    if(a===d)return 'A 2ª folga não pode ser no mesmo dia da 1ª.';
+    if(setor&&eq().some(g=>ativo(g)&&g!==f&&normalizar(g?.setor)===setor&&(primeira(g)===d||Number(F.dia(g))===d)))return 'Outra pessoa do mesmo setor já folga nesse dia.';
+    return '';
+  }
+  const definirOriginal=F.definir;
+  F.definir=function(f,d){const erro=erroEscolha(f,d);if(erro){window.showToast?.(erro,'warn',true);return false;}return definirOriginal.apply(this,arguments);};
+  const sugerirOriginal=F.sugerir;
+  F.sugerir=function(pessoas){
+    if(!ativa())return sugerirOriginal.apply(this,arguments);
+    const todos=eq().filter(ativo),cont={};
+    todos.forEach(f=>[primeira(f),Number(F.dia(f))].forEach(d=>{if(d>=1&&d<=6)cont[d]=(cont[d]||0)+1;}));
+    (pessoas||[]).forEach(f=>{if(F.dia(f))return;const a=primeira(f),setor=normalizar(f?.setor),aprendido=Number(F.diaAprendido?.(f)||0);let melhor=0,pontos=Infinity;
+      const podeDia=d=>!(a&&(d===a||Math.abs(d-a)===1))&&!(setor&&todos.some(g=>g!==f&&normalizar(g?.setor)===setor&&(primeira(g)===d||Number(F.dia(g))===d)));
+      if(aprendido>=1&&aprendido<=6&&podeDia(aprendido)&&!todos.some(g=>g!==f&&Number(F.dia(g))===aprendido))melhor=aprendido;
+      if(!melhor)for(let d=1;d<=6;d++){
+        if(!podeDia(d))continue;
+        const valor=(cont[d]||0)*100+d;if(valor<pontos){pontos=valor;melhor=d;}
+      }
+      if(melhor){F.definir(f,melhor);if(Number(F.dia(f))===melhor)cont[melhor]=(cont[melhor]||0)+1;}
+    });
+  };
+  function pessoasModal(){return eq().filter(ativo).sort((a,b)=>(F.dia(a)?1:0)-(F.dia(b)?1:0)||String(a.cargo||'').localeCompare(String(b.cargo||''),'pt-BR')||String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR'));}
+  let modalAtual=null,pessoasNoModal=[];
+  document.addEventListener('change',e=>{
+    const sel=e.target?.closest?.('#v323Janela [data-v323]');if(!sel||!ativa())return;
+    const modal=sel.closest('#v323Janela');if(modal!==modalAtual){modalAtual=modal;pessoasNoModal=pessoasModal();}
+    const f=pessoasNoModal[Number(sel.dataset.v323)],erro=erroEscolha(f,sel.value);if(!erro)return;
+    e.preventDefault();e.stopImmediatePropagation();F.abrir(false);window.showToast?.(erro,'warn',true);
+  },true);
+  document.addEventListener('click',e=>{
+    if(!ativa()||!e.target?.closest?.('#v323Sugerir'))return;
+    e.preventDefault();e.stopImmediatePropagation();F.sugerir(pessoasModal());F.abrir(false);
+  },true);
+  const H=window.v324Historico;
+  if(H){
+    const pacote=H.pacote,stamp=H.stamp,restore=H.restore;
+    H.pacote=function(){return Object.assign({},pacote.apply(this,arguments),{desativarSegundaFolga:api.estado().desativarSegundaFolga});};
+    H.stamp=function(){const r=stamp.apply(this,arguments);try{if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes?.v324)estadoFinalMes.v324=Object.assign({},estadoFinalMes.v324,{desativarSegundaFolga:api.estado().desativarSegundaFolga});}catch(e){}return r;};
+    H.restore=function(){const r=restore.apply(this,arguments);try{const v=estadoFinalMes?.v324?.desativarSegundaFolga;if(typeof v==='boolean')api.restaurarConfig({desativarSegundaFolga:v});}catch(e){}return r;};
+  }
+})();
+</script>
+
 </body>
 </html>
