@@ -203,6 +203,16 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-11-21 — Documentação em dia: Setores V357–V360 + Encarregados V227 — Claude
+- **Contexto:** pedido do Gerente — fechar a lacuna do CHANGELOG/diário das versões do Claude que já estavam no `main` (a documentação vinha sendo adiada "para o próximo PR"). As versões já estavam mergeadas e no ar; esta entrada só documenta.
+- **Setores V357 — 📂 Abrir histórico de outro mês, o Gerente escolhe:** ao abrir um histórico de mês diferente do da tela e com escala pronta, o app pergunta "ver a escala daquele mês" ou "usar como mês passado". Em `escolherAberturaArquivo`; a lógica antiga virou `usarComoMesPassado` (igual à Encarregados V222). PR #172.
+- **Setores V358 — 🛌 Folga fixa no painel "Esta semana" só de quem trabalha o domingo:** em `infoDia`, a folga fixa de um dia de semana só aparece se a pessoa trabalha o domingo que abre a semana (helpers `trabalhaNoDomingoSnap` + `mostraFolgaFixa`; quem nunca pega domingo — foraDom — mantém). Só a tela do início do setor; motor/grade/Excel iguais. Teste `testarInicioFolgaFixaSoComDomingo`. PR #174.
+- **Setores V359 — 🕙 Domingo especial até 23:40:** o teto do perfil especial em `listaHorariosDomingoParaData` passou de 21:40 para 23:40 (o slot 15:00–23:40 já existia na lista). Regular segue 20:40; feriado/balanço iguais. Teste `testarDomingoEspecialAte2340`. PR #174.
+- **Setores V360 + Encarregados V227 — 📅 5×2: a sugestão da 2ª folga não casa folgas seguidas e espalha:** no `v323Folga2.sugerir` (base) e no override de aprendizado (V324/V204): (1) a 2ª folga nunca cai no dia **vizinho** da 1ª (peso dominante — regra dura); (2) espalha as 2ªs folgas 1 por dia (Setores: no mesmo setor; Encarregados: entre todos, sem setor), só dobrando se faltar dia. O dia preferido aprendido só é usado se não for vizinho da 1ª e o dia estiver livre. Testes `testarSugestao2aFolgaMesmoSetor` (Setores) e `testarSugestao2aFolgaEnc` (Encarregados); `testarHistoricoTudo` generalizado para um dia-alvo não-vizinho. PR #178 (squash `6d70ab7`), mergeada e no ar (Vercel produção ✅).
+- **Suíte:** `node rodar.js` (completa) verde a cada versão (`✅ Tudo certo`, ~1450 s, 0 falhas reais); verificações focadas 13/13 (Setores V360) e 11/11 (Encarregados V227).
+- **Armadilha nova:** o teto de adjacência da 2ª folga (V360/V227) **domina** o espalhamento por setor — ao mexer no `sugerir`, mantenha o peso da adjacência acima do `cont[d]` do setor, senão volta a "casar folgas seguidas".
+- **Para quem continuar:** a **Encarregados V228** (validar a 2ª folga do 5×2) é do Manus — documentação dela com ele. **Manuais no Claude Docs** (Setores e Encarregado) ainda pendentes para V357–V360/V227 (precisam de prints). A documentação do repositório (CHANGELOG, este diário, INICIO) está em dia até Setores V360 / Encarregados V227.
+
 ### 2026-11-15 — Revalidação de compensações — Encarregados V226 — ChatGPT
 - Correção preventiva: validar datas restauradas, desabilitar opções inválidas e atualizar prévia ao remover compensação. — ChatGPT
 
