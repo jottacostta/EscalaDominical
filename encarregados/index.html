@@ -7,10 +7,11 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V228</title>
+<title>Escala 2×1 — Encarregados V229</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V229 [Claude] — 📅 5×2: DESATIVAR A 2ª FOLGA = 6×1 (1 FOLGA POR SEMANA) (pedido do Gerente): muda o que a caixa "Desativar a 2ª folga" (V228 do Manus) faz. Antes só desligava a VALIDAÇÃO; agora, MARCADA (padrão), cada pessoa que trabalha o domingo tira 1 folga na semana (regime 6×1, até 6 dias seguidos) em vez de 2; DESMARCADA, continua o 5×2 com 2 folgas e a validação ligada (sem folgas seguidas nem duas do mesmo setor no mesmo dia). A auditoria passa a cobrar 1 descanso (6×1) quando a 2ª folga está desligada, e o app não pede mais a 2ª folga nesse caso. Só o Encarregados. ATENÇÃO MANUS: a QUANTIDADE de folgas passou a ser controlada por um sinalizador novo e separado (cfg.umaFolgaSemana), e o sinalizador do Manus (cfg.desativarSegundaFolga = VALIDAÇÃO) foi preservado intacto; a caixa liga/desliga os dois juntos, e a validação do 5×2 (V360/V227) continua funcionando quando há 2 folgas. Desenvolvido com TDD.
 V228 [Manus] — 📅 5×2: VALIDAÇÃO OPCIONAL DA 2ª FOLGA: com a caixa marcada, a validação fica desligada; desmarcada, impede folgas consecutivas e duas pessoas do mesmo setor de folga no mesmo dia. Domingo é exceção. A escolha fica no aparelho e no histórico mensal.
 V227 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — NÃO CASA FOLGAS SEGUIDAS E ESPALHA (pedido do Gerente, igual à Escala
        de Setores V360): no "🪄 Sugerir" da 2ª folga fixa (5×2): (1) a 2ª folga NUNCA cai no dia vizinho da 1ª (ex.:
@@ -2215,7 +2216,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V228 · 5×2: validação opcional da 2ª folga e espalhada</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V229 · Desativar a 2ª folga = 6×1 (1 folga por semana)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -6752,7 +6753,7 @@ $('btnWhats').onclick=async (ev)=>{
     p.planejamento={grupos:clone(grupos),datasBalanco:clone(datasBalanco),feriasProgramadas:clone(window.feriasProgramadas||[])};   // V215: férias programadas também vão no histórico do mês
     p.resultado={previsoesDomingo:clone(previsoesDomingo),trabalhoDomingo:clone(trabalhoDomingo),trabalhoFeriado:clone(trabalhoFeriado),descansosDomingo:clone(descansosDomingo),estadoFinalMes:clone(estadoFinalMes),ultimaEscala:clone(ultimaEscala),folgasCompensatorias:clone(folgasCompensatorias),sugestoesFolgasFeriado:clone(sugestoesFolgasFeriado)};
     try{ const m5=window.motor5x2?.estado?.()||{}; const plano=JSON.parse(JSON.stringify(m5.plano||estadoFinalMes?.motor5x2||null));
-      p.config.motor5x2={v:1,cctMensal:!!m5.cctMensal,desativarSegundaFolga:m5.desativarSegundaFolga!==false,corte5x2:m5.corte5x2||'2026-12-16',domingoPolicy:m5.domingoPolicy||'2x1',geracaoPendente:!!m5.geracaoPendente};
+      p.config.motor5x2={v:1,cctMensal:!!m5.cctMensal,desativarSegundaFolga:m5.desativarSegundaFolga!==false,umaFolgaSemana:m5.umaFolgaSemana!==false,corte5x2:m5.corte5x2||'2026-12-16',domingoPolicy:m5.domingoPolicy||'2x1',geracaoPendente:!!m5.geracaoPendente};
       p.resultado.motor5x2=plano; p.resultado.motorPolicy=JSON.parse(JSON.stringify(estadoFinalMes?.motorPolicy||{regime:'5x2',corte5x2:'2026-12-16',cctMensal:!!m5.cctMensal}));
       p.resultado.engineSegments=JSON.parse(JSON.stringify(window.escalaMotor?.historico?.()?.segmentos||[])); p.politicaDominical=m5.domingoPolicy||'2x1';
     }catch(e){}   // V288/V194: plano 5×2, CCT e política dominical vão no histórico guardado.
@@ -11081,7 +11082,7 @@ function perguntarOrientacaoImpressao(cb){
   const domingosAtuais=()=>{try{return trabalhoDomingo||{};}catch(e){return{};}};
   const feriadosAtuais=()=>{const m=dataHojeMes();try{return m?feriados(m.ano,m.mes)||{}:{};}catch(e){return{};}};
   const trabalhoFeriadoAtual=()=>{try{return trabalhoFeriado||{};}catch(e){return{};}};
-  const configPadrao={v:1,cctMensal:false,desativarSegundaFolga:true};
+  const configPadrao={v:1,cctMensal:false,desativarSegundaFolga:true,umaFolgaSemana:true};   // V229: umaFolgaSemana = quantidade (true=1 folga/6×1; false=2 folgas/5×2). desativarSegundaFolga = validação (do Manus, V228).
   let cfg=Object.assign({},configPadrao);
   const validarSegundaFolga=()=>!SETORES&&cfg.desativarSegundaFolga===false;
   const setorChave=f=>String(f?.setor||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ');
@@ -11095,7 +11096,7 @@ function perguntarOrientacaoImpressao(cb){
   }
   try{
     const salvo=JSON.parse(localStorage.getItem(CH)||'null');
-    if(salvo&&typeof salvo==='object'&&!Array.isArray(salvo))cfg={v:1,cctMensal:salvo.cctMensal===true,desativarSegundaFolga:salvo.desativarSegundaFolga!==false};
+    if(salvo&&typeof salvo==='object'&&!Array.isArray(salvo))cfg={v:1,cctMensal:salvo.cctMensal===true,desativarSegundaFolga:salvo.desativarSegundaFolga!==false,umaFolgaSemana:salvo.umaFolgaSemana!==false};
   }catch(e){}
   let planoAtual=null,ultimaAuditoria=null,persistidosCache=null,persistidosAssinatura='',geracaoPendente=false;
   const salvarCfg=()=>{try{localStorage.setItem(CH,JSON.stringify(cfg));}catch(e){}};
@@ -11208,7 +11209,9 @@ function perguntarOrientacaoImpressao(cb){
     if(!dom||!dataGerenciada(dom)||!m||dom.getMonth()!==m.mes||dom.getFullYear()!==m.ano)return false;
     return !(domingosAtuais()[dom.getDate()]||[]).map(Number).includes(Number(i)); // vale a escala do domingo, não a folga fixa
   }
-  const alvoSemana=(i,sem,cct)=>cct?1:Math.max(0,parametros('5x2').descansos-(domingoDeFolga(i,sem)?1:0));
+  const descansosSemana=()=>(!SETORES&&cfg.umaFolgaSemana!==false)?1:parametros('5x2').descansos;   // V229: umaFolgaSemana -> 1 descanso/semana (6x1); 2ª folga ligada -> 2 (5x2)
+  const maxSeguidosRegime=(k)=>{const regDia=baseRegime(k);return (!SETORES&&cfg.umaFolgaSemana!==false&&regDia==='5x2')?parametros('6x1').maxSeguidos:parametros(regDia).maxSeguidos;};   // V229: com 1 folga/semana no Encarregados o limite é o do 6×1 (6 dias) — igual na geração e na auditoria, para não entrar folga a mais à toa
+  const alvoSemana=(i,sem,cct)=>cct?1:Math.max(0,descansosSemana()-(domingoDeFolga(i,sem)?1:0));
   // V199: a folga compensatória do feriado é folga a mais; não conta como descanso da semana.
   // V321/V201: feriado (seg–sáb) em que a pessoa não trabalha — é descanso a mais, não conta nas 2 folgas da semana.
   function feriadoDeFolga(i,dt){
@@ -11243,7 +11246,7 @@ function perguntarOrientacaoImpressao(cb){
     for(let dt=new Date(ini);dt<=sem[6];dt.setDate(dt.getDate()+1)){
       const k=dataKey(dt);
       if(descansoMemo(i,dt)||pessoaDesignadas.has(k)||escolhidas.has(k)){seq=0;continue;}
-      seq++;if(dt>=sem[0]&&seq>parametros(baseRegime(k)).maxSeguidos)excesso++;
+      seq++;if(dt>=sem[0]&&seq>maxSeguidosRegime(k))excesso++;
     }
     return {excesso,final:seq};
   }
@@ -11391,7 +11394,8 @@ function perguntarOrientacaoImpressao(cb){
       let seq=0;const primeiro=esperadas[0]?.[0]||semanas[0]?.[0];if(!primeiro)return;
       const ini=new Date(primeiro);ini.setDate(ini.getDate()-6);const fim=semanas.at(-1)?.[6]||primeiro;
       for(let dt=new Date(ini);dt<=fim;dt.setDate(dt.getDate()+1)){
-        const trabalha=trabalhandoNoPlano(plano,i,dt),lim=parametros(baseRegime(dataKey(dt))).maxSeguidos; // V199
+        const lim=maxSeguidosRegime(dataKey(dt)); // V199/V229: uma folga por semana no Encarregados -> limite 6x1 (ate 6 dias seguidos)
+        const trabalha=trabalhandoNoPlano(plano,i,dt);
         if(trabalha){seq++;if(seq>lim)add(`${f?.nome||'Pessoa '+(i+1)}: ${seq} dias seguidos na fronteira ${dataKey(dt)} (máximo ${lim}).`);}else seq=0;
       }
     });
@@ -11416,15 +11420,17 @@ function perguntarOrientacaoImpressao(cb){
     let box=document.getElementById(PREFIX+'Motor5x2Config');
     if(!box){box=document.createElement('div');box.id=PREFIX+'Motor5x2Config';box.style.cssText='margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)';card.appendChild(box);}
     const a=extra||planoAtual?.auditoria||ultimaAuditoria;
-    let texto=geracaoPendente?'⚠️ Você mudou a opção. Gere a escala novamente antes de conferir ou guardar.':(mesTem5x2()?(a?.erros?.length?`⚠️ O plano foi recusado: ${a.erros.length} aviso(s) para revisar.`:(planoAtual?'✅ Plano 5×2 pronto: 2 descansos por semana (o domingo de folga conta como 1).':'Depois de tocar em “Gerar escala”, o app monta 2 descansos por semana (o domingo de folga conta como 1), em dias separados quando possível.')):'O motor 6×1 continua valendo até 15/12/2026.');
+    const umaFolga=(!SETORES&&cfg.umaFolgaSemana!==false), nomeReg=umaFolga?'6×1':'5×2';   // V229
+    const descTxt=umaFolga?'1 folga por semana (quem trabalha o domingo tira 1 folga)':'2 descansos por semana (o domingo de folga conta como 1)';
+    let texto=geracaoPendente?'⚠️ Você mudou a opção. Gere a escala novamente antes de conferir ou guardar.':(mesTem5x2()?(a?.erros?.length?`⚠️ O plano foi recusado: ${a.erros.length} aviso(s) para revisar.`:(planoAtual?`✅ Plano ${nomeReg} pronto: ${descTxt}.`:`Depois de tocar em “Gerar escala”, o app monta ${descTxt}${umaFolga?'':', em dias separados quando possível'}.`)):'O motor 6×1 continua valendo até 15/12/2026.');
     if(a?.erros?.length&&!geracaoPendente)texto=`⚠️ O plano foi recusado: ${a.erros.slice(0,2).join(' · ')}`;
-    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" aria-label="Compensação mensal autorizada por CCT" style="width:18px;height:18px;accent-color:var(--brand)"><span>Compensação mensal (somente com CCT)<br><small id="${PREFIX}CctAviso" style="font-weight:400">Use somente se houver CCT aprovada. Ao mudar, gere a escala de novo.</small></span></label><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}DesativarSegundaFolga" type="checkbox" aria-label="Desativar validação da 2ª folga" style="width:18px;height:18px;accent-color:var(--brand)"><span>Desativar validação da 2ª folga<br><small style="font-weight:400">Marcada: não confere essas regras. Desmarcada: evita folgas seguidas e duas pessoas do mesmo setor no mesmo dia. Domingo é exceção.</small></span></label>`;
+    box.innerHTML=`<b>📅 Folgas do 5×2</b><br><small>${texto}</small><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}CctMensal" type="checkbox" aria-label="Compensação mensal autorizada por CCT" style="width:18px;height:18px;accent-color:var(--brand)"><span>Compensação mensal (somente com CCT)<br><small id="${PREFIX}CctAviso" style="font-weight:400">Use somente se houver CCT aprovada. Ao mudar, gere a escala de novo.</small></span></label><label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:700;font-size:12px"><input id="${PREFIX}DesativarSegundaFolga" type="checkbox" aria-label="Desativar a 2ª folga (usar 6×1, 1 folga por semana)" style="width:18px;height:18px;accent-color:var(--brand)"><span>Desativar a 2ª folga (6×1: 1 folga por semana)<br><small style="font-weight:400">Marcada: quem trabalha o domingo tira 1 folga na semana (6×1, até 6 dias seguidos). Desmarcada: 5×2 com 2 folgas, em dias separados e sem duas pessoas do mesmo setor no mesmo dia. Domingo é exceção.</small></span></label>`;
     const cb=document.getElementById(PREFIX+'CctMensal');if(cb){cb.checked=!!cfg.cctMensal;cb.onchange=()=>{cfg.cctMensal=!!cb.checked;salvarCfg();const usa5x2=mesTem5x2();invalidarConfiguracao();const msg=cfg.cctMensal?'CCT ligada.':'CCT desligada.';window.showToast?.(usa5x2?msg+' Gere a escala de novo.':msg,'info',true);};}
-    const cb2=document.getElementById(PREFIX+'DesativarSegundaFolga');if(cb2){cb2.checked=cfg.desativarSegundaFolga!==false;cb2.onchange=()=>{cfg.desativarSegundaFolga=!!cb2.checked;salvarCfg();const usa5x2=mesTem5x2();invalidarConfiguracao();const msg=cb2.checked?'Validação da 2ª folga desligada.':'Validação da 2ª folga ligada.';window.showToast?.(usa5x2?msg+' Gere a escala de novo.':msg,'info',true);};}
+    const cb2=document.getElementById(PREFIX+'DesativarSegundaFolga');if(cb2){cb2.checked=cfg.umaFolgaSemana!==false;cb2.onchange=()=>{cfg.umaFolgaSemana=!!cb2.checked;cfg.desativarSegundaFolga=!!cb2.checked;salvarCfg();const usa5x2=mesTem5x2();invalidarConfiguracao();const msg=cb2.checked?'2ª folga desligada: 1 folga por semana (6×1).':'2ª folga ligada: 2 folgas por semana (5×2).';window.showToast?.(usa5x2?msg+' Gere a escala de novo.':msg,'info',true);};}   // V229: a caixa controla a quantidade (umaFolgaSemana) e, junto, a validação do Manus (desativarSegundaFolga)
     if(extra){let p=document.getElementById(PREFIX+'Motor5x2Extra');if(!p){p=document.createElement('div');p.id=PREFIX+'Motor5x2Extra';box.appendChild(p);}p.innerHTML=extra;}
   }
   function renderResultado(){try{const m=dataHojeMes();if(!m||typeof ultimaEscala==='undefined'||!ultimaEscala)return;if(typeof renderTabela==='function')renderTabela(m.mes,m.ano,typeof balancoDoMes==='function'?balancoDoMes(m.ano,m.mes):0);}catch(e){console.warn('[5×2] render',e);}}
-  function resumoAuditoria(a){if(!a)return '';if(!a.erros.length){const av=a.avisos?.length?`<br><span style="color:var(--warn,#a66b00)">⚠️ ${a.avisos.slice(0,2).map(x=>String(x).replace(/</g,'&lt;')).join(' · ')}${a.avisos.length>2?' · …':''}</span>`:'';return `<span style="color:var(--ok)">✅ 5×2: 2 descansos por semana (o domingo de folga conta como 1), separados quando possível, e no máximo 5 dias seguidos.</span>${av}`;}return `<span style="color:var(--danger)">⚠️ 5×2: ${a.erros.slice(0,3).map(x=>String(x).replace(/</g,'&lt;')).join(' · ')}${a.erros.length>3?' · …':''}</span>`;}
+  function resumoAuditoria(a){if(!a)return '';if(!a.erros.length){const av=a.avisos?.length?`<br><span style="color:var(--warn,#a66b00)">⚠️ ${a.avisos.slice(0,2).map(x=>String(x).replace(/</g,'&lt;')).join(' · ')}${a.avisos.length>2?' · …':''}</span>`:'';const uma=(!SETORES&&cfg.umaFolgaSemana!==false);return `<span style="color:var(--ok)">✅ ${uma?'6×1: 1 folga por semana (até 6 dias seguidos)':'5×2: 2 descansos por semana (o domingo de folga conta como 1), separados quando possível, e no máximo 5 dias seguidos'}.</span>${av}`;}return `<span style="color:var(--danger)">⚠️ 5×2: ${a.erros.slice(0,3).map(x=>String(x).replace(/</g,'&lt;')).join(' · ')}${a.erros.length>3?' · …':''}</span>`;}
   function depoisDeGerar(){
     if(!mesTem5x2())return;
     const plano=construir(),a=plano.auditoria||auditar(plano);
@@ -11432,9 +11438,9 @@ function perguntarOrientacaoImpressao(cb){
     else{const box=document.getElementById('validacao');if(box){box.className='alert bad';box.textContent='⚠️ A escala 5×2 não foi guardada porque há folgas inválidas. '+a.erros.slice(0,3).join(' ');}}
   }
   const api={
-    estado:()=>({v:2,cctMensal:!!cfg.cctMensal,desativarSegundaFolga:cfg.desativarSegundaFolga!==false,plano:copia(planoAtual),auditoria:copia(planoAtual?.auditoria||ultimaAuditoria),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1',geracaoPendente:!!geracaoPendente}),
-    configurar:o=>{if(o&&typeof o==='object'){if(Object.prototype.hasOwnProperty.call(o,'cctMensal'))cfg.cctMensal=o.cctMensal===true;if(Object.prototype.hasOwnProperty.call(o,'desativarSegundaFolga'))cfg.desativarSegundaFolga=o.desativarSegundaFolga===true;salvarCfg();invalidarConfiguracao();}return api.estado();},
-    restaurarConfig:o=>{if(o&&typeof o==='object'&&Object.prototype.hasOwnProperty.call(o,'desativarSegundaFolga')){cfg.desativarSegundaFolga=o.desativarSegundaFolga===true;salvarCfg();renderStatus();}return api.estado();},
+    estado:()=>({v:2,cctMensal:!!cfg.cctMensal,desativarSegundaFolga:cfg.desativarSegundaFolga!==false,umaFolgaSemana:cfg.umaFolgaSemana!==false,plano:copia(planoAtual),auditoria:copia(planoAtual?.auditoria||ultimaAuditoria),corte5x2:CORTE,domingoPolicy:SETORES?'existente':'2x1',geracaoPendente:!!geracaoPendente}),
+    configurar:o=>{if(o&&typeof o==='object'){if(Object.prototype.hasOwnProperty.call(o,'cctMensal'))cfg.cctMensal=o.cctMensal===true;if(Object.prototype.hasOwnProperty.call(o,'desativarSegundaFolga'))cfg.desativarSegundaFolga=o.desativarSegundaFolga===true;if(Object.prototype.hasOwnProperty.call(o,'umaFolgaSemana'))cfg.umaFolgaSemana=o.umaFolgaSemana===true;salvarCfg();invalidarConfiguracao();}return api.estado();},
+    restaurarConfig:o=>{if(o&&typeof o==='object'){if(Object.prototype.hasOwnProperty.call(o,'desativarSegundaFolga'))cfg.desativarSegundaFolga=o.desativarSegundaFolga===true;if(Object.prototype.hasOwnProperty.call(o,'umaFolgaSemana'))cfg.umaFolgaSemana=o.umaFolgaSemana===true;salvarCfg();renderStatus();}return api.estado();},
     construir,aplicar,auditar,limiteDias:d=>{const dt=dataDe(d);return parametros(dt?baseRegime(d):(mesInteiro5x2()?'5x2':'6x1')).maxSeguidos;},parametros:r=>Object.assign({},parametros(r)),regimes:()=>copia(REGIMES),alvoSemana:(i,inicio)=>{const sem=semanasDoMes().find(w=>dataKey(w[0])===inicio);return sem?alvoSemana(i,sem,!!cfg.cctMensal):null;},mesTem5x2,folgas:i=>copia(planoAtual?.pessoas?.[String(i)]?.folgas||[]),plano:()=>copia(planoAtual),render:renderStatus
   };
   planoAtual=null;
@@ -11448,7 +11454,7 @@ function perguntarOrientacaoImpressao(cb){
   const gerador=SETORES?'gerarSetores':'gerar',originalGerar=window[gerador];
   if(typeof originalGerar==='function')window[gerador]=function(...args){limpar();const r=originalGerar.apply(this,args);try{const modoManual=!SETORES&&['manual','misto'].includes(window.v167Api?.modo?.());if(!modoManual)depoisDeGerar();}catch(e){console.error('[5×2] erro no planejamento',e);window.showToast?.('O motor 5×2 não conseguiu distribuir todas as folgas. Confira os avisos.','warn',true);}return r;};
   const restaurar=window.v194RestaurarProjeto||window.v147RestaurarProjeto||window.restaurarProjeto;
-  if(typeof restaurar==='function'){const restaurarComMotor=function(p){const r=restaurar.apply(this,arguments);const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy;if(c&&typeof c==='object'){const salvo2=c.desativarSegundaFolga,mesHistorico=p?.resultado?.estadoFinalMes?.v324?.desativarSegundaFolga;cfg={v:1,cctMensal:c.cctMensal===true,desativarSegundaFolga:typeof salvo2==='boolean'?salvo2:(typeof mesHistorico==='boolean'?mesHistorico:cfg.desativarSegundaFolga!==false)};salvarCfg();}const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano;if(saved&&auditar(saved).erros.length===0)aplicar(saved);else if(saved){ultimaAuditoria=auditar(saved);limpar();renderStatus(ultimaAuditoria);}else limpar();renderStatus();return r;};window.v194RestaurarProjeto=restaurarComMotor;window.restaurarProjeto=restaurarComMotor;}
+  if(typeof restaurar==='function'){const restaurarComMotor=function(p){const r=restaurar.apply(this,arguments);const c=p?.config?.motor5x2||p?.motor5x2||p?.resultado?.motorPolicy;if(c&&typeof c==='object'){const salvo2=c.desativarSegundaFolga,mesHistorico=p?.resultado?.estadoFinalMes?.v324?.desativarSegundaFolga,salvoU=c.umaFolgaSemana,mesHistoricoU=p?.resultado?.estadoFinalMes?.v324?.umaFolgaSemana;cfg={v:1,cctMensal:c.cctMensal===true,desativarSegundaFolga:typeof salvo2==='boolean'?salvo2:(typeof mesHistorico==='boolean'?mesHistorico:cfg.desativarSegundaFolga!==false),umaFolgaSemana:typeof salvoU==='boolean'?salvoU:(typeof mesHistoricoU==='boolean'?mesHistoricoU:cfg.umaFolgaSemana!==false)};salvarCfg();}const saved=p?.resultado?.motor5x2||p?.resultado?.estadoFinalMes?.motor5x2||p?.config?.motor5x2?.plano;if(saved&&auditar(saved).erros.length===0)aplicar(saved);else if(saved){ultimaAuditoria=auditar(saved);limpar();renderStatus(ultimaAuditoria);}else limpar();renderStatus();return r;};window.v194RestaurarProjeto=restaurarComMotor;window.restaurarProjeto=restaurarComMotor;}
   ['mes','ano'].forEach(id=>document.getElementById(id)?.addEventListener('change',()=>{persistidosCache=null;persistidosAssinatura='';limpar();}));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderStatus(),{once:true});else renderStatus();
 })();
@@ -11851,10 +11857,12 @@ function perguntarOrientacaoImpressao(cb){
       $i('v323Voltar').onclick=fechar; };
     document.body.appendChild(j); desenhar();
   }
-  // Antes de gerar um mês com 5×2: todos precisam da 2ª folga fixa.
-  document.addEventListener('click',e=>{ if(!e.target.closest?.('#btnGerar')) return; if(!mesUsa5x2()||!faltam().length) return; e.preventDefault(); e.stopImmediatePropagation(); abrir(true); },true);
-  // Ao escolher 5×2 no quadro do modelo, já pede a 2ª folga.
-  document.addEventListener('click',e=>{ const b=e.target.closest?.('#v322Modelo [data-v322="5x2"]'); if(!b) return; setTimeout(()=>{ if(faltam().length) abrir(false); },0); });
+  // V229: quando a 2ª folga está DESLIGADA, cada semana tem 1 folga (6×1) e não se pede a 2ª folga.
+  const segundaFolgaDesligada=()=>{ try{ return !!(window.motor5x2?.estado?.().umaFolgaSemana); }catch(e){ return false; } };
+  // Antes de gerar um mês com 5×2: todos precisam da 2ª folga fixa (só quando a 2ª folga está ligada).
+  document.addEventListener('click',e=>{ if(!e.target.closest?.('#btnGerar')) return; if(!mesUsa5x2()||!faltam().length||segundaFolgaDesligada()) return; e.preventDefault(); e.stopImmediatePropagation(); abrir(true); },true);
+  // Ao escolher 5×2 no quadro do modelo, já pede a 2ª folga (só quando a 2ª folga está ligada).
+  document.addEventListener('click',e=>{ const b=e.target.closest?.('#v322Modelo [data-v322="5x2"]'); if(!b) return; setTimeout(()=>{ if(faltam().length&&!segundaFolgaDesligada()) abrir(false); },0); });
   // Editar equipe: botão para ver e mudar a 2ª folga fixa.
   function botaoEditor(){ const add=$i('btnAdicionarFuncionario'); if(!add||$i('v323BtnEditor')) return; const b=document.createElement('button'); b.type='button'; b.className='btn secondary'; b.id='v323BtnEditor'; b.textContent='📅 2ª folga fixa (5×2)'; b.style.marginLeft='6px'; b.onclick=()=>abrir(false); add.after(b); }
   botaoEditor(); setTimeout(botaoEditor,800);
@@ -12566,9 +12574,9 @@ window.v210Regime=(function(){
   const H=window.v324Historico;
   if(H){
     const pacote=H.pacote,stamp=H.stamp,restore=H.restore;
-    H.pacote=function(){return Object.assign({},pacote.apply(this,arguments),{desativarSegundaFolga:api.estado().desativarSegundaFolga});};
-    H.stamp=function(){const r=stamp.apply(this,arguments);try{if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes?.v324)estadoFinalMes.v324=Object.assign({},estadoFinalMes.v324,{desativarSegundaFolga:api.estado().desativarSegundaFolga});}catch(e){}return r;};
-    H.restore=function(){const r=restore.apply(this,arguments);try{const v=estadoFinalMes?.v324?.desativarSegundaFolga;if(typeof v==='boolean')api.restaurarConfig({desativarSegundaFolga:v});}catch(e){}return r;};
+    H.pacote=function(){return Object.assign({},pacote.apply(this,arguments),{desativarSegundaFolga:api.estado().desativarSegundaFolga,umaFolgaSemana:api.estado().umaFolgaSemana});};
+    H.stamp=function(){const r=stamp.apply(this,arguments);try{if(typeof estadoFinalMes!=='undefined'&&estadoFinalMes?.v324)estadoFinalMes.v324=Object.assign({},estadoFinalMes.v324,{desativarSegundaFolga:api.estado().desativarSegundaFolga,umaFolgaSemana:api.estado().umaFolgaSemana});}catch(e){}return r;};
+    H.restore=function(){const r=restore.apply(this,arguments);try{const v=estadoFinalMes?.v324?.desativarSegundaFolga,u=estadoFinalMes?.v324?.umaFolgaSemana;if(typeof v==='boolean'||typeof u==='boolean')api.restaurarConfig(Object.assign({},typeof v==='boolean'?{desativarSegundaFolga:v}:{},typeof u==='boolean'?{umaFolgaSemana:u}:{}));}catch(e){}return r;};
   }
 })();
 </script>
