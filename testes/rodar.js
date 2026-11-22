@@ -4258,6 +4258,10 @@ function testarPwaInstalavel(pasta, app, nome, versaoMin){
   const buf = fs.readFileSync(path.join(dir, 'icon-512.png'));
   const ehPng = buf.slice(0, 8).toString('hex') === '89504e470d0a1a0a', w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
   ok(ehPng && w === 512 && h === 512, nome + ': icon-512.png é um PNG 512×512 (' + w + '×' + h + ')');
+  if(v >= (nome === 'Setores' ? 362 : 231)){   // V231/V362: aviso "Instalar agora" na tela (beforeinstallprompt)
+    ok(/beforeinstallprompt/.test(html) && /pwaInstalarAviso/.test(html), nome + ': o HTML tem o aviso de instalar na tela (beforeinstallprompt)');
+    ok(/Instalar agora/.test(html) && /Agora n[aã]o/.test(html), nome + ': o aviso tem os botões "Instalar agora" e "Agora não"');
+  }
 }
 
 (async () => {
