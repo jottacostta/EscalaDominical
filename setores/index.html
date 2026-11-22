@@ -5,12 +5,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0047BA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Setores">
+<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V360</title>
+<title>Escala de Setores — V361</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V361 [Claude] — 📲 APP INSTALÁVEL (PWA) (pedido do Gerente): a Escala de Setores agora pode ser INSTALADA pelo Chrome do Android (antes só dava "criar atalho"). Foram adicionados, ao lado do index.html, um manifesto (manifest.webmanifest), um service worker (sw.js, que guarda o app para abrir offline) e ícones 192/512 (inclusive maskable). O HTML passou a apontar para o manifesto e a registrar o service worker. Nada muda na escala em si; é só a "casca" do app. Mesma adição feita na Escala de Encarregados (V230).
 V360 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — ESPALHA PELO SETOR E NÃO CASA FOLGAS SEGUIDAS (pedido do Gerente): no
        "🪄 Sugerir" da 2ª folga fixa (5×2): (1) NÃO escolhe mais o mesmo dia para duas pessoas do mesmo setor —
        espalha uma por dia (seg–sáb), só dobrando quando há mais gente que dias (preserva a cobertura); e (2) NUNCA
@@ -3126,7 +3133,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V360 · 5×2: 2ª folga espalhada pelo setor e sem folgas seguidas (vizinha da 1ª)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V361 · App instalável (PWA): manifesto, service worker e ícones</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
