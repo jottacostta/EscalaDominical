@@ -203,6 +203,14 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 
 ## 5. Diário (mais novo primeiro)
 
+### 2026-11-22 — Encarregados 6×1 (1 folga por semana) + PWA instalável nas duas escalas — Setores V361, Encarregados V229–V230 — Claude
+- **Contexto:** pedido do Gerente. (1) Nas telas de dezembro/2026 apareciam "folgas em excesso" no Encarregados (2 folgas por semana no 5×2, que amontoavam). (2) O app não instalava como PWA no Android (só "criar atalho").
+- **O que mudou:**
+  - **Encarregados V229** — a caixa "Desativar a 2ª folga" passou a montar **1 folga por semana (6×1)** por padrão; desmarcando volta ao 5×2 com 2 folgas e validação. A quantidade virou um sinalizador NOVO e separado (`cfg.umaFolgaSemana`), deixando o do Manus (`cfg.desativarSegundaFolga` = validação do V228) intacto; a caixa liga/desliga os dois juntos. Geração e auditoria passaram a usar um único limite de dias seguidos (`maxSeguidosRegime`: 6 no 6×1), para não entrar folga a mais à toa.
+  - **PWA (Encarregados V230, Setores V361)** — as duas escalas viraram app instalável: `manifest.webmanifest`, `sw.js` (service worker; rede primeiro, cai no cache offline) e ícones 192/512/maskable ao lado de cada `index.html`; o HTML aponta para o manifesto e registra o service worker (só em http/https; em `file://` não tenta, para não quebrar os testes).
+- **Testes (TDD):** novo `testarEncDesativar2aFolga6x1` (6×1 = 1 folga; 5×2 = 2 folgas) e novo `testarPwaInstalavel` (manifesto, service worker e ícones nas duas escalas). Cinco testes do 5×2 do Manus no Encarregados passaram a pedir `umaFolgaSemana:false` para conferir o 5×2 (já que o padrão virou 1 folga). Suíte completa verde; CI verde nas duas PRs (#181 V229, #182 PWA).
+- **Para quem continuar:** Encarregados V230 e Setores V361 estão no `main` e no ar. **Manuais no Claude Docs** (prints do app instalável e do 6×1) ainda pendentes (precisam de telas, fora do ambiente de testes). A documentação do repositório (CHANGELOG, este diário, INICIO) está em dia até Setores V361 / Encarregados V230.
+
 ### 2026-11-21 — Documentação em dia: Setores V357–V360 + Encarregados V227 — Claude
 - **Contexto:** pedido do Gerente — fechar a lacuna do CHANGELOG/diário das versões do Claude que já estavam no `main` (a documentação vinha sendo adiada "para o próximo PR"). As versões já estavam mergeadas e no ar; esta entrada só documenta.
 - **Setores V357 — 📂 Abrir histórico de outro mês, o Gerente escolhe:** ao abrir um histórico de mês diferente do da tela e com escala pronta, o app pergunta "ver a escala daquele mês" ou "usar como mês passado". Em `escolherAberturaArquivo`; a lógica antiga virou `usarComoMesPassado` (igual à Encarregados V222). PR #172.
@@ -1206,6 +1214,9 @@ O detalhe de cada versão está no `CHANGELOG.md`.
 ---
 
 ## 6. Pendências e ideias (atualize ao resolver ou criar)
+
+- **Manuais (Claude Docs) — V229/V230/V361:** precisam de prints novos do **app instalável (PWA)** e do **Encarregados em 6×1 (1 folga por semana)**; não dá para gerar no ambiente de testes (precisa de telas do app).
+- **Armadilha nova (Encarregados V229):** a caixa "Desativar a 2ª folga" controla DOIS sinalizadores separados — `umaFolgaSemana` (quantidade: 1 folga/6×1 × 2 folgas/5×2) e `desativarSegundaFolga` (validação, do V228 do Manus). Ao mexer no Encarregados, não volte a juntar os dois num só: foi separado de propósito para não derrubar a obra do 5×2 do Manus.
 
 - **Auditoria documental de 17/10/2026:** validar as referências e confrontar integralmente PRD, TRD, fluxos, Design System, modelo de dados e plano com os apps atuais, Setores V286, Encarregados V190 e `testes/rodar.js`. A auditoria confirmou que os seis pilares são mapas iniciais, não validados por completo; não declarar a documentação concluída antes de registrar evidências por documento. Conferir também o resultado final do workflow da PR #82.
 - **Motor 5×2 — feito na V303/V199 (Claude, 23/10/2026):** alvo de 2 descansos contando o domingo de folga, ≤5 dias seguidos com a fronteira 15/16/12, compensatória fora do descanso, plano montado depois do Gerar e sem plano fantasma do mesmo mês. **Falta:** limite de cobertura por dia no motor oficial (#116 item 2, decisão do Gerente), CCT mensal com 2 descansos na média, e homologação com dados reais. Texto anterior: ligar `window.escalaMotor` a um dispatcher separado, gerar duas folgas semanais de verdade sem apenas trocar o limite de dias consecutivos, carregar o estado dos últimos 7 dias na fronteira 15/16/12/2026, manter domingos 2×1 no app de Encarregados, auditar o mesmo plano usado na geração e persistir `motorPolicy`/`engineSegments` no histórico sem permitir que históricos antigos mudem a política vigente.
