@@ -6,11 +6,18 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta name="theme-color" content="#0047BA"/>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Encarregados">
+<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V229</title>
+<title>Escala 2×1 — Encarregados V230</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V230 [Claude] — 📲 APP INSTALÁVEL (PWA) (pedido do Gerente): a Escala de Encarregados agora pode ser INSTALADA pelo Chrome do Android (antes só dava "criar atalho"). Foram adicionados, ao lado do index.html, um manifesto (manifest.webmanifest), um service worker (sw.js, que guarda o app para abrir offline) e ícones 192/512 (inclusive maskable). O HTML passou a apontar para o manifesto e a registrar o service worker. Nada muda na escala em si; é só a "casca" do app. Mesma adição feita na Escala de Setores (V361).
 V229 [Claude] — 📅 5×2: DESATIVAR A 2ª FOLGA = 6×1 (1 FOLGA POR SEMANA) (pedido do Gerente): muda o que a caixa "Desativar a 2ª folga" (V228 do Manus) faz. Antes só desligava a VALIDAÇÃO; agora, MARCADA (padrão), cada pessoa que trabalha o domingo tira 1 folga na semana (regime 6×1, até 6 dias seguidos) em vez de 2; DESMARCADA, continua o 5×2 com 2 folgas e a validação ligada (sem folgas seguidas nem duas do mesmo setor no mesmo dia). A auditoria passa a cobrar 1 descanso (6×1) quando a 2ª folga está desligada, e o app não pede mais a 2ª folga nesse caso. Só o Encarregados. ATENÇÃO MANUS: a QUANTIDADE de folgas passou a ser controlada por um sinalizador novo e separado (cfg.umaFolgaSemana), e o sinalizador do Manus (cfg.desativarSegundaFolga = VALIDAÇÃO) foi preservado intacto; a caixa liga/desliga os dois juntos, e a validação do 5×2 (V360/V227) continua funcionando quando há 2 folgas. Desenvolvido com TDD.
 V228 [Manus] — 📅 5×2: VALIDAÇÃO OPCIONAL DA 2ª FOLGA: com a caixa marcada, a validação fica desligada; desmarcada, impede folgas consecutivas e duas pessoas do mesmo setor de folga no mesmo dia. Domingo é exceção. A escolha fica no aparelho e no histórico mensal.
 V227 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — NÃO CASA FOLGAS SEGUIDAS E ESPALHA (pedido do Gerente, igual à Escala
@@ -2216,7 +2223,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V229 · Desativar a 2ª folga = 6×1 (1 folga por semana)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V230 · App instalável (PWA): manifesto, service worker e ícones</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
