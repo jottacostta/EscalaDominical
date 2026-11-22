@@ -17,8 +17,8 @@ O teste automático (`testes/rodar.js`) confere se este arquivo cita a versão a
 
 | App | Versão atual (arquivo na raiz) | Link fixo |
 |---|---|---|
-| Escala de Setores | `Escala_de_Setores_V361.html` | `setores/index.html` (cópia idêntica) |
-| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V230.html` | `encarregados/index.html` (cópia idêntica) |
+| Escala de Setores | `Escala_de_Setores_V362.html` | `setores/index.html` (cópia idêntica) |
+| Escala 2×1 de Encarregados | `Escala_2x1_encarregados_V231.html` | `encarregados/index.html` (cópia idêntica) |
 
 - **Testes no GitHub:** `.github/workflows/testes.yml` roda a suíte rápida (inclui 50 diálogos/250 turnos por app, com classificação de intenção interna/externa/ambígua/desconhecida), a completa de 12 meses e a bateria exploratória Gabriel de **100 perguntas (50 por app)** via `npm run test:gabriel-100`. O relatório ativo é `testes/relatorio-gabriel-100.json`; `testes/relatorio-gabriel-500.json` é histórico e não representa a bateria atual. Em cada PR, push no `main` e execução manual, o workflow mantém um único job com timeout de 60 minutos e cancelamento de execução obsoleta; após instalar o Playwright, as três etapas continuam mesmo se uma reprovar, para preservar o diagnóstico e o relatório. O resultado aparece na aba **Checks** do PR.
 - **Hierarquia (atualizada em 18/10/2026 — topo do `AGENTS.md`):** JottaCostta é o **Gerente de Projetos**, Manus é o **Coordenador de Projetos**, Claude é o **Encarregado**, ChatGPT/Codex é o **Subencarregado** e Grok é o **Auxiliar de Projeto** (subordinado ao ChatGPT). JottaCostta mantém a decisão e autorização finais.
@@ -202,6 +202,12 @@ As camadas mais novas ficam por último e podem "embrulhar" funções antigas: g
 ---
 
 ## 5. Diário (mais novo primeiro)
+
+### 2026-11-22 — Aviso "Instalar agora" na tela (PWA) nas duas escalas — Setores V362, Encarregados V231 — Claude
+- **Contexto:** pedido do Gerente — o app já era instalável (V230/V361), mas faltava um AVISO na tela perguntando se quer instalar agora (antes só pelo menu do Chrome).
+- **O que mudou:** um banner "📲 Instalar o app no celular?" aparece quando o Android avisa que dá para instalar (evento `beforeinstallprompt`), com "Instalar agora" (abre a instalação na hora) e "Agora não" (dispensa e lembra no aparelho, `localStorage` `pwaInstalarDispensado`). Tudo por JavaScript, criado na hora (sem HTML fixo); só roda em http/https (em `file://` fica inerte, não atrapalha os testes). Nada muda na escala.
+- **Testes:** `testarPwaInstalavel` passou a conferir (V231/V362) que o HTML tem o `beforeinstallprompt` e os botões "Instalar agora"/"Agora não". O comportamento (aparecer, instalar, dispensar, não encher de novo) foi validado servindo o app por http e disparando um `beforeinstallprompt` sintético.
+- **Para quem continuar:** Encarregados V231 e Setores V362. Manuais no Claude Docs ainda pendentes de prints (app instalável, 6×1, aviso de instalar).
 
 ### 2026-11-22 — Encarregados 6×1 (1 folga por semana) + PWA instalável nas duas escalas — Setores V361, Encarregados V229–V230 — Claude
 - **Contexto:** pedido do Gerente. (1) Nas telas de dezembro/2026 apareciam "folgas em excesso" no Encarregados (2 folgas por semana no 5×2, que amontoavam). (2) O app não instalava como PWA no Android (só "criar atalho").
