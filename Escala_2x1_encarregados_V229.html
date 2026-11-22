@@ -11210,6 +11210,7 @@ function perguntarOrientacaoImpressao(cb){
     return !(domingosAtuais()[dom.getDate()]||[]).map(Number).includes(Number(i)); // vale a escala do domingo, não a folga fixa
   }
   const descansosSemana=()=>(!SETORES&&cfg.umaFolgaSemana!==false)?1:parametros('5x2').descansos;   // V229: umaFolgaSemana -> 1 descanso/semana (6x1); 2ª folga ligada -> 2 (5x2)
+  const maxSeguidosRegime=(k)=>{const regDia=baseRegime(k);return (!SETORES&&cfg.umaFolgaSemana!==false&&regDia==='5x2')?parametros('6x1').maxSeguidos:parametros(regDia).maxSeguidos;};   // V229: com 1 folga/semana no Encarregados o limite é o do 6×1 (6 dias) — igual na geração e na auditoria, para não entrar folga a mais à toa
   const alvoSemana=(i,sem,cct)=>cct?1:Math.max(0,descansosSemana()-(domingoDeFolga(i,sem)?1:0));
   // V199: a folga compensatória do feriado é folga a mais; não conta como descanso da semana.
   // V321/V201: feriado (seg–sáb) em que a pessoa não trabalha — é descanso a mais, não conta nas 2 folgas da semana.
@@ -11245,7 +11246,7 @@ function perguntarOrientacaoImpressao(cb){
     for(let dt=new Date(ini);dt<=sem[6];dt.setDate(dt.getDate()+1)){
       const k=dataKey(dt);
       if(descansoMemo(i,dt)||pessoaDesignadas.has(k)||escolhidas.has(k)){seq=0;continue;}
-      seq++;if(dt>=sem[0]&&seq>parametros(baseRegime(k)).maxSeguidos)excesso++;
+      seq++;if(dt>=sem[0]&&seq>maxSeguidosRegime(k))excesso++;
     }
     return {excesso,final:seq};
   }
@@ -11393,7 +11394,7 @@ function perguntarOrientacaoImpressao(cb){
       let seq=0;const primeiro=esperadas[0]?.[0]||semanas[0]?.[0];if(!primeiro)return;
       const ini=new Date(primeiro);ini.setDate(ini.getDate()-6);const fim=semanas.at(-1)?.[6]||primeiro;
       for(let dt=new Date(ini);dt<=fim;dt.setDate(dt.getDate()+1)){
-        const regDia=baseRegime(dataKey(dt)),lim=(!SETORES&&cfg.umaFolgaSemana!==false&&regDia==='5x2')?parametros('6x1').maxSeguidos:parametros(regDia).maxSeguidos; // V199/V229: uma folga por semana no 5x2 -> limite 6x1 (ate 6 dias seguidos)
+        const lim=maxSeguidosRegime(dataKey(dt)); // V199/V229: uma folga por semana no Encarregados -> limite 6x1 (ate 6 dias seguidos)
         const trabalha=trabalhandoNoPlano(plano,i,dt);
         if(trabalha){seq++;if(seq>lim)add(`${f?.nome||'Pessoa '+(i+1)}: ${seq} dias seguidos na fronteira ${dataKey(dt)} (máximo ${lim}).`);}else seq=0;
       }
