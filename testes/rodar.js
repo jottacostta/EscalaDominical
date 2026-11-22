@@ -2075,6 +2075,7 @@ async function testarModeloEscala(browser, app, nome, abrir, versaoMin){   // V3
   console.log('\n▶ ' + nome + ' — 📅 modelo da escala: 6×1 ou 5×2 de 01/11 a 15/12/2026');
   const { p, erros } = await novaPagina(browser);
   await p.goto('file://' + app); await p.waitForTimeout(1200); await p.evaluate(() => { window.__v322Manual = true; }); await abrir(p); await p.waitForTimeout(800);
+  if(nome==='Encarregados') await p.evaluate(()=>{ try{ window.motor5x2?.configurar?.({umaFolgaSemana:false}); window.__v323Manual=true; window.v323Folga2?.sugerir?.(equipe.slice()); }catch(e){} });   // V229: por padrão o Encarregados usa 1 folga (6×1); este teste confere o 5×2 (2 folgas). umaFolgaSemana controla a quantidade, sem ligar a validação.
   const clicarGerar = () => p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click(); return !!document.getElementById('v322Janela'); });
   const esperarPlano = async () => { for(let w = 0; w < 160; w++){ await p.waitForTimeout(250); if(await p.evaluate(() => !!window.motor5x2?.plano?.())) break; } await p.waitForTimeout(400); };
   const medir = () => p.evaluate(() => { const plano = window.motor5x2?.plano?.(); if(!plano) return { plano: false };
@@ -2121,6 +2122,7 @@ async function testarSegundaFolga(browser, app, nome, abrir, versaoMin){   // V3
   const { p, erros } = await novaPagina(browser);
   await p.goto('file://' + app); await p.waitForTimeout(1200); await p.evaluate(() => { window.__v323Manual = true; }); await abrir(p); await p.waitForTimeout(800);
   await mudarMes(p, 0, 2027); await p.waitForTimeout(700);
+  if(nome==='Encarregados') await p.evaluate(()=>{ try{ window.motor5x2?.configurar?.({umaFolgaSemana:false}); }catch(e){} });   // V229: por padrão o Encarregados usa 1 folga (6×1); este teste confere que o 5×2 pede a 2ª folga. umaFolgaSemana controla a quantidade, sem ligar a validação.
   const j = await p.evaluate(() => { document.querySelectorAll('.settings-backdrop').forEach(x => x.hidden = true); (window.v45GotoStep || window.v80GotoStep)?.(5, false); document.getElementById('btnGerar').click();
     const jan = document.getElementById('v323Janela'); return { abriu: !!jan, falta: +(((jan?.innerText || '').match(/Faltam (\d+)/) || [])[1] || 0), salvarOff: !!document.getElementById('v323Salvar')?.disabled, gerou: !!window.motor5x2?.plano?.() }; });
   ok(j.abriu && j.falta > 0 && j.salvarOff, nome + ': antes de gerar janeiro/2027 (5×2) o app pede a 2ª folga fixa de quem está sem (faltam ' + j.falta + '; “Salvar” só libera com todos)');
