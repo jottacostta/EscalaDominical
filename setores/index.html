@@ -13,10 +13,11 @@
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Escala de Setores — V361</title>
+<title>Escala de Setores — V362</title>
 <!-- V176: V175 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança nos dois fluxos: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- V177: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. A classificação é derivada e o cargo ERP original permanece intacto. Caixa Geral continua Encarregada; Aux. Caixa Geral não é liderança. -->
 <!-- HISTÓRICO DE VERSÕES (toda alteração gera nova versão
+V362 [Claude] — ⚖️ REGIME COMPENSATÓRIO MENSAL (Portaria MTE 2.041/2026, EC 141): base legal preparada e DESLIGADA por padrão. O app passa a calcular o MÍNIMO de folgas que cada mês exige (dias do mês × 2 ÷ 7, arredondado pra cima: 9 na maioria dos meses, 8 no fevereiro de 28 dias), com teto de 6 dias seguidos de trabalho e domingo de folga pelo menos 1x a cada 3 semanas no comércio. Nova função window.v362Compensatorio (minimoFolgasMes, domingosDoMes, verificar) e o Gabriel responde "quantas folgas o mês precisa". Ligar este regime no gerador é a próxima etapa. Mesma adição na Escala de Encarregados (V231).
 V361 [Claude] — 📲 APP INSTALÁVEL (PWA) (pedido do Gerente): a Escala de Setores agora pode ser INSTALADA pelo Chrome do Android (antes só dava "criar atalho"). Foram adicionados, ao lado do index.html, um manifesto (manifest.webmanifest), um service worker (sw.js, que guarda o app para abrir offline) e ícones 192/512 (inclusive maskable). O HTML passou a apontar para o manifesto e a registrar o service worker. Nada muda na escala em si; é só a "casca" do app. Mesma adição feita na Escala de Encarregados (V230).
 V360 [Claude] — 📅 5×2: SUGESTÃO DA 2ª FOLGA — ESPALHA PELO SETOR E NÃO CASA FOLGAS SEGUIDAS (pedido do Gerente): no
        "🪄 Sugerir" da 2ª folga fixa (5×2): (1) NÃO escolhe mais o mesmo dia para duas pessoas do mesmo setor —
@@ -3133,7 +3134,7 @@ table.v292-tab-mes td.v292-comp,table.v292-tab td.v292-comp{background:#7c3aed;c
   <hr>
   <button type="button" role="menuitem" data-action="reset"><span class="mi">🔄</span> Recomeçar do zero</button>
 <button type="button" role="menuitem" data-v202="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V361 · App instalável (PWA): manifesto, service worker e ícones</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V362 · Regime compensatório mensal (Portaria 2.041/2026) — base legal, desligado por padrão</div>
 </nav>
 
 <div class="stepper" role="tablist" aria-label="Etapas da escala">
@@ -16576,7 +16577,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
     const r=Object.assign({},PADRAO);
     if(!o||typeof o!=='object'||Array.isArray(o)) return r;
     if(o.ativo===true) r.ativo=true;
-    if(o.regime==='5x2'||o.regime==='6x1') r.regime=o.regime;
+    if(o.regime==='5x2'||o.regime==='6x1'||o.regime==='compensatorio') r.regime=o.regime;   // V362: regime compensatório mensal (Portaria 2.041/2026)
     if(intOk(o.maxSeguidos)) r.maxSeguidos=o.maxSeguidos;
     if(typeof o.vigenciaInicio==='string'&&dataOk(o.vigenciaInicio)) r.vigenciaInicio=o.vigenciaInicio;
     if(typeof o.definidoEm==='string'&&o.definidoEm.length<=40) r.definidoEm=o.definidoEm;
@@ -16598,7 +16599,7 @@ $('btnGerarFinal')?.addEventListener('click', e => { e.preventDefault(); $('btnG
   function resumo(){
     const e=cfg;
     if(!e.ativo) return 'Regime em vigor: <b>6×1</b> (no máximo 6 dias seguidos de trabalho). A <b>5×2</b> está preparada mas <b>desligada</b>: só será ligada pelo gerente depois que o texto legal e a data de vigência forem confirmados.';
-    return `Regime em vigor: <b>${e.regime==='5x2'?'5×2':'6×1'}</b> — no máximo <b>${e.maxSeguidos}</b> dia(s) seguido(s) de trabalho${e.vigenciaInicio?`, a partir de <b>${e.vigenciaInicio.split('-').reverse().join('/')}</b>`:''}. Ligado pelo gerente.`;
+    return `Regime em vigor: <b>${e.regime==='compensatorio'?'compensatório mensal':e.regime==='5x2'?'5×2':'6×1'}</b> — no máximo <b>${e.maxSeguidos}</b> dia(s) seguido(s) de trabalho${e.vigenciaInicio?`, a partir de <b>${e.vigenciaInicio.split('-').reverse().join('/')}</b>`:''}. Ligado pelo gerente.`;
   }
   window.v274Regime={estado,configurar,restaurar,maxSeguidos,resumo};
 
@@ -19202,6 +19203,99 @@ window.v341Regime=(function(){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',montarCard);
   else montarCard();
+})();
+</script>
+<script>
+/* ═════ V362 — ⚖️ REGIME COMPENSATÓRIO MENSAL (Portaria MTE 2.041/2026, EC 141) — base legal, DESLIGADO por padrão ═════
+   Não muda o motor nem as regras atuais: só acrescenta o cálculo do MÍNIMO de folgas que o mês exige e um verificador,
+   além da resposta do Gabriel. Ligar este regime no gerador é a próxima etapa (coordenação Manus). */
+(function(){
+  'use strict';
+  /* Núcleo legal do regime compensatório mensal — Portaria MTE nº 2.041/2026 (DOU 23/11/2026).
+     Art. 4º §4: mínimo de folgas no mês = teto((dias do mês × 2) / 7).
+     Art. 4º §3: no máximo 6 dias seguidos de trabalho.
+     Art. 5º §4: comércio — domingo de folga pelo menos 1x a cada 3 semanas.
+     Art. 12 §4: semana = segunda a domingo. */
+
+  function minimoFolgasMes(diasNoMes){
+    var n = Number(diasNoMes);
+    if(!Number.isFinite(n) || n < 28 || n > 31) return 0;
+    return Math.ceil((n * 2) / 7);
+  }
+  function diasNoMes(ano, mes0){ return new Date(ano, mes0 + 1, 0).getDate(); }
+  function minimoFolgasMesData(ano, mes0){ return minimoFolgasMes(diasNoMes(ano, mes0)); }
+  function domingosDoMes(ano, mes0){
+    var dias = diasNoMes(ano, mes0), doms = [];
+    for(var d = 1; d <= dias; d++) if(new Date(ano, mes0, d).getDay() === 0) doms.push(d);
+    return doms;
+  }
+
+  /* Verificador independente de uma distribuição de folgas (dias 1..n que são folga). */
+  function verificar(folgas, totalDias, opts){
+    opts = opts || {};
+    var maxSeguidos = opts.maxSeguidos != null ? opts.maxSeguidos : 6;
+    var antes = opts.diasTrabalhadosAntes != null ? opts.diasTrabalhadosAntes : 0;
+    var domingos = opts.domingos || [];
+    var exigeComercio = opts.exigeComercio !== false;
+    var set = new Set((folgas || []).map(Number));
+    var erros = [];
+    var min = minimoFolgasMes(totalDias);
+
+    if(set.size < min) erros.push('Folgas no mês: ' + set.size + '; mínimo legal: ' + min + '.');
+
+    var seq = antes, pior = antes;
+    for(var d = 1; d <= totalDias; d++){
+      if(set.has(d)){ seq = 0; }
+      else { seq++; if(seq > pior) pior = seq;
+             if(seq > maxSeguidos){ erros.push('Dia ' + d + ': ' + seq + ' dias seguidos de trabalho (máx. ' + maxSeguidos + ').'); break; } }
+    }
+
+    if(exigeComercio && domingos.length >= 3){
+      for(var i = 0; i + 2 < domingos.length; i++){
+        var j = [domingos[i], domingos[i + 1], domingos[i + 2]];
+        if(!j.some(function(dom){ return set.has(Number(dom)); }))
+          erros.push('Domingos ' + j.join('/') + ': 3 semanas sem domingo de folga (comércio).');
+      }
+    }
+    return { ok: erros.length === 0, erros: erros, minimo: min, total: set.size, piorSequencia: pior };
+  }
+
+  window.v362Compensatorio = {
+    portaria: 'MTE nº 2.041/2026',
+    minimoFolgasMes: minimoFolgasMes,
+    minimoFolgasMesData: minimoFolgasMesData,
+    diasNoMes: diasNoMes,
+    domingosDoMes: domingosDoMes,
+    verificar: verificar
+  };
+
+  /* Gabriel: "quantas folgas o mês precisa?" / "o que muda com a portaria / regime compensatório?" */
+  try{
+    var base = window.v265Chat, I = base && base.interno;
+    if(base && I && typeof base.responder === 'function'){
+      var anterior = base.responder;
+      var tem = I.tem;
+      base.responder = function(texto){
+        try{
+          var G = window.v270Gabriel;
+          var n = G && G.entender ? G.entender(texto) : null;
+          var qn = (n && n.qn) || (texto || '').toLowerCase();
+          var falaFolgaMes = tem ? (tem(qn, 'folga', 'folgas') && tem(qn, 'mes', 'mês', 'mensal') && tem(qn, 'minimo', 'mínimo', 'precisa', 'exige', 'quantas', 'lei', 'portaria')) : false;
+          var falaPortaria = /portaria|2\.?041|compensat/.test(qn);
+          if(qn && (falaPortaria || falaFolgaMes)){
+            var hoje = new Date();
+            var minMes = minimoFolgasMesData(hoje.getFullYear(), hoje.getMonth());
+            return '⚖️ Pela Portaria MTE 2.041/2026 (EC 141), o repouso passou a ser de 2 dias por semana. '
+              + 'Pode distribuir as folgas de forma desigual nas semanas, desde que o MÊS feche pelo menos '
+              + '<b>' + minMes + ' folgas</b> (conta: dias do mês × 2 ÷ 7, arredondado pra cima), '
+              + 'nunca passe de <b>6 dias seguidos</b> de trabalho, e caia <b>domingo de folga</b> pelo menos 1 vez a cada 3 semanas (comércio). '
+              + 'Obs.: este regime está preparado e <b>desligado</b> por padrão — só o gerente liga, depois de confirmada a convenção (CCT).';
+          }
+        }catch(e){ console.warn('[V362]', e); }
+        return anterior(texto);
+      };
+    }
+  }catch(e){}
 })();
 </script>
 </body>
