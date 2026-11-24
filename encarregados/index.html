@@ -13,10 +13,11 @@
 <meta name="apple-mobile-web-app-title" content="Encarregados">
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V232</title>
+<title>Escala 2×1 — Encarregados V233</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V233 [Claude] — 🤝 DUPLA DO DOMINGO, ajuste de precisão (Encarregados): o bônus agora premia o setor âncora (Açougue) só quando ele é a 2ª ÂNCORA — o complementar Enc/Sub do Laticínio —, e não quando cai na 3ª vaga que roda. Assim o par do domingo é sempre Laticínio + Açougue como dupla Enc+Sub: Laticínio Enc (ex.: Maria) → Açougue Sub; Laticínio Sub (ex.: Cintia) → Açougue Enc (ex.: William). Se o Açougue não puder como complementar naquele domingo, ninguém ganha o bônus e o motor abre a vaga sozinho (fallback). Corrige a V232, que premiava o Açougue em qualquer das 3 vagas.
 V232 [Claude] — 🤝 DUPLA DO DOMINGO (Encarregados): no Automático, o Laticínio passa a entrar sempre junto com um setor âncora — de fábrica o Açougue —, e a 3ª vaga roda entre os outros disponíveis. É PREFERÊNCIA FORTE, não trava: 2×1, "nunca 3 domingos seguidos", os 3 setores diferentes e 1 Enc + 1 Sub continuam acima de tudo; se o setor âncora não puder num domingo, o motor abre a vaga sozinho (fallback automático). Configurável em ⚙️ Configurações → Mais opções → 🤝 Dupla do domingo (window.encSetorAncoraDomingo). Empilhado sobre a V231 (regime compensatório).
 V231 [Claude] — ⚖️ REGIME COMPENSATÓRIO MENSAL (Portaria MTE 2.041/2026, EC 141): base legal preparada e DESLIGADA por padrão. O app passa a calcular o MÍNIMO de folgas que cada mês exige (dias do mês × 2 ÷ 7, arredondado pra cima: 9 na maioria dos meses, 8 no fevereiro de 28 dias), com teto de 6 dias seguidos de trabalho e domingo de folga pelo menos 1x a cada 3 semanas no comércio. Nova função window.v362Compensatorio (minimoFolgasMes, domingosDoMes, verificar) e o Gabriel responde "quantas folgas o mês precisa". Ligar este regime no gerador é a próxima etapa. Mesma adição na Escala de Setores (V362).
 V230 [Claude] — 📲 APP INSTALÁVEL (PWA) (pedido do Gerente): a Escala de Encarregados agora pode ser INSTALADA pelo Chrome do Android (antes só dava "criar atalho"). Foram adicionados, ao lado do index.html, um manifesto (manifest.webmanifest), um service worker (sw.js, que guarda o app para abrir offline) e ícones 192/512 (inclusive maskable). O HTML passou a apontar para o manifesto e a registrar o service worker. Nada muda na escala em si; é só a "casca" do app. Mesma adição feita na Escala de Setores (V361).
@@ -2225,7 +2226,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V232 · Dupla do domingo: Laticínio + setor âncora (Açougue) no Automático</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V233 · Dupla do domingo: Açougue como 2ª âncora (complementar do Laticínio)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -5051,10 +5052,11 @@ function escolherDomingo(idx,base,todas){
           score-=(domAno[k]||0)*30;
         });
 
-        // V232: 🤝 dupla do domingo — o Laticínio entra junto com um setor âncora (de fábrica, Açougue).
-        // Preferência FORTE, mas só entre trios JÁ válidos: se nenhum trio viável tiver o setor âncora
-        // (ex.: o Açougue não pode neste domingo), nenhum ganha o bônus e o motor abre a vaga sozinho.
-        try{ const _anc=(window.encSetorAncoraDomingo&&window.encSetorAncoraDomingo.get)?window.encSetorAncoraDomingo.get():''; if(_anc && grupo.some(i=>setor(equipe[i])===_anc)) score+=20000; }catch(_e){}
+        // V233: 🤝 dupla do domingo — o par âncora Laticínio + setor âncora (de fábrica, Açougue) é a dupla Enc+Sub.
+        // 'lider' é a 2ª âncora, sempre o tipo OPOSTO do laticínio da vez: Lat enc → açougue sub; Lat sub → açougue enc.
+        // Premiar só quando a 2ª âncora é do setor âncora (NÃO a 3ª vaga, que roda). Preferência FORTE, mas só entre
+        // trios JÁ válidos: se o setor âncora não puder como complementar neste domingo, ninguém ganha o bônus e o motor abre sozinho.
+        try{ const _anc=(window.encSetorAncoraDomingo&&window.encSetorAncoraDomingo.get)?window.encSetorAncoraDomingo.get():''; if(_anc && setor(equipe[lider])===_anc) score+=20000; }catch(_e){}
 
         // Pequena preferência pelo líder que aparece primeiro na equipe e,
         // em seguida, pela terceira pessoa que aparece primeiro.
