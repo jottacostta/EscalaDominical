@@ -13,10 +13,11 @@
 <meta name="apple-mobile-web-app-title" content="Encarregados">
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 <!-- V82: correção da validação de navegação; usa o estado global real `equipe`, não `window.equipe`. -->
-<title>Escala 2×1 — Encarregados V233</title>
+<title>Escala 2×1 — Encarregados V234</title>
 <!-- V129: V128 + separação funcional de Caixa Geral e Auxiliar de Caixa Geral de equiparados a liderança: Assist de CPD e Caixa Geral = Encarregado; Aux de CPD = Subencarregado. Cargo ERP permanece original. -->
 <!-- V130: Assistente de CPD = Encarregado; Aux. Proc. de Dados = Subencarregado. Cargo ERP permanece original; equiparação é derivada. -->
 <!-- HISTÓRICO DE VERSÕES
+V234 [Claude] — 🗂️ HISTÓRICO COM AS 2 ÚLTIMAS ESCALAS (Encarregados): o 💾 "Salvar histórico do mês" passa a guardar, além do mês atual, a escala do mês ANTERIOR (campo registrosPainel = [anterior, atual]). Ao abrir o histórico, as duas escalas entram no cache do painel (window.encFeedRegistrosPainel → dbGuardarRegistro), então o cartão "Esta semana / próximos 7 dias" continua funcional na virada do mês mesmo quando só se tem o arquivo (aparelho novo, app limpo). Additivo e compatível: arquivos antigos de 1 mês só continuam abrindo normalmente. Teste testarHistoricoDoisMeses.
 V233 [Claude] — 🤝 DUPLA DO DOMINGO, ajuste de precisão (Encarregados): o bônus agora premia o setor âncora (Açougue) só quando ele é a 2ª ÂNCORA — o complementar Enc/Sub do Laticínio —, e não quando cai na 3ª vaga que roda. Assim o par do domingo é sempre Laticínio + Açougue como dupla Enc+Sub: Laticínio Enc (ex.: Maria) → Açougue Sub; Laticínio Sub (ex.: Cintia) → Açougue Enc (ex.: William). Se o Açougue não puder como complementar naquele domingo, ninguém ganha o bônus e o motor abre a vaga sozinho (fallback). Corrige a V232, que premiava o Açougue em qualquer das 3 vagas.
 V232 [Claude] — 🤝 DUPLA DO DOMINGO (Encarregados): no Automático, o Laticínio passa a entrar sempre junto com um setor âncora — de fábrica o Açougue —, e a 3ª vaga roda entre os outros disponíveis. É PREFERÊNCIA FORTE, não trava: 2×1, "nunca 3 domingos seguidos", os 3 setores diferentes e 1 Enc + 1 Sub continuam acima de tudo; se o setor âncora não puder num domingo, o motor abre a vaga sozinho (fallback automático). Configurável em ⚙️ Configurações → Mais opções → 🤝 Dupla do domingo (window.encSetorAncoraDomingo). Empilhado sobre a V231 (regime compensatório).
 V231 [Claude] — ⚖️ REGIME COMPENSATÓRIO MENSAL (Portaria MTE 2.041/2026, EC 141): base legal preparada e DESLIGADA por padrão. O app passa a calcular o MÍNIMO de folgas que cada mês exige (dias do mês × 2 ÷ 7, arredondado pra cima: 9 na maioria dos meses, 8 no fevereiro de 28 dias), com teto de 6 dias seguidos de trabalho e domingo de folga pelo menos 1x a cada 3 semanas no comércio. Nova função window.v362Compensatorio (minimoFolgasMes, domingosDoMes, verificar) e o Gabriel responde "quantas folgas o mês precisa". Ligar este regime no gerador é a próxima etapa. Mesma adição na Escala de Setores (V362).
@@ -2226,7 +2227,7 @@ table.v196-tab td.v196-trab{color:var(--muted,#64748b)}
 <button type="button" role="menuitem" data-action="sobre"><span class="mi">ℹ️</span> Sobre o app</button>
 <hr/>
 <button data-action="reset" role="menuitem" type="button"><span class="mi">🔄</span> Recomeçar do zero</button>
-<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V233 · Dupla do domingo: Açougue como 2ª âncora (complementar do Laticínio)</div>
+<div class="menu-version" style="padding:8px 14px 4px;font-size:11px;color:var(--muted);text-align:right">Versão V234 · Histórico guarda as 2 últimas escalas (painel na virada do mês)</div>
 </nav>
 
 <div aria-label="Etapas da escala" class="stepper" role="tablist">
@@ -3040,6 +3041,7 @@ function aplicarHistoricoArquivo(lido){
      }
      if(!lido || !(Array.isArray(lido.funcionarios)||Array.isArray(lido.funciStatus))) throw new Error('formato');
      historico=lido;
+     try{ window.encFeedRegistrosPainel?.(lido); }catch(e){}   // V234: alimenta o painel com as escalas guardadas (anterior + atual)
      try{ historicoSabados=unirSabados(historicoSabados,acumuladoDe(historico)); }catch(e){}   // V124
       if(historico.trabalhoFeriado) trabalhoFeriado=historico.trabalhoFeriado;
       if(historico.folgasCompensatorias) folgasCompensatorias=migrarFolgasCompensatorias(historico,+$('mes').value,+$('ano').value);
@@ -6786,6 +6788,13 @@ $('btnWhats').onclick=async (ev)=>{
     p.historicoSabados=clone(sabadosCumulativos());
     p.dispensadosBalanco=clone(dispensadosBalanco);
     p.escalaMao=window.v167Exportar?.();   // V167: escala à mão dos domingos
+    try{   // V234: leva as 2 escalas mais recentes (anterior + atual) p/ o painel "Esta semana" funcionar na virada do mês
+      const _mA=Number(val('mes'))||0, _aA=Number(val('ano'))||0;
+      const _atual=window.dbRegistroAtual?.();
+      const _pv=new Date(_aA,_mA,1); _pv.setDate(0);
+      const _ant=window.dbRegistroDoMes?.(_pv.getMonth()+1,_pv.getFullYear());
+      p.registrosPainel=[_ant,_atual].filter(r=>r&&r.id);
+    }catch(e){}
     try{ const a=window.v262Assistente?.exportar?.(); if(a) p.assistente=a; }catch(e){}   // V176: o que o Assistente RH aprendeu vai no histórico
     try{ const r=window.v274Regime?.estado?.(); if(r) p.regime={regime:r.regime,ativo:r.ativo,maxSeguidos:window.v274Regime.maxSeguidos(),vigenciaInicio:r.vigenciaInicio}; }catch(e){}   // V274: só registro do regime do mês
     try{ const m=window.v273Memoria?.exportar?.(); if(m) p.memoriaGabriel=m; }catch(e){}   // V273: memória do Gabriel vai no histórico
@@ -12767,6 +12776,27 @@ window.v210Regime=(function(){
       };
     }
   }catch(e){}
+})();
+</script>
+<script>
+/* ═════ V234 — 🗂️ HISTÓRICO COM AS 2 ÚLTIMAS ESCALAS (painel na virada do mês) ═════ */
+(function(){
+  'use strict';
+  /* V234 — 🗂️ histórico com as 2 últimas escalas: alimenta o painel "Esta semana" com as escalas
+     guardadas no histórico (mês anterior + atual), para a virada do mês continuar fazendo sentido
+     mesmo quando só se tem o arquivo (aparelho novo, app limpo). Additivo e compatível com arquivos
+     antigos de 1 mês só. Chamado pelo aplicarHistoricoArquivo ao abrir um histórico. */
+  window.encFeedRegistrosPainel = function(lido){
+    try{
+      if(!lido || !Array.isArray(lido.registrosPainel)) return 0;
+      var n = 0;
+      lido.registrosPainel.forEach(function(r){
+        if(r && r.id && typeof window.dbGuardarRegistro === 'function'){ window.dbGuardarRegistro(r); n++; }
+      });
+      if(n && typeof window.renderSemana === 'function'){ try{ window.renderSemana(); }catch(e){} }
+      return n;
+    }catch(e){ return 0; }
+  };
 })();
 </script>
 </body>
